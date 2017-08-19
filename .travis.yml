@@ -19,7 +19,10 @@ before_install:
 # This line does all of the work: installs GHC if necessary, builds the
 # library, executables, and test suites, and runs the test suites.
 # `--no-terminal works` around some quirks in Travis's terminal implementation.
-script: stack --no-terminal --install-ghc test
+script: 
+- stack setup 
+- stack install filepath directory 
+- stack ghc -- hs-init.hs
 
 # Caching so the next build will be fast too.
 cache:
