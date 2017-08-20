@@ -69,7 +69,7 @@ generateProject owner repo description = do
   nm    <- queryDef "Author: " defaultName
   email    <- queryDef "Maintainer e-mail: " defaultEmail
   mapM_ putStrLn [
-    "Here are some categories:",
+    "List of categories to choose from:",
     "",
     "  * Control                    * Concurrency",
     "  * Codec                      * Graphics",
@@ -92,6 +92,14 @@ generateProject owner repo description = do
 
   let license = if licenseCabal == "PublicDomain" then "CC0" else licenseCabal
 
+  -- Library or Executable flags
+  (isLib, isExe) <- do
+    ch <- choose "Library or Executable?" ["both", "lib", "exe"]
+    case ch of
+      "lib"  -> pure (True, False)
+      "exe"  -> pure (False, True)
+      "both" -> pure (True, True)
+
   putStrLn "Latest GHCs: 7.0.4 7.2.2 7.4.2 7.6.3 7.8.4 7.10.3 8.0.1"
   -- TODO: once GHC 7.8 is dropped, switch to <$>
   testedVersions <- words `fmap`
@@ -111,7 +119,7 @@ generateProject owner repo description = do
   longDescription <-
     queryDef "  Add longer description?" description
   -- create haskell template
-  writeFile "temp.hsfiles" $ createStackTemplate repo owner longDescription license nm email category testedVersions baseVer
+  writeFile "temp.hsfiles" $ createStackTemplate repo owner longDescription license nm email category testedVersions baseVer isExe isLib
   -- create new project with stack
   "stack" ["new", repo, "temp.hsfiles"]
   -- do not need template file anymore
@@ -183,9 +191,6 @@ queryUniqueName = do
   else
     pure repName
 
-(==>) :: a -> b -> (a, b)
-(==>) = (,)
-
 (~==), (=~=) :: String -> String -> Bool
 (~==) = isPrefixOf
 (=~=) = isInfixOf
@@ -214,12 +219,14 @@ createStackTemplate :: String  -- ^ repository name
                     -> String  -- ^ project category
                     -> [String]  -- ^ ghc versions
                     -> String  -- ^ base version
+                    -> Bool    -- ^ is executable
+                    -> Bool    -- ^ is library
                     -> String  -- ^ template
-createStackTemplate repo owner description license nm email cat testedVersions baseVer =
-  createCabalTop   ++
-  createCabalLib   ++
-  createCabalExe   ++
-  createCabalTest  ++
+createStackTemplate repo owner description license nm email cat testedVersions baseVer isExe isLib =
+  createCabalTop ++
+  (if isLib then createCabalLib  else "") ++
+  (if isExe then createCabalExe  else "") ++
+  (if isLib then createCabalTest else "") ++
   createCabalGit   ++
   createCabalFiles ++
   readme           ++
@@ -275,7 +282,7 @@ createStackTemplate repo owner description license nm email cat testedVersions b
     printf "executable %s" repo,
     "  hs-source-dirs:      app",
     "  main-is:             Main.hs",
-    "  ghc-options:         -Wall -Werror -threaded -rtsopts -with-rtsopts=-N",
+    "  ghc-options:         -Wall -threaded -rtsopts -with-rtsopts=-N",
     "  build-depends:       base",
     printf "                     , %s" repo,
     "  default-language:    Haskell2010",
@@ -304,15 +311,28 @@ createStackTemplate repo owner description license nm email cat testedVersions b
     ]
 
   createCabalFiles :: String
-  createCabalFiles = unlines [
+  createCabalFiles = 
+    createSetup ++
+    (if isExe then createExe else "") ++ 
+    (if isLib then createLib ++ createTest else "")
+
+  createSetup :: String
+  createSetup = unlines [
     "{-# START_FILE Setup.hs #-}",
     "import Distribution.Simple",
     "main = defaultMain",
-    "",
+    ""
+    ]
+  createTest :: String
+  createTest = unlines [
     "{-# START_FILE test/Spec.hs #-}",
     "main :: IO ()",
     "main = putStrLn \"Test suite not yet implemented\"",
-    "",
+    ""
+    ]
+  
+  createLib :: String
+  createLib = unlines [
     "{-# START_FILE src/Lib.hs #-}",
     "module Lib",
     "    ( someFunc",
@@ -320,7 +340,11 @@ createStackTemplate repo owner description license nm email cat testedVersions b
     "",
     "someFunc :: IO ()",
     "someFunc = putStrLn \"someFunc\"",
-    "",
+    ""
+    ]
+
+  createExe :: String
+  createExe = unlines [
     "{-# START_FILE app/Main.hs #-}",
     "module Main where",
     "",
