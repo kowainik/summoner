@@ -10,17 +10,17 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeFamilies        #-}
 
-import           Data.Aeson       (FromJSON(..), withObject, (.:), decodeStrict)
+import           Control.Monad         (when)
+import           Data.Aeson            (FromJSON (..), decodeStrict, withObject, (.:))
 import           Data.ByteString.Char8 (pack)
-import           Control.Monad    (when)
-import           Data.List        (intercalate, isInfixOf, isPrefixOf, nub)
-import           Data.String      (IsString (..))
-import           System.Directory (doesPathExist, getCurrentDirectory,
-                                   setCurrentDirectory)
-import           System.Exit      (ExitCode (..))
-import           System.FilePath  ((</>))
-import           System.Process   (readProcess, showCommandForUser, system)
-import           Text.Printf      (printf)
+import           Data.List             (intercalate, isInfixOf, isPrefixOf, nub)
+import           Data.String           (IsString (..))
+import           System.Directory      (doesPathExist, getCurrentDirectory,
+                                        setCurrentDirectory)
+import           System.Exit           (ExitCode (..))
+import           System.FilePath       ((</>))
+import           System.Process        (readProcess, showCommandForUser, system)
+import           Text.Printf           (printf)
 
 -----------------------
 ------ Settings -------
@@ -40,6 +40,9 @@ defaultLicense = "MIT"
 
 defaultGHC :: String
 defaultGHC = "8.0.1"
+
+defaultYear :: String
+defaultYear = "2017"
 
 --------------------------
 --------- Script ---------
@@ -90,12 +93,13 @@ generateProject owner repo description = do
   license <- choose "License: "
     (nub (defaultLicense : licenseNames))
 
+  -- License creation
   let licenseGithub = snd $ head $ dropWhile ((/= license) . fst) $ zip licenseNames githubLicenseQueryNames
   let licenseLink  = "https://api.github.com/licenses/" ++ licenseGithub
   licenseJson <- readProcess "curl" [licenseLink, "-H", "Accept: application/vnd.github.drax-preview+json"] ""
   let licenseTxt =
        case (decodeStrict $ pack licenseJson) :: Maybe License of
-           Just t  -> licenseText t
+           Just t  -> customizeLicense license (licenseText t) nm
            Nothing -> ""
 
   -- Library or Executable flags
@@ -150,6 +154,18 @@ data License = License { licenseText :: String }
 
 instance FromJSON License where
   parseJSON = withObject "License" $ \o -> License <$> o .: "body"
+
+customizeLicense :: String -> String -> String -> String
+customizeLicense l t nm
+  | l `elem` words "MIT BSD2 BSD3" = updateLicenseText
+  | otherwise = t
+ where
+  updateLicenseText =
+    let (beforeY, withY) = span (/= '[') t
+        afterY = tail $ dropWhile (/= ']') withY
+        (beforeN, withN) = span (/= '[') afterY
+        afterN = tail $ dropWhile (/= ']') withN in
+    beforeY ++ defaultYear ++ beforeN ++ nm ++ afterN
 
 -- TODO: once GHC 7.6 is dropped, just use callCommand
 callCommand' :: String -> IO ()
@@ -271,7 +287,7 @@ createStackTemplate repo owner description license licenseText nm email cat test
     "license-file:        LICENSE",
     printf "author:              %s" nm,
     printf "maintainer:          %s" email,
-    printf "copyright:           2017 %s" nm,
+    printf "copyright:           %s %s" defaultYear nm,
     printf "category:            %s" cat,
     "build-type:          Simple",
     "extra-source-files:  README.md",
@@ -329,9 +345,9 @@ createStackTemplate repo owner description license licenseText nm email cat test
     ]
 
   createCabalFiles :: String
-  createCabalFiles = 
+  createCabalFiles =
     createSetup ++
-    (if isExe then createExe else "") ++ 
+    (if isExe then createExe else "") ++
     (if isLib then createLib ++ createTest else "")
 
   createSetup :: String
@@ -348,7 +364,7 @@ createStackTemplate repo owner description license licenseText nm email cat test
     "main = putStrLn \"Test suite not yet implemented\"",
     ""
     ]
-  
+
   createLib :: String
   createLib = unlines [
     "{-# START_FILE src/Lib.hs #-}",
