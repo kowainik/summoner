@@ -94,13 +94,13 @@ generateProject owner repo description = do
     (nub (defaultLicense : licenseNames))
 
   -- License creation
-  let licenseGithub = snd $ head $ dropWhile ((/= license) . fst) $ zip licenseNames githubLicenseQueryNames
+  let licenseGithub = snd $ head $ dropWhile ((/= license) . fst) githubLicenseQueryNames
   let licenseLink  = "https://api.github.com/licenses/" ++ licenseGithub
   licenseJson <- readProcess "curl" [licenseLink, "-H", "Accept: application/vnd.github.drax-preview+json"] ""
   let licenseTxt =
        case (decodeStrict $ pack licenseJson) :: Maybe License of
            Just t  -> customizeLicense license (licenseText t) nm
-           Nothing -> ""
+           Nothing -> error "Broken predefined license list"
 
   -- Library or Executable flags
   (isLib, isExe) <- do
@@ -141,16 +141,23 @@ generateProject owner repo description = do
 ----------------------------------
 
 licenseNames :: [String]
-licenseNames = words "MIT BSD2 BSD3 GPL-3\
-                    \ GPL-2 LGPL-2.1 LGPL-3\
-                    \ AGPL-3 Apache-2.0 MPL-2.0"
+licenseNames = map fst githubLicenseQueryNames
 
-githubLicenseQueryNames :: [String]
-githubLicenseQueryNames = words "mit bsd-2-clause bsd-3-clause\
-                               \ gpl-3.0 gpl-2.0 lgpl-2.1 lgpl-3.0\
-                               \ agpl-3.0 apache-2.0 mpl-2.0"
+githubLicenseQueryNames :: [(String, String)]
+githubLicenseQueryNames = 
+  [ ("MIT",        "mit")
+  , ("BSD2",       "bsd-2-clause")
+  , ("BSD3",       "bsd-3-clause")
+  , ("GPL-2",      "gpl-2.0")
+  , ("GPL-3",      "gpl-3.0")
+  , ("LGPL-2.1",   "lgpl-2.1")
+  , ("LGPL-3",     "lgpl-3.0")
+  , ("AGPL-3",     "agpl-3.0")
+  , ("Apache-2.0", "apache-2.0")
+  , ("MPL-2.0",    "mpl-2.0")
+  ]
 
-data License = License { licenseText :: String }
+newtype License = License { licenseText :: String }
 
 instance FromJSON License where
   parseJSON = withObject "License" $ \o -> License <$> o .: "body"
