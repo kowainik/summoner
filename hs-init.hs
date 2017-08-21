@@ -1,5 +1,5 @@
 #!/usr/bin/env stack
--- stack runghc --package filepath --package directory
+-- stack runghc --package filepath --package directory --package aeson --package bytestring
 
 
 {-# OPTIONS_GHC -fno-warn-orphans #-}
@@ -10,6 +10,8 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeFamilies        #-}
 
+import           Data.Aeson       (FromJSON(..), withObject, (.:), decodeStrict)
+import           Data.ByteString.Char8 (pack)
 import           Control.Monad    (when)
 import           Data.List        (intercalate, isInfixOf, isPrefixOf, nub)
 import           Data.String      (IsString (..))
@@ -90,7 +92,11 @@ generateProject owner repo description = do
 
   let licenseGithub = snd $ head $ dropWhile ((/= license) . fst) $ zip licenseNames githubLicenseQueryNames
   let licenseLink  = "https://api.github.com/licenses/" ++ licenseGithub
-  licenseText <- readProcess "curl" ["-i", licenseLink, "-H", "Accept: application/vnd.github.drax-preview+json"] ""
+  licenseJson <- readProcess "curl" [licenseLink, "-H", "Accept: application/vnd.github.drax-preview+json"] ""
+  let licenseTxt =
+       case (decodeStrict $ pack licenseJson) :: Maybe License of
+           Just t  -> licenseText t
+           Nothing -> ""
 
   -- Library or Executable flags
   (isLib, isExe) <- do
@@ -119,7 +125,7 @@ generateProject owner repo description = do
   longDescription <-
     queryDef "  Add longer description?" description
   -- create haskell template
-  writeFile "temp.hsfiles" $ createStackTemplate repo owner longDescription license licenseText nm email category testedVersions baseVer isExe isLib
+  writeFile "temp.hsfiles" $ createStackTemplate repo owner longDescription license licenseTxt nm email category testedVersions baseVer isExe isLib
   -- create new project with stack
   "stack" ["new", repo, "temp.hsfiles"]
   -- do not need template file anymore
@@ -139,6 +145,11 @@ githubLicenseQueryNames :: [String]
 githubLicenseQueryNames = words "mit bsd-2-clause bsd-3-clause\
                                \ gpl-3.0 gpl-2.0 lgpl-2.1 lgpl-3.0\
                                \ agpl-3.0 apache-2.0 mpl-2.0"
+
+data License = License { licenseText :: String }
+
+instance FromJSON License where
+  parseJSON = withObject "License" $ \o -> License <$> o .: "body"
 
 -- TODO: once GHC 7.6 is dropped, just use callCommand
 callCommand' :: String -> IO ()
