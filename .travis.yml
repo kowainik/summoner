@@ -21,7 +21,7 @@ before_install:
 # `--no-terminal works` around some quirks in Travis's terminal implementation.
 script: 
 - stack setup 
-- stack install filepath directory aeson bytestring
+- stack install filepath directory aeson bytestring process
 - stack ghc -- hs-init.hs
 
 # Caching so the next build will be fast too.

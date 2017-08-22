@@ -1,5 +1,5 @@
 #!/usr/bin/env stack
--- stack runghc --package filepath --package directory --package aeson --package bytestring
+-- stack --resolver lts-8.21 script --package filepath --package directory --package aeson --package bytestring --package process
 
 
 {-# OPTIONS_GHC -fno-warn-orphans #-}
