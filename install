@@ -1,0 +1,5 @@
+#!/bin/bash
+
+wget https://raw.githubusercontent.com/vrom911/hs-init/master/hs-init.hs
+chmod +x hs-init.hs
+mv hs-init.hs ~/.local/bin/hs-init
