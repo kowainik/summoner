@@ -25,7 +25,7 @@ import           Data.ByteString.Char8 (pack)
 import           Data.List             (intercalate, isInfixOf, isPrefixOf, nub)
 import           Data.Semigroup        ((<>))
 import           Data.String           (IsString (..))
-import           Options.Applicative   (Parser (), execParser, fullDesc, header, help,
+import           Options.Applicative   (Parser (), execParser, footer, fullDesc, header, help,
                                         helper, info, long, metavar, progDesc, short,
                                         strArgument, switch, (<**>))
 import           System.Directory      (doesPathExist, getCurrentDirectory,
@@ -65,13 +65,13 @@ main :: IO ()
 main = execParser prsr >>= runWithOptions
 
 runWithOptions :: InitOpts -> IO ()
-runWithOptions InitOpts{..} = do
+runWithOptions opts@InitOpts{..} = do
   repo        <- checkUniqueName projectName
   owner       <- queryDef "Repository owner: " defaultOwner
   description <- query "Short project description: "
 
   -- Generate the project.
-  generateProject owner repo description
+  generateProject owner repo description opts
   when githubFlag $ do
     -- Create the repository on Github.
     "git" ["init"]
@@ -89,40 +89,70 @@ runWithOptions InitOpts{..} = do
 ---------------------------
 
 data InitOpts = InitOpts
-  { projectName :: String
-  , githubFlag  :: Bool
+  { projectName  :: String
+  , githubFlag   :: Bool
 --  , ciFlag      :: Bool
---  , libraryFlag :: Bool
---  , execFlag    :: Bool
---  , testFlag    :: Bool
---  , benchFlag   :: Bool
+  , isLibrary    :: Bool
+  , isExecutable :: Bool
+  , isTest       :: Bool
+  , isBenchmark  :: Bool
   }
 
 githubP = switch
-      ( long "github"
-     <> short 'g'
-     <> help "Enable GitHub integration" )
+      (  long "github"
+      <> short 'g'
+      <> help "Enable GitHub integration"
+      )
+
+libraryP = switch
+      (  long "library"
+      <> short 'l'
+      <> help "Create library folder"
+      )
+
+execP = switch
+      (  long "exec"
+      <> short 'e'
+      <> help "Create executable file"
+      )
+
+testP = switch
+      (  long "test"
+      <> short 't'
+      <> help "Create test files"
+      )
+
+benchmarkP = switch
+      (  long "benchmark"
+      <> short 'b'
+      <> help "Create benchmarks"
+      )
 
 optsP :: Parser InitOpts
 optsP = InitOpts
       <$> strArgument (metavar "PROJECT_NAME")
       <*> githubP
+      <*> libraryP
+      <*> execP
+      <*> testP
+      <*> benchmarkP
 
 prsr = info ( optsP <**> helper)
             ( fullDesc
            <> progDesc "Create your own haskell project"
-           <> header "hello - a test for optparse-applicative" )
+           <> header "hs-init -- tool for creating completely configured production Haskell projects"
+           <> footer "hs-init test footer" )
 ---------------------------
 
 -- | Generate the project.
-generateProject :: String -> String -> String -> IO ()
-generateProject owner repo description = do
+generateProject :: String -> String -> String -> InitOpts -> IO ()
+generateProject owner repo description InitOpts{..} = do
   nm    <- queryDef "Author: " defaultName
   email    <- queryDef "Maintainer e-mail: " defaultEmail
   mapM_ putStrLn [
     "List of categories to choose from:",
     "",
-    "  * Control                    * Concurrency",
+     "  * Control                    * Concurrency",
     "  * Codec                      * Graphics",
     "  * Data                       * Sound",
     "  * Math                       * System",
@@ -151,13 +181,22 @@ generateProject owner repo description = do
            Nothing -> error "Broken predefined license list"
 
   -- Library or Executable flags
-  (isLib, isExe) <- do
-    ch <- choose "Library or Executable?" ["both", "lib", "exe"]
-    case ch of
-      "lib"  -> pure (True, False)
-      "exe"  -> pure (False, True)
-      "both" -> pure (True, True)
-
+  (isLib, isExe) <-
+    if isLibrary && isExecutable
+    then pure (True, True)
+    else do
+      ch <- choose "Library or Executable?" ["both", "lib", "exe"]
+      case ch of
+        "lib"  -> pure (True, False)
+        "exe"  -> pure (False, True)
+        "both" -> pure (True, True)
+  test <-
+    if isTest then pure True
+    else do
+      ch <- choose "Add tests?" ["y", "n"]
+      case ch of
+        "y" -> putStrLn "Tests will be added to the project" >> pure True
+        "n" -> putStrLn "Hmm" >> pure False
   putStrLn "Latest GHCs: 7.0.4 7.2.2 7.4.2 7.6.3 7.8.4 7.10.3 8.0.1"
   -- TODO: once GHC 7.8 is dropped, switch to <$>
   testedVersions <- words `fmap`
@@ -189,6 +228,7 @@ generateProject owner repo description = do
                                                  baseVer
                                                  isExe
                                                  isLib
+                                                 test
 
   -- create new project with stack
   "stack" ["new", repo, "temp.hsfiles"]
@@ -326,6 +366,7 @@ createStackTemplate :: String  -- ^ repository name
                     -> String  -- ^ base version
                     -> Bool    -- ^ is executable
                     -> Bool    -- ^ is library
+                    -> Bool    -- ^ add tests
                     -> String  -- ^ template
 createStackTemplate repo
                     owner
@@ -338,11 +379,12 @@ createStackTemplate repo
                     testedVersions
                     baseVer
                     isExe
-                    isLib =
+                    isLib
+                    test =
   createCabalTop ++
   (if isLib then createCabalLib  else "") ++
   (if isExe then createCabalExe  else "") ++
-  (if isLib then createCabalTest else "") ++
+  (if test  then createCabalTest else "") ++
   createCabalGit   ++
   createCabalFiles ++
   readme           ++
@@ -425,8 +467,9 @@ createStackTemplate repo
   createCabalFiles :: String
   createCabalFiles =
     createSetup ++
-    (if isExe then createExe else "") ++
-    (if isLib then createLib ++ createTest else "")
+    (if isExe then createExe else  "") ++
+    (if isLib then createLib else  "") ++
+    (if test  then createTest else "")
 
   createSetup :: String
   createSetup = unlines [
