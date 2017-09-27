@@ -1,12 +1,21 @@
 #!/usr/bin/env stack
--- stack --resolver lts-8.21 script --package filepath --package directory --package aeson --package bytestring --package process
-
+{- stack
+  script
+  --resolver lts-8.21
+  --package filepath
+  --package directory
+  --package aeson
+  --package bytestring
+  --package process
+  --package optparse-applicative
+-}
 
 {-# OPTIONS_GHC -fno-warn-orphans #-}
 
 {-# LANGUAGE FlexibleInstances   #-}
 {-# LANGUAGE MultiWayIf          #-}
 {-# LANGUAGE OverloadedStrings   #-}
+{-# LANGUAGE RecordWildCards     #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeFamilies        #-}
 
@@ -14,7 +23,11 @@ import           Control.Monad         (when)
 import           Data.Aeson            (FromJSON (..), decodeStrict, withObject, (.:))
 import           Data.ByteString.Char8 (pack)
 import           Data.List             (intercalate, isInfixOf, isPrefixOf, nub)
+import           Data.Semigroup        ((<>))
 import           Data.String           (IsString (..))
+import           Options.Applicative   (Parser (), execParser, footer, fullDesc, header,
+                                        help, helper, info, long, metavar, progDesc,
+                                        short, strArgument, switch, (<**>))
 import           System.Directory      (doesPathExist, getCurrentDirectory,
                                         setCurrentDirectory)
 import           System.Exit           (ExitCode (..))
@@ -49,34 +62,97 @@ defaultYear = "2017"
 --------------------------
 
 main :: IO ()
-main = do
-  owner <- queryDef "Repository owner: " defaultOwner
-  repo  <- queryUniqueName
+main = execParser prsr >>= runWithOptions
+
+runWithOptions :: InitOpts -> IO ()
+runWithOptions opts@InitOpts{..} = do
+  repo        <- checkUniqueName projectName
+  owner       <- queryDef "Repository owner: " defaultOwner
   description <- query "Short project description: "
 
   -- Generate the project.
-  generateProject owner repo description
+  generateProject owner repo description opts
+  when githubFlag $ do
+    -- Create the repository on Github.
+    "git" ["init"]
+    "hub" ["create", "-d", description, printf "%s/%s" owner repo]
 
-  -- Create the repository on Github.
-  "git" ["init"]
-  "hub" ["create", "-d", description, printf "%s/%s" owner repo]
-
- -- Make a commit and push it.
-  "git" ["add", "."]
-  "git" ["commit", "-m", "Create the project"]
-  "git" ["push", "-u", "origin", "master"]
+    -- Make a commit and push it.
+    "git" ["add", "."]
+    "git" ["commit", "-m", "Create the project"]
+    "git" ["push", "-u", "origin", "master"]
 
   putStrLn "Job's done"
 
+---------------------------
+---------- CLI ------------
+---------------------------
+
+data InitOpts = InitOpts
+  { projectName  :: String
+  , githubFlag   :: Bool
+--  , ciFlag      :: Bool
+  , isLibrary    :: Bool
+  , isExecutable :: Bool
+  , isTest       :: Bool
+  , isBenchmark  :: Bool
+  }
+
+githubP = switch
+      (  long "github"
+      <> short 'g'
+      <> help "Enable GitHub integration"
+      )
+
+libraryP = switch
+      (  long "library"
+      <> short 'l'
+      <> help "Create library folder"
+      )
+
+execP = switch
+      (  long "exec"
+      <> short 'e'
+      <> help "Create executable file"
+      )
+
+testP = switch
+      (  long "test"
+      <> short 't'
+      <> help "Create test files"
+      )
+
+benchmarkP = switch
+      (  long "benchmark"
+      <> short 'b'
+      <> help "Create benchmarks"
+      )
+
+optsP :: Parser InitOpts
+optsP = InitOpts
+      <$> strArgument (metavar "PROJECT_NAME")
+      <*> githubP
+      <*> libraryP
+      <*> execP
+      <*> testP
+      <*> benchmarkP
+
+prsr = info ( optsP <**> helper)
+            ( fullDesc
+           <> progDesc "Create your own haskell project"
+           <> header "hs-init -- tool for creating completely configured production Haskell projects"
+           <> footer "hs-init test footer" )
+---------------------------
+
 -- | Generate the project.
-generateProject :: String -> String -> String -> IO ()
-generateProject owner repo description = do
+generateProject :: String -> String -> String -> InitOpts -> IO ()
+generateProject owner repo description InitOpts{..} = do
   nm    <- queryDef "Author: " defaultName
   email    <- queryDef "Maintainer e-mail: " defaultEmail
   mapM_ putStrLn [
     "List of categories to choose from:",
     "",
-    "  * Control                    * Concurrency",
+     "  * Control                    * Concurrency",
     "  * Codec                      * Graphics",
     "  * Data                       * Sound",
     "  * Math                       * System",
@@ -96,20 +172,31 @@ generateProject owner repo description = do
   -- License creation
   let licenseGithub = snd $ head $ dropWhile ((/= license) . fst) githubLicenseQueryNames
   let licenseLink  = "https://api.github.com/licenses/" ++ licenseGithub
-  licenseJson <- readProcess "curl" [licenseLink, "-H", "Accept: application/vnd.github.drax-preview+json"] ""
+  licenseJson <- readProcess "curl"
+                             [licenseLink, "-H", "Accept: application/vnd.github.drax-preview+json"]
+                             ""
   let licenseTxt =
        case (decodeStrict $ pack licenseJson) :: Maybe License of
            Just t  -> customizeLicense license (licenseText t) nm
            Nothing -> error "Broken predefined license list"
 
   -- Library or Executable flags
-  (isLib, isExe) <- do
-    ch <- choose "Library or Executable?" ["both", "lib", "exe"]
-    case ch of
-      "lib"  -> pure (True, False)
-      "exe"  -> pure (False, True)
-      "both" -> pure (True, True)
-
+  (isLib, isExe) <-
+    if isLibrary  then pure(True, isExecutable)
+    else if isExecutable then pure (False, True)
+         else do
+         ch <- choose "Library or Executable?" ["both", "lib", "exe"]
+         case ch of
+           "lib"  -> pure (True, False)
+           "exe"  -> pure (False, True)
+           "both" -> pure (True, True)
+  test <-
+    if isTest then pure True
+    else do
+      ch <- choose "Add tests?" ["y", "n"]
+      case ch of
+        "y" -> putStrLn "Tests will be added to the project" >> pure True
+        "n" -> putStrLn "Hmm" >> pure False
   putStrLn "Latest GHCs: 7.0.4 7.2.2 7.4.2 7.6.3 7.8.4 7.10.3 8.0.1"
   -- TODO: once GHC 7.8 is dropped, switch to <$>
   testedVersions <- words `fmap`
@@ -129,7 +216,20 @@ generateProject owner repo description = do
   longDescription <-
     queryDef "  Add longer description?" description
   -- create haskell template
-  writeFile "temp.hsfiles" $ createStackTemplate repo owner longDescription license licenseTxt nm email category testedVersions baseVer isExe isLib
+  writeFile "temp.hsfiles" $ createStackTemplate repo
+                                                 owner
+                                                 longDescription
+                                                 license
+                                                 licenseTxt
+                                                 nm
+                                                 email
+                                                 category
+                                                 testedVersions
+                                                 baseVer
+                                                 isExe
+                                                 isLib
+                                                 test
+
   -- create new project with stack
   "stack" ["new", repo, "temp.hsfiles"]
   -- do not need template file anymore
@@ -144,7 +244,7 @@ licenseNames :: [String]
 licenseNames = map fst githubLicenseQueryNames
 
 githubLicenseQueryNames :: [(String, String)]
-githubLicenseQueryNames = 
+githubLicenseQueryNames =
   [ ("MIT",        "mit")
   , ("BSD2",       "bsd-2-clause")
   , ("BSD3",       "bsd-3-clause")
@@ -224,16 +324,16 @@ queryDef question defAnswer = do
      | otherwise ->
          pure answer
 
-queryUniqueName :: IO String
-queryUniqueName = do
-  repName <- query "Project name: "
+checkUniqueName :: String -> IO String
+checkUniqueName nm = do
   curPath <- getCurrentDirectory
-  exist <- doesPathExist $ curPath </> repName
+  exist <- doesPathExist $ curPath </> nm
   if exist then do
     putStrLn "Project with this name is already exist. Please choose another one"
-    queryUniqueName
+    newNm <- query "Project name: "
+    checkUniqueName newNm
   else
-    pure repName
+    pure nm
 
 (~==), (=~=) :: String -> String -> Bool
 (~==) = isPrefixOf
@@ -266,12 +366,25 @@ createStackTemplate :: String  -- ^ repository name
                     -> String  -- ^ base version
                     -> Bool    -- ^ is executable
                     -> Bool    -- ^ is library
+                    -> Bool    -- ^ add tests
                     -> String  -- ^ template
-createStackTemplate repo owner description license licenseText nm email cat testedVersions baseVer isExe isLib =
+createStackTemplate repo
+                    owner
+                    description
+                    license
+                    licenseText
+                    nm
+                    email
+                    cat
+                    testedVersions
+                    baseVer
+                    isExe
+                    isLib
+                    test =
   createCabalTop ++
   (if isLib then createCabalLib  else "") ++
   (if isExe then createCabalExe  else "") ++
-  (if isLib then createCabalTest else "") ++
+  (if test  then createCabalTest else "") ++
   createCabalGit   ++
   createCabalFiles ++
   readme           ++
@@ -325,7 +438,7 @@ createStackTemplate repo owner description license licenseText nm email cat test
     "  main-is:             Main.hs",
     "  ghc-options:         -Wall -threaded -rtsopts -with-rtsopts=-N",
     "  build-depends:       base",
-    printf "                     , %s" repo,
+    if isLib then printf "                     , %s" repo else "",
     "  default-language:    Haskell2010",
     ""
     ]
@@ -354,8 +467,9 @@ createStackTemplate repo owner description license licenseText nm email cat test
   createCabalFiles :: String
   createCabalFiles =
     createSetup ++
-    (if isExe then createExe else "") ++
-    (if isLib then createLib ++ createTest else "")
+    (if isExe then if isLib then createExe else createOnlyExe else  "") ++
+    (if isLib then createLib else  "") ++
+    (if test  then createTest else "")
 
   createSetup :: String
   createSetup = unlines [
@@ -364,6 +478,7 @@ createStackTemplate repo owner description license licenseText nm email cat test
     "main = defaultMain",
     ""
     ]
+
   createTest :: String
   createTest = unlines [
     "{-# START_FILE test/Spec.hs #-}",
@@ -381,6 +496,16 @@ createStackTemplate repo owner description license licenseText nm email cat test
     "",
     "someFunc :: IO ()",
     "someFunc = putStrLn \"someFunc\"",
+    ""
+    ]
+
+  createOnlyExe :: String
+  createOnlyExe = unlines [
+    "{-# START_FILE app/Main.hs #-}",
+    "module Main where",
+    "",
+    "main :: IO ()",
+    "main = putStrLn \"Hello, world!\"",
     ""
     ]
 
