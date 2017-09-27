@@ -25,9 +25,9 @@ import           Data.ByteString.Char8 (pack)
 import           Data.List             (intercalate, isInfixOf, isPrefixOf, nub)
 import           Data.Semigroup        ((<>))
 import           Data.String           (IsString (..))
-import           Options.Applicative   (Parser (), execParser, footer, fullDesc, header, help,
-                                        helper, info, long, metavar, progDesc, short,
-                                        strArgument, switch, (<**>))
+import           Options.Applicative   (Parser (), execParser, footer, fullDesc, header,
+                                        help, helper, info, long, metavar, progDesc,
+                                        short, strArgument, switch, (<**>))
 import           System.Directory      (doesPathExist, getCurrentDirectory,
                                         setCurrentDirectory)
 import           System.Exit           (ExitCode (..))
@@ -182,14 +182,14 @@ generateProject owner repo description InitOpts{..} = do
 
   -- Library or Executable flags
   (isLib, isExe) <-
-    if isLibrary && isExecutable
-    then pure (True, True)
-    else do
-      ch <- choose "Library or Executable?" ["both", "lib", "exe"]
-      case ch of
-        "lib"  -> pure (True, False)
-        "exe"  -> pure (False, True)
-        "both" -> pure (True, True)
+    if isLibrary  then pure(True, isExecutable)
+    else if isExecutable then pure (False, True)
+         else do
+         ch <- choose "Library or Executable?" ["both", "lib", "exe"]
+         case ch of
+           "lib"  -> pure (True, False)
+           "exe"  -> pure (False, True)
+           "both" -> pure (True, True)
   test <-
     if isTest then pure True
     else do
@@ -438,7 +438,7 @@ createStackTemplate repo
     "  main-is:             Main.hs",
     "  ghc-options:         -Wall -threaded -rtsopts -with-rtsopts=-N",
     "  build-depends:       base",
-    printf "                     , %s" repo,
+    if isLib then printf "                     , %s" repo else "",
     "  default-language:    Haskell2010",
     ""
     ]
@@ -467,7 +467,7 @@ createStackTemplate repo
   createCabalFiles :: String
   createCabalFiles =
     createSetup ++
-    (if isExe then createExe else  "") ++
+    (if isExe then if isLib then createExe else createOnlyExe else  "") ++
     (if isLib then createLib else  "") ++
     (if test  then createTest else "")
 
@@ -478,6 +478,7 @@ createStackTemplate repo
     "main = defaultMain",
     ""
     ]
+
   createTest :: String
   createTest = unlines [
     "{-# START_FILE test/Spec.hs #-}",
@@ -495,6 +496,16 @@ createStackTemplate repo
     "",
     "someFunc :: IO ()",
     "someFunc = putStrLn \"someFunc\"",
+    ""
+    ]
+
+  createOnlyExe :: String
+  createOnlyExe = unlines [
+    "{-# START_FILE app/Main.hs #-}",
+    "module Main where",
+    "",
+    "main :: IO ()",
+    "main = putStrLn \"Hello, world!\"",
     ""
     ]
 
