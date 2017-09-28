@@ -8,13 +8,17 @@
   --package bytestring
   --package process
   --package optparse-applicative
+  --package text
+  --package neat-interpolation
 -}
 
 {-# OPTIONS_GHC -fno-warn-orphans #-}
 
+{-# LANGUAGE ApplicativeDo       #-}
 {-# LANGUAGE FlexibleInstances   #-}
 {-# LANGUAGE MultiWayIf          #-}
 {-# LANGUAGE OverloadedStrings   #-}
+{-# LANGUAGE QuasiQuotes         #-}
 {-# LANGUAGE RecordWildCards     #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeFamilies        #-}
@@ -22,39 +26,41 @@
 import           Control.Monad         (when)
 import           Data.Aeson            (FromJSON (..), decodeStrict, withObject, (.:))
 import           Data.ByteString.Char8 (pack)
-import           Data.List             (intercalate, isInfixOf, isPrefixOf, nub)
+import           Data.List             (nub)
 import           Data.Semigroup        ((<>))
 import           Data.String           (IsString (..))
-import           Options.Applicative   (Parser (), execParser, footer, fullDesc, header,
-                                        help, helper, info, long, metavar, progDesc,
-                                        short, strArgument, switch, (<**>))
+import           Data.Text             (Text)
+import qualified Data.Text             as T
+import qualified Data.Text.IO          as T
+import           NeatInterpolation     (text)
+import           Options.Applicative   (Parser (), ParserInfo (), execParser, footer,
+                                        fullDesc, header, help, helper, info, long,
+                                        metavar, progDesc, short, strArgument, switch)
 import           System.Directory      (doesPathExist, getCurrentDirectory,
                                         setCurrentDirectory)
-import           System.Exit           (ExitCode (..))
 import           System.FilePath       ((</>))
-import           System.Process        (readProcess, showCommandForUser, system)
-import           Text.Printf           (printf)
+import           System.Process        (callCommand, readProcess, showCommandForUser)
 
 -----------------------
 ------ Settings -------
 -----------------------
 
-defaultOwner :: String
+defaultOwner :: Text
 defaultOwner = "vrom911"
 
-defaultName :: String
+defaultName :: Text
 defaultName = "Veronika Romashkina"
 
-defaultEmail :: String
+defaultEmail :: Text
 defaultEmail = "vrom911@gmail.com"
 
-defaultLicense :: String
+defaultLicense :: Text
 defaultLicense = "MIT"
 
-defaultGHC :: String
+defaultGHC :: Text
 defaultGHC = "8.0.1"
 
-defaultYear :: String
+defaultYear :: Text
 defaultYear = "2017"
 
 --------------------------
@@ -71,11 +77,11 @@ runWithOptions opts@InitOpts{..} = do
   description <- query "Short project description: "
 
   -- Generate the project.
-  generateProject owner repo description opts
+  generateProject repo owner description opts
   when githubFlag $ do
     -- Create the repository on Github.
     "git" ["init"]
-    "hub" ["create", "-d", description, printf "%s/%s" owner repo]
+    "hub" ["create", "-d", description, owner <> "/" <> repo]
 
     -- Make a commit and push it.
     "git" ["add", "."]
@@ -89,7 +95,7 @@ runWithOptions opts@InitOpts{..} = do
 ---------------------------
 
 data InitOpts = InitOpts
-  { projectName  :: String
+  { projectName  :: Text
   , githubFlag   :: Bool
 --  , ciFlag      :: Bool
   , isLibrary    :: Bool
@@ -98,30 +104,35 @@ data InitOpts = InitOpts
   , isBenchmark  :: Bool
   }
 
+githubP :: Parser Bool
 githubP = switch
       (  long "github"
       <> short 'g'
       <> help "Enable GitHub integration"
       )
 
+libraryP :: Parser Bool
 libraryP = switch
       (  long "library"
       <> short 'l'
       <> help "Create library folder"
       )
 
+execP :: Parser Bool
 execP = switch
       (  long "exec"
       <> short 'e'
-      <> help "Create executable file"
+      <> help "Create executable target"
       )
 
+testP :: Parser Bool
 testP = switch
       (  long "test"
       <> short 't'
-      <> help "Create test files"
+      <> help "Create test target"
       )
 
+benchmarkP :: Parser Bool
 benchmarkP = switch
       (  long "benchmark"
       <> short 'b'
@@ -129,15 +140,17 @@ benchmarkP = switch
       )
 
 optsP :: Parser InitOpts
-optsP = InitOpts
-      <$> strArgument (metavar "PROJECT_NAME")
-      <*> githubP
-      <*> libraryP
-      <*> execP
-      <*> testP
-      <*> benchmarkP
+optsP = do
+    projectName  <- T.pack <$> strArgument (metavar "PROJECT_NAME")
+    githubFlag   <- githubP
+    isLibrary    <- libraryP
+    isExecutable <- execP
+    isTest       <- testP
+    isBenchmark  <- benchmarkP
+    pure InitOpts{..}
 
-prsr = info ( optsP <**> helper)
+prsr :: ParserInfo InitOpts
+prsr = info ( helper <*> optsP )
             ( fullDesc
            <> progDesc "Create your own haskell project"
            <> header "hs-init -- tool for creating completely configured production Haskell projects"
@@ -145,63 +158,72 @@ prsr = info ( optsP <**> helper)
 ---------------------------
 
 -- | Generate the project.
-generateProject :: String -> String -> String -> InitOpts -> IO ()
-generateProject owner repo description InitOpts{..} = do
-  nm    <- queryDef "Author: " defaultName
+generateProject :: Text -> Text -> Text -> InitOpts -> IO ()
+generateProject repo owner description InitOpts{..} = do
+  nm       <- queryDef "Author: " defaultName
   email    <- queryDef "Maintainer e-mail: " defaultEmail
-  mapM_ putStrLn [
-    "List of categories to choose from:",
-    "",
-     "  * Control                    * Concurrency",
-    "  * Codec                      * Graphics",
-    "  * Data                       * Sound",
-    "  * Math                       * System",
-    "  * Parsing                    * Network",
-    "  * Text",
-    "",
-    "  * Application                * Development",
-    "  * Compilers/Interpreters     * Testing",
-    "  * Web",
-    "  * Game",
-    "  * Utility",
-    ""]
+  T.putStr
+    [text|
+    List of categories to choose from:
+
+      * Control                    * Concurrency
+      * Codec                      * Graphics
+      * Data                       * Sound
+      * Math                       * System
+      * Parsing                    * Network
+      * Text
+
+      * Application                * Development
+      * Compilers/Interpreters     * Testing
+      * Web
+      * Game
+      * Utility
+
+    |]
   category <- query "Category: "
-  license <- choose "License: "
+  license  <- choose "License: "
     (nub (defaultLicense : licenseNames))
 
   -- License creation
-  let licenseGithub = snd $ head $ dropWhile ((/= license) . fst) githubLicenseQueryNames
-  let licenseLink  = "https://api.github.com/licenses/" ++ licenseGithub
-  licenseJson <- readProcess "curl"
-                             [licenseLink, "-H", "Accept: application/vnd.github.drax-preview+json"]
-                             ""
-  let licenseTxt =
-       case (decodeStrict $ pack licenseJson) :: Maybe License of
-           Just t  -> customizeLicense license (licenseText t) nm
-           Nothing -> error "Broken predefined license list"
+  let licenseGithub = snd
+                    $ head
+                    $ dropWhile ((/= license) . fst) githubLicenseQueryNames
+  let licenseLink = "https://api.github.com/licenses/" <> licenseGithub
+  licenseJson <-
+    readProcess "curl"
+                [ T.unpack licenseLink
+                , "-H"
+                , "Accept: application/vnd.github.drax-preview+json"
+                ]
+                ""
+  let licenseText = case (decodeStrict $ pack licenseJson) :: Maybe License of
+          Just t  -> customizeLicense license (lcnsText t) nm
+          Nothing -> error "Broken predefined license list"
 
   -- Library or Executable flags
   (isLib, isExe) <-
-    if isLibrary  then pure(True, isExecutable)
-    else if isExecutable then pure (False, True)
-         else do
-         ch <- choose "Library or Executable?" ["both", "lib", "exe"]
-         case ch of
-           "lib"  -> pure (True, False)
-           "exe"  -> pure (False, True)
-           "both" -> pure (True, True)
+    if isLibrary then
+        pure (True, isExecutable)
+    else if isExecutable then
+        pure (False, True)
+    else do
+        ch <- choose "Library or Executable?" ["both", "lib", "exe"]
+        pure $ case ch of
+          "lib"  -> (True, False)
+          "exe"  -> (False, True)
+          "both" -> (True, True)
   test <-
     if isTest then pure True
     else do
       ch <- choose "Add tests?" ["y", "n"]
       case ch of
-        "y" -> putStrLn "Tests will be added to the project" >> pure True
-        "n" -> putStrLn "Hmm" >> pure False
+        "y" -> True <$ T.putStrLn "Tests will be added to the project"
+        "n" -> pure False
   putStrLn "Latest GHCs: 7.0.4 7.2.2 7.4.2 7.6.3 7.8.4 7.10.3 8.0.1"
   -- TODO: once GHC 7.8 is dropped, switch to <$>
-  testedVersions <- words `fmap`
+  testedVersions <- T.words `fmap`
     queryDef "Versions of GHC to test with (space-separated): " defaultGHC
-  let baseVer :: String
+  let baseVer :: Text
       baseVer
         | found "7.0"  = ">=4.3 && <5"
         | found "7.2"  = ">=4.4 && <5"
@@ -211,24 +233,11 @@ generateProject owner repo description InitOpts{..} = do
         | found "7.10" = ">=4.8 && <5"
         | found "8.0"  = ">=4.9 && <5"
         | otherwise    = "==4.*"
-        where found v = any (\x -> (v++".") ~== x || v == x) testedVersions
-  printf "Going to use this constraint on base: %s\n" baseVer
-  longDescription <-
-    queryDef "  Add longer description?" description
+        where found v = any (\x -> (v<>".") ~== x || v == x) testedVersions
+  T.putStrLn $ "Going to use this constraint on base: " <> baseVer
   -- create haskell template
-  writeFile "temp.hsfiles" $ createStackTemplate repo
-                                                 owner
-                                                 longDescription
-                                                 license
-                                                 licenseTxt
-                                                 nm
-                                                 email
-                                                 category
-                                                 testedVersions
-                                                 baseVer
-                                                 isExe
-                                                 isLib
-                                                 test
+  T.writeFile "temp.hsfiles"
+            $ createStackTemplate ProjectData{..}
 
   -- create new project with stack
   "stack" ["new", repo, "temp.hsfiles"]
@@ -240,10 +249,27 @@ generateProject owner repo description InitOpts{..} = do
 ---------- Utilities -------------
 ----------------------------------
 
-licenseNames :: [String]
+data ProjectData = ProjectData
+  { repo           :: Text   -- ^ repository name
+  , owner          :: Text   -- ^ github username
+  , description    :: Text   -- ^ project description
+  , nm             :: Text   -- ^ full name
+  , email          :: Text   -- ^ e-mail
+  , category       :: Text   -- ^ project category
+  , license        :: Text   -- ^ type of license
+  , licenseText    :: Text   -- ^ license text
+  , isLib          :: Bool   -- ^ is library
+  , isExe          :: Bool   -- ^ is executable
+  , test           :: Bool   -- ^ add tests
+  , testedVersions :: [Text] -- ^ ghc versions
+  , baseVer        :: Text   -- ^ base version
+  }
+  deriving Show
+
+licenseNames :: [Text]
 licenseNames = map fst githubLicenseQueryNames
 
-githubLicenseQueryNames :: [(String, String)]
+githubLicenseQueryNames :: [(Text, Text)]
 githubLicenseQueryNames =
   [ ("MIT",        "mit")
   , ("BSD2",       "bsd-2-clause")
@@ -257,402 +283,392 @@ githubLicenseQueryNames =
   , ("MPL-2.0",    "mpl-2.0")
   ]
 
-newtype License = License { licenseText :: String }
+newtype License = License { lcnsText :: Text }
 
 instance FromJSON License where
   parseJSON = withObject "License" $ \o -> License <$> o .: "body"
 
-customizeLicense :: String -> String -> String -> String
+customizeLicense :: Text -> Text -> Text -> Text
 customizeLicense l t nm
-  | l `elem` words "MIT BSD2 BSD3" = updateLicenseText
+  | l `elem` T.words "MIT BSD2 BSD3" = updateLicenseText
   | otherwise = t
  where
   updateLicenseText =
-    let (beforeY, withY) = span (/= '[') t
-        afterY = tail $ dropWhile (/= ']') withY
-        (beforeN, withN) = span (/= '[') afterY
-        afterN = tail $ dropWhile (/= ']') withN in
-    beforeY ++ defaultYear ++ beforeN ++ nm ++ afterN
-
--- TODO: once GHC 7.6 is dropped, just use callCommand
-callCommand' :: String -> IO ()
-callCommand' cmd = do
-  exit_code <- system cmd
-  case exit_code of
-    ExitSuccess   -> return ()
-    ExitFailure r -> error $ printf "%s failed with exit code %d" cmd r
+    let (beforeY, withY) = T.span (/= '[') t
+        afterY = T.tail $ T.dropWhile (/= ']') withY
+        (beforeN, withN) = T.span (/= '[') afterY
+        afterN = T.tail $ T.dropWhile (/= ']') withN in
+    beforeY <> defaultYear <> beforeN <> nm <> afterN
 
 -- This is needed to be able to call commands by writing strings.
-instance (a ~ String, b ~ ()) => IsString ([a] -> IO b) where
-  fromString "cd" [arg] = setCurrentDirectory arg
-  fromString cmd args   = callCommand' (showCommandForUser cmd args)
+instance (a ~ Text, b ~ ()) => IsString ([a] -> IO b) where
+  fromString "cd" [arg] = setCurrentDirectory $ T.unpack arg
+  fromString cmd args   = callCommand $ showCommandForUser cmd (map T.unpack args)
 
-printQuestion :: String -> [String] -> IO ()
-printQuestion question (def:rest) =
-  printf "%s [%s]%s " question def (concatMap ('/':) rest)
+printQuestion :: Text -> [Text] -> IO ()
+printQuestion question (def:rest) = do
+  let restSlash = T.intercalate "/" rest
+  T.putStr $ question <> " [" <> def<> "]/" <> restSlash <> "  "
 printQuestion question [] =
-  printf "%s " question
+  T.putStr $ question <> "  "
 
-choose :: String -> [String] -> IO String
+choose :: Text -> [Text] -> IO Text
 choose question choices = do
   printQuestion question choices
-  answer <- getLine
-  if | null answer ->
+  answer <- T.getLine
+  if | T.null answer ->
          return (head choices)
      | answer `elem` choices ->
          return answer
      | otherwise -> do
-         putStrLn "This wasn't a valid choice."
+         T.putStrLn "This wasn't a valid choice."
          choose question choices
 
-query :: String -> IO String
+query :: Text -> IO Text
 query question = do
-  printf "%s " question
-  answer <- getLine
-  if | null answer -> do
-         putStrLn "An answer is required."
+  T.putStr $ question <> "  "
+  answer <- T.getLine
+  if | T.null answer -> do
+         T.putStrLn "An answer is required."
          query question
      | otherwise ->
          return answer
 
-queryDef :: String -> String -> IO String
+queryDef :: Text -> Text -> IO Text
 queryDef question defAnswer = do
-  printf "%s [%s] " question defAnswer
-  answer <- getLine
-  if | null answer ->
+  T.putStr $ question <> " [" <> defAnswer <> "]  "
+  answer <- T.getLine
+  if | T.null answer ->
          pure defAnswer
      | otherwise ->
          pure answer
 
-checkUniqueName :: String -> IO String
+checkUniqueName :: Text -> IO Text
 checkUniqueName nm = do
   curPath <- getCurrentDirectory
-  exist <- doesPathExist $ curPath </> nm
+  exist   <- doesPathExist $ curPath </> T.unpack nm
   if exist then do
-    putStrLn "Project with this name is already exist. Please choose another one"
+    T.putStrLn "Project with this name is already exist. Please choose another one"
     newNm <- query "Project name: "
     checkUniqueName newNm
   else
     pure nm
 
-(~==), (=~=) :: String -> String -> Bool
-(~==) = isPrefixOf
-(=~=) = isInfixOf
+(~==) :: Text -> Text -> Bool
+(~==) = T.isPrefixOf
 
-splitOn :: String -> String -> [String]
+splitOn :: Text -> Text -> [Text]
 splitOn _   ""  = []
 splitOn sep str = go "" str
   where
-    sepLen = length sep
+    sepLen = T.length sep
+    go :: Text -> Text -> [Text]
     go acc s
-      | null s && null acc = [""]
-      | null s             = [reverse acc]
-      | sep ~== s          = reverse acc : go "" (drop sepLen s)
-      | otherwise          = go (head s : acc) (tail s)
+      | T.null s && T.null acc = [""]
+      | T.null s             = [T.reverse acc]
+      | sep ~== s          = T.reverse acc : go "" (T.drop sepLen s)
+      | otherwise          = go (T.head s `T.cons` acc) (T.tail s)
 
-replace :: String -> String -> String -> String
-replace old new = intercalate new . splitOn old
+-- TODO: replace with T.replace
+replace :: Text -> Text -> Text -> Text
+replace old new = T.intercalate new . splitOn old
 
 -- | Creating template file to use in `stack new` command
-createStackTemplate :: String  -- ^ repository name
-                    -> String  -- ^ github username
-                    -> String  -- ^ project description
-                    -> String  -- ^ type of license
-                    -> String  -- ^ license text
-                    -> String  -- ^ full name
-                    -> String  -- ^ e-mail
-                    -> String  -- ^ project category
-                    -> [String]  -- ^ ghc versions
-                    -> String  -- ^ base version
-                    -> Bool    -- ^ is executable
-                    -> Bool    -- ^ is library
-                    -> Bool    -- ^ add tests
-                    -> String  -- ^ template
-createStackTemplate repo
-                    owner
-                    description
-                    license
-                    licenseText
-                    nm
-                    email
-                    cat
-                    testedVersions
-                    baseVer
-                    isExe
-                    isLib
-                    test =
-  createCabalTop ++
-  (if isLib then createCabalLib  else "") ++
-  (if isExe then createCabalExe  else "") ++
-  (if test  then createCabalTest else "") ++
-  createCabalGit   ++
-  createCabalFiles ++
-  readme           ++
-  gitignore        ++
-  travisYml        ++
-  changelog        ++
-  createLicense
+createStackTemplate :: ProjectData -> Text
+createStackTemplate
+  ProjectData{..} = createCabalTop
+                 <> (if isLib
+                     then createCabalLib
+                     else "")
+                 <> (if isExe
+                     then createCabalExe (if isLib
+                                          then ", " <> repo
+                                          else "")
+                     else "")
+                 <> (if test
+                    then createCabalTest
+                    else "")
+                 <> createCabalGit
+                 <> createCabalFiles
+                 <> readme
+                 <> gitignore
+                 <> travisYml
+                 <> changelog
+                 <> createLicense
 
  where
   -- all basic project information for `*.cabal` file
-  createCabalTop :: String
-  createCabalTop = unlines [
-    printf "{-# START_FILE %s.cabal #-}" repo,
-    printf "name:                %s" repo,
-    "version:             0.1.0.0",
-    printf "description:             %s" (dropWhile (== ' ') description),
-    printf "homepage:            https://github.com/%s/%s" owner repo,
-    printf "bug-reports:         https://github.com/%s/%s/issues" owner repo,
-    printf "license:             %s" license,
-    "license-file:        LICENSE",
-    printf "author:              %s" nm,
-    printf "maintainer:          %s" email,
-    printf "copyright:           %s %s" defaultYear nm,
-    printf "category:            %s" cat,
-    "build-type:          Simple",
-    "extra-source-files:  README.md",
-    "cabal-version:       >=1.10",
-    testedWith,
-    ""
-    ]
+  createCabalTop :: Text
+  createCabalTop =
+    [text|
+    {-# START_FILE ${repo}.cabal #-}
+    name:                $repo
+    version:             0.1.0.0
+    description:         $description
+    homepage:            https://github.com/${owner}/${repo}
+    bug-reports:         https://github.com/${owner}/${repo}/issues
+    license:             $license
+    license-file:        LICENSE
+    author:              $nm
+    maintainer:          $email
+    copyright:           $defaultYear $nm
+    category:            $category
+    build-type:          Simple
+    extra-source-files:  README.md
+    cabal-version:       >=1.10
+    $testedWith
 
-  testedWith :: String
-  testedWith = "tested-with:         " ++
-          intercalate ", " (map ("GHC == " ++) testedVersions)
+    |]
 
-  createCabalLib :: String
-  createCabalLib = unlines [
-    "library",
-    "  hs-source-dirs:      src",
-    "  exposed-modules:     Lib",
-    "  ghc-options:         -Wall",
-    printf "  build-depends:       base %s" baseVer,
-    "  default-language:    Haskell2010",
-    ""
-    ]
+  testedWith :: Text
+  testedWith = "tested-with:         " <>
+          T.intercalate ", " (map ("GHC == " <>) testedVersions)
 
-  createCabalExe :: String
-  createCabalExe = unlines [
-    printf "executable %s" repo,
-    "  hs-source-dirs:      app",
-    "  main-is:             Main.hs",
-    "  ghc-options:         -Wall -threaded -rtsopts -with-rtsopts=-N",
-    "  build-depends:       base",
-    if isLib then printf "                     , %s" repo else "",
-    "  default-language:    Haskell2010",
-    ""
-    ]
+  createCabalLib :: Text
+  createCabalLib =
+    [text|
+    library
+      hs-source-dirs:      src
+      exposed-modules:     Lib
+      ghc-options:         -Wall
+      build-depends:       base ${baseVer}
+      default-language:    Haskell2010
 
-  createCabalTest :: String
-  createCabalTest = unlines [
-    printf "test-suite %s-test" repo,
-    "  type:                exitcode-stdio-1.0",
-    "  hs-source-dirs:      test",
-    "  main-is:             Spec.hs",
-    "  build-depends:       base",
-    printf "                     , %s" repo,
-    "  ghc-options:         -Wall -Werror -threaded -rtsopts -with-rtsopts=-N",
-    "  default-language:    Haskell2010",
-    ""
-    ]
+    |]
 
-  createCabalGit :: String
-  createCabalGit = unlines [
-    "source-repository head",
-    "  type:                git",
-    printf "  location:            https://github.com/%s/%s.git" owner repo,
-    ""
-    ]
+  createCabalExe :: Text -> Text
+  createCabalExe r =
+    [text|
+    executable $repo
+      hs-source-dirs:      app
+      main-is:             Main.hs
+      ghc-options:         -Wall -threaded -rtsopts -with-rtsopts=-N
+      build-depends:       base
+                         $r
+      default-language:    Haskell2010
 
-  createCabalFiles :: String
+    |]
+
+  createCabalTest :: Text
+  createCabalTest =
+    [text|
+    test-suite ${repo}-test
+      type:                exitcode-stdio-1.0
+      hs-source-dirs:      test
+      main-is:             Spec.hs
+      build-depends:       base
+                         , $repo
+      ghc-options:         -Wall -Werror -threaded -rtsopts -with-rtsopts=-N
+      default-language:    Haskell2010
+
+    |]
+
+  createCabalGit :: Text
+  createCabalGit =
+    [text|
+    source-repository head
+      type:                git
+      location:            https://github.com/${owner}/${repo}.git
+
+    |]
+
+  createCabalFiles :: Text
   createCabalFiles =
-    createSetup ++
-    (if isExe then if isLib then createExe else createOnlyExe else  "") ++
-    (if isLib then createLib else  "") ++
-    (if test  then createTest else "")
+       createSetup
+    <> (if isExe then if isLib then createExe else createOnlyExe else  "")
+    <> (if isLib then createLib else  "")
+    <> (if test  then createTest else "")
 
-  createSetup :: String
-  createSetup = unlines [
-    "{-# START_FILE Setup.hs #-}",
-    "import Distribution.Simple",
-    "main = defaultMain",
-    ""
-    ]
+  createSetup :: Text
+  createSetup =
+    [text|
+    {-# START_FILE Setup.hs #-}
+    import Distribution.Simple
 
-  createTest :: String
-  createTest = unlines [
-    "{-# START_FILE test/Spec.hs #-}",
-    "main :: IO ()",
-    "main = putStrLn \"Test suite not yet implemented\"",
-    ""
-    ]
+    main = defaultMain
+    |]
 
-  createLib :: String
-  createLib = unlines [
-    "{-# START_FILE src/Lib.hs #-}",
-    "module Lib",
-    "    ( someFunc",
-    "    ) where",
-    "",
-    "someFunc :: IO ()",
-    "someFunc = putStrLn \"someFunc\"",
-    ""
-    ]
+  createTest :: Text
+  createTest =
+    [text|
+    {-# START_FILE test/Spec.hs #-}
+    main :: IO ()
+    main = putStrLn "Test suite not yet implemented"
+    |]
 
-  createOnlyExe :: String
-  createOnlyExe = unlines [
-    "{-# START_FILE app/Main.hs #-}",
-    "module Main where",
-    "",
-    "main :: IO ()",
-    "main = putStrLn \"Hello, world!\"",
-    ""
-    ]
+  createLib :: Text
+  createLib =
+    [text|
+    {-# START_FILE src/Lib.hs #-}
+    module Lib
+        ( someFunc
+        ) where
 
-  createExe :: String
-  createExe = unlines [
-    "{-# START_FILE app/Main.hs #-}",
-    "module Main where",
-    "",
-    "import Lib",
-    "",
-    "main :: IO ()",
-    "main = someFunc",
-    ""
-    ]
+    someFunc :: IO ()
+    someFunc = putStrLn "someFunc"
+
+    |]
+
+  createOnlyExe :: Text
+  createOnlyExe =
+    [text|
+    {-# START_FILE app/Main.hs #-}
+    module Main where
+
+    main :: IO ()
+    main = putStrLn "Hello, world!"
+
+    |]
+
+  createExe :: Text
+  createExe =
+    [text|
+    {-# START_FILE app/Main.hs #-}
+    module Main where
+
+    import Lib
+
+    main :: IO ()
+    main = someFunc
+
+    |]
 
   -- create README template
-  readme :: String
-  readme = unlines [
-    "{-# START_FILE README.md #-}",
-    printf "# %s" repo,
-    "",
-    printf "[![Hackage](%s)](%s)" hackageShield hackageLink,
-    printf "[![Build status](%s)](%s)" travisShield travisLink,
-    printf "[![%s license](%s)](%s)" license licenseShield licenseLink ]
+  readme :: Text
+  readme =
+    [text|
+    {-# START_FILE README.md #-}
+    # $repo
+
+    [![Hackage]($hackageShield)]($hackageLink)
+    [![Build status](${travisShield})](${travisLink})
+    [![$license license](${licenseShield})](${licenseLink})
+    |]
     where
-      hackageShield :: String =
-        printf "https://img.shields.io/hackage/v/%s.svg" repo
-      hackageLink :: String =
-        printf "https://hackage.haskell.org/package/%s" repo
-      travisShield :: String =
-        printf "https://secure.travis-ci.org/%s/%s.svg" owner repo
-      travisLink :: String =
-        printf "https://travis-ci.org/%s/%s" owner repo
-      licenseShield :: String =
-        printf "https://img.shields.io/badge/license-%s-blue.svg" (replace "-" "--" license)
-      licenseLink :: String =
-        printf "https://github.com/%s/%s/blob/master/LICENSE" owner repo
+      hackageShield :: Text =
+        "https://img.shields.io/hackage/v/" <> repo <> ".svg"
+      hackageLink :: Text =
+        "https://hackage.haskell.org/package/" <> repo
+      travisShield :: Text =
+        "https://secure.travis-ci.org/" <> owner <> "/" <> repo <> ".svg"
+      travisLink :: Text =
+        "https://travis-ci.org/" <> owner <> "/" <> repo
+      licenseShield :: Text =
+        "https://img.shields.io/badge/license-" <> replace "-" "--" license <> "-blue.svg"
+      licenseLink :: Text =
+        "https://github.com/" <> owner <> "/" <> repo <> "/blob/master/LICENSE"
 
   -- create .gitignore template
-  gitignore :: String
-  gitignore = unlines [
-    "{-# START_FILE .gitignore #-}",
-    "### Haskell",
-    "dist",
-    "dist-*",
-    "cabal-dev",
-    "*.o",
-    "*.hi",
-    "*.chi",
-    "*.chs.h",
-    "*.dyn_o",
-    "*.dyn_hi",
-    "*.prof",
-    "*.aux",
-    "*.hp",
-    "*.eventlog",
-    ".virtualenv",
-    ".hsenv",
-    ".hpc",
-    ".cabal-sandbox/",
-    "cabal.sandbox.config",
-    "cabal.config",
-    "cabal.project.local",
-    ".HTF/",
-    "# Stack",
-    ".stack-work/",
-    "",
-    "### IDE/support",
-    "# Vim",
-    "[._]*.s[a-v][a-z]",
-    "[._]*.sw[a-p]",
-    "[._]s[a-v][a-z]",
-    "[._]sw[a-p]",
-    "*~",
-    "tags",
-    "",
-    "# IntellijIDEA",
-    ".idea/",
-    ".ideaHaskellLib/",
-    "*.iml",
-    "",
-    "# Atom",
-    ".haskell-ghc-mod.json",
-    "",
-    "# VS",
-    ".vscode/",
-    "",
-    "# Emacs",
-    "*#",
-    ".dir-locals.el",
-    "TAGS",
-    "",
-    "# other",
-    ".DS_Store",
-    ""
-    ]
+  gitignore :: Text
+  gitignore =
+    [text|
+    {-# START_FILE .gitignore #-}
+    ### Haskell
+    dist
+    dist-*
+    cabal-dev
+    *.o
+    *.hi
+    *.chi
+    *.chs.h
+    *.dyn_o
+    *.dyn_hi
+    *.prof
+    *.aux
+    *.hp
+    *.eventlog
+    .virtualenv
+    .hsenv
+    .hpc
+    .cabal-sandbox/
+    cabal.sandbox.config
+    cabal.config
+    cabal.project.local
+    .HTF/
+    # Stack
+    .stack-work/
+
+    ### IDE/support
+    # Vim
+    [._]*.s[a-v][a-z]
+    [._]*.sw[a-p]
+    [._]s[a-v][a-z]
+    [._]sw[a-p]
+    *~
+    tags
+
+    # IntellijIDEA
+    .idea/
+    .ideaHaskellLib/
+    *.iml
+
+    # Atom
+    .haskell-ghc-mod.json
+
+    # VS
+    .vscode/
+
+    # Emacs
+    *#
+    .dir-locals.el
+    TAGS
+
+    # other
+    .DS_Store
+
+    |]
 
   -- create CHANGELOG template
-  changelog :: String
-  changelog = unlines [
-    "{-# START_FILE CHANGELOG.md #-}",
-    "Change log",
-    "==========",
-    "",
-    printf "%s uses [Semantic Versioning][1]." repo,
-    "The change log is available [on GitHub][2].",
-    "",
-    "[1]: http://semver.org/spec/v2.0.0.html",
-    printf "[2]: https://github.com/%s/%s/releases" owner repo,
-    "",
-    "# 0.1.0.0",
-    "",
-    "* Initially created."]
+  changelog :: Text
+  changelog =
+    [text|
+    {-# START_FILE CHANGELOG.md #-}
+    Change log
+    ==========
 
-  createLicense :: String
-  createLicense = "{-# START_FILE LICENSE #-}\n" ++ licenseText
+    $repo uses [PVP Versioning][1].
+    The change log is available [on GitHub][2].
+
+    [1]: https://pvp.haskell.org
+    [2]: https://github.com/${owner}/${repo}/releases
+    # 0.1.0.0
+    * Initially created.
+    |]
+
+  createLicense :: Text
+  createLicense = "{-# START_FILE LICENSE #-}\n" <> licenseText
 
   -- create travis.yml template
-  travisYml :: String
-  travisYml = unlines [
-    "{-# START_FILE .travis.yml #-}",
-    "# Use new container infrastructure to enable caching",
-    "sudo: false",
-    "",
-    "# Choose a lightweight base image; we provide our own build tools.",
-    "language: c",
-    "",
-    "# GHC depends on GMP. You can add other dependencies here as well.",
-    "addons:",
-    "  apt:",
-    "    packages:",
-    "    - libgmp-dev",
-    "",
-    "before_install:",
-    "# Download and unpack the stack executable",
-    "- mkdir -p ~/.local/bin",
-    "- export PATH=$HOME/.local/bin:$PATH",
-    "- travis_retry curl -L https://www.stackage.org/stack/linux-x86_64 | tar xz --wildcards --strip-components=1 -C ~/.local/bin '*/stack'",
-    "",
-    "# This line does all of the work: installs GHC if necessary, builds the",
-    "# library, executables, and test suites, and runs the test suites.",
-    "# `--no-terminal works` around some quirks in Travis's terminal implementation.",
-    "script: stack --no-terminal --install-ghc test",
-    "",
-    "# Caching so the next build will be fast too.",
-    "cache:",
-    "  directories:",
-    "  - $HOME/.stack",
-    printf "  - $HOME/build/%s/%s/.stack-work" owner repo
-    ]
+  travisYml :: Text
+  travisYml =
+    [text|
+    {-# START_FILE .travis.yml #-}
+    # Use new container infrastructure to enable caching
+    sudo: false
+
+    # Choose a lightweight base image; we provide our own build tools.
+    language: c
+
+    # GHC depends on GMP. You can add other dependencies here as well.
+    addons:
+      apt:
+        packages:
+        - libgmp-dev
+
+    before_install:
+    # Download and unpack the stack executable
+    - mkdir -p ~/.local/bin
+    - export PATH=$$HOME/.local/bin:$$PATH
+    - travis_retry curl -L https://www.stackage.org/stack/linux-x86_64 | tar xz --wildcards --strip-components=1 -C ~/.local/bin '*/stack'
+
+    # This line does all of the work: installs GHC if necessary, builds the
+    # library, executables, and test suites, and runs the test suites.
+    # `--no-terminal works` around some quirks in Travis's terminal implementation.
+    script: stack --no-terminal --install-ghc test
+
+    # Caching so the next build will be fast too.
+    cache:
+      directories:
+      - $$HOME/.stack
+      - $$HOME/build/$owner/${repo}/.stack-work
+    |]

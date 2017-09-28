@@ -28,3 +28,7 @@ TAGS
 guide.iml
 .vscode/
 tags
+
+# Binaries
+hs-init
+*.hsfiles
