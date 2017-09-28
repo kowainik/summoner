@@ -357,22 +357,6 @@ checkUniqueName nm = do
 (~==) :: Text -> Text -> Bool
 (~==) = T.isPrefixOf
 
-splitOn :: Text -> Text -> [Text]
-splitOn _   ""  = []
-splitOn sep str = go "" str
-  where
-    sepLen = T.length sep
-    go :: Text -> Text -> [Text]
-    go acc s
-      | T.null s && T.null acc = [""]
-      | T.null s             = [T.reverse acc]
-      | sep ~== s          = T.reverse acc : go "" (T.drop sepLen s)
-      | otherwise          = go (T.head s `T.cons` acc) (T.tail s)
-
--- TODO: replace with T.replace
-replace :: Text -> Text -> Text -> Text
-replace old new = T.intercalate new . splitOn old
-
 -- | Creating template file to use in `stack new` command
 createStackTemplate :: ProjectData -> Text
 createStackTemplate
@@ -554,7 +538,7 @@ createStackTemplate
       travisLink :: Text =
         "https://travis-ci.org/" <> owner <> "/" <> repo
       licenseShield :: Text =
-        "https://img.shields.io/badge/license-" <> replace "-" "--" license <> "-blue.svg"
+        "https://img.shields.io/badge/license-" <> T.replace "-" "--" license <> "-blue.svg"
       licenseLink :: Text =
         "https://github.com/" <> owner <> "/" <> repo <> "/blob/master/LICENSE"
 
