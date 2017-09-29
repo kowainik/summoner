@@ -219,6 +219,14 @@ generateProject repo owner description InitOpts{..} = do
       case ch of
         "y" -> True <$ T.putStrLn "Tests will be added to the project"
         "n" -> pure False
+  bench <-
+    if isBenchmark then pure True
+    else do
+      ch <- choose "Add benchmarks?" ["y", "n"]
+      case ch of
+        "y" -> True <$ T.putStrLn "Benchmarks will be added to the project"
+        "n" -> pure False
+
   putStrLn "Latest GHCs: 7.0.4 7.2.2 7.4.2 7.6.3 7.8.4 7.10.3 8.0.1"
   -- TODO: once GHC 7.8 is dropped, switch to <$>
   testedVersions <- T.words `fmap`
@@ -261,6 +269,7 @@ data ProjectData = ProjectData
   , isLib          :: Bool   -- ^ is library
   , isExe          :: Bool   -- ^ is executable
   , test           :: Bool   -- ^ add tests
+  , bench          :: Bool   -- ^ add benchmarks
   , testedVersions :: [Text] -- ^ ghc versions
   , baseVer        :: Text   -- ^ base version
   }
@@ -372,6 +381,11 @@ createStackTemplate
                  <> (if test
                     then createCabalTest
                     else "")
+                 <> (if bench
+                     then createCabalBenchmark (if isLib
+                                                then ", " <> repo
+                                                else "")
+                     else "")
                  <> createCabalGit
                  <> createCabalFiles
                  <> readme
@@ -447,6 +461,21 @@ createStackTemplate
 
     |]
 
+  createCabalBenchmark :: Text -> Text
+  createCabalBenchmark r =
+    [text|
+    benchmark ${repo}-benchmark
+      type:                exitcode-stdio-1.0
+      default-language:    Haskell2010
+      ghc-options:         -Wall -Werror -O2 -threaded -rtsopts -with-rtsopts=-N
+      hs-source-dirs:      benchmark
+      main-is:             Main.hs
+      build-depends:       base
+                         , criterion
+                         $r
+
+    |]
+
   createCabalGit :: Text
   createCabalGit =
     [text|
@@ -462,6 +491,7 @@ createStackTemplate
     <> (if isExe then if isLib then createExe else createOnlyExe else  "")
     <> (if isLib then createLib else  "")
     <> (if test  then createTest else "")
+    <> (if bench then createBenchmark else "")
 
   createSetup :: Text
   createSetup =
@@ -514,6 +544,17 @@ createStackTemplate
 
     main :: IO ()
     main = someFunc
+
+    |]
+
+  createBenchmark :: Text
+  createBenchmark =
+    [text|
+    {-# START_FILE benchmark/Main.hs #-}
+    import Criterion.Main
+
+    main :: IO ()
+    main = defaultMain [bench "const" (whnf const ())]
 
     |]
 
