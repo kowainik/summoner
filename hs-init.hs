@@ -227,23 +227,12 @@ generateProject repo owner description InitOpts{..} = do
         "y" -> True <$ T.putStrLn "Benchmarks will be added to the project"
         "n" -> pure False
 
-  putStrLn "Latest GHCs: 7.0.4 7.2.2 7.4.2 7.6.3 7.8.4 7.10.3 8.0.1"
+  putStrLn "Latest GHCs: 7.0.4 7.2.2 7.4.2 7.6.3 7.8.4 7.10.3 8.0.1 8.2.1"
   -- TODO: once GHC 7.8 is dropped, switch to <$>
   testedVersions <- T.words `fmap`
     queryDef "Versions of GHC to test with (space-separated): " defaultGHC
-  let baseVer :: Text
-      baseVer
-        | found "7.0"  = ">=4.3 && <5"
-        | found "7.2"  = ">=4.4 && <5"
-        | found "7.4"  = ">=4.5 && <5"
-        | found "7.6"  = ">=4.6 && <5"
-        | found "7.8"  = ">=4.7 && <5"
-        | found "7.10" = ">=4.8 && <5"
-        | found "8.0"  = ">=4.9 && <5"
-        | otherwise    = "==4.*"
-        where found v = any (\x -> (v<>".") ~== x || v == x) testedVersions
-  T.putStrLn $ "Going to use this constraint on base: " <> baseVer
   -- create haskell template
+
   T.writeFile "temp.hsfiles"
             $ createStackTemplate ProjectData{..}
 
@@ -271,7 +260,6 @@ data ProjectData = ProjectData
   , test           :: Bool   -- ^ add tests
   , bench          :: Bool   -- ^ add benchmarks
   , testedVersions :: [Text] -- ^ ghc versions
-  , baseVer        :: Text   -- ^ base version
   }
   deriving Show
 
@@ -363,9 +351,6 @@ checkUniqueName nm = do
   else
     pure nm
 
-(~==) :: Text -> Text -> Bool
-(~==) = T.isPrefixOf
-
 -- | Creating template file to use in `stack new` command
 createStackTemplate :: ProjectData -> Text
 createStackTemplate
@@ -429,7 +414,7 @@ createStackTemplate
       hs-source-dirs:      src
       exposed-modules:     Lib
       ghc-options:         -Wall
-      build-depends:       base ${baseVer}
+      build-depends:       base
       default-language:    Haskell2010
 
     |]
