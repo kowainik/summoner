@@ -33,9 +33,9 @@ import           Data.Text             (Text)
 import qualified Data.Text             as T
 import qualified Data.Text.IO          as T
 import           NeatInterpolation     (text)
-import           Options.Applicative   (Parser (), ParserInfo (), execParser, footer,
-                                        fullDesc, header, help, helper, info, long,
-                                        metavar, progDesc, short, strArgument, switch)
+import           Options.Applicative   (Parser (), ParserInfo (), execParser, flag,
+                                        footer, fullDesc, header, help, helper, info,
+                                        long, metavar, progDesc, short, strArgument)
 import           System.Directory      (doesPathExist, getCurrentDirectory,
                                         setCurrentDirectory)
 import           System.FilePath       ((</>))
@@ -78,7 +78,10 @@ runWithOptions opts@InitOpts{..} = do
 
   -- Generate the project.
   generateProject repo owner description opts
-  when githubFlag $ do
+
+  github <- decisionToBool githubFlag "github integration"
+
+  when github $ do
     -- Create the repository on Github.
     "git" ["init"]
     "hub" ["create", "-d", description, owner <> "/" <> repo]
@@ -96,44 +99,44 @@ runWithOptions opts@InitOpts{..} = do
 
 data InitOpts = InitOpts
   { projectName  :: Text
-  , githubFlag   :: Bool
+  , githubFlag   :: Decision
 --  , ciFlag      :: Bool
-  , isLibrary    :: Bool
-  , isExecutable :: Bool
-  , isTest       :: Bool
-  , isBenchmark  :: Bool
+  , isLibrary    :: Decision
+  , isExecutable :: Decision
+  , isTest       :: Decision
+  , isBenchmark  :: Decision
   }
 
-githubP :: Parser Bool
-githubP = switch
+githubP :: Parser Decision
+githubP = flag Idk Yes
       (  long "github"
       <> short 'g'
       <> help "Enable GitHub integration"
       )
 
-libraryP :: Parser Bool
-libraryP = switch
+libraryP :: Parser Decision
+libraryP = flag Idk Yes
       (  long "library"
       <> short 'l'
       <> help "Create library folder"
       )
 
-execP :: Parser Bool
-execP = switch
+execP :: Parser Decision
+execP = flag Idk Yes
       (  long "exec"
       <> short 'e'
       <> help "Create executable target"
       )
 
-testP :: Parser Bool
-testP = switch
+testP :: Parser Decision
+testP = flag Idk Yes
       (  long "test"
       <> short 't'
       <> help "Create test target"
       )
 
-benchmarkP :: Parser Bool
-benchmarkP = switch
+benchmarkP :: Parser Decision
+benchmarkP = flag Idk Yes
       (  long "benchmark"
       <> short 'b'
       <> help "Create benchmarks"
@@ -200,32 +203,11 @@ generateProject repo owner description InitOpts{..} = do
           Just t  -> customizeLicense license (lcnsText t) nm
           Nothing -> error "Broken predefined license list"
 
-  -- Library or Executable flags
-  (isLib, isExe) <-
-    if isLibrary then
-        pure (True, isExecutable)
-    else if isExecutable then
-        pure (False, True)
-    else do
-        ch <- choose "Library or Executable?" ["both", "lib", "exe"]
-        pure $ case ch of
-          "lib"  -> (True, False)
-          "exe"  -> (False, True)
-          "both" -> (True, True)
-  test <-
-    if isTest then pure True
-    else do
-      ch <- choose "Add tests?" ["y", "n"]
-      case ch of
-        "y" -> True <$ T.putStrLn "Tests will be added to the project"
-        "n" -> pure False
-  bench <-
-    if isBenchmark then pure True
-    else do
-      ch <- choose "Add benchmarks?" ["y", "n"]
-      case ch of
-        "y" -> True <$ T.putStrLn "Benchmarks will be added to the project"
-        "n" -> pure False
+  -- Library/Executable/Tests/Benchmarks flags
+  isLib <- decisionToBool isLibrary "library target"
+  isExe <- decisionToBool isExecutable "executable target"
+  test  <- decisionToBool isTest "tests"
+  bench <- decisionToBool isBenchmark "benchmarks"
 
   putStrLn "Latest GHCs: 7.0.4 7.2.2 7.4.2 7.6.3 7.8.4 7.10.3 8.0.1 8.2.1"
   -- TODO: once GHC 7.8 is dropped, switch to <$>
@@ -262,6 +244,8 @@ data ProjectData = ProjectData
   , testedVersions :: [Text] -- ^ ghc versions
   }
   deriving Show
+
+data Decision = Yes | Nop | Idk
 
 licenseNames :: [Text]
 licenseNames = map fst githubLicenseQueryNames
@@ -301,6 +285,17 @@ customizeLicense l t nm
 instance (a ~ Text, b ~ ()) => IsString ([a] -> IO b) where
   fromString "cd" [arg] = setCurrentDirectory $ T.unpack arg
   fromString cmd args   = callCommand $ showCommandForUser cmd (map T.unpack args)
+
+decisionToBool :: Decision -> Text -> IO Bool
+decisionToBool decision target =
+  case decision of
+    Yes -> pure True
+    Nop -> pure False
+    Idk -> do
+      ch <- choose ("Add " <> target <> "?") ["y", "n"]
+      case ch of
+        "y" -> True <$ T.putStrLn (T.toUpper target <> " will be added to the project")
+        "n" -> pure False
 
 printQuestion :: Text -> [Text] -> IO ()
 printQuestion question (def:rest) = do
