@@ -16,6 +16,7 @@
 
 {-# LANGUAGE ApplicativeDo       #-}
 {-# LANGUAGE FlexibleInstances   #-}
+{-# LANGUAGE InstanceSigs        #-}
 {-# LANGUAGE MultiWayIf          #-}
 {-# LANGUAGE OverloadedStrings   #-}
 {-# LANGUAGE QuasiQuotes         #-}
@@ -26,6 +27,7 @@
 import           Control.Monad         (when)
 import           Data.Aeson            (FromJSON (..), decodeStrict, withObject, (.:))
 import           Data.ByteString.Char8 (pack)
+import           Data.Foldable         (fold)
 import           Data.List             (nub)
 import           Data.Semigroup        ((<>))
 import           Data.String           (IsString (..))
@@ -33,9 +35,10 @@ import           Data.Text             (Text)
 import qualified Data.Text             as T
 import qualified Data.Text.IO          as T
 import           NeatInterpolation     (text)
-import           Options.Applicative   (Parser (), ParserInfo (), execParser, flag,
-                                        footer, fullDesc, header, help, helper, info,
-                                        long, metavar, progDesc, short, strArgument)
+import           Options.Applicative   (Parser (), ParserInfo (), command, execParser,
+                                        flag, footer, fullDesc, header, help, helper,
+                                        info, long, metavar, optional, progDesc, short,
+                                        strArgument, subparser)
 import           System.Directory      (doesPathExist, getCurrentDirectory,
                                         setCurrentDirectory)
 import           System.FilePath       ((</>))
@@ -71,7 +74,7 @@ main :: IO ()
 main = execParser prsr >>= runWithOptions
 
 runWithOptions :: InitOpts -> IO ()
-runWithOptions opts@InitOpts{..} = do
+runWithOptions opts@(InitOpts projectName Targets{..}) = do
   repo        <- checkUniqueName projectName
   owner       <- queryDef "Repository owner: " defaultOwner
   description <- query "Short project description: "
@@ -97,9 +100,8 @@ runWithOptions opts@InitOpts{..} = do
 ---------- CLI ------------
 ---------------------------
 
-data InitOpts = InitOpts
-  { projectName  :: Text
-  , githubFlag   :: Decision
+data Targets = Targets
+  { githubFlag   :: Decision
 --  , ciFlag      :: Bool
   , isLibrary    :: Decision
   , isExecutable :: Decision
@@ -107,50 +109,81 @@ data InitOpts = InitOpts
   , isBenchmark  :: Decision
   }
 
-githubP :: Parser Decision
-githubP = flag Idk Yes
+instance Monoid Targets where
+  mempty = Targets mempty mempty mempty mempty mempty
+
+  mappend t1 t2 = Targets
+    { githubFlag = combine githubFlag
+    , isLibrary  = combine isLibrary
+    , isExecutable = combine isExecutable
+    , isTest       = combine isTest
+    , isBenchmark  = combine isBenchmark
+    }
+    where
+      combine field = field t1 `mappend` field t2
+
+data InitOpts = InitOpts
+  { projectName :: Text
+  , targets     :: Targets
+  }
+
+targetsP ::  Decision -> Parser Targets
+targetsP d = do
+    githubFlag   <- githubP d
+    isLibrary    <- libraryP d
+    isExecutable <- execP d
+    isTest       <- testP d
+    isBenchmark  <- benchmarkP d
+    pure Targets{..}
+
+githubP :: Decision -> Parser Decision
+githubP d = flag Idk d
       (  long "github"
       <> short 'g'
       <> help "Enable GitHub integration"
       )
 
-libraryP :: Parser Decision
-libraryP = flag Idk Yes
+libraryP :: Decision -> Parser Decision
+libraryP d = flag Idk d
       (  long "library"
       <> short 'l'
       <> help "Create library folder"
       )
 
-execP :: Parser Decision
-execP = flag Idk Yes
+execP :: Decision -> Parser Decision
+execP d = flag Idk d
       (  long "exec"
       <> short 'e'
       <> help "Create executable target"
       )
 
-testP :: Parser Decision
-testP = flag Idk Yes
+testP :: Decision -> Parser Decision
+testP d = flag Idk d
       (  long "test"
       <> short 't'
       <> help "Create test target"
       )
 
-benchmarkP :: Parser Decision
-benchmarkP = flag Idk Yes
+benchmarkP :: Decision -> Parser Decision
+benchmarkP d = flag Idk d
       (  long "benchmark"
       <> short 'b'
       <> help "Create benchmarks"
       )
 
+onP = subparser $ command "on" $
+          info (targetsP Yes) (progDesc "Specify options to enable")
+
+offP = subparser $ command "off" $
+          info (targetsP Nop) (progDesc "Specify options to disable")
+
 optsP :: Parser InitOpts
 optsP = do
     projectName  <- T.pack <$> strArgument (metavar "PROJECT_NAME")
-    githubFlag   <- githubP
-    isLibrary    <- libraryP
-    isExecutable <- execP
-    isTest       <- testP
-    isBenchmark  <- benchmarkP
-    pure InitOpts{..}
+    on <- optional onP
+    off <- optional offP
+
+    pure $ InitOpts projectName (fold $ on `mappend` off)
 
 prsr :: ParserInfo InitOpts
 prsr = info ( helper <*> optsP )
@@ -162,7 +195,7 @@ prsr = info ( helper <*> optsP )
 
 -- | Generate the project.
 generateProject :: Text -> Text -> Text -> InitOpts -> IO ()
-generateProject repo owner description InitOpts{..} = do
+generateProject repo owner description (InitOpts projectName Targets{..}) = do
   nm       <- queryDef "Author: " defaultName
   email    <- queryDef "Maintainer e-mail: " defaultEmail
   T.putStr
@@ -245,7 +278,19 @@ data ProjectData = ProjectData
   }
   deriving Show
 
+---------------------------------------------
+
 data Decision = Yes | Nop | Idk
+
+instance Monoid Decision where
+  mempty = Idk
+
+  mappend :: Decision -> Decision -> Decision
+  mappend Idk x   = x
+  mappend x   Idk = x
+  mappend _   x   = x
+
+---------------------------------------------
 
 licenseNames :: [Text]
 licenseNames = map fst githubLicenseQueryNames
@@ -296,6 +341,7 @@ decisionToBool decision target =
       case ch of
         "y" -> True <$ T.putStrLn (T.toUpper target <> " will be added to the project")
         "n" -> pure False
+        _   -> error "Impossible happened"
 
 printQuestion :: Text -> [Text] -> IO ()
 printQuestion question (def:rest) = do
