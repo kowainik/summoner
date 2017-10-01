@@ -82,17 +82,6 @@ runWithOptions opts@(InitOpts projectName Targets{..}) = do
   -- Generate the project.
   generateProject repo owner description opts
 
-  github <- decisionToBool githubFlag "github integration"
-
-  when github $ do
-    -- Create the repository on Github.
-    "git" ["init"]
-    "hub" ["create", "-d", description, owner <> "/" <> repo]
-
-    -- Make a commit and push it.
-    "git" ["add", "."]
-    "git" ["commit", "-m", "Create the project"]
-    "git" ["push", "-u", "origin", "master"]
 
   putStrLn "Job's done"
 
@@ -107,17 +96,19 @@ data Targets = Targets
   , isExecutable :: Decision
   , isTest       :: Decision
   , isBenchmark  :: Decision
+  , ciFlag       :: Decision
   }
 
 instance Monoid Targets where
-  mempty = Targets mempty mempty mempty mempty mempty
+  mempty = Targets mempty mempty mempty mempty mempty mempty
 
   mappend t1 t2 = Targets
-    { githubFlag = combine githubFlag
-    , isLibrary  = combine isLibrary
+    { githubFlag   = combine githubFlag
+    , isLibrary    = combine isLibrary
     , isExecutable = combine isExecutable
     , isTest       = combine isTest
     , isBenchmark  = combine isBenchmark
+    , ciFlag       = combine ciFlag
     }
     where
       combine field = field t1 `mappend` field t2
@@ -134,6 +125,7 @@ targetsP d = do
     isExecutable <- execP d
     isTest       <- testP d
     isBenchmark  <- benchmarkP d
+    ciFlag       <- ciP d
     pure Targets{..}
 
 githubP :: Decision -> Parser Decision
@@ -169,6 +161,13 @@ benchmarkP d = flag Idk d
       (  long "benchmark"
       <> short 'b'
       <> help "Create benchmarks"
+      )
+
+ciP :: Decision -> Parser Decision
+ciP d =  flag Idk d
+      (  long "ci"
+      <> short 'c'
+      <> help "CI integration"
       )
 
 onP = subparser $ command "on" $
@@ -237,11 +236,15 @@ generateProject repo owner description (InitOpts projectName Targets{..}) = do
           Nothing -> error "Broken predefined license list"
 
   -- Library/Executable/Tests/Benchmarks flags
-  isLib <- decisionToBool isLibrary "library target"
-  isExe <- if (not isLib) then pure True
-           else decisionToBool isExecutable "executable target"
-  test  <- decisionToBool isTest "tests"
-  bench <- decisionToBool isBenchmark "benchmarks"
+
+  github <- decisionToBool githubFlag "github integration"
+  ci     <- if not github then pure False
+            else decisionToBool ciFlag "CI integration"
+  isLib  <- decisionToBool isLibrary "library target"
+  isExe  <- if not isLib then pure True
+            else decisionToBool isExecutable "executable target"
+  test   <- decisionToBool isTest "tests"
+  bench  <- decisionToBool isBenchmark "benchmarks"
 
   putStrLn "Latest GHCs: 7.0.4 7.2.2 7.4.2 7.6.3 7.8.4 7.10.3 8.0.1 8.2.1"
   -- TODO: once GHC 7.8 is dropped, switch to <$>
@@ -258,6 +261,21 @@ generateProject repo owner description (InitOpts projectName Targets{..}) = do
   "rm" ["temp.hsfiles"]
   "cd" [repo]
 
+
+  when github doGithubCommands
+
+ where
+  doGithubCommands :: IO ()
+  doGithubCommands = do
+-- Create the repository on Github.
+    "git" ["init"]
+    "hub" ["create", "-d", description, owner <> "/" <> repo]
+
+    -- Make a commit and push it.
+    "git" ["add", "."]
+    "git" ["commit", "-m", "Create the project"]
+    "git" ["push", "-u", "origin", "master"]
+
 ----------------------------------
 ---------- Utilities -------------
 ----------------------------------
@@ -271,6 +289,8 @@ data ProjectData = ProjectData
   , category       :: Text   -- ^ project category
   , license        :: Text   -- ^ type of license
   , licenseText    :: Text   -- ^ license text
+  , github         :: Bool   -- ^ github repository
+  , ci             :: Bool   -- ^ CI integration
   , isLib          :: Bool   -- ^ is library
   , isExe          :: Bool   -- ^ is executable
   , test           :: Bool   -- ^ add tests
@@ -413,11 +433,13 @@ createStackTemplate
                                                 then ", " <> repo
                                                 else "")
                      else "")
-                 <> createCabalGit
+                 <> (if github
+                     then createCabalGit
+                     else "")
                  <> createCabalFiles
                  <> readme
-                 <> gitignore
-                 <> travisYml
+                 <> (if github then gitignore else "")
+                 <> (if ci then travisYml else "")
                  <> changelog
                  <> createLicense
 
