@@ -73,128 +73,20 @@ defaultYear = "2017"
 main :: IO ()
 main = execParser prsr >>= runWithOptions
 
+-- | Run 'hs-init' with cli options
 runWithOptions :: InitOpts -> IO ()
-runWithOptions opts@(InitOpts projectName Targets{..}) = do
+runWithOptions (InitOpts projectName targets) = do
   repo        <- checkUniqueName projectName
   owner       <- queryDef "Repository owner: " defaultOwner
   description <- query "Short project description: "
-
   -- Generate the project.
-  generateProject repo owner description opts
-
+  generateProject repo owner description targets
 
   putStrLn "Job's done"
 
----------------------------
----------- CLI ------------
----------------------------
-
-data Targets = Targets
-  { githubFlag   :: Decision
---  , ciFlag      :: Bool
-  , isLibrary    :: Decision
-  , isExecutable :: Decision
-  , isTest       :: Decision
-  , isBenchmark  :: Decision
-  , ciFlag       :: Decision
-  }
-
-instance Monoid Targets where
-  mempty = Targets mempty mempty mempty mempty mempty mempty
-
-  mappend t1 t2 = Targets
-    { githubFlag   = combine githubFlag
-    , isLibrary    = combine isLibrary
-    , isExecutable = combine isExecutable
-    , isTest       = combine isTest
-    , isBenchmark  = combine isBenchmark
-    , ciFlag       = combine ciFlag
-    }
-    where
-      combine field = field t1 `mappend` field t2
-
-data InitOpts = InitOpts
-  { projectName :: Text
-  , targets     :: Targets
-  }
-
-targetsP ::  Decision -> Parser Targets
-targetsP d = do
-    githubFlag   <- githubP d
-    isLibrary    <- libraryP d
-    isExecutable <- execP d
-    isTest       <- testP d
-    isBenchmark  <- benchmarkP d
-    ciFlag       <- ciP d
-    pure Targets{..}
-
-githubP :: Decision -> Parser Decision
-githubP d = flag Idk d
-      (  long "github"
-      <> short 'g'
-      <> help "Enable GitHub integration"
-      )
-
-libraryP :: Decision -> Parser Decision
-libraryP d = flag Idk d
-      (  long "library"
-      <> short 'l'
-      <> help "Create library folder"
-      )
-
-execP :: Decision -> Parser Decision
-execP d = flag Idk d
-      (  long "exec"
-      <> short 'e'
-      <> help "Create executable target"
-      )
-
-testP :: Decision -> Parser Decision
-testP d = flag Idk d
-      (  long "test"
-      <> short 't'
-      <> help "Create test target"
-      )
-
-benchmarkP :: Decision -> Parser Decision
-benchmarkP d = flag Idk d
-      (  long "benchmark"
-      <> short 'b'
-      <> help "Create benchmarks"
-      )
-
-ciP :: Decision -> Parser Decision
-ciP d =  flag Idk d
-      (  long "ci"
-      <> short 'c'
-      <> help "CI integration"
-      )
-
-onP = subparser $ command "on" $
-          info (targetsP Yes) (progDesc "Specify options to enable")
-
-offP = subparser $ command "off" $
-          info (targetsP Nop) (progDesc "Specify options to disable")
-
-optsP :: Parser InitOpts
-optsP = do
-    projectName  <- T.pack <$> strArgument (metavar "PROJECT_NAME")
-    on <- optional onP
-    off <- optional offP
-
-    pure $ InitOpts projectName (fold $ on `mappend` off)
-
-prsr :: ParserInfo InitOpts
-prsr = info ( helper <*> optsP )
-            ( fullDesc
-           <> progDesc "Create your own haskell project"
-           <> header "hs-init -- tool for creating completely configured production Haskell projects"
-           <> footer "hs-init test footer" )
----------------------------
-
 -- | Generate the project.
-generateProject :: Text -> Text -> Text -> InitOpts -> IO ()
-generateProject repo owner description (InitOpts projectName Targets{..}) = do
+generateProject :: Text -> Text -> Text -> Targets -> IO ()
+generateProject repo owner description Targets{..} = do
   nm       <- queryDef "Author: " defaultName
   email    <- queryDef "Maintainer e-mail: " defaultEmail
   T.putStr
@@ -216,8 +108,7 @@ generateProject repo owner description (InitOpts projectName Targets{..}) = do
 
     |]
   category <- query "Category: "
-  license  <- choose "License: "
-    (nub (defaultLicense : licenseNames))
+  license  <- choose "License: " $ nub (defaultLicense : licenseNames)
 
   -- License creation
   let licenseGithub = snd
@@ -236,46 +127,146 @@ generateProject repo owner description (InitOpts projectName Targets{..}) = do
           Nothing -> error "Broken predefined license list"
 
   -- Library/Executable/Tests/Benchmarks flags
-
   github <- decisionToBool githubFlag "github integration"
-  ci     <- if not github then pure False
-            else decisionToBool ciFlag "CI integration"
+  ci     <- if github
+            then decisionToBool ciFlag "CI integration"
+            else pure False
   isLib  <- decisionToBool isLibrary "library target"
-  isExe  <- if not isLib then pure True
-            else decisionToBool isExecutable "executable target"
+  isExe  <- if isLib
+            then decisionToBool isExecutable "executable target"
+            else pure True
   test   <- decisionToBool isTest "tests"
   bench  <- decisionToBool isBenchmark "benchmarks"
 
-  putStrLn "Latest GHCs: 7.0.4 7.2.2 7.4.2 7.6.3 7.8.4 7.10.3 8.0.1 8.2.1"
-  -- TODO: once GHC 7.8 is dropped, switch to <$>
-  testedVersions <- T.words `fmap`
+  putStrLn "Latest GHCs: 7.10.3 8.0.1 8.2.1"
+  testedVersions <- T.words <$>
     queryDef "Versions of GHC to test with (space-separated): " defaultGHC
-  -- create haskell template
-
-  T.writeFile "temp.hsfiles"
-            $ createStackTemplate ProjectData{..}
-
-  -- create new project with stack
-  "stack" ["new", repo, "temp.hsfiles"]
-  -- do not need template file anymore
-  "rm" ["temp.hsfiles"]
-  "cd" [repo]
-
-
+  -- create stack project
+  doStackCommands ProjectData{..}
+  -- create github repository and commit
   when github doGithubCommands
 
  where
+  doStackCommands :: ProjectData -> IO ()
+  doStackCommands projectData = do
+    -- create haskell template
+    T.writeFile "temp.hsfiles" $ createStackTemplate projectData
+    -- create new project with stack
+    "stack" ["new", repo, "temp.hsfiles"]
+    -- do not need template file anymore
+    "rm" ["temp.hsfiles"]
+    "cd" [repo]
+
   doGithubCommands :: IO ()
   doGithubCommands = do
--- Create the repository on Github.
+    -- Create the repository on Github.
     "git" ["init"]
     "hub" ["create", "-d", description, owner <> "/" <> repo]
-
     -- Make a commit and push it.
     "git" ["add", "."]
     "git" ["commit", "-m", "Create the project"]
     "git" ["push", "-u", "origin", "master"]
 
+---------------------------
+---------- CLI ------------
+---------------------------
+
+data Targets = Targets
+  { githubFlag   :: Decision
+  , ciFlag       :: Decision
+  , isLibrary    :: Decision
+  , isExecutable :: Decision
+  , isTest       :: Decision
+  , isBenchmark  :: Decision
+  }
+
+instance Monoid Targets where
+  mempty = Targets mempty mempty mempty mempty mempty mempty
+
+  mappend t1 t2 = Targets
+    { githubFlag   = combine githubFlag
+    , ciFlag       = combine ciFlag
+    , isLibrary    = combine isLibrary
+    , isExecutable = combine isExecutable
+    , isTest       = combine isTest
+    , isBenchmark  = combine isBenchmark
+    }
+    where
+      combine field = field t1 `mappend` field t2
+
+-- | Initial parsed options from cli
+data InitOpts = InitOpts Text    -- ^ Project name
+                         Targets -- ^ Target flags
+
+targetsP ::  Decision -> Parser Targets
+targetsP d = do
+    githubFlag   <- githubP    d
+    ciFlag       <- ciP        d
+    isLibrary    <- libraryP   d
+    isExecutable <- execP      d
+    isTest       <- testP      d
+    isBenchmark  <- benchmarkP d
+    pure Targets{..}
+
+githubP :: Decision -> Parser Decision
+githubP d =  flag Idk d
+          $  long "github"
+          <> short 'g'
+          <> help "GitHub integration"
+
+libraryP :: Decision -> Parser Decision
+libraryP d =  flag Idk d
+           $  long "library"
+           <> short 'l'
+           <> help "Library folder"
+
+execP :: Decision -> Parser Decision
+execP d =  flag Idk d
+        $  long "exec"
+        <> short 'e'
+        <> help "Executable target"
+
+testP :: Decision -> Parser Decision
+testP d =  flag Idk d
+        $  long "test"
+        <> short 't'
+        <> help "Test target"
+
+benchmarkP :: Decision -> Parser Decision
+benchmarkP d =  flag Idk d
+             $  long "benchmark"
+             <> short 'b'
+             <> help "Benchmarks"
+
+ciP :: Decision -> Parser Decision
+ciP d =  flag Idk d
+      $  long "ci"
+      <> short 'c'
+      <> help "CI integration"
+
+onP :: Parser Targets
+onP  = subparser $ command "on" $
+          info (targetsP Yes) (progDesc "Specify options to enable")
+
+offP :: Parser Targets
+offP = subparser $ command "off" $
+          info (targetsP Nop) (progDesc "Specify options to disable")
+
+optsP :: Parser InitOpts
+optsP = do
+    projectName <- T.pack <$> strArgument (metavar "PROJECT_NAME")
+    on  <- optional onP
+    off <- optional offP
+
+    pure $ InitOpts projectName (fold $ on `mappend` off)
+
+prsr :: ParserInfo InitOpts
+prsr = info ( helper <*> optsP )
+            $ fullDesc
+           <> progDesc "Create your own haskell project"
+           <> header "hs-init -- tool for creating completely configured production Haskell projects"
+           <> footer "hs-init test footer"
+---------------------------
 ----------------------------------
 ---------- Utilities -------------
 ----------------------------------
@@ -296,10 +287,7 @@ data ProjectData = ProjectData
   , test           :: Bool   -- ^ add tests
   , bench          :: Bool   -- ^ add benchmarks
   , testedVersions :: [Text] -- ^ ghc versions
-  }
-  deriving Show
-
----------------------------------------------
+  } deriving Show
 
 data Decision = Yes | Nop | Idk
 
@@ -311,7 +299,21 @@ instance Monoid Decision where
   mappend x   Idk = x
   mappend _   x   = x
 
+decisionToBool :: Decision -> Text -> IO Bool
+decisionToBool decision target =
+  case decision of
+    Yes -> pure True
+    Nop -> pure False
+    Idk -> do
+      ch <- choose ("Add " <> target <> "?") ["y", "n"]
+      case ch of
+        "y" -> True <$ T.putStrLn (T.toUpper target <> " will be added to the project")
+        "n" -> pure False
+        _   -> error "Impossible happened"
+
 ---------------------------------------------
+
+--------- License stuff -----------
 
 licenseNames :: [Text]
 licenseNames = map fst githubLicenseQueryNames
@@ -347,22 +349,14 @@ customizeLicense l t nm
         afterN = T.tail $ T.dropWhile (/= ']') withN in
     beforeY <> defaultYear <> beforeN <> nm <> afterN
 
+------------ Commands ---------------
+
 -- This is needed to be able to call commands by writing strings.
 instance (a ~ Text, b ~ ()) => IsString ([a] -> IO b) where
   fromString "cd" [arg] = setCurrentDirectory $ T.unpack arg
   fromString cmd args   = callCommand $ showCommandForUser cmd (map T.unpack args)
 
-decisionToBool :: Decision -> Text -> IO Bool
-decisionToBool decision target =
-  case decision of
-    Yes -> pure True
-    Nop -> pure False
-    Idk -> do
-      ch <- choose ("Add " <> target <> "?") ["y", "n"]
-      case ch of
-        "y" -> True <$ T.putStrLn (T.toUpper target <> " will be added to the project")
-        "n" -> pure False
-        _   -> error "Impossible happened"
+------------ IO Questioning ------------
 
 printQuestion :: Text -> [Text] -> IO ()
 printQuestion question (def:rest) = do
@@ -413,6 +407,10 @@ checkUniqueName nm = do
   else
     pure nm
 
+---------------------------------
+--------- Stack Files -----------
+---------------------------------
+
 -- | Creating template file to use in `stack new` command
 createStackTemplate :: ProjectData -> Text
 createStackTemplate
@@ -426,8 +424,8 @@ createStackTemplate
                                           else "")
                      else "")
                  <> (if test
-                    then createCabalTest
-                    else "")
+                     then createCabalTest
+                     else "")
                  <> (if bench
                      then createCabalBenchmark (if isLib
                                                 then ", " <> repo
