@@ -238,7 +238,8 @@ generateProject repo owner description (InitOpts projectName Targets{..}) = do
 
   -- Library/Executable/Tests/Benchmarks flags
   isLib <- decisionToBool isLibrary "library target"
-  isExe <- decisionToBool isExecutable "executable target"
+  isExe <- if (not isLib) then pure True
+           else decisionToBool isExecutable "executable target"
   test  <- decisionToBool isTest "tests"
   bench <- decisionToBool isBenchmark "benchmarks"
 
