@@ -246,11 +246,11 @@ ciP d =  flag Idk d
 
 onP :: Parser Targets
 onP  = subparser $ command "on" $
-          info (targetsP Yes) (progDesc "Specify options to enable")
+          info (helper <*> targetsP Yes) (progDesc "Specify options to enable")
 
 offP :: Parser Targets
 offP = subparser $ command "off" $
-          info (targetsP Nop) (progDesc "Specify options to disable")
+          info (helper <*> targetsP Nop) (progDesc "Specify options to disable")
 
 optsP :: Parser InitOpts
 optsP = do
