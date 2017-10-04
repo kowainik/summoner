@@ -35,9 +35,9 @@ import           Data.Text             (Text)
 import qualified Data.Text             as T
 import qualified Data.Text.IO          as T
 import           NeatInterpolation     (text)
-import           Options.Applicative   (Parser (), ParserInfo (), command, execParser,
-                                        flag, footer, fullDesc, header, help, helper,
-                                        info, long, metavar, optional, progDesc, short,
+import           Options.Applicative   (Parser, ParserInfo, command, execParser, flag,
+                                        footer, fullDesc, header, help, helper, info,
+                                        long, metavar, optional, progDesc, short,
                                         strArgument, subparser)
 import           System.Directory      (doesPathExist, getCurrentDirectory,
                                         setCurrentDirectory)
@@ -131,6 +131,7 @@ generateProject repo owner description Targets{..} = do
   ci     <- if github
             then decisionToBool ciFlag "CI integration"
             else pure False
+  script <- decisionToBool scriptFlag "build script"
   isLib  <- decisionToBool isLibrary "library target"
   isExe  <- if isLib
             then decisionToBool isExecutable "executable target"
@@ -143,6 +144,8 @@ generateProject repo owner description Targets{..} = do
     queryDef "Versions of GHC to test with (space-separated): " defaultGHC
   -- create stack project
   doStackCommands ProjectData{..}
+  -- make b executable
+  when script doScriptCommand
   -- create github repository and commit
   when github doGithubCommands
 
@@ -156,6 +159,10 @@ generateProject repo owner description Targets{..} = do
     -- do not need template file anymore
     "rm" ["temp.hsfiles"]
     "cd" [repo]
+
+  doScriptCommand :: IO ()
+  doScriptCommand =
+    "chmod" ["+x", "b"]
 
   doGithubCommands :: IO ()
   doGithubCommands = do
@@ -174,6 +181,7 @@ generateProject repo owner description Targets{..} = do
 data Targets = Targets
   { githubFlag   :: Decision
   , ciFlag       :: Decision
+  , scriptFlag   :: Decision
   , isLibrary    :: Decision
   , isExecutable :: Decision
   , isTest       :: Decision
@@ -181,11 +189,12 @@ data Targets = Targets
   }
 
 instance Monoid Targets where
-  mempty = Targets mempty mempty mempty mempty mempty mempty
+  mempty = Targets mempty mempty mempty mempty mempty mempty mempty
 
   mappend t1 t2 = Targets
     { githubFlag   = combine githubFlag
     , ciFlag       = combine ciFlag
+    , scriptFlag   = combine scriptFlag
     , isLibrary    = combine isLibrary
     , isExecutable = combine isExecutable
     , isTest       = combine isTest
@@ -202,6 +211,7 @@ targetsP ::  Decision -> Parser Targets
 targetsP d = do
     githubFlag   <- githubP    d
     ciFlag       <- ciP        d
+    scriptFlag   <- scriptP    d
     isLibrary    <- libraryP   d
     isExecutable <- execP      d
     isTest       <- testP      d
@@ -213,6 +223,18 @@ githubP d =  flag Idk d
           $  long "github"
           <> short 'g'
           <> help "GitHub integration"
+
+ciP :: Decision -> Parser Decision
+ciP d =  flag Idk d
+      $  long "ci"
+      <> short 'c'
+      <> help "CI integration"
+
+scriptP :: Decision -> Parser Decision
+scriptP d = flag Idk d
+          $ long "script"
+         <> short 's'
+         <> help "Build script for convenience"
 
 libraryP :: Decision -> Parser Decision
 libraryP d =  flag Idk d
@@ -237,12 +259,6 @@ benchmarkP d =  flag Idk d
              $  long "benchmark"
              <> short 'b'
              <> help "Benchmarks"
-
-ciP :: Decision -> Parser Decision
-ciP d =  flag Idk d
-      $  long "ci"
-      <> short 'c'
-      <> help "CI integration"
 
 onP :: Parser Targets
 onP  = subparser $ command "on" $
@@ -282,6 +298,7 @@ data ProjectData = ProjectData
   , licenseText    :: Text   -- ^ license text
   , github         :: Bool   -- ^ github repository
   , ci             :: Bool   -- ^ CI integration
+  , script         :: Bool   -- ^ build script
   , isLib          :: Bool   -- ^ is library
   , isExe          :: Bool   -- ^ is executable
   , test           :: Bool   -- ^ add tests
@@ -438,6 +455,7 @@ createStackTemplate
                  <> readme
                  <> (if github then gitignore else "")
                  <> (if ci then travisYml else "")
+                 <> (if script then scriptSh else "")
                  <> changelog
                  <> createLicense
 
@@ -743,4 +761,103 @@ createStackTemplate
       directories:
       - $$HOME/.stack
       - $$HOME/build/$owner/${repo}/.stack-work
+    |]
+
+  scriptSh :: Text
+  scriptSh =
+    [text|
+    {-# START_FILE b #-}
+    #!/usr/bin/env bash
+    set -e
+
+    # DESCRIPTION
+    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    # This script builds the project in a way that is convenient for developers.
+    # It passes the right flags into right places, builds the project with --fast,
+    # tidies up and highlights error messages in GHC output.
+
+    # USAGE
+    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    #   ./b                 build whole project with all targets
+    #   ./b -c              do stack clean
+    #   ./b -t              build and run tests
+    #   ./b -b              build and run benchmarks
+    #   ./b --nix           use nix to build package
+
+    args=''
+    test=false
+    bench=false
+    with_nix=false
+    clean=false
+
+    for var in "$$@"
+    do
+      # -t = run tests
+      if [[ $$var == "-t" ]]; then
+        test=true
+      # -b = run benchmarks
+      elif [[ $$var == "-b" ]]; then
+        bench=true
+      elif [[ $$var == "--nix" ]]; then
+        with_nix=true
+      # -c = clean
+      elif [[ $$var == "-c" ]]; then
+        clean=true
+      else
+        args="$$args $$var"
+      fi
+    done
+
+    # Cleaning project
+    if [[ $$clean == true ]]; then
+      echo "Cleaning project..."
+      stack clean
+      exit
+    fi
+
+    if [[ $$no_nix == true ]]; then
+      args="$$args --nix"
+    fi
+
+    stack build $$args                                    \
+                --ghc-options="+RTS -A256m -n2m -RTS"    \
+                --test                                   \
+                --no-run-tests                           \
+                --no-haddock-deps                        \
+                --bench                                  \
+                --no-run-benchmarks                      \
+                --jobs=4                                 \
+                --dependencies-only
+
+    stack build $$args                                    \
+                --fast                                   \
+                --ghc-options="+RTS -A256m -n2m -RTS"    \
+                --test                                   \
+                --no-run-tests                           \
+                --no-haddock-deps                        \
+                --bench                                  \
+                --no-run-benchmarks                      \
+                --jobs=4 2>&1 | perl -pe '$|++; s/(.*) Compiling\s([^\s]+)\s+\(\s+([^\/]+).*/\1 \2/p' | grep -E --color "(^.*warning.*$|^.*error.*$|^    .*$)|"
+
+    if [[ $$test == true ]]; then
+      stack build $$args                                  \
+                  --fast                                 \
+                  --ghc-options="+RTS -A256m -n2m -RTS"  \
+                  --test                                 \
+                  --no-haddock-deps                      \
+                  --bench                                \
+                  --no-run-benchmarks                    \
+                  --jobs=4
+    fi
+
+    if [[ $$bench == true ]]; then
+      stack build $$args                                  \
+                  --fast                                 \
+                  --ghc-options="+RTS -A256m -n2m -RTS"  \
+                  --test                                 \
+                  --no-run-tests                         \
+                  --no-haddock-deps                      \
+                  --bench                                \
+                  --jobs=4
+    fi
     |]

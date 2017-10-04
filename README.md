@@ -10,10 +10,10 @@ Consider that this script is using [`Stack`](http://haskellstack.org) for creati
 ### Prerequisites
 
 To start using it make sure you have next tools installed on your machine:
-* [`Stack`](http://haskellstack.org) 
+* [`Stack`](http://haskellstack.org)
 * [`git`](https://git-scm.com)
 * [`hub`](https://github.com/github/hub)
- 
+
 ### Installation
 Installation process can be done with one simple command:
 
@@ -35,10 +35,11 @@ Available global options:
 Available commands:
   on                       Specify options to enable
   off                      Specify options to disable
-  
+
 Available command options:
   -g, --github             Github integration
   -c, --ci                 CI integration (Travis CI)
+  -s, --script             Build script
   -l, --library            Library target
   -e, --exec               Executable target
   -t, --test               Tests
@@ -50,7 +51,7 @@ For example,
 ```
   hs-init newProject on -letgc off -b
 ```
-will create fully functional project with library, executable file, tests and create the repository on [github](https://github.com), but benchmarks won't be attached to this one. 
+will create fully functional project with library, executable file, tests and create the repository on [github](https://github.com), but benchmarks won't be attached to this one.
 
 But when calling this one
 ```
@@ -64,7 +65,7 @@ This tool was tested with next settings:
     stack version 1.4.0
     git   version 2.9.3
     hub   version 2.2.9
-    
+
 ## Features
 
 If you're running the `hs-init` with all options enabled a project with the following hierarchy will be created:
