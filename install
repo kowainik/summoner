@@ -7,4 +7,4 @@ chmod +x hs-init.hs
 
 [ -d "$LOCAL_BIN" ] || mkdir -p "$LOCAL_BIN"
 
-mv hs-init.hs ~/.local/bin/hs-init
+mv hs-init.hs $LOCAL_BIN/hs-init
