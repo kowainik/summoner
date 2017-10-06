@@ -30,14 +30,22 @@ set_defaults() {
   [ -n "$DEFAULT_GHC" ] && set_default DEFAULT_GHC "$DEFAULT_GHC"
 }
 
+# Cut down a bit on the noise of handling user input in a pipe.
+read_default() {
+  local prompt="$1"
+  local dest="$2"
+
+  IFS= read -p "$prompt" $dest <&2
+}
+
 # Prompt for and set default settings values in `hs-init.hs`. Any
 # values not provided are simply left as their template strings.
 populate_defaults() {
-  IFS= read -p 'Default project owner: ' DEFAULT_OWNER <&2
-  IFS= read -p 'Default name: ' DEFAULT_NAME <&2
-  IFS= read -p 'Default email address: ' DEFAULT_EMAIL <&2
-  IFS= read -p 'Default license: ' DEFAULT_LICENSE <&2
-  IFS= read -p 'Default GHC version: ' DEFAULT_GHC <&2
+  read_default 'Default project owner: ' DEFAULT_OWNER
+  read_default 'Default name: ' DEFAULT_NAME
+  read_default 'Default email address: ' DEFAULT_EMAIL
+  read_default 'Default license: ' DEFAULT_LICENSE
+  read_default 'Default GHC version: ' DEFAULT_GHC
 
   set_defaults
 }
