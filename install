@@ -33,20 +33,11 @@ set_defaults() {
 # Prompt for and set default settings values in `hs-init.hs`. Any
 # values not provided are simply left as their template strings.
 populate_defaults() {
-  echo -n 'Default project owner: '
-  read DEFAULT_OWNER
-
-  echo -n 'Default name: '
-  read DEFAULT_NAME
-
-  echo -n 'Default email address: '
-  read DEFAULT_EMAIL
-
-  echo -n 'Default license: '
-  read DEFAULT_LICENSE
-
-  echo -n 'Default GHC version: '
-  read DEFAULT_GHC
+  IFS= read -p 'Default project owner: ' DEFAULT_OWNER <&2
+  IFS= read -p 'Default name: ' DEFAULT_NAME <&2
+  IFS= read -p 'Default email address: ' DEFAULT_EMAIL <&2
+  IFS= read -p 'Default license: ' DEFAULT_LICENSE <&2
+  IFS= read -p 'Default GHC version: ' DEFAULT_GHC <&2
 
   set_defaults
 }
