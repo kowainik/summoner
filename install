@@ -9,7 +9,6 @@ DEFAULT_NAME=
 DEFAULT_EMAIL=
 DEFAULT_LICENSE=
 DEFAULT_GHC=
-DEFAULT_YEAR=
 
 # Replace "template" strings (e.g. `{{DEFAULT_OWNER}}`) in
 # `hs-init.hs` with user-provided values.
@@ -29,7 +28,6 @@ set_defaults() {
   [ -n "$DEFAULT_EMAIL" ] && set_default DEFAULT_EMAIL "$DEFAULT_EMAIL"
   [ -n "$DEFAULT_LICENSE" ] && set_default DEFAULT_LICENSE "$DEFAULT_LICENSE"
   [ -n "$DEFAULT_GHC" ] && set_default DEFAULT_GHC "$DEFAULT_GHC"
-  [ -n "$DEFAULT_YEAR" ] && set_default DEFAULT_YEAR "$DEFAULT_YEAR"
 }
 
 # Prompt for and set default settings values in `hs-init.hs`. Any
@@ -49,9 +47,6 @@ populate_defaults() {
 
   echo -n 'Default GHC version: '
   read DEFAULT_GHC
-
-  echo -n 'Default year: '
-  read DEFAULT_YEAR
 
   set_defaults
 }

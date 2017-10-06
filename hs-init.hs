@@ -64,7 +64,7 @@ defaultGHC :: Text
 defaultGHC = "{{DEFAULT_GHC}}"
 
 defaultYear :: Text
-defaultYear = "{{DEFAULT_YEAR}}"
+defaultYear = "2017"
 
 --------------------------
 --------- Script ---------
