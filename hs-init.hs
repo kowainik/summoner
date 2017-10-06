@@ -49,22 +49,22 @@ import           System.Process        (callCommand, readProcess, showCommandFor
 -----------------------
 
 defaultOwner :: Text
-defaultOwner = "vrom911"
+defaultOwner = "{{DEFAULT_OWNER}}"
 
 defaultName :: Text
-defaultName = "Veronika Romashkina"
+defaultName = "{{DEFAULT_NAME}}"
 
 defaultEmail :: Text
-defaultEmail = "vrom911@gmail.com"
+defaultEmail = "{{DEFAULT_EMAIL}}"
 
 defaultLicense :: Text
-defaultLicense = "MIT"
+defaultLicense = "{{DEFAULT_LICENSE}}"
 
 defaultGHC :: Text
-defaultGHC = "8.0.1"
+defaultGHC = "{{DEFAULT_GHC}}"
 
 defaultYear :: Text
-defaultYear = "2017"
+defaultYear = "{{DEFAULT_YEAR}}"
 
 --------------------------
 --------- Script ---------
