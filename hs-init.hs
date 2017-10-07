@@ -43,6 +43,12 @@ import           System.Directory      (doesPathExist, getCurrentDirectory,
                                         setCurrentDirectory)
 import           System.FilePath       ((</>))
 import           System.Process        (callCommand, readProcess, showCommandForUser)
+import           Data.Time.Clock
+import           Data.Time.Calendar
+
+main = do
+    now <- getCurrentTime
+    let (year, month, day) = toGregorian $ utctDay now
 
 -----------------------
 ------ Settings -------
@@ -64,7 +70,7 @@ defaultGHC :: Text
 defaultGHC = "8.0.1"
 
 defaultYear :: Text
-defaultYear = "2017"
+defaultYear = year
 
 --------------------------
 --------- Script ---------
