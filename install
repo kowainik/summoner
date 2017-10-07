@@ -19,6 +19,8 @@ set_default() {
   sed_match="{{$setting}}"
   sed_cmd="s/$sed_match/$value/"
 
+  # Need the extension here because GNU and BSD sed act differently
+  # for in-place replacements (of course).
   sed -i.orig "$sed_cmd" hs-init.hs
 }
 
@@ -28,6 +30,8 @@ set_defaults() {
   [ -n "$DEFAULT_EMAIL" ] && set_default DEFAULT_EMAIL "$DEFAULT_EMAIL"
   [ -n "$DEFAULT_LICENSE" ] && set_default DEFAULT_LICENSE "$DEFAULT_LICENSE"
   [ -n "$DEFAULT_GHC" ] && set_default DEFAULT_GHC "$DEFAULT_GHC"
+
+  rm -f hs-init.hs.orig
 }
 
 # Cut down a bit on the noise of handling user input in a pipe.
