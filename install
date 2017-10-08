@@ -34,7 +34,7 @@ read_default() {
   local prompt="$1"
   local dest="$2"
 
-  IFS= read -p "$prompt" $dest <&2
+  IFS= read -r -p "$prompt" "$dest" <&2
 }
 
 # Prompt for and set default settings values in `hs-init.hs`. Any
