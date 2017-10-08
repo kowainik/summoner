@@ -14,8 +14,7 @@ set_default() {
   local setting="$1"
   local value="$2"
 
-  sed_match="{{$setting}}"
-  sed_cmd="s/$sed_match/$value/"
+  local sed_cmd="s/^\($setting\) = \"\(.*\)\"$/\1 = \"$value\"/"
 
   # Need the extension here because GNU and BSD sed act differently
   # for in-place replacements (of course).
@@ -23,9 +22,9 @@ set_default() {
 }
 
 set_defaults() {
-  [ -n "$DEFAULT_OWNER" ] && set_default DEFAULT_OWNER "$DEFAULT_OWNER"
-  [ -n "$DEFAULT_NAME" ] && set_default DEFAULT_NAME "$DEFAULT_NAME"
-  [ -n "$DEFAULT_EMAIL" ] && set_default DEFAULT_EMAIL "$DEFAULT_EMAIL"
+  [ -n "$DEFAULT_OWNER" ] && set_default defaultOwner "$DEFAULT_OWNER"
+  [ -n "$DEFAULT_NAME" ] && set_default defaultName "$DEFAULT_NAME"
+  [ -n "$DEFAULT_EMAIL" ] && set_default defaultEmail "$DEFAULT_EMAIL"
 
   rm -f hs-init.hs.orig
 }
