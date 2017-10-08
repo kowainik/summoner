@@ -19,7 +19,20 @@ Installation process can be done with one simple command:
 
     $ curl https://raw.githubusercontent.com/vrom911/hs-init/master/install | sh
 
-This will download `hs-init.hs` and then put it in `~/.local/bin` (assuming this folder exists).
+During this process you will be asked to input some data that will be used as default data for your further usages of `hs-init`. But don't worry, this is not permanent decision, the tool makes sure that you would like to use default data or you can input anything you'd like for particular projects you create.
+
+The data you could input:
+
+`Default project owner` — github user name
+
+`Default name` — full name
+
+`Default email address` — email adress
+
+
+If you won't fill in this fields the valid default values will be used instead.
+
+After this will download `hs-init.hs` with default values corresponding to your answers and then put the executable in `~/.local/bin` (creates this folder if it doesn't exist).
 
 After that you can call `hs-init` with required command line options, follow the instructions that will appear, and a new project would be created in a subfolder as well as a repository under your github account.
 
