@@ -10,6 +10,7 @@
   --package optparse-applicative
   --package text
   --package neat-interpolation
+  --package time
 -}
 
 {-# OPTIONS_GHC -fno-warn-orphans #-}
@@ -34,6 +35,7 @@ import           Data.String           (IsString (..))
 import           Data.Text             (Text)
 import qualified Data.Text             as T
 import qualified Data.Text.IO          as T
+import           Data.Time
 import           NeatInterpolation     (text)
 import           Options.Applicative   (Parser, ParserInfo, command, execParser, flag,
                                         footer, fullDesc, header, help, helper, info,
@@ -63,8 +65,11 @@ defaultLicense = "MIT"
 defaultGHC :: Text
 defaultGHC = "8.0.1"
 
-defaultYear :: Text
-defaultYear = "2017"
+currentYear :: IO Text
+currentYear = do
+  now <- getCurrentTime
+  let (year, _, _) = toGregorian $ utctDay now
+  return $ T.pack $ show year
 
 --------------------------
 --------- Script ---------
@@ -122,8 +127,9 @@ generateProject repo owner description Targets{..} = do
                 , "Accept: application/vnd.github.drax-preview+json"
                 ]
                 ""
+  year <- currentYear
   let licenseText = case (decodeStrict $ pack licenseJson) :: Maybe License of
-          Just t  -> customizeLicense license (lcnsText t) nm
+          Just t  -> customizeLicense license (lcnsText t) nm year
           Nothing -> error "Broken predefined license list"
 
   -- Library/Executable/Tests/Benchmarks flags
@@ -293,6 +299,7 @@ data ProjectData = ProjectData
   , description    :: Text   -- ^ project description
   , nm             :: Text   -- ^ full name
   , email          :: Text   -- ^ e-mail
+  , year           :: Text   -- ^ year
   , category       :: Text   -- ^ project category
   , license        :: Text   -- ^ type of license
   , licenseText    :: Text   -- ^ license text
@@ -354,8 +361,8 @@ newtype License = License { lcnsText :: Text }
 instance FromJSON License where
   parseJSON = withObject "License" $ \o -> License <$> o .: "body"
 
-customizeLicense :: Text -> Text -> Text -> Text
-customizeLicense l t nm
+customizeLicense :: Text -> Text -> Text -> Text -> Text
+customizeLicense l t nm year
   | l `elem` T.words "MIT BSD2 BSD3" = updateLicenseText
   | otherwise = t
  where
@@ -364,7 +371,7 @@ customizeLicense l t nm
         afterY = T.tail $ T.dropWhile (/= ']') withY
         (beforeN, withN) = T.span (/= '[') afterY
         afterN = T.tail $ T.dropWhile (/= ']') withN in
-    beforeY <> defaultYear <> beforeN <> nm <> afterN
+    beforeY <> year <> beforeN <> nm <> afterN
 
 ------------ Commands ---------------
 
@@ -429,7 +436,7 @@ checkUniqueName nm = do
 ---------------------------------
 
 -- | Creating template file to use in `stack new` command
-createStackTemplate :: ProjectData -> Text
+createStackTemplate :: ProjectData ->  Text
 createStackTemplate
   ProjectData{..} = createCabalTop
                  <> (if isLib
@@ -474,7 +481,7 @@ createStackTemplate
     license-file:        LICENSE
     author:              $nm
     maintainer:          $email
-    copyright:           $defaultYear $nm
+    copyright:           $year $nm
     category:            $category
     build-type:          Simple
     extra-source-files:  README.md
