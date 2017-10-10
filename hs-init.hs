@@ -10,6 +10,7 @@
   --package optparse-applicative
   --package text
   --package neat-interpolation
+  --package time
 -}
 
 {-# OPTIONS_GHC -fno-warn-orphans #-}
