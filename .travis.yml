@@ -21,16 +21,9 @@ before_install:
 # `--no-terminal works` around some quirks in Travis's terminal implementation.
 script:
 - stack setup
-- >
-  stack install aeson \
-                bytestring \
-                directory \
-                filepath \
-                neat-interpolation \
-                optparse-applicative \
-                process \
-                text
-- stack ghc -- hs-init.hs
+- chmod +x hs-init.hs
+# trigger stack install for all dependencies
+- ./hs-init.hs --help 
 
 # Caching so the next build will be fast too.
 cache:
