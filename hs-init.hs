@@ -2,16 +2,16 @@
 {- stack
   script
   --resolver lts-8.21
-  --package filepath
-  --package directory
   --package aeson
-  --package bytestring
-  --package process
-  --package optparse-applicative
-  --package text
-  --package neat-interpolation
-  --package time
   --package ansi-terminal
+  --package bytestring
+  --package directory
+  --package filepath
+  --package neat-interpolation
+  --package optparse-applicative
+  --package process
+  --package text
+  --package time
 -}
 
 {-# OPTIONS_GHC -fno-warn-orphans #-}
@@ -37,7 +37,7 @@ import           Data.String                    (IsString (..))
 import           Data.Text                      (Text)
 import qualified Data.Text                      as T
 import qualified Data.Text.IO                   as T
-import           Data.Time
+import           Data.Time                      (getCurrentTime, toGregorian, utctDay)
 import           NeatInterpolation              (text)
 import           Options.Applicative            (Parser, ParserInfo, command, execParser,
                                                  flag, fullDesc, help, helper, info,
@@ -56,9 +56,10 @@ import           System.Directory               (doesPathExist, getCurrentDirect
 import           System.FilePath                ((</>))
 import           System.Process                 (callCommand, readProcess,
                                                  showCommandForUser)
------------------------
------- Settings -------
------------------------
+
+----------------------------------------------------------------------------
+-- Default Settings
+----------------------------------------------------------------------------
 
 defaultOwner :: Text
 defaultOwner = "vrom911"
@@ -84,9 +85,9 @@ currentYear = do
 endLine :: Text
 endLine = "\n"
 
---------------------------
---------- Script ---------
---------------------------
+----------------------------------------------------------------------------
+-- Main Script
+----------------------------------------------------------------------------
 
 main :: IO ()
 main = execParser prsr >>= runWithOptions
@@ -197,9 +198,19 @@ generateProject repo owner description Targets{..} = do
     "git" ["commit", "-m", "Create the project"]
     "git" ["push", "-u", "origin", "master"]
 
----------------------------
----------- CLI ------------
----------------------------
+----------------------------------------------------------------------------
+-- CLI
+----------------------------------------------------------------------------
+
+data Decision = Yes | Nop | Idk
+
+instance Monoid Decision where
+  mempty = Idk
+
+  mappend :: Decision -> Decision -> Decision
+  mappend Idk x   = x
+  mappend x   Idk = x
+  mappend _   x   = x
 
 data Targets = Targets
   { githubFlag   :: Decision
@@ -346,9 +357,9 @@ $endLine
 
 |]
 
-----------------------------------
----------- Utilities -------------
-----------------------------------
+----------------------------------------------------------------------------
+-- Utilities
+----------------------------------------------------------------------------
 
 data ProjectData = ProjectData
   { repo           :: Text   -- ^ repository name
@@ -369,16 +380,6 @@ data ProjectData = ProjectData
   , bench          :: Bool   -- ^ add benchmarks
   , testedVersions :: [Text] -- ^ ghc versions
   } deriving Show
-
-data Decision = Yes | Nop | Idk
-
-instance Monoid Decision where
-  mempty = Idk
-
-  mappend :: Decision -> Decision -> Decision
-  mappend Idk x   = x
-  mappend x   Idk = x
-  mappend _   x   = x
 
 decisionToBool :: Decision -> Text -> IO Bool
 decisionToBool decision target =
@@ -433,9 +434,9 @@ errorMessage   = colorMessage Red
 warningMessage = colorMessage Yellow
 successMessage = colorMessage Green
 
----------------------------------------------
-
---------- License stuff -----------
+----------------------------------------------------------------------------
+-- License
+----------------------------------------------------------------------------
 
 licenseNames :: [Text]
 licenseNames = map fst githubLicenseQueryNames
@@ -471,14 +472,18 @@ customizeLicense l t nm year
         afterN = T.tail $ T.dropWhile (/= ']') withN in
     beforeY <> year <> beforeN <> nm <> afterN
 
------------- Commands ---------------
+----------------------------------------------------------------------------
+-- Commands
+----------------------------------------------------------------------------
 
 -- This is needed to be able to call commands by writing strings.
 instance (a ~ Text, b ~ ()) => IsString ([a] -> IO b) where
   fromString "cd" [arg] = setCurrentDirectory $ T.unpack arg
   fromString cmd args   = callCommand $ showCommandForUser cmd (map T.unpack args)
 
------------- IO Questioning ------------
+----------------------------------------------------------------------------
+-- IO Questioning
+----------------------------------------------------------------------------
 
 printQuestion :: Text -> [Text] -> IO ()
 printQuestion question (def:rest) = do
@@ -533,41 +538,33 @@ checkUniqueName nm = do
   else
     pure nm
 
----------------------------------
---------- Stack Files -----------
----------------------------------
+----------------------------------------------------------------------------
+-- Stack File Creation
+----------------------------------------------------------------------------
+
+emptyIfNot :: Bool -> Text -> Text
+emptyIfNot p txt = if p then txt else ""
 
 -- | Creating template file to use in `stack new` command
 createStackTemplate :: ProjectData ->  Text
 createStackTemplate
   ProjectData{..} = createCabalTop
-                 <> (if isLib
-                     then createCabalLib
-                     else "")
-                 <> (if isExe
-                     then createCabalExe (if isLib
-                                          then ", " <> repo
-                                          else "")
-                     else "")
-                 <> (if test
-                     then createCabalTest
-                     else "")
-                 <> (if bench
-                     then createCabalBenchmark (if isLib
-                                                then ", " <> repo
-                                                else "")
-                     else "")
-                 <> (if github
-                     then createCabalGit
-                     else "")
+                 <> emptyIfNot isLib createCabalLib
+                 <> emptyIfNot isExe
+                               ( createCabalExe
+                               $ emptyIfNot isLib $ ", " <> repo )
+                 <> emptyIfNot test createCabalTest
+                 <> emptyIfNot bench
+                               ( createCabalBenchmark
+                               $ emptyIfNot isLib $ ", " <> repo )
+                 <> emptyIfNot github createCabalGit
                  <> createCabalFiles
                  <> readme
-                 <> (if github then gitignore else "")
-                 <> (if ci then travisYml else "")
-                 <> (if script then scriptSh else "")
+                 <> emptyIfNot github gitignore
+                 <> emptyIfNot ci travisYml
+                 <> emptyIfNot script scriptSh
                  <> changelog
                  <> createLicense
-
  where
   -- all basic project information for `*.cabal` file
   createCabalTop :: Text
@@ -662,10 +659,10 @@ createStackTemplate
   createCabalFiles :: Text
   createCabalFiles =
        createSetup
-    <> (if isExe then if isLib then createExe else createOnlyExe else  "")
-    <> (if isLib then createLib else  "")
-    <> (if test  then createTest else "")
-    <> (if bench then createBenchmark else "")
+    <> emptyIfNot isExe (if isLib then createExe else createOnlyExe)
+    <> emptyIfNot isLib createLib
+    <> emptyIfNot test  createTest
+    <> emptyIfNot bench createBenchmark
 
   createSetup :: Text
   createSetup =
