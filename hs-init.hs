@@ -467,6 +467,8 @@ createStackTemplate
                  <> createLicense
 
  where
+  endLine :: Text
+  endLine = "\n"
   -- all basic project information for `*.cabal` file
   createCabalTop :: Text
   createCabalTop =
@@ -487,7 +489,7 @@ createStackTemplate
     extra-source-files:  README.md
     cabal-version:       >=1.10
     $testedWith
-
+    $endLine
     |]
 
   testedWith :: Text
@@ -503,7 +505,7 @@ createStackTemplate
       ghc-options:         -Wall
       build-depends:       base
       default-language:    Haskell2010
-
+    $endLine
     |]
 
   createCabalExe :: Text -> Text
@@ -516,7 +518,7 @@ createStackTemplate
       build-depends:       base
                          $r
       default-language:    Haskell2010
-
+    $endLine
     |]
 
   createCabalTest :: Text
@@ -530,7 +532,7 @@ createStackTemplate
                          , $repo
       ghc-options:         -Wall -Werror -threaded -rtsopts -with-rtsopts=-N
       default-language:    Haskell2010
-
+    $endLine
     |]
 
   createCabalBenchmark :: Text -> Text
@@ -545,7 +547,7 @@ createStackTemplate
       build-depends:       base
                          , criterion
                          $r
-
+    $endLine
     |]
 
   createCabalGit :: Text
@@ -554,7 +556,7 @@ createStackTemplate
     source-repository head
       type:                git
       location:            https://github.com/${owner}/${repo}.git
-
+    $endLine
     |]
 
   createCabalFiles :: Text
@@ -572,6 +574,7 @@ createStackTemplate
     import Distribution.Simple
 
     main = defaultMain
+    $endLine
     |]
 
   createTest :: Text
@@ -580,6 +583,7 @@ createStackTemplate
     {-# START_FILE test/Spec.hs #-}
     main :: IO ()
     main = putStrLn "Test suite not yet implemented"
+    $endLine
     |]
 
   createLib :: Text
@@ -592,7 +596,7 @@ createStackTemplate
 
     someFunc :: IO ()
     someFunc = putStrLn "someFunc"
-
+    $endLine
     |]
 
   createOnlyExe :: Text
@@ -603,7 +607,7 @@ createStackTemplate
 
     main :: IO ()
     main = putStrLn "Hello, world!"
-
+    $endLine
     |]
 
   createExe :: Text
@@ -616,7 +620,7 @@ createStackTemplate
 
     main :: IO ()
     main = someFunc
-
+    $endLine
     |]
 
   createBenchmark :: Text
@@ -627,7 +631,7 @@ createStackTemplate
 
     main :: IO ()
     main = defaultMain [bench "const" (whnf const ())]
-
+    $endLine
     |]
 
   -- create README template
@@ -640,6 +644,7 @@ createStackTemplate
     [![Hackage]($hackageShield)]($hackageLink)
     [![Build status](${travisShield})](${travisLink})
     [![$license license](${licenseShield})](${licenseLink})
+    $endLine
     |]
     where
       hackageShield :: Text =
@@ -712,7 +717,7 @@ createStackTemplate
 
     # other
     .DS_Store
-
+    $endLine
     |]
 
   -- create CHANGELOG template
@@ -730,6 +735,7 @@ createStackTemplate
     [2]: https://github.com/${owner}/${repo}/releases
     # 0.1.0.0
     * Initially created.
+    $endLine
     |]
 
   createLicense :: Text
@@ -768,6 +774,7 @@ createStackTemplate
       directories:
       - $$HOME/.stack
       - $$HOME/build/$owner/${repo}/.stack-work
+    $endLine
     |]
 
   scriptSh :: Text
@@ -867,4 +874,5 @@ createStackTemplate
                   --bench                                \
                   --jobs=4
     fi
+    $endLine
     |]
