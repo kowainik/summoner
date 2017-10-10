@@ -11,6 +11,7 @@
   --package text
   --package neat-interpolation
   --package time
+  --package ansi-terminal
 -}
 
 {-# OPTIONS_GHC -fno-warn-orphans #-}
@@ -25,27 +26,36 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeFamilies        #-}
 
-import           Control.Monad         (when)
-import           Data.Aeson            (FromJSON (..), decodeStrict, withObject, (.:))
-import           Data.ByteString.Char8 (pack)
-import           Data.Foldable         (fold)
-import           Data.List             (nub)
-import           Data.Semigroup        ((<>))
-import           Data.String           (IsString (..))
-import           Data.Text             (Text)
-import qualified Data.Text             as T
-import qualified Data.Text.IO          as T
+import           Control.Monad                  (when)
+import           Data.Aeson                     (FromJSON (..), decodeStrict, withObject,
+                                                 (.:))
+import           Data.ByteString.Char8          (pack)
+import           Data.Foldable                  (fold)
+import           Data.List                      (nub)
+import           Data.Semigroup                 ((<>))
+import           Data.String                    (IsString (..))
+import           Data.Text                      (Text)
+import qualified Data.Text                      as T
+import qualified Data.Text.IO                   as T
 import           Data.Time
-import           NeatInterpolation     (text)
-import           Options.Applicative   (Parser, ParserInfo, command, execParser, flag,
-                                        footer, fullDesc, header, help, helper, info,
-                                        long, metavar, optional, progDesc, short,
-                                        strArgument, subparser)
-import           System.Directory      (doesPathExist, getCurrentDirectory,
-                                        setCurrentDirectory)
-import           System.FilePath       ((</>))
-import           System.Process        (callCommand, readProcess, showCommandForUser)
-
+import           NeatInterpolation              (text)
+import           Options.Applicative            (Parser, ParserInfo, command, execParser,
+                                                 flag, fullDesc, help, helper, info,
+                                                 infoFooter, infoHeader, long, metavar,
+                                                 optional, progDesc, short, strArgument,
+                                                 subparser)
+import           Options.Applicative.Help.Chunk (stringChunk)
+import           System.Console.ANSI            (Color (Blue, Green, Red, Yellow),
+                                                 ColorIntensity (Vivid),
+                                                 ConsoleIntensity (BoldIntensity),
+                                                 ConsoleLayer (Foreground),
+                                                 SGR (Reset, SetColor, SetConsoleIntensity),
+                                                 setSGR)
+import           System.Directory               (doesPathExist, getCurrentDirectory,
+                                                 setCurrentDirectory)
+import           System.FilePath                ((</>))
+import           System.Process                 (callCommand, readProcess,
+                                                 showCommandForUser)
 -----------------------
 ------ Settings -------
 -----------------------
@@ -71,6 +81,9 @@ currentYear = do
   let (year, _, _) = toGregorian $ utctDay now
   return $ T.pack $ show year
 
+endLine :: Text
+endLine = "\n"
+
 --------------------------
 --------- Script ---------
 --------------------------
@@ -87,7 +100,9 @@ runWithOptions (InitOpts projectName targets) = do
   -- Generate the project.
   generateProject repo owner description targets
 
-  putStrLn "Job's done"
+  bold
+  T.putStrLn "\nJob's done"
+  reset
 
 -- | Generate the project.
 generateProject :: Text -> Text -> Text -> Targets -> IO ()
@@ -134,14 +149,16 @@ generateProject repo owner description Targets{..} = do
 
   -- Library/Executable/Tests/Benchmarks flags
   github <- decisionToBool githubFlag "github integration"
-  ci     <- if github
-            then decisionToBool ciFlag "CI integration"
-            else pure False
+  ci     <- let target = "CI integration" in
+            if github
+            then decisionToBool ciFlag target
+            else falseMessage target
   script <- decisionToBool scriptFlag "build script"
   isLib  <- decisionToBool isLibrary "library target"
-  isExe  <- if isLib
-            then decisionToBool isExecutable "executable target"
-            else pure True
+  isExe  <- let target = "executable target" in
+            if isLib
+            then decisionToBool isExecutable target
+            else trueMessage target
   test   <- decisionToBool isTest "tests"
   bench  <- decisionToBool isBenchmark "benchmarks"
 
@@ -283,12 +300,52 @@ optsP = do
     pure $ InitOpts projectName (fold $ on `mappend` off)
 
 prsr :: ParserInfo InitOpts
-prsr = info ( helper <*> optsP )
+prsr = modifyHeader
+     $ modifyFooter
+     $ info ( helper <*> optsP )
             $ fullDesc
            <> progDesc "Create your own haskell project"
-           <> header "hs-init -- tool for creating completely configured production Haskell projects"
-           <> footer "hs-init test footer"
----------------------------
+
+-- to put custom header which doesn't cut all spaces
+modifyHeader :: ParserInfo InitOpts -> ParserInfo InitOpts
+modifyHeader initOpts = initOpts {infoHeader = stringChunk $ T.unpack artHeader}
+
+-- to put custom footer which doesn't cut all spaces
+modifyFooter :: ParserInfo InitOpts -> ParserInfo InitOpts
+modifyFooter initOpts = initOpts {infoFooter = stringChunk $ T.unpack artFooter}
+
+artHeader :: Text
+artHeader = [text|
+$endLine
+                                                  ___
+                                                /  .  \
+                                               │\_/│   │
+                                               │   │  /│
+  __________________________________________________-' │
+ ╱                                                     │
+╱   .-.                                                │
+│  /   \                                               │
+│ |\_.  │ hs-init — tool for creating Haskell projects │
+│\|  | /│                                              │
+│ `-_-' │                                             ╱
+│       │____________________________________________╱
+│       │
+ ╲     ╱
+  `-_-'
+|]
+
+artFooter :: Text
+artFooter = [text|
+$endLine
+          ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+  ________┃                                  ┃_______
+  ╲       ┃   λ Make Haskell Great Again λ   ┃      ╱
+   ╲      ┃                                  ┃     ╱
+   ╱      ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛     ╲
+  ╱__________)                            (_________╲
+
+|]
+
 ----------------------------------
 ---------- Utilities -------------
 ----------------------------------
@@ -326,14 +383,55 @@ instance Monoid Decision where
 decisionToBool :: Decision -> Text -> IO Bool
 decisionToBool decision target =
   case decision of
-    Yes -> pure True
-    Nop -> pure False
+    Yes -> trueMessage  target
+    Nop -> falseMessage target
     Idk -> do
       ch <- choose ("Add " <> target <> "?") ["y", "n"]
       case ch of
-        "y" -> True <$ T.putStrLn (T.toUpper target <> " will be added to the project")
-        "n" -> pure False
+        "y" -> trueMessage  target
+        "n" -> falseMessage target
         _   -> error "Impossible happened"
+
+trueMessage, falseMessage :: Text -> IO Bool
+trueMessage  target = True  <$ successMessage (T.toTitle target <> " will be added to the project")
+falseMessage target = False <$ warningMessage (T.toTitle target <> " won't be added to the project")
+
+----------------------------------------------------------------------------
+-- Ansi-terminal
+----------------------------------------------------------------------------
+
+setColor :: Color -> IO ()
+setColor color = setSGR [SetColor Foreground Vivid color]
+
+bold :: IO ()
+bold = setSGR [SetConsoleIntensity BoldIntensity]
+
+reset :: IO ()
+reset = setSGR [Reset]
+
+prompt :: IO Text
+prompt = do
+  setColor Blue
+  T.putStr "  →   "
+  reset
+  T.getLine
+
+boldDefault :: Text -> IO ()
+boldDefault message = do
+  bold
+  T.putStr (" [" <> message <> "]")
+  reset
+
+colorMessage :: Color -> Text -> IO ()
+colorMessage color message = do
+  setColor color
+  T.putStrLn $ "  " <> message
+  reset
+
+errorMessage, warningMessage, successMessage :: Text -> IO ()
+errorMessage   = colorMessage Red
+warningMessage = colorMessage Yellow
+successMessage = colorMessage Green
 
 ---------------------------------------------
 
@@ -385,36 +483,40 @@ instance (a ~ Text, b ~ ()) => IsString ([a] -> IO b) where
 printQuestion :: Text -> [Text] -> IO ()
 printQuestion question (def:rest) = do
   let restSlash = T.intercalate "/" rest
-  T.putStr $ question <> " [" <> def<> "]/" <> restSlash <> "  "
+  T.putStr question
+  boldDefault def
+  T.putStrLn $ "/" <> restSlash
 printQuestion question [] =
-  T.putStr $ question <> "  "
+  T.putStrLn question
 
 choose :: Text -> [Text] -> IO Text
 choose question choices = do
   printQuestion question choices
-  answer <- T.getLine
+  answer <- prompt
   if | T.null answer ->
          return (head choices)
      | answer `elem` choices ->
          return answer
      | otherwise -> do
-         T.putStrLn "This wasn't a valid choice."
+         errorMessage "This wasn't a valid choice."
          choose question choices
 
 query :: Text -> IO Text
 query question = do
-  T.putStr $ question <> "  "
-  answer <- T.getLine
+  T.putStrLn question
+  answer <- prompt
   if | T.null answer -> do
-         T.putStrLn "An answer is required."
+         errorMessage "An answer is required."
          query question
      | otherwise ->
          return answer
 
 queryDef :: Text -> Text -> IO Text
 queryDef question defAnswer = do
-  T.putStr $ question <> " [" <> defAnswer <> "]  "
-  answer <- T.getLine
+  T.putStr question
+  boldDefault defAnswer
+  T.putStrLn ""
+  answer <- prompt
   if | T.null answer ->
          pure defAnswer
      | otherwise ->
@@ -425,7 +527,7 @@ checkUniqueName nm = do
   curPath <- getCurrentDirectory
   exist   <- doesPathExist $ curPath </> T.unpack nm
   if exist then do
-    T.putStrLn "Project with this name is already exist. Please choose another one"
+    errorMessage "Project with this name is already exist. Please choose another one"
     newNm <- query "Project name: "
     checkUniqueName newNm
   else
@@ -467,8 +569,6 @@ createStackTemplate
                  <> createLicense
 
  where
-  endLine :: Text
-  endLine = "\n"
   -- all basic project information for `*.cabal` file
   createCabalTop :: Text
   createCabalTop =
