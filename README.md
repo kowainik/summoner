@@ -23,11 +23,11 @@ During this process you will be asked to input some data that will be used as de
 
 The data you could input:
 
-`Default project owner` — github user name
+`Default Github username` — GitHub username
 
 `Default name` — full name
 
-`Default email address` — email adress
+`Default email address` — email address
 
 
 If you won't fill in this fields the valid default values will be used instead.
@@ -62,11 +62,11 @@ The options to be enabled/disabled can be specified while running the command. I
 
 For example,
 ```
-  hs-init newProject on -letgc off -b
+  hs-init newProject on -letgcs off -b
 ```
-will create fully functional project with library, executable file, tests and create the repository on [github](https://github.com), but benchmarks won't be attached to this one.
+will create fully functional project with library, executable file, tests, [build script](#build-script) and create the repository on [github](https://github.com) integrated with `Travis-CI`, but benchmarks won't be attached to this one.
 
-But when calling this one
+But when calling this command
 ```
   hs-init newProject
 ```
@@ -104,6 +104,20 @@ PROJECT_NAME
 └── .travis.yml
 ```
 and also repository with one commit at master will be added with enabled `Travis-CI` for that.
+
+### Build script
+
+The `b` script builds the project in a way that is convenient for developers. It passes the right flags into right places, builds the project with --fast, tidies up and highlights error messages in GHC output.
+
+#### Usage
+
+```
+  ./b                 build whole project with all targets
+  ./b -c              do stack clean
+  ./b -t              build and run tests
+  ./b -b              build and run benchmarks
+  ./b --nix           use nix to build package
+```
 
 ## Acknowledgments
 
