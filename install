@@ -40,7 +40,7 @@ read_default() {
 # Prompt for and set default settings values in `hs-init.hs`. Any
 # values not provided are simply left as their template strings.
 populate_defaults() {
-  read_default 'Default project owner: ' DEFAULT_OWNER
+  read_default 'Default GitHub username: ' DEFAULT_OWNER
   read_default 'Default name: ' DEFAULT_NAME
   read_default 'Default email address: ' DEFAULT_EMAIL
 
