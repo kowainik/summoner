@@ -930,6 +930,9 @@ createStackTemplate
       args="$$args --nix"
     fi
 
+    xperl='$|++; s/(.*) Compiling\s([^\s]+)\s+\(\s+([^\/]+).*/\1 \2/p'
+    xgrep="((^.*warning.*$|^.*error.*$|^    .*$|^.*can't find source.*$|^Module imports form a cycle.*$|^  which imports.*$)|^)"
+
     stack build $$args                                    \
                 --ghc-options="+RTS -A256m -n2m -RTS"    \
                 --test                                   \
@@ -948,7 +951,7 @@ createStackTemplate
                 --no-haddock-deps                        \
                 --bench                                  \
                 --no-run-benchmarks                      \
-                --jobs=4 2>&1 | perl -pe '$|++; s/(.*) Compiling\s([^\s]+)\s+\(\s+([^\/]+).*/\1 \2/p' | grep -E --color "(^.*warning.*$|^.*error.*$|^    .*$)|"
+                --jobs=4 2>&1 | perl -pe "$$xperl" | { grep -E --color "$$xgrep" || true; }
 
     if [[ $$test == true ]]; then
       stack build $$args                                  \
