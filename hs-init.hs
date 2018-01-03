@@ -26,36 +26,29 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeFamilies        #-}
 
-import           Control.Monad                  (when)
-import           Data.Aeson                     (FromJSON (..), decodeStrict, withObject,
-                                                 (.:))
-import           Data.ByteString.Char8          (pack)
-import           Data.Foldable                  (fold)
-import           Data.List                      (nub)
-import           Data.Semigroup                 ((<>))
-import           Data.String                    (IsString (..))
-import           Data.Text                      (Text)
-import qualified Data.Text                      as T
-import qualified Data.Text.IO                   as T
-import           Data.Time                      (getCurrentTime, toGregorian, utctDay)
-import           NeatInterpolation              (text)
-import           Options.Applicative            (Parser, ParserInfo, command, execParser,
-                                                 flag, fullDesc, help, helper, info,
-                                                 infoFooter, infoHeader, long, metavar,
-                                                 optional, progDesc, short, strArgument,
-                                                 subparser)
-import           Options.Applicative.Help.Chunk (stringChunk)
-import           System.Console.ANSI            (Color (Blue, Green, Red, Yellow),
-                                                 ColorIntensity (Vivid),
-                                                 ConsoleIntensity (BoldIntensity),
-                                                 ConsoleLayer (Foreground),
-                                                 SGR (Reset, SetColor, SetConsoleIntensity),
-                                                 setSGR)
-import           System.Directory               (doesPathExist, getCurrentDirectory,
-                                                 setCurrentDirectory)
-import           System.FilePath                ((</>))
-import           System.Process                 (callCommand, readProcess,
-                                                 showCommandForUser)
+import Control.Monad (when)
+import Data.Aeson (FromJSON (..), decodeStrict, withObject, (.:))
+import Data.ByteString.Char8 (pack)
+import Data.Foldable (fold)
+import Data.List (nub)
+import Data.Semigroup ((<>))
+import Data.String (IsString (..))
+import Data.Text (Text)
+import Data.Time (getCurrentTime, toGregorian, utctDay)
+import NeatInterpolation (text)
+import Options.Applicative (Parser, ParserInfo, command, execParser, flag, fullDesc, help, helper,
+                            info, infoFooter, infoHeader, long, metavar, optional, progDesc, short,
+                            strArgument, subparser)
+import Options.Applicative.Help.Chunk (stringChunk)
+import System.Console.ANSI (Color (Blue, Green, Red, Yellow), ColorIntensity (Vivid),
+                            ConsoleIntensity (BoldIntensity), ConsoleLayer (Foreground),
+                            SGR (Reset, SetColor, SetConsoleIntensity), setSGR)
+import System.Directory (doesPathExist, getCurrentDirectory, setCurrentDirectory)
+import System.FilePath ((</>))
+import System.Process (callCommand, readProcess, showCommandForUser)
+
+import qualified Data.Text as T
+import qualified Data.Text.IO as T
 
 ----------------------------------------------------------------------------
 -- Default Settings
@@ -150,10 +143,8 @@ generateProject repo owner description Targets{..} = do
 
   -- Library/Executable/Tests/Benchmarks flags
   github <- decisionToBool githubFlag "github integration"
-  ci     <- let target = "CI integration" in
-            if github
-            then decisionToBool ciFlag target
-            else falseMessage target
+  ci     <- ifGithub github "CI integration" ciFlag
+  privat <- ifGithub github "Private repository" privateFlag
   script <- decisionToBool scriptFlag "build script"
   isLib  <- decisionToBool isLibrary "library target"
   isExe  <- let target = "executable target" in
@@ -171,9 +162,14 @@ generateProject repo owner description Targets{..} = do
   -- make b executable
   when script doScriptCommand
   -- create github repository and commit
-  when github doGithubCommands
+  when github $ doGithubCommands privat
 
  where
+  ifGithub :: Bool -> Text -> Decision -> IO Bool
+  ifGithub github target flag = if github
+    then decisionToBool flag target
+    else falseMessage target
+
   doStackCommands :: ProjectData -> IO ()
   doStackCommands projectData = do
     -- create haskell template
@@ -188,11 +184,12 @@ generateProject repo owner description Targets{..} = do
   doScriptCommand =
     "chmod" ["+x", "b"]
 
-  doGithubCommands :: IO ()
-  doGithubCommands = do
+  doGithubCommands :: Bool -> IO ()
+  doGithubCommands private = do
     -- Create the repository on Github.
     "git" ["init"]
-    "hub" ["create", "-d", description, owner <> "/" <> repo]
+    "hub" $ ["create", "-d", description, owner <> "/" <> repo]
+         ++ ["-p" | private] -- creates private repository if asked so.
     -- Make a commit and push it.
     "git" ["add", "."]
     "git" ["commit", "-m", "Create the project"]
@@ -215,6 +212,7 @@ instance Monoid Decision where
 data Targets = Targets
   { githubFlag   :: Decision
   , ciFlag       :: Decision
+  , privateFlag  :: Decision
   , scriptFlag   :: Decision
   , isLibrary    :: Decision
   , isExecutable :: Decision
@@ -223,11 +221,12 @@ data Targets = Targets
   }
 
 instance Monoid Targets where
-  mempty = Targets mempty mempty mempty mempty mempty mempty mempty
+  mempty = Targets mempty mempty mempty mempty mempty mempty mempty mempty
 
   mappend t1 t2 = Targets
     { githubFlag   = combine githubFlag
     , ciFlag       = combine ciFlag
+    , privateFlag  = combine privateFlag
     , scriptFlag   = combine scriptFlag
     , isLibrary    = combine isLibrary
     , isExecutable = combine isExecutable
@@ -245,6 +244,7 @@ targetsP ::  Decision -> Parser Targets
 targetsP d = do
     githubFlag   <- githubP    d
     ciFlag       <- ciP        d
+    privateFlag  <- privateP   d
     scriptFlag   <- scriptP    d
     isLibrary    <- libraryP   d
     isExecutable <- execP      d
@@ -263,6 +263,12 @@ ciP d =  flag Idk d
       $  long "ci"
       <> short 'c'
       <> help "CI integration"
+
+privateP :: Decision -> Parser Decision
+privateP d =  flag Idk d
+      $  long "private"
+      <> short 'p'
+      <> help "Private repository"
 
 scriptP :: Decision -> Parser Decision
 scriptP d = flag Idk d
