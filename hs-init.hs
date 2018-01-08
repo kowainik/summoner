@@ -302,17 +302,15 @@ benchmarkP d =  flag Idk d
 
 onP :: Parser Targets
 onP  = subparser $ mconcat
-       [ metavar onC
-       , command onC $ info (helper <*> targetsP Yes) (progDesc "Specify options to enable")
+       [ metavar "on [OPTIONS]"
+       , command "on" $ info (helper <*> targetsP Yes) (progDesc "Specify options to enable")
        ]
-  where onC = "on [OPTIONS]"
 
 offP :: Parser Targets
 offP = subparser $ mconcat
-       [ metavar offC
-       , command offC $ info (helper <*> targetsP Nop) (progDesc "Specify options to disable")
+       [ metavar "off [OPTIONS]"
+       , command "off" $ info (helper <*> targetsP Nop) (progDesc "Specify options to disable")
        ]
-  where offC = "off [OPTIONS]"
 
 optsP :: Parser InitOpts
 optsP = do
