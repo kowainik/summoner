@@ -40,7 +40,7 @@ After that you can call `hs-init` with required command line options, follow the
 
 See the basic usage syntax below:
 ```
-hs-init PROJECT_NAME [COMMAND [COMMAND_OPTIONS]] [COMMAND [COMMAND_OPTIONS]]
+hs-init PROJECT_NAME [on [OPTIONS]] [off [OPTIONS]]
 
 Available global options:
   -h, --help               Show this help text
