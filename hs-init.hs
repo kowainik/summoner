@@ -1,7 +1,7 @@
 #!/usr/bin/env stack
 {- stack
   script
-  --resolver lts-8.21
+  --resolver lts-10.3
   --package aeson
   --package ansi-terminal
   --package bytestring
@@ -67,7 +67,7 @@ defaultLicense :: Text
 defaultLicense = "MIT"
 
 defaultGHC :: Text
-defaultGHC = "8.0.1"
+defaultGHC = "8.2.2"
 
 currentYear :: IO Text
 currentYear = do
@@ -154,7 +154,7 @@ generateProject repo owner description Targets{..} = do
   test   <- decisionToBool isTest "tests"
   bench  <- decisionToBool isBenchmark "benchmarks"
 
-  putStrLn "Latest GHCs: 7.10.3 8.0.1 8.2.1"
+  putStrLn "Latest GHCs: 7.10.3 8.0.2 8.2.2"
   testedVersions <- T.words <$>
     queryDef "Versions of GHC to test with (space-separated): " defaultGHC
   -- create stack project
