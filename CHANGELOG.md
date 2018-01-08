@@ -1,3 +1,9 @@
+1.0.2
+=====
+
+* Use metavar for on-off commands.
+* Upgrade `lts` to `10.3`, use `ghc 8.2.2` as default value.
+
 1.0.1
 =====
 
