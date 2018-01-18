@@ -1,8 +1,9 @@
 # hs-init
 
 [![Build status](https://secure.travis-ci.org/vrom911/hs-init.svg)](http://travis-ci.org/vrom911/hs-init)
+[![Windows build status](https://ci.appveyor.com/api/projects/status/github/vrom911/hs-init?branch=master&svg=true)](https://ci.appveyor.com/project/vrom911/hs-init)
 [![MIT license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/vrom911/hs-init/blob/master/LICENSE)
-[![Version 1.0.2](https://img.shields.io/badge/version-v1.0.3-fabfff.svg)](https://github.com/vrom911/hs-init/blob/master/CHANGELOG.md)
+[![Version 1.0.3](https://img.shields.io/badge/version-v1.0.3-fabfff.svg)](https://github.com/vrom911/hs-init/blob/master/CHANGELOG.md)
 
 This is tool for creating completely configured production Haskell projects.
 Consider that this script is using [`Stack`](http://haskellstack.org) for

@@ -45,6 +45,7 @@ import System.Console.ANSI (Color (Blue, Green, Red, Yellow), ColorIntensity (Vi
                             SGR (Reset, SetColor, SetConsoleIntensity), setSGR)
 import System.Directory (doesPathExist, getCurrentDirectory, setCurrentDirectory)
 import System.FilePath ((</>))
+import System.IO (hSetEncoding, stdout, utf8)
 import System.Process (callCommand, readProcess, showCommandForUser)
 
 import qualified Data.Text as T
@@ -83,7 +84,9 @@ endLine = "\n"
 ----------------------------------------------------------------------------
 
 main :: IO ()
-main = execParser prsr >>= runWithOptions
+main = do
+  hSetEncoding stdout utf8
+  execParser prsr >>= runWithOptions
 
 -- | Run 'hs-init' with cli options
 runWithOptions :: InitOpts -> IO ()
