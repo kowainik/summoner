@@ -31,7 +31,7 @@ import Data.Aeson (FromJSON (..), decodeStrict, withObject, (.:))
 import Data.ByteString.Char8 (pack)
 import Data.Foldable (fold)
 import Data.List (nub)
-import Data.Semigroup ((<>))
+import Data.Semigroup (Semigroup (..))
 import Data.String (IsString (..))
 import Data.Text (Text)
 import Data.Time (getCurrentTime, toGregorian, utctDay)
@@ -202,13 +202,15 @@ generateProject repo owner description Targets{..} = do
 
 data Decision = Yes | Nop | Idk
 
-instance Monoid Decision where
-  mempty = Idk
+instance Semigroup Decision where
+  (<>) :: Decision -> Decision -> Decision
+  Idk <> x   = x
+  x   <> Idk = x
+  _   <> x   = x
 
-  mappend :: Decision -> Decision -> Decision
-  mappend Idk x   = x
-  mappend x   Idk = x
-  mappend _   x   = x
+instance Monoid Decision where
+  mempty  = Idk
+  mappend = (<>)
 
 data Targets = Targets
   { githubFlag   :: Decision
@@ -222,10 +224,8 @@ data Targets = Targets
   , isBenchmark  :: Decision
   }
 
-instance Monoid Targets where
-  mempty = Targets mempty mempty mempty mempty mempty mempty mempty mempty mempty
-
-  mappend t1 t2 = Targets
+instance Semigroup Targets where
+  t1 <> t2 = Targets
     { githubFlag   = combine githubFlag
     , travisFlag   = combine travisFlag
     , appVeyorFlag = combine appVeyorFlag
@@ -237,7 +237,12 @@ instance Monoid Targets where
     , isBenchmark  = combine isBenchmark
     }
     where
-      combine field = field t1 `mappend` field t2
+      combine field = field t1 <> field t2
+
+instance Monoid Targets where
+  mempty  = Targets mempty mempty mempty mempty mempty mempty mempty mempty mempty
+  mappend = (<>)
+
 
 -- | Initial parsed options from cli
 data InitOpts = InitOpts Text    -- ^ Project name
