@@ -1,3 +1,9 @@
+1.0.3
+=====
+
+* [#45](https://github.com/vrom911/hs-init/issues/45):
+  Support AppVeyor CI for created projects.
+
 1.0.2
 =====
 
