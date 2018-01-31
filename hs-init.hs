@@ -31,7 +31,7 @@ import Data.Aeson (FromJSON (..), decodeStrict, withObject, (.:))
 import Data.ByteString.Char8 (pack)
 import Data.Foldable (fold)
 import Data.List (nub)
-import Data.Semigroup ((<>))
+import Data.Semigroup (Semigroup (..))
 import Data.String (IsString (..))
 import Data.Text (Text)
 import Data.Time (getCurrentTime, toGregorian, utctDay)
@@ -45,6 +45,7 @@ import System.Console.ANSI (Color (Blue, Green, Red, Yellow), ColorIntensity (Vi
                             SGR (Reset, SetColor, SetConsoleIntensity), setSGR)
 import System.Directory (doesPathExist, getCurrentDirectory, setCurrentDirectory)
 import System.FilePath ((</>))
+import System.IO (hSetEncoding, stdout, utf8)
 import System.Process (callCommand, readProcess, showCommandForUser)
 
 import qualified Data.Text as T
@@ -83,7 +84,9 @@ endLine = "\n"
 ----------------------------------------------------------------------------
 
 main :: IO ()
-main = execParser prsr >>= runWithOptions
+main = do
+  hSetEncoding stdout utf8
+  execParser prsr >>= runWithOptions
 
 -- | Run 'hs-init' with cli options
 runWithOptions :: InitOpts -> IO ()
@@ -143,7 +146,8 @@ generateProject repo owner description Targets{..} = do
 
   -- Library/Executable/Tests/Benchmarks flags
   github <- decisionToBool githubFlag "github integration"
-  ci     <- ifGithub github "CI integration" ciFlag
+  travis <- ifGithub github "Travis CI integration" travisFlag
+  appVey <- ifGithub github "AppVeyor CI integration" appVeyorFlag
   privat <- ifGithub github "Private repository" privateFlag
   script <- decisionToBool scriptFlag "build script"
   isLib  <- decisionToBool isLibrary "library target"
@@ -201,17 +205,20 @@ generateProject repo owner description Targets{..} = do
 
 data Decision = Yes | Nop | Idk
 
-instance Monoid Decision where
-  mempty = Idk
+instance Semigroup Decision where
+  (<>) :: Decision -> Decision -> Decision
+  Idk <> x   = x
+  x   <> Idk = x
+  _   <> x   = x
 
-  mappend :: Decision -> Decision -> Decision
-  mappend Idk x   = x
-  mappend x   Idk = x
-  mappend _   x   = x
+instance Monoid Decision where
+  mempty  = Idk
+  mappend = (<>)
 
 data Targets = Targets
   { githubFlag   :: Decision
-  , ciFlag       :: Decision
+  , travisFlag   :: Decision
+  , appVeyorFlag :: Decision
   , privateFlag  :: Decision
   , scriptFlag   :: Decision
   , isLibrary    :: Decision
@@ -220,12 +227,11 @@ data Targets = Targets
   , isBenchmark  :: Decision
   }
 
-instance Monoid Targets where
-  mempty = Targets mempty mempty mempty mempty mempty mempty mempty mempty
-
-  mappend t1 t2 = Targets
+instance Semigroup Targets where
+  t1 <> t2 = Targets
     { githubFlag   = combine githubFlag
-    , ciFlag       = combine ciFlag
+    , travisFlag   = combine travisFlag
+    , appVeyorFlag = combine appVeyorFlag
     , privateFlag  = combine privateFlag
     , scriptFlag   = combine scriptFlag
     , isLibrary    = combine isLibrary
@@ -234,7 +240,12 @@ instance Monoid Targets where
     , isBenchmark  = combine isBenchmark
     }
     where
-      combine field = field t1 `mappend` field t2
+      combine field = field t1 <> field t2
+
+instance Monoid Targets where
+  mempty  = Targets mempty mempty mempty mempty mempty mempty mempty mempty mempty
+  mappend = (<>)
+
 
 -- | Initial parsed options from cli
 data InitOpts = InitOpts Text    -- ^ Project name
@@ -243,7 +254,8 @@ data InitOpts = InitOpts Text    -- ^ Project name
 targetsP ::  Decision -> Parser Targets
 targetsP d = do
     githubFlag   <- githubP    d
-    ciFlag       <- ciP        d
+    travisFlag   <- travisP    d
+    appVeyorFlag <- appVeyorP  d
     privateFlag  <- privateP   d
     scriptFlag   <- scriptP    d
     isLibrary    <- libraryP   d
@@ -258,11 +270,17 @@ githubP d =  flag Idk d
           <> short 'g'
           <> help "GitHub integration"
 
-ciP :: Decision -> Parser Decision
-ciP d =  flag Idk d
-      $  long "ci"
-      <> short 'c'
-      <> help "CI integration"
+travisP :: Decision -> Parser Decision
+travisP d =  flag Idk d
+          $  long "travis"
+          <> short 'c'
+          <> help "Travis CI integration"
+
+appVeyorP :: Decision -> Parser Decision
+appVeyorP d =  flag Idk d
+            $  long "app-veyor"
+            <> short 'w'
+            <> help "AppVeyor CI integration"
 
 privateP :: Decision -> Parser Decision
 privateP d =  flag Idk d
@@ -382,7 +400,8 @@ data ProjectData = ProjectData
   , license        :: Text   -- ^ type of license
   , licenseText    :: Text   -- ^ license text
   , github         :: Bool   -- ^ github repository
-  , ci             :: Bool   -- ^ CI integration
+  , travis         :: Bool   -- ^ Travis CI integration
+  , appVey         :: Bool   -- ^ AppVeyor CI integration
   , script         :: Bool   -- ^ build script
   , isLib          :: Bool   -- ^ is library
   , isExe          :: Bool   -- ^ is executable
@@ -571,7 +590,8 @@ createStackTemplate
                  <> createCabalFiles
                  <> readme
                  <> emptyIfNot github gitignore
-                 <> emptyIfNot ci travisYml
+                 <> emptyIfNot travis travisYml
+                 <> emptyIfNot appVey appVeyorYml
                  <> emptyIfNot script scriptSh
                  <> changelog
                  <> createLicense
@@ -750,6 +770,7 @@ createStackTemplate
 
     [![Hackage]($hackageShield)]($hackageLink)
     [![Build status](${travisShield})](${travisLink})
+    [![Windows build status](${appVeyorShield})](${appVeyorLink})
     [![$license license](${licenseShield})](${licenseLink})
     $endLine
     |]
@@ -762,6 +783,10 @@ createStackTemplate
         "https://secure.travis-ci.org/" <> owner <> "/" <> repo <> ".svg"
       travisLink :: Text =
         "https://travis-ci.org/" <> owner <> "/" <> repo
+      appVeyorShield :: Text =
+        "https://ci.appveyor.com/api/projects/status/github/" <> owner <> "/" <> repo <> "?branch=master&svg=true"
+      appVeyorLink :: Text =
+        "https://ci.appveyor.com/project/" <> owner <> "/" <> repo
       licenseShield :: Text =
         "https://img.shields.io/badge/license-" <> T.replace "-" "--" license <> "-blue.svg"
       licenseLink :: Text =
@@ -882,6 +907,32 @@ createStackTemplate
       - $$HOME/.stack
       - $$HOME/build/$owner/${repo}/.stack-work
     $endLine
+    |]
+
+  -- create appveyor.yml template
+  appVeyorYml :: Text
+  appVeyorYml =
+    [text|
+    {-# START_FILE appveyor.yml #-}
+    build: off
+
+    before_test:
+    # http://help.appveyor.com/discussions/problems/6312-curl-command-not-found
+    - set PATH=C:\Program Files\Git\mingw64\bin;%PATH%
+
+    - curl -sS -ostack.zip -L --insecure http://www.stackage.org/stack/windows-i386
+    - 7z x stack.zip stack.exe
+
+    clone_folder: "c:\\stack"
+    environment:
+      global:
+        STACK_ROOT: "c:\\sr"
+
+    test_script:
+    - stack setup > nul
+    # The ugly echo "" hack is to avoid complaints about 0 being an invalid file
+    # descriptor
+    - echo "" | stack --no-terminal build --bench --no-run-benchmarks --test
     |]
 
   scriptSh :: Text

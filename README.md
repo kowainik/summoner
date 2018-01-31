@@ -1,8 +1,9 @@
 # hs-init
 
 [![Build status](https://secure.travis-ci.org/vrom911/hs-init.svg)](http://travis-ci.org/vrom911/hs-init)
+[![Windows build status](https://ci.appveyor.com/api/projects/status/github/vrom911/hs-init?branch=master&svg=true)](https://ci.appveyor.com/project/vrom911/hs-init)
 [![MIT license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/vrom911/hs-init/blob/master/LICENSE)
-[![Version 1.0.2](https://img.shields.io/badge/version-v1.0.2-fabfff.svg)](https://github.com/vrom911/hs-init/blob/master/CHANGELOG.md)
+[![Version 1.0.3](https://img.shields.io/badge/version-v1.0.3-fabfff.svg)](https://github.com/vrom911/hs-init/blob/master/CHANGELOG.md)
 
 This is tool for creating completely configured production Haskell projects.
 Consider that this script is using [`Stack`](http://haskellstack.org) for
@@ -63,7 +64,8 @@ Available commands:
 
 Available command options:
   -g, --github             Github integration
-  -c, --ci                 CI integration (Travis CI)
+  -c, --travis             Travis CI integration
+  -w, --app-veyor          AppVeyor CI integration
   -s, --script             Build script
   -l, --library            Library target
   -e, --exec               Executable target
@@ -79,11 +81,11 @@ the question will be asked during the work of the script.
 For example,
 
 ```
-  hs-init newProject on -letgcsp off -b
+  hs-init newProject on -letgcspw off -b
 ```
 will create fully functional project with library, executable file, tests,
 [build script](#build-script) and create private repository on [github](https://github.com)
-integrated with `Travis-CI`, but benchmarks won't be attached to this one.
+integrated with `Travis-CI`, `AppVeyor-CI`, but benchmarks won't be attached to this one.
 
 But when calling this command
 
@@ -123,6 +125,7 @@ PROJECT_NAME
 ├── README.md
 ├── Setup.hs
 ├── stack.yaml
+├── appveyor.yml
 ├── .git
 ├── .gitignore
 └── .travis.yml
