@@ -32,3 +32,4 @@ tags
 # Binaries
 hs-init
 *.hsfiles
+*.exe

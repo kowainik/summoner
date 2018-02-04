@@ -26,6 +26,7 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeFamilies        #-}
 
+import Control.Exception
 import Control.Monad (when)
 import Data.Aeson (FromJSON (..), decodeStrict, withObject, (.:))
 import Data.ByteString.Char8 (pack)
@@ -43,10 +44,11 @@ import Options.Applicative.Help.Chunk (stringChunk)
 import System.Console.ANSI (Color (Blue, Green, Red, Yellow), ColorIntensity (Vivid),
                             ConsoleIntensity (BoldIntensity), ConsoleLayer (Foreground),
                             SGR (Reset, SetColor, SetConsoleIntensity), setSGR)
-import System.Directory (doesPathExist, getCurrentDirectory, setCurrentDirectory)
+import System.Directory (doesPathExist, getCurrentDirectory, removeFile, setCurrentDirectory)
 import System.FilePath ((</>))
-import System.IO (hSetEncoding, stdout, utf8)
-import System.Process (callCommand, readProcess, showCommandForUser)
+import System.Info (os)
+import System.IO (hFlush, hSetEncoding, stdout, utf8)
+import System.Process (callProcess, readProcess)
 
 import qualified Data.Text as T
 import qualified Data.Text.IO as T
@@ -170,8 +172,8 @@ generateProject repo owner description Targets{..} = do
 
  where
   ifGithub :: Bool -> Text -> Decision -> IO Bool
-  ifGithub github target flag = if github
-    then decisionToBool flag target
+  ifGithub github target decision = if github
+    then decisionToBool decision target
     else falseMessage target
 
   doStackCommands :: ProjectData -> IO ()
@@ -181,12 +183,11 @@ generateProject repo owner description Targets{..} = do
     -- create new project with stack
     "stack" ["new", repo, "temp.hsfiles"]
     -- do not need template file anymore
-    "rm" ["temp.hsfiles"]
+    deleteFile "temp.hsfiles"
     "cd" [repo]
 
   doScriptCommand :: IO ()
-  doScriptCommand =
-    "chmod" ["+x", "b"]
+  doScriptCommand = when (os /= "mingw32") ("chmod" ["+x", "b"])
 
   doGithubCommands :: Bool -> IO ()
   doGithubCommands private = do
@@ -430,6 +431,11 @@ falseMessage target = False <$ warningMessage (T.toTitle target <> " won't be ad
 -- Ansi-terminal
 ----------------------------------------------------------------------------
 
+putStrFlush :: Text -> IO()
+putStrFlush msg = do
+  T.putStr msg
+  hFlush stdout
+
 setColor :: Color -> IO ()
 setColor color = setSGR [SetColor Foreground Vivid color]
 
@@ -442,14 +448,14 @@ reset = setSGR [Reset]
 prompt :: IO Text
 prompt = do
   setColor Blue
-  T.putStr "  →   "
+  putStrFlush " ->   "
   reset
   T.getLine
 
 boldDefault :: Text -> IO ()
 boldDefault message = do
   bold
-  T.putStr (" [" <> message <> "]")
+  putStrFlush (" [" <> message <> "]")
   reset
 
 colorMessage :: Color -> Text -> IO ()
@@ -508,7 +514,11 @@ customizeLicense l t nm year
 -- This is needed to be able to call commands by writing strings.
 instance (a ~ Text, b ~ ()) => IsString ([a] -> IO b) where
   fromString "cd" [arg] = setCurrentDirectory $ T.unpack arg
-  fromString cmd args   = callCommand $ showCommandForUser cmd (map T.unpack args)
+  fromString cmd args   = callProcess cmd (map T.unpack args)
+
+deleteFile :: FilePath -> IO  ()
+deleteFile file = catch (removeFile file) printError
+  where printError (e :: SomeException) = errorMessage $ "Could not delete file `" <> T.pack file <> "'. " <> T.pack  (displayException e)
 
 ----------------------------------------------------------------------------
 -- IO Questioning
@@ -517,7 +527,7 @@ instance (a ~ Text, b ~ ()) => IsString ([a] -> IO b) where
 printQuestion :: Text -> [Text] -> IO ()
 printQuestion question (def:rest) = do
   let restSlash = T.intercalate "/" rest
-  T.putStr question
+  putStrFlush question
   boldDefault def
   T.putStrLn $ "/" <> restSlash
 printQuestion question [] =
@@ -547,7 +557,7 @@ query question = do
 
 queryDef :: Text -> Text -> IO Text
 queryDef question defAnswer = do
-  T.putStr question
+  putStrFlush question
   boldDefault defAnswer
   T.putStrLn ""
   answer <- prompt
