@@ -1,3 +1,9 @@
+1.0.4
+=====
+* Now works on windows systems as well
+* Add powershell install script for Windows
+
+
 1.0.3
 =====
 

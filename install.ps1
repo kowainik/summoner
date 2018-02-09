@@ -57,8 +57,12 @@ Write-Host "Installing hs-init.exe to $TargetDir"
 $null = New-Item $TargetDir -ItemType Directory -Force
 Move-Item .\hs-init.exe "$TargetDir\hs-init.exe" -Force
 
-Write-Host "Adding $TargetDir to Path"
-[System.Environment]::SetEnvironmentVariable("Path", $env:Path + ";$env:LOCALAPPDATA\hs-init",[System.EnvironmentVariableTarget]::User)
+if($env:Path -notmatch '(^|;)' + [Regex]::Escape("$env:localappdata\hs-init") + '(;|$)'){
+    Write-Host "Adding $TargetDir to Path"
+    [System.Environment]::SetEnvironmentVariable("Path", $env:Path + ";$TargetDir",[System.EnvironmentVariableTarget]::User)
+} else {
+    Write-Host "$TargetDir already on Path"
+}
 
 Write-Host "Cleaning up Temp Dir $TempDir"
 Set-Location ..

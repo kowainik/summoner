@@ -431,7 +431,8 @@ falseMessage target = False <$ warningMessage (T.toTitle target <> " won't be ad
 -- Ansi-terminal
 ----------------------------------------------------------------------------
 
-putStrFlush :: Text -> IO()
+-- Explicit flush ensures prompt messages are in the correct order on all systems.
+putStrFlush :: Text -> IO ()
 putStrFlush msg = do
   T.putStr msg
   hFlush stdout
@@ -443,12 +444,14 @@ bold :: IO ()
 bold = setSGR [SetConsoleIntensity BoldIntensity]
 
 reset :: IO ()
-reset = setSGR [Reset]
+reset = do
+  setSGR [Reset]
+  hFlush stdout
 
 prompt :: IO Text
 prompt = do
   setColor Blue
-  putStrFlush " ->   "
+  putStrFlush "  ->   "
   reset
   T.getLine
 
@@ -516,9 +519,10 @@ instance (a ~ Text, b ~ ()) => IsString ([a] -> IO b) where
   fromString "cd" [arg] = setCurrentDirectory $ T.unpack arg
   fromString cmd args   = callProcess cmd (map T.unpack args)
 
+-- Delete file, but just print a message if delete fails and continue instead of raising an error.
 deleteFile :: FilePath -> IO  ()
 deleteFile file = catch (removeFile file) printError
-  where printError (e :: SomeException) = errorMessage $ "Could not delete file `" <> T.pack file <> "'. " <> T.pack  (displayException e)
+  where printError (e :: SomeException) = errorMessage $ "Could not delete file '" <> T.pack file <> "'. " <> T.pack  (displayException e)
 
 ----------------------------------------------------------------------------
 -- IO Questioning
