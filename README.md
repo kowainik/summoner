@@ -17,6 +17,7 @@ To start using it make sure you have next tools installed on your machine:
 * [`Stack`](http://haskellstack.org)
 * [`git`](https://git-scm.com)
 * [`hub`](https://github.com/github/hub)
+* [`curl`](https://curl.haxx.se)
 
 ### Installation
 
@@ -47,6 +48,14 @@ it doesn't exist).
 After that you can call `hs-init` with required command line options, follow
 the instructions that will appear, and a new project would be created in a subfolder
 as well as a repository under your github account.
+
+#### windows
+A PowerShell install script is available for windows users
+
+    PS > Invoke-WebRequest https://raw.githubusercontent.com/vrom911/hs-init/master/install.ps1 -Out-File hs-init_install.ps1
+    PS > powershell.exe -ExecutionPolicy ByPass .\hs-init_install.ps1
+
+The binary will be installed to %LOCALAPPDATA%\hs-init which will also be added to your path
 
 ### Usage
 
