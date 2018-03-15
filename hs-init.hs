@@ -70,7 +70,7 @@ defaultLicense :: Text
 defaultLicense = "MIT"
 
 defaultGHC :: Text
-defaultGHC = ""
+defaultGHC = "8.2.2"
 
 currentYear :: IO Text
 currentYear = do
@@ -161,9 +161,9 @@ generateProject repo owner description Targets{..} = do
   bench  <- decisionToBool isBenchmark "benchmarks"
 
   putStrLn "Latest GHCs: 7.10.3 8.0.2 8.2.2"
-  putStrLn "The project will be created with the latest resolver for GHC-8.2.2."
+  putStrLn $ "The project will be created with the latest resolver for GHC-" ++ T.unpack defaultGHC
   testedVersions <- T.words <$>
-    queryDef "Additionally you can specify versions of GHC to test with (space-separated): " defaultGHC
+    queryDef "Additionally you can specify versions of GHC to test with (space-separated): " ""
   -- create stack project
   doStackCommands ProjectData{..}
   -- make b executable
@@ -637,7 +637,7 @@ createStackTemplate
     |]
 
   testedWith :: Text
-  testedWith = "tested-with:         GHC == 8.2.2" <>
+  testedWith = "tested-with:         GHC == " <> defaultGHC <>
           T.concat (map (", GHC == " <>) testedVersions)
 
   createCabalLib :: Text
@@ -905,8 +905,8 @@ createStackTemplate
 
       $travisMtr
 
-      - ghc: 8.2.2
-        env: GHCVER='8.2.2' STACK_YAML="$$HOME/build/${owner}/${repo}/stack.yaml"
+      - ghc: $defaultGHC
+        env: GHCVER='${defaultGHC}' STACK_YAML="$$HOME/build/${owner}/${repo}/stack.yaml"
 
     addons:
       apt:
@@ -950,17 +950,19 @@ createStackTemplate
   createStackYamls = T.concat . map createStackYaml
    where
     createStackYaml :: Text -> Text
-    createStackYaml ghc =
-      let lts = case ghc of
-            "8.0.2"  -> "9.21"
-            "7.10.3" -> "6.35"
-          in
-      [text|
-      {-# START_FILE stack-${ghc}.yaml #-}
-      resolver: lts-${lts}
+    createStackYaml ghc = case ghc of
+        "8.0.2"  -> stackYaml "9.21"
+        "7.10.3" -> stackYaml "6.35"
+        _        -> ""
+      where
+        stackYaml :: Text -> Text
+        stackYaml lts =
+            [text|
+            {-# START_FILE stack-${ghc}.yaml #-}
+            resolver: lts-${lts}
 
-      $endLine
-      |]
+            $endLine
+            |]
 
   -- create appveyor.yml template
   appVeyorYml :: Text
