@@ -161,8 +161,9 @@ generateProject repo owner description Targets{..} = do
   bench  <- decisionToBool isBenchmark "benchmarks"
 
   putStrLn "Latest GHCs: 7.10.3 8.0.2 8.2.2"
+  putStrLn $ "The project will be created with the latest resolver for GHC-" ++ T.unpack defaultGHC
   testedVersions <- T.words <$>
-    queryDef "Versions of GHC to test with (space-separated): " defaultGHC
+    queryDef "Additionally you can specify versions of GHC to test with (space-separated): " ""
   -- create stack project
   doStackCommands ProjectData{..}
   -- make b executable
@@ -609,6 +610,7 @@ createStackTemplate
                  <> emptyIfNot script scriptSh
                  <> changelog
                  <> createLicense
+                 <> createStackYamls testedVersions
  where
   -- all basic project information for `*.cabal` file
   createCabalTop :: Text
@@ -616,8 +618,9 @@ createStackTemplate
     [text|
     {-# START_FILE ${repo}.cabal #-}
     name:                $repo
-    version:             0.1.0.0
+    version:             0.0.0
     description:         $description
+    synopsis:            $description
     homepage:            https://github.com/${owner}/${repo}
     bug-reports:         https://github.com/${owner}/${repo}/issues
     license:             $license
@@ -627,15 +630,15 @@ createStackTemplate
     copyright:           $year $nm
     category:            $category
     build-type:          Simple
-    extra-source-files:  README.md
-    cabal-version:       >=1.10
+    extra-doc-files:     README.md
+    cabal-version:       >=1.24
     $testedWith
     $endLine
     |]
 
   testedWith :: Text
-  testedWith = "tested-with:         " <>
-          T.intercalate ", " (map ("GHC == " <>) testedVersions)
+  testedWith = "tested-with:         GHC == " <> defaultGHC <>
+          T.concat (map (", GHC == " <>) testedVersions)
 
   createCabalLib :: Text
   createCabalLib =
@@ -702,21 +705,10 @@ createStackTemplate
 
   createCabalFiles :: Text
   createCabalFiles =
-       createSetup
-    <> emptyIfNot isExe (if isLib then createExe else createOnlyExe)
+       emptyIfNot isExe (if isLib then createExe else createOnlyExe)
     <> emptyIfNot isLib createLib
     <> emptyIfNot test  createTest
     <> emptyIfNot bench createBenchmark
-
-  createSetup :: Text
-  createSetup =
-    [text|
-    {-# START_FILE Setup.hs #-}
-    import Distribution.Simple
-
-    main = defaultMain
-    $endLine
-    |]
 
   createTest :: Text
   createTest =
@@ -786,6 +778,8 @@ createStackTemplate
     [![Build status](${travisShield})](${travisLink})
     [![Windows build status](${appVeyorShield})](${appVeyorLink})
     [![$license license](${licenseShield})](${licenseLink})
+
+    $description
     $endLine
     |]
     where
@@ -877,10 +871,12 @@ createStackTemplate
     $repo uses [PVP Versioning][1].
     The change log is available [on GitHub][2].
 
+    0.0.0
+    =====
+    * Initially created.
+
     [1]: https://pvp.haskell.org
     [2]: https://github.com/${owner}/${repo}/releases
-    # 0.1.0.0
-    * Initially created.
     $endLine
     |]
 
@@ -890,38 +886,83 @@ createStackTemplate
   -- create travis.yml template
   travisYml :: Text
   travisYml =
+    let travisMtr = T.concat (map travisMatrixItem testedVersions) in
     [text|
     {-# START_FILE .travis.yml #-}
-    # Use new container infrastructure to enable caching
-    sudo: false
+    sudo: true
+    language: haskell
 
-    # Choose a lightweight base image; we provide our own build tools.
-    language: c
+    git:
+      depth: 5
 
-    # GHC depends on GMP. You can add other dependencies here as well.
-    addons:
-      apt:
-        packages:
-        - libgmp-dev
-
-    before_install:
-    # Download and unpack the stack executable
-    - mkdir -p ~/.local/bin
-    - export PATH=$$HOME/.local/bin:$$PATH
-    - travis_retry curl -L https://www.stackage.org/stack/linux-x86_64 | tar xz --wildcards --strip-components=1 -C ~/.local/bin '*/stack'
-
-    # This line does all of the work: installs GHC if necessary, builds the
-    # library, executables, and test suites, and runs the test suites.
-    # `--no-terminal works` around some quirks in Travis's terminal implementation.
-    script: stack --no-terminal --install-ghc test
-
-    # Caching so the next build will be fast too.
     cache:
       directories:
-      - $$HOME/.stack
-      - $$HOME/build/$owner/${repo}/.stack-work
+      - "$$HOME/.stack"
+      - "$$HOME/build/${owner}/${repo}/.stack-work"
+
+    matrix:
+      include:
+
+      $travisMtr
+
+      - ghc: $defaultGHC
+        env: GHCVER='${defaultGHC}' STACK_YAML="$$HOME/build/${owner}/${repo}/stack.yaml"
+
+    addons:
+      apt:
+        sources:
+          - sourceline: 'ppa:hvr/ghc'
+        packages:
+          - libgmp-dev
+
+    before_install:
+      - mkdir -p ~/.local/bin
+      - export PATH="$$HOME/.local/bin:$$PATH"
+      - travis_retry curl -L 'https://www.stackage.org/stack/linux-x86_64' | tar xz --wildcards --strip-components=1 -C ~/.local/bin '*/stack'
+      - stack --version
+
+
+    install:
+      - travis_wait 30 stack setup --no-terminal
+      - stack ghc -- --version
+
+      - travis_wait 40 stack build --only-dependencies --no-terminal
+      - travis_wait 40 stack build --test --bench --haddock --no-run-tests --no-run-benchmarks --no-haddock-deps --no-terminal
+
+    script:
+      - travis_wait 40 stack build --test --no-terminal
+
+    notifications:
+      email: false
     $endLine
     |]
+
+  travisMatrixItem :: Text -> Text
+  travisMatrixItem ghcV =
+    [text|
+    - ghc: ${ghcV}
+      env: GHCVER='${ghcV}' STACK_YAML="$$HOME/build/${owner}/${repo}/stack-$$GHCVER.yaml"
+    $endLine
+    |]
+
+  -- create specified @stack.yaml@ files
+  createStackYamls :: [Text] -> Text
+  createStackYamls = T.concat . map createStackYaml
+   where
+    createStackYaml :: Text -> Text
+    createStackYaml ghc = case ghc of
+        "8.0.2"  -> stackYaml "9.21"
+        "7.10.3" -> stackYaml "6.35"
+        _        -> ""
+      where
+        stackYaml :: Text -> Text
+        stackYaml lts =
+            [text|
+            {-# START_FILE stack-${ghc}.yaml #-}
+            resolver: lts-${lts}
+
+            $endLine
+            |]
 
   -- create appveyor.yml template
   appVeyorYml :: Text
