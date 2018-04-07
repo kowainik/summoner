@@ -6,17 +6,18 @@ I'm really glad you're reading this, I really appreciate the effort you're takin
 
 ### How to contribute
 #### Report bugs or feature request
-If you found any bugs or have any proposals how to make this project better don't hesitate to create issues [here](https://github.com/vrom911/hs-init/issues/new) in free format.
+If you found any bugs or have any proposals how to make this project better
+don't hesitate to create issues [here][issues] in free format.
 
 #### Create a PR
-I love pull requests from everyone. 
+We love pull requests from everyone :heart:.
 To get started with this you should first fork, then clone the repo:
 
     git clone git@github.com:your-username/hs-init.git
-    
-Make your changes and consider the following check list to go through before submitting your pull request. 
 
-#### :white_check_mark: Check list 
+Make your changes and consider the following check list to go through before submitting your pull request.
+
+#### :white_check_mark: Check list
 - [ ] `hs-init` compiles
 - [ ] New/fixed features work as expected
 - [ ] Old features do not break after the change
@@ -25,14 +26,16 @@ Make your changes and consider the following check list to go through before sub
 - [ ] `hlint hs-init.hs` output is: _No Hints_
 - [ ] Code is stylish :lipstick:
     **_Note:_** `stylish-Haskell -I hs-init.hs`
-- [ ] Commit messages are in the proper format. If the commit addresses an issue start the first line of the commit with the issue number in square parentheses.
+- [ ] Commit messages are in the proper format. If the commit addresses an issue start
+      the first line of the commit with the issue number in square parentheses.
     **_Example:_** `[#42] Short commit description`
 
-After all above is done commit and push to your fork. 
+After all above is done commit and push to your fork.
 Now you are ready to [submit a pull request][pr].
 
 
 ----------
 Thanks for spending time on reading this contributing guide! :sparkling_heart:
 
-[pr]: https://github.com/vrom911/hs-init/compare/
+[pr]: https://github.com/kowainik/hs-init/compare/
+[issues]: https://github.com/kowainik/hs-init/issues/new

@@ -1,9 +1,9 @@
 # hs-init
 
-[![Build status](https://secure.travis-ci.org/vrom911/hs-init.svg)](http://travis-ci.org/vrom911/hs-init)
-[![Windows build status](https://ci.appveyor.com/api/projects/status/github/vrom911/hs-init?branch=master&svg=true)](https://ci.appveyor.com/project/vrom911/hs-init)
-[![MIT license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/vrom911/hs-init/blob/master/LICENSE)
-[![Version 1.0.3](https://img.shields.io/badge/version-v1.0.3-fabfff.svg)](https://github.com/vrom911/hs-init/blob/master/CHANGELOG.md)
+[![Build status](https://secure.travis-ci.org/kowainik/hs-init.svg)](http://travis-ci.org/kowainik/hs-init)
+[![Windows build status](https://ci.appveyor.com/api/projects/status/github/kowainik/hs-init?branch=master&svg=true)](https://ci.appveyor.com/project/kowainik/hs-init)
+[![MIT license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/kowainik/hs-init/blob/master/LICENSE)
+[![Version 1.0.3](https://img.shields.io/badge/version-v1.0.3-fabfff.svg)](https://github.com/kowainik/hs-init/blob/master/CHANGELOG.md)
 
 This is tool for creating completely configured production Haskell projects.
 Consider that this script is using [`Stack`](http://haskellstack.org) for
@@ -23,7 +23,7 @@ To start using it make sure you have next tools installed on your machine:
 
 Installation process can be done with one simple command:
 
-    $ curl https://raw.githubusercontent.com/vrom911/hs-init/master/install | sh
+    $ curl https://raw.githubusercontent.com/kowainik/hs-init/master/install | sh
 
 During this process you will be asked to input some data that will be used as default
 data for your further usages of `hs-init`. But don't worry, this is not permanent
@@ -52,7 +52,7 @@ as well as a repository under your github account.
 #### windows
 A PowerShell install script is available for windows users
 
-    PS > Invoke-WebRequest https://raw.githubusercontent.com/vrom911/hs-init/master/install.ps1 -Out-File hs-init_install.ps1
+    PS > Invoke-WebRequest https://raw.githubusercontent.com/kowainik/hs-init/master/install.ps1 -Out-File hs-init_install.ps1
     PS > powershell.exe -ExecutionPolicy ByPass .\hs-init_install.ps1
 
 The binary will be installed to %LOCALAPPDATA%\hs-init which will also be added to your path
@@ -159,7 +159,7 @@ tidies up and highlights error messages in GHC output.
 
 ## Change log
 
-[List of changes](https://github.com/vrom911/hs-init/blob/master/CHANGELOG.md).
+[List of changes](https://github.com/kowainik/hs-init/blob/master/CHANGELOG.md).
 
 ## Acknowledgments
 

@@ -23,10 +23,18 @@ script:
 - stack setup
 - chmod +x hs-init.hs
 # trigger stack install for all dependencies
-- ./hs-init.hs --help 
+- ./hs-init.hs --help
 
 # Caching so the next build will be fast too.
 cache:
   directories:
   - $HOME/.stack
-  - $HOME/build/vrom911/hs-init/.stack-work
+  - $HOME/build/kowainik/hs-init/.stack-work
+
+notifications:
+  email: false
+  slack:
+    rooms:
+      - kowainik:n60CMbB0kfJHRmYKIPmjf7Tp
+    on_success: change
+    on_failure: always
