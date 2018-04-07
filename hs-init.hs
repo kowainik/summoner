@@ -58,13 +58,13 @@ import qualified Data.Text.IO as T
 ----------------------------------------------------------------------------
 
 defaultOwner :: Text
-defaultOwner = "vrom911"
+defaultOwner = "kowainik"
 
 defaultName :: Text
-defaultName = "Veronika Romashkina"
+defaultName = "Kowainik"
 
 defaultEmail :: Text
-defaultEmail = "vrom911@gmail.com"
+defaultEmail = "xrom.xkov@gmail.com"
 
 defaultLicense :: Text
 defaultLicense = "MIT"

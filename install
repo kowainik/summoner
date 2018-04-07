@@ -47,7 +47,7 @@ populate_defaults() {
   set_defaults
 }
 
-wget https://raw.githubusercontent.com/vrom911/hs-init/master/hs-init.hs
+wget https://raw.githubusercontent.com/kowainik/hs-init/master/hs-init.hs
 
 populate_defaults
 

@@ -32,7 +32,7 @@ Write-Host "Using temporary directory $TempDir"
 $null = New-Item $TempDir -ItemType Directory
 Set-Location $TempDir
 
-$hsFile = "https://raw.githubusercontent.com/vrom911/hs-init/master/hs-init.hs"
+$hsFile = "https://raw.githubusercontent.com/kowainik/hs-init/master/hs-init.hs"
 
 Write-Host "Downloading $hsFile"
 
