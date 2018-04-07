@@ -2,7 +2,7 @@
 
 [![Build status](https://secure.travis-ci.org/kowainik/hs-init.svg)](http://travis-ci.org/kowainik/hs-init)
 [![Windows build status](https://ci.appveyor.com/api/projects/status/github/kowainik/hs-init?branch=master&svg=true)](https://ci.appveyor.com/project/kowainik/hs-init)
-[![MIT license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/kowainik/hs-init/blob/master/LICENSE)
+[![MPL-2.0 license](https://img.shields.io/badge/license-MPL--2.0-blue.svg)](https://github.com/kowainik/hs-init/blob/master/LICENSE)
 [![Version 1.0.3](https://img.shields.io/badge/version-v1.0.3-fabfff.svg)](https://github.com/kowainik/hs-init/blob/master/CHANGELOG.md)
 
 This is tool for creating completely configured production Haskell projects.
