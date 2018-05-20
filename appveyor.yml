@@ -16,4 +16,4 @@ test_script:
 - stack setup > nul
 # The ugly echo "" hack is to avoid complaints about 0 being an invalid file
 # descriptor
-- echo "" | stack --no-terminal script --resolver lts-10.3 hs-init.hs -- --help
+- echo "" | stack --no-terminal build --bench --no-run-benchmarks --test
