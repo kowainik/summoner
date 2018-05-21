@@ -13,6 +13,7 @@ import Control.Monad (when)
 import Data.Aeson (decodeStrict)
 import Data.ByteString.Char8 (pack)
 import Data.List (nub)
+import Data.Maybe (catMaybes)
 import Data.Semigroup (Semigroup (..))
 import Data.Text (Text)
 import NeatInterpolation (text)
@@ -24,7 +25,7 @@ import Summoner.Default (currentYear, defaultEmail, defaultGHC, defaultLicense, 
                          defaultOwner)
 import Summoner.License (License (..), customizeLicense, githubLicenseQueryNames, licenseNames)
 import Summoner.Process (deleteFile)
-import Summoner.ProjectData (ProjectData (..))
+import Summoner.ProjectData (ProjectData (..), parseGhcVer, showGhcVer)
 import Summoner.Question (checkUniqueName, choose, query, queryDef)
 import Summoner.Template (createStackTemplate)
 
@@ -153,10 +154,11 @@ generateProject projectName Targets{..} = do
     test   <- decisionToBool isTest "tests"
     bench  <- decisionToBool isBenchmark "benchmarks"
 
-    putStrLn "Latest GHCs: 7.10.3 8.0.2 8.2.2"
-    putStrLn $ "The project will be created with the latest resolver for GHC-" ++ T.unpack defaultGHC
-    testedVersions <- T.words <$>
+    T.putStrLn "Latest GHCs: 7.10.3 8.0.1 8.0.2 8.2.2"
+    T.putStrLn $ "The project will be created with the latest resolver for GHC-" <> showGhcVer defaultGHC
+    testedVersions <- catMaybes . map parseGhcVer . T.words <$>
       queryDef "Additionally you can specify versions of GHC to test with (space-separated): " ""
+    -- TODO: tell which ghc versions were failing to parse?...
     let prData = ProjectData{..}
     -- create stack project
     doStackCommands prData

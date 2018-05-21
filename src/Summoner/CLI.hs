@@ -35,9 +35,7 @@ runWithOptions (InitOpts projectName targets) = do
      -- Generate the project.
     generateProject projectName targets
 
-    boldText "\nJob's done"
-
-
+    boldText "\nJob's done\n"
 
 -- | Initial parsed options from cli
 data InitOpts = InitOpts Text Targets   -- ^ Includes the project name and target options.

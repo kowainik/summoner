@@ -7,12 +7,13 @@ module Summoner.Template
        ( createStackTemplate
        ) where
 
+import Data.List (nub, sort)
 import Data.Semigroup ((<>))
 import Data.Text (Text)
 import NeatInterpolation (text)
 
 import Summoner.Default (defaultGHC, endLine)
-import Summoner.ProjectData (ProjectData (..))
+import Summoner.ProjectData (GhcVer (..), ProjectData (..), showGhcVer)
 
 import qualified Data.Text as T
 
@@ -66,13 +67,15 @@ createStackTemplate
         build-type:          Simple
         extra-doc-files:     README.md
         cabal-version:       1.24
-        $testedWith
+        testedWith:          $testedGhcs
         $endLine
         |]
 
-    testedWith :: Text
-    testedWith = "tested-with:         GHC == " <> defaultGHC <>
-            T.concat (map (", GHC == " <>) testedVersions)
+    testedGhcs :: Text
+    testedGhcs = T.intercalate ", "
+               $ map (mappend "GHC == " . showGhcVer)
+               $ sort  -- need sortNub here...
+               $ nub (defaultGHC : testedVersions)
 
     createCabalLib :: Text
     createCabalLib =
@@ -321,7 +324,8 @@ createStackTemplate
     -- create travis.yml template
     travisYml :: Text
     travisYml =
-        let travisMtr = T.concat (map travisMatrixItem testedVersions) in
+        let travisMtr = T.concat (map (travisMatrixItem . showGhcVer) testedVersions)
+            defGhc    = showGhcVer defaultGHC in
         [text|
         {-# START_FILE .travis.yml #-}
         sudo: true
@@ -340,8 +344,8 @@ createStackTemplate
 
           $travisMtr
 
-          - ghc: $defaultGHC
-            env: GHCVER='${defaultGHC}' STACK_YAML="$$HOME/build/${owner}/${repo}/stack.yaml"
+          - ghc: $defGhc
+            env: GHCVER='${defGhc}' STACK_YAML="$$HOME/build/${owner}/${repo}/stack.yaml"
 
         addons:
           apt:
@@ -380,18 +384,19 @@ createStackTemplate
         $endLine
         |]
 
-    -- create specified @stack.yaml@ files
-    createStackYamls :: [Text] -> Text
+    -- create @stack.yaml@ file with LTS corresponding to specified ghc version
+    createStackYamls :: [GhcVer] -> Text
     createStackYamls = T.concat . map createStackYaml
       where
-        createStackYaml :: Text -> Text
-        createStackYaml ghc = case ghc of
-            "8.0.2"  -> stackYaml "9.21"
-            "7.10.3" -> stackYaml "6.35"
-            _        -> ""
+        createStackYaml :: GhcVer -> Text
+        createStackYaml = \case
+            Ghc7103 -> stackYaml "7.10.3" "6.35"
+            Ghc801  -> stackYaml "8.0.1"  "7.24"
+            Ghc802  -> stackYaml "8.0.2"  "9.21"
+            Ghc822  -> ""  -- Ghc822 is latest known, so default stack yaml will be created
           where
-            stackYaml :: Text -> Text
-            stackYaml lts =
+            stackYaml :: Text -> Text -> Text
+            stackYaml ghc lts =
                 [text|
                 {-# START_FILE stack-${ghc}.yaml #-}
                 resolver: lts-${lts}

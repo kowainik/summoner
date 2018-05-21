@@ -1,5 +1,8 @@
 module Summoner.ProjectData
        ( ProjectData (..)
+       , GhcVer (..)
+       , parseGhcVer
+       , showGhcVer
        ) where
 
 import Data.Text (Text)
@@ -23,5 +26,27 @@ data ProjectData = ProjectData
     , isExe          :: Bool   -- ^ is executable
     , test           :: Bool   -- ^ add tests
     , bench          :: Bool   -- ^ add benchmarks
-    , testedVersions :: [Text] -- ^ ghc versions
+    , testedVersions :: [GhcVer]  -- ^ ghc versions
     } deriving (Show)
+
+-- | List of known (i.e. supported by @summoner@) GHC versions.
+data GhcVer = Ghc7103
+            | Ghc801
+            | Ghc802
+            | Ghc822
+            deriving (Eq, Ord, Show)
+
+-- | Converts 'GhcVer' into dot-separated string.
+showGhcVer :: GhcVer -> Text
+showGhcVer Ghc7103 = "7.10.3"
+showGhcVer Ghc801  = "8.0.1"
+showGhcVer Ghc802  = "8.0.2"
+showGhcVer Ghc822  = "8.2.2"
+
+-- | Converts numeric dot-separated GHC version into 'GhcVer'.
+parseGhcVer :: Text -> Maybe GhcVer
+parseGhcVer "7.10.3" = Just Ghc7103
+parseGhcVer "8.0.1"  = Just Ghc801
+parseGhcVer "8.0.2"  = Just Ghc802
+parseGhcVer "8.2.2"  = Just Ghc822
+parseGhcVer _        = Nothing
