@@ -1,0 +1,69 @@
+name:                summoner
+version:             0.0.0
+description:         Tool for creating completely configured production Haskell projects.
+synopsis:            Tool for creating completely configured production Haskell projects.
+homepage:            https://github.com/kowainik/summoner
+bug-reports:         https://github.com/kowainik/summoner/issues
+license:             MPL-2.0
+license-file:        LICENSE
+author:              Kowainik
+maintainer:          xrom.xkov@gmail.com
+copyright:           2018 Kowainik
+category:            CLI, CLI Tool, Development
+build-type:          Simple
+extra-doc-files:     README.md
+cabal-version:       1.24
+tested-with:         GHC == 8.2.2
+
+library
+  hs-source-dirs:      src
+  exposed-modules:     Summoner
+                         Summoner.Ansi
+                         Summoner.CLI
+                         Summoner.Default
+                         Summoner.License
+                         Summoner.Process
+                         Summoner.Project
+                         Summoner.ProjectData
+                         Summoner.Question
+                         Summoner.Template
+
+  ghc-options:         -Wall
+  build-depends:       base
+                     , aeson
+                     , ansi-terminal
+                     , bytestring
+                     , directory
+                     , filepath
+                     , neat-interpolation
+                     , optparse-applicative
+                     , process
+                     , text
+                     , time
+
+  default-extensions:  GeneralizedNewtypeDeriving
+                       OverloadedStrings
+                       RecordWildCards
+
+  default-language:    Haskell2010
+
+executable summon
+  hs-source-dirs:      app
+  main-is:             Main.hs
+  ghc-options:         -Wall -threaded -rtsopts -with-rtsopts=-N
+  build-depends:       base
+                     , summoner
+  default-language:    Haskell2010
+
+test-suite summoner-test
+  type:                exitcode-stdio-1.0
+  hs-source-dirs:      test
+  main-is:             Spec.hs
+  build-depends:       base
+                     , summoner
+  ghc-options:         -Wall -Werror -threaded -rtsopts -with-rtsopts=-N
+  default-language:    Haskell2010
+
+source-repository head
+  type:                git
+  location:            https://github.com/kowainik/summoner.git

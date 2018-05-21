@@ -1,12 +1,12 @@
-# hs-init
+# Summoner
 
-[![Build status](https://secure.travis-ci.org/kowainik/hs-init.svg)](http://travis-ci.org/kowainik/hs-init)
-[![Windows build status](https://ci.appveyor.com/api/projects/status/github/kowainik/hs-init?branch=master&svg=true)](https://ci.appveyor.com/project/kowainik/hs-init)
-[![MPL-2.0 license](https://img.shields.io/badge/license-MPL--2.0-blue.svg)](https://github.com/kowainik/hs-init/blob/master/LICENSE)
-[![Version 1.0.3](https://img.shields.io/badge/version-v1.0.3-fabfff.svg)](https://github.com/kowainik/hs-init/blob/master/CHANGELOG.md)
+[![Build status](https://secure.travis-ci.org/kowainik/summoner.svg)](http://travis-ci.org/kowainik/summoner)
+[![Windows build status](https://ci.appveyor.com/api/projects/status/github/kowainik/summoner?branch=master&svg=true)](https://ci.appveyor.com/project/kowainik/summoner)
+[![MPL-2.0 license](https://img.shields.io/badge/license-MPL--2.0-blue.svg)](https://github.com/kowainik/summoner/blob/master/LICENSE)
+[![Hackage](https://img.shields.io/hackage/v/summoner.svg)](https://hackage.haskell.org/package/summoner)
 
 This is tool for creating completely configured production Haskell projects.
-Consider that this script is using [`Stack`](http://haskellstack.org) for
+Consider that it's using [`Stack`](http://haskellstack.org) for
 creating and setting up projects.
 
 ## Getting started
@@ -17,52 +17,24 @@ To start using it make sure you have next tools installed on your machine:
 * [`Stack`](http://haskellstack.org)
 * [`git`](https://git-scm.com)
 * [`hub`](https://github.com/github/hub)
-* [`curl`](https://curl.haxx.se)
 
 ### Installation
 
 Installation process can be done with one simple command:
 
-    $ curl https://raw.githubusercontent.com/kowainik/hs-init/master/install | sh
-
-During this process you will be asked to input some data that will be used as default
-data for your further usages of `hs-init`. But don't worry, this is not permanent
-decision, the tool makes sure that you would like to use default data or you can
-input anything you'd like for particular projects you create.
-
-The data you could input:
-
-`Default Github username` — GitHub username
-
-`Default name` — full name
-
-`Default email address` — email address
+    $ stack install summoner
 
 
-If you won't fill in this fields the valid default values will be used instead.
-
-After this will download `hs-init.hs` with default values corresponding to your
-answers and then put the executable in `~/.local/bin` (creates this folder if
-it doesn't exist).
-
-After that you can call `hs-init` with required command line options, follow
+After that you can call `summon` with required command line options, follow
 the instructions that will appear, and a new project would be created in a subfolder
-as well as a repository under your github account.
-
-#### windows
-A PowerShell install script is available for windows users
-
-    PS > Invoke-WebRequest https://raw.githubusercontent.com/kowainik/hs-init/master/install.ps1 -Out-File hs-init_install.ps1
-    PS > powershell.exe -ExecutionPolicy ByPass .\hs-init_install.ps1
-
-The binary will be installed to %LOCALAPPDATA%\hs-init which will also be added to your path
+as well as a repository under your github account (if requested).
 
 ### Usage
 
 See the basic usage syntax below:
 
 ```
-hs-init PROJECT_NAME [on [OPTIONS]] [off [OPTIONS]]
+summon PROJECT_NAME [on [OPTIONS]] [off [OPTIONS]]
 
 Available global options:
   -h, --help               Show this help text
@@ -90,7 +62,7 @@ the question will be asked during the work of the script.
 For example,
 
 ```
-  hs-init newProject on -letgcspw off -b
+  summon newProject on -letgcspw off -b
 ```
 will create fully functional project with library, executable file, tests,
 [build script](#build-script) and create private repository on [github](https://github.com)
@@ -99,7 +71,7 @@ integrated with `Travis-CI`, `AppVeyor-CI`, but benchmarks won't be attached to 
 But when calling this command
 
 ```
-  hs-init newProject
+  summon newProject
 ```
 
 the tool will ask about every particular option, rather you'd like to have it
@@ -115,7 +87,7 @@ This tool was tested with next settings:
 
 ## Features
 
-If you're running the `hs-init` with all options enabled a project with the following
+If you're running the `summoner` with all options enabled a project with the following
 hierarchy will be created:
 
 ```
@@ -159,7 +131,7 @@ tidies up and highlights error messages in GHC output.
 
 ## Change log
 
-[List of changes](https://github.com/kowainik/hs-init/blob/master/CHANGELOG.md).
+[List of changes](https://github.com/kowainik/summoner/blob/master/CHANGELOG.md).
 
 ## Acknowledgments
 

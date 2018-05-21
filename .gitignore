@@ -1,5 +1,6 @@
-# Haskell
+### Haskell
 dist
+dist-*
 cabal-dev
 *.o
 *.hi
@@ -10,26 +11,42 @@ cabal-dev
 *.prof
 *.aux
 *.hp
+*.eventlog
 .virtualenv
 .hsenv
 .hpc
-.stack-work/
 .cabal-sandbox/
 cabal.sandbox.config
 cabal.config
-TAGS
-.DS_Store
-*~
-*#
+cabal.project.local
+.HTF/
+# Stack
+.stack-work/
 
-# IDE/support
-.idea/
-.ideaHaskellLib/
-guide.iml
-.vscode/
+### IDE/support
+# Vim
+[._]*.s[a-v][a-z]
+[._]*.sw[a-p]
+[._]s[a-v][a-z]
+[._]sw[a-p]
+*~
 tags
 
-# Binaries
-hs-init
-*.hsfiles
-*.exe
+# IntellijIDEA
+.idea/
+.ideaHaskellLib/
+*.iml
+
+# Atom
+.haskell-ghc-mod.json
+
+# VS
+.vscode/
+
+# Emacs
+*#
+.dir-locals.el
+TAGS
+
+# other
+.DS_Store
