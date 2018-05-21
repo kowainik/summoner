@@ -24,6 +24,11 @@ Installation process can be done with one simple command:
 
     $ stack install summoner
 
+You can turn on the bash auto-completion by running the following command:
+
+```
+$ source <(summon --bash-completion-script `which summon`)
+```
 
 After that you can call `summon` with required command line options, follow
 the instructions that will appear, and a new project would be created in a subfolder
@@ -34,14 +39,14 @@ as well as a repository under your github account (if requested).
 See the basic usage syntax below:
 
 ```
-summon PROJECT_NAME [on [OPTIONS]] [off [OPTIONS]]
+summon PROJECT_NAME [with [OPTIONS]] [without [OPTIONS]]
 
 Available global options:
   -h, --help               Show this help text
 
 Available commands:
-  on                       Specify options to enable
-  off                      Specify options to disable
+  with                     Specify options to enable
+  without                  Specify options to disable
 
 Available command options:
   -g, --github             Github integration
@@ -62,7 +67,7 @@ the question will be asked during the work of the script.
 For example,
 
 ```
-  summon newProject on -letgcspw off -b
+  summon newProject with -letgcspw without -b
 ```
 will create fully functional project with library, executable file, tests,
 [build script](#build-script) and create private repository on [github](https://github.com)

@@ -109,25 +109,25 @@ benchmarkP d = flag Idk d
             <> short 'b'
             <> help "Benchmarks"
 
-onP :: Parser Targets
-onP  = subparser $ mconcat
-       [ metavar "on [OPTIONS]"
-       , command "on" $ info (helper <*> targetsP Yes) (progDesc "Specify options to enable")
-       ]
+withP :: Parser Targets
+withP = subparser $ mconcat
+    [ metavar "with [OPTIONS]"
+    , command "with" $ info (helper <*> targetsP Yes) (progDesc "Specify options to enable")
+    ]
 
-offP :: Parser Targets
-offP = subparser $ mconcat
-       [ metavar "off [OPTIONS]"
-       , command "off" $ info (helper <*> targetsP Nop) (progDesc "Specify options to disable")
-       ]
+withoutP :: Parser Targets
+withoutP = subparser $ mconcat
+    [ metavar "without [OPTIONS]"
+    , command "without" $ info (helper <*> targetsP Nop) (progDesc "Specify options to disable")
+    ]
 
 optsP :: Parser InitOpts
 optsP = do
     projectName <- strArgument (metavar "PROJECT_NAME")
-    on  <- optional onP
-    off <- optional offP
+    with    <- optional withP
+    without <- optional withoutP
 
-    pure $ InitOpts projectName (fold $ on <> off)
+    pure $ InitOpts projectName (fold $ with <> without)
 
 prsr :: ParserInfo InitOpts
 prsr = modifyHeader
