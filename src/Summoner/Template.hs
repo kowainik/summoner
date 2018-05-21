@@ -65,7 +65,7 @@ createStackTemplate
         category:            $category
         build-type:          Simple
         extra-doc-files:     README.md
-        cabal-version:       >=1.24
+        cabal-version:       1.24
         $testedWith
         $endLine
         |]
@@ -123,7 +123,7 @@ createStackTemplate
           hs-source-dirs:      benchmark
           main-is:             Main.hs
           build-depends:       base
-                             , criterion
+                             , gauge
                              $r
         $endLine
         |]
@@ -194,7 +194,7 @@ createStackTemplate
     createBenchmark =
       [text|
       {-# START_FILE benchmark/Main.hs #-}
-      import Criterion.Main
+      import Gauge.Main
 
       main :: IO ()
       main = defaultMain [bench "const" (whnf const ())]
@@ -260,6 +260,7 @@ createStackTemplate
         cabal.sandbox.config
         cabal.config
         cabal.project.local
+        .ghc.environment.*
         .HTF/
         # Stack
         .stack-work/

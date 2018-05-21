@@ -8,6 +8,7 @@ module Summoner.License
 import Data.Aeson (FromJSON (..), withObject, (.:))
 import Data.Semigroup ((<>))
 import Data.Text (Text)
+import Data.String (IsString (..))
 
 import qualified Data.Text as T
 
@@ -15,10 +16,10 @@ import qualified Data.Text as T
 -- License
 ----------------------------------------------------------------------------
 
-licenseNames :: [Text]
+licenseNames :: [License]
 licenseNames = map fst githubLicenseQueryNames
 
-githubLicenseQueryNames :: [(Text, Text)]
+githubLicenseQueryNames :: [(License, Text)]
 githubLicenseQueryNames =
     [ ("MIT",        "mit")
     , ("BSD2",       "bsd-2-clause")
@@ -32,7 +33,8 @@ githubLicenseQueryNames =
     , ("MPL-2.0",    "mpl-2.0")
     ]
 
-newtype License = License { lcnsText :: Text }
+newtype License = License { unLicense :: Text }
+    deriving (IsString, Eq, Show)
 
 instance FromJSON License where
     parseJSON = withObject "License" $ \o -> License <$> o .: "body"

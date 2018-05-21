@@ -3,6 +3,7 @@
 module Summoner.Ansi
        ( putStrFlush
        , bold
+       , boldText
        , boldDefault
        , reset
        , prompt
@@ -50,11 +51,11 @@ prompt = do
     reset
     T.getLine
 
+boldText :: Text -> IO ()
+boldText message = bold >> putStrFlush message >> reset
+
 boldDefault :: Text -> IO ()
-boldDefault message = do
-    bold
-    putStrFlush (" [" <> message <> "]")
-    reset
+boldDefault message = boldText (" [" <> message <> "]")
 
 colorMessage :: Color -> Text -> IO ()
 colorMessage color message = do

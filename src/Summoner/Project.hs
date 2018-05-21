@@ -120,12 +120,12 @@ generateProject projectName Targets{..} = do
 
         |]
     category <- query "Category: "
-    license  <- choose "License: " $ nub (defaultLicense : licenseNames)
+    license  <- choose "License: " $ map unLicense $ nub (defaultLicense : licenseNames)
 
     -- License creation
     let licenseGithub = snd
                       $ head
-                      $ dropWhile ((/= license) . fst) githubLicenseQueryNames
+                      $ dropWhile ((/= license) . unLicense . fst) githubLicenseQueryNames
     let licenseLink = "https://api.github.com/licenses/" <> licenseGithub
     licenseJson <-
       readProcess "curl"
@@ -136,7 +136,7 @@ generateProject projectName Targets{..} = do
                   ""
     year <- currentYear
     let licenseText = case (decodeStrict $ pack licenseJson) :: Maybe License of
-            Just t  -> customizeLicense license (lcnsText t) nm year
+            Just t  -> customizeLicense license (unLicense t) nm year
             Nothing -> error "Broken predefined license list"
 
     -- Library/Executable/Tests/Benchmarks flags

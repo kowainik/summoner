@@ -16,12 +16,11 @@ import Options.Applicative (Parser, ParserInfo, command, execParser, flag, fullD
                             strArgument, subparser)
 import Options.Applicative.Help.Chunk (stringChunk)
 
-import Summoner.Ansi (bold, reset)
+import Summoner.Ansi (boldText)
 import Summoner.Default (endLine)
 import Summoner.Project (Decision (..), Targets (..), generateProject)
 
 import qualified Data.Text as T
-import qualified Data.Text.IO as T
 
 ----------------------------------------------------------------------------
 -- CLI
@@ -36,15 +35,12 @@ runWithOptions (InitOpts projectName targets) = do
      -- Generate the project.
     generateProject projectName targets
 
-    bold
-    T.putStrLn "\nJob's done"
-    reset
+    boldText "\nJob's done"
 
 
 
 -- | Initial parsed options from cli
-data InitOpts = InitOpts Text    -- ^ Project name
-                         Targets -- ^ Target flags
+data InitOpts = InitOpts Text Targets   -- ^ Includes the project name and target options.
 
 targetsP ::  Decision -> Parser Targets
 targetsP d = do
@@ -127,11 +123,11 @@ offP = subparser $ mconcat
 
 optsP :: Parser InitOpts
 optsP = do
-    projectName <- T.pack <$> strArgument (metavar "PROJECT_NAME")
+    projectName <- strArgument (metavar "PROJECT_NAME")
     on  <- optional onP
     off <- optional offP
 
-    pure $ InitOpts projectName (fold $ on `mappend` off)
+    pure $ InitOpts projectName (fold $ on <> off)
 
 prsr :: ParserInfo InitOpts
 prsr = modifyHeader
@@ -151,18 +147,18 @@ modifyFooter initOpts = initOpts {infoFooter = stringChunk $ T.unpack artFooter}
 artHeader :: Text
 artHeader = [text|
 $endLine
-                                                  ___
-                                                /  .  \
-                                               │\_/│   │
-                                               │   │  /│
-  __________________________________________________-' │
- ╱                                                     │
-╱   .-.                                                │
-│  /   \                                               │
-│ |\_.  │ hs-init — tool for creating Haskell projects │
-│\|  | /│                                              │
-│ `-_-' │                                             ╱
-│       │____________________________________________╱
+                                                   ___
+                                                 /  .  \
+                                                │\_/│   │
+                                                │   │  /│
+  ___________________________________________________-' │
+ ╱                                                      │
+╱   .-.                                                 │
+│  /   \                                                │
+│ |\_.  │ Summoner — tool for creating Haskell projects │
+│\|  | /│                                               │
+│ `-_-' │                                              ╱
+│       │_____________________________________________╱
 │       │
  ╲     ╱
   `-_-'

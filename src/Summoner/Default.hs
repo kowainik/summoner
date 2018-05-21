@@ -13,6 +13,8 @@ module Summoner.Default
 import Data.Text (Text)
 import Data.Time (getCurrentTime, toGregorian, utctDay)
 
+import Summoner.License (License)
+
 import qualified Data.Text as T
 
 ----------------------------------------------------------------------------
@@ -28,7 +30,7 @@ defaultName = "Kowainik"
 defaultEmail :: Text
 defaultEmail = "xrom.xkov@gmail.com"
 
-defaultLicense :: Text
+defaultLicense :: License
 defaultLicense = "MIT"
 
 defaultGHC :: Text

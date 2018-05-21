@@ -3,7 +3,7 @@
 [![Build status](https://secure.travis-ci.org/kowainik/summoner.svg)](http://travis-ci.org/kowainik/summoner)
 [![Windows build status](https://ci.appveyor.com/api/projects/status/github/kowainik/summoner?branch=master&svg=true)](https://ci.appveyor.com/project/kowainik/summoner)
 [![MPL-2.0 license](https://img.shields.io/badge/license-MPL--2.0-blue.svg)](https://github.com/kowainik/summoner/blob/master/LICENSE)
-[![Version 1.0.3](https://img.shields.io/badge/version-v1.0.3-fabfff.svg)](https://github.com/kowainik/summoner/blob/master/CHANGELOG.md)
+[![Hackage](https://img.shields.io/hackage/v/summoner.svg)](https://hackage.haskell.org/package/summoner)
 
 This is tool for creating completely configured production Haskell projects.
 Consider that it's using [`Stack`](http://haskellstack.org) for
