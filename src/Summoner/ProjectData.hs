@@ -1,6 +1,7 @@
 module Summoner.ProjectData
        ( ProjectData (..)
        , GhcVer (..)
+       , supportedGhcVers
        , parseGhcVer
        , showGhcVer
        ) where
@@ -29,12 +30,16 @@ data ProjectData = ProjectData
     , testedVersions :: [GhcVer]  -- ^ ghc versions
     } deriving (Show)
 
--- | List of known (i.e. supported by @summoner@) GHC versions.
+-- | Represents some selected set of GHC versions.
 data GhcVer = Ghc7103
             | Ghc801
             | Ghc802
             | Ghc822
-            deriving (Eq, Ord, Show)
+            deriving (Eq, Ord, Show, Enum, Bounded)
+
+-- | Supported by @summoner@ GHC versions for project templates.
+supportedGhcVers :: [GhcVer]
+supportedGhcVers = [minBound .. maxBound]
 
 -- | Converts 'GhcVer' into dot-separated string.
 showGhcVer :: GhcVer -> Text

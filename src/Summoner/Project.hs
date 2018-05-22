@@ -25,7 +25,7 @@ import Summoner.Default (currentYear, defaultEmail, defaultGHC, defaultLicense, 
                          defaultOwner)
 import Summoner.License (License (..), customizeLicense, githubLicenseQueryNames, licenseNames)
 import Summoner.Process (deleteFile)
-import Summoner.ProjectData (ProjectData (..), parseGhcVer, showGhcVer)
+import Summoner.ProjectData (ProjectData (..), parseGhcVer, showGhcVer, supportedGhcVers)
 import Summoner.Question (checkUniqueName, choose, query, queryDef)
 import Summoner.Template (createStackTemplate)
 
@@ -154,18 +154,21 @@ generateProject projectName Targets{..} = do
     test   <- decisionToBool isTest "tests"
     bench  <- decisionToBool isBenchmark "benchmarks"
 
-    T.putStrLn "Latest GHCs: 7.10.3 8.0.1 8.0.2 8.2.2"
-    T.putStrLn $ "The project will be created with the latest resolver for GHC-" <> showGhcVer defaultGHC
+    let defGhc = showGhcVer defaultGHC
+    T.putStrLn $ "Supported by 'summoner' GHCs: " <> T.intercalate " " (map showGhcVer supportedGhcVers)
+    T.putStrLn $ "The project will be created with the latest resolver for default GHC-" <> defGhc
     testedVersions <- catMaybes . map parseGhcVer . T.words <$>
-      queryDef "Additionally you can specify versions of GHC to test with (space-separated): " ""
-    -- TODO: tell which ghc versions were failing to parse?...
-    let prData = ProjectData{..}
+        queryDef "Additionally you can specify versions of GHC to test with (space-separated): " defGhc
+
+    -- Create project data from all variables in scope
+    let projectData = ProjectData{..}
+
     -- create stack project
-    doStackCommands prData
+    doStackCommands projectData
     -- make b executable
     when script doScriptCommand
     -- create github repository and commit
-    when github $ doGithubCommands prData privat
+    when github $ doGithubCommands projectData privat
 
  where
     ifGithub :: Bool -> Text -> Decision -> IO Bool
