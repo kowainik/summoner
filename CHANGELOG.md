@@ -4,7 +4,8 @@
 =====
 
 * __Important:__ Rename `hs-init` to `summoner`. Transform the script into the package.
-
+* [#54](https://github.com/vrom911/hs-init/issues/54):
+   Rename `on` and `off` commands to `with` and `without`.
 
 # hs-init
 
