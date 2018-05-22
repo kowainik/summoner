@@ -13,7 +13,6 @@ import Control.Monad (when)
 import Data.Aeson (decodeStrict)
 import Data.ByteString.Char8 (pack)
 import Data.List (nub)
-import Data.Maybe (catMaybes)
 import Data.Semigroup (Semigroup (..))
 import Data.Text (Text)
 import NeatInterpolation (text)
@@ -26,7 +25,7 @@ import Summoner.Default (currentYear, defaultEmail, defaultGHC, defaultLicense, 
 import Summoner.License (License (..), customizeLicense, githubLicenseQueryNames, licenseNames)
 import Summoner.Process (deleteFile)
 import Summoner.ProjectData (ProjectData (..), parseGhcVer, showGhcVer, supportedGhcVers)
-import Summoner.Question (checkUniqueName, choose, query, queryDef)
+import Summoner.Question (checkUniqueName, choose, query, queryDef, queryManyRepeatOnFail)
 import Summoner.Template (createStackTemplate)
 
 import qualified Data.Text as T
@@ -154,11 +153,11 @@ generateProject projectName Targets{..} = do
     test   <- decisionToBool isTest "tests"
     bench  <- decisionToBool isBenchmark "benchmarks"
 
-    let defGhc = showGhcVer defaultGHC
     T.putStrLn $ "Supported by 'summoner' GHCs: " <> T.intercalate " " (map showGhcVer supportedGhcVers)
-    T.putStrLn $ "The project will be created with the latest resolver for default GHC-" <> defGhc
-    testedVersions <- catMaybes . map parseGhcVer . T.words <$>
-        queryDef "Additionally you can specify versions of GHC to test with (space-separated): " defGhc
+    T.putStrLn $ "The project will be created with the latest resolver for default GHC-" <> showGhcVer defaultGHC
+    testedVersions <- queryManyRepeatOnFail
+        parseGhcVer
+        "Additionally you can specify versions of GHC to test with (space-separated): "
 
     -- Create project data from all variables in scope
     let projectData = ProjectData{..}
