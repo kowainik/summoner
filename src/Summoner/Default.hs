@@ -14,6 +14,7 @@ import Data.Text (Text)
 import Data.Time (getCurrentTime, toGregorian, utctDay)
 
 import Summoner.License (License)
+import Summoner.ProjectData (GhcVer (Ghc822))
 
 import qualified Data.Text as T
 
@@ -33,8 +34,8 @@ defaultEmail = "xrom.xkov@gmail.com"
 defaultLicense :: License
 defaultLicense = "MIT"
 
-defaultGHC :: Text
-defaultGHC = "8.2.2"
+defaultGHC :: GhcVer
+defaultGHC = Ghc822
 
 currentYear :: IO Text
 currentYear = do

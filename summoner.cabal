@@ -42,6 +42,7 @@ library
                      , time
 
   default-extensions:  GeneralizedNewtypeDeriving
+                       LambdaCase
                        OverloadedStrings
                        RecordWildCards
 
