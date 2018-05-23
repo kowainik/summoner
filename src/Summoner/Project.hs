@@ -33,6 +33,7 @@ import qualified Data.Text.IO as T
 
 -- | Used for detecting the user decision during CLI input.
 data Decision = Yes | Nop | Idk
+    deriving (Eq, Show, Enum, Bounded)
 
 instance Semigroup Decision where
     (<>) :: Decision -> Decision -> Decision

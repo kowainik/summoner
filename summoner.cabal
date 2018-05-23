@@ -12,7 +12,7 @@ copyright:           2018 Kowainik
 category:            CLI, CLI Tool, Development
 build-type:          Simple
 extra-doc-files:     README.md
-cabal-version:       1.24
+cabal-version:       2.0
 tested-with:         GHC == 8.2.2
 
 library
@@ -59,12 +59,16 @@ executable summon
 test-suite summoner-test
   type:                exitcode-stdio-1.0
   hs-source-dirs:      test
-  main-is:             Spec.hs
-  build-depends:       base
-                     , summoner
-  ghc-options:         -Wall -Werror -threaded -rtsopts -with-rtsopts=-N
-  default-language:    Haskell2010
 
-source-repository head
-  type:                git
-  location:            https://github.com/kowainik/summoner.git
+  main-is:             Spec.hs
+  other-modules:       Test.DecisionSpec
+
+  build-tool-depends:  tasty-discover:tasty-discover
+  build-depends:       base
+                     , hedgehog
+                     , tasty
+                     , tasty-hedgehog
+                     , summoner
+
+  ghc-options:         -Wall -threaded -rtsopts -with-rtsopts=-N
+  default-language:    Haskell2010
