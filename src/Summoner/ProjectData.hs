@@ -1,12 +1,22 @@
+{-# LANGUAGE DeriveAnyClass #-}
+{-# LANGUAGE DeriveGeneric  #-}
+{-# LANGUAGE InstanceSigs   #-}
+
 module Summoner.ProjectData
        ( ProjectData (..)
        , GhcVer (..)
        , supportedGhcVers
        , parseGhcVer
        , showGhcVer
+
+       , Decision (..)
        ) where
 
+import Data.Semigroup (Semigroup (..))
 import Data.Text (Text)
+import Generics.Deriving.Monoid (GMonoid (..))
+import Generics.Deriving.Semigroup (GSemigroup (..))
+import GHC.Generics (Generic)
 
 -- | Data needed for project creation.
 data ProjectData = ProjectData
@@ -29,6 +39,27 @@ data ProjectData = ProjectData
     , bench          :: Bool   -- ^ add benchmarks
     , testedVersions :: [GhcVer]  -- ^ ghc versions
     } deriving (Show)
+
+-- | Used for detecting the user decision during CLI input.
+data Decision = Yes | Nop | Idk
+    deriving (Show, Eq, Enum, Bounded, Generic)
+
+instance Semigroup Decision where
+    (<>) :: Decision -> Decision -> Decision
+    Idk <> x   = x
+    x   <> Idk = x
+    _   <> x   = x
+
+instance Monoid Decision where
+    mempty  = Idk
+    mappend = (<>)
+
+instance GSemigroup Decision where
+    gsappend = (<>)
+
+instance GMonoid Decision where
+    gmempty = mempty
+    gmappend = (<>)
 
 -- | Represents some selected set of GHC versions.
 data GhcVer = Ghc7103

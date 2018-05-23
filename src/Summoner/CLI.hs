@@ -13,12 +13,15 @@ import Data.Text (Text)
 import NeatInterpolation (text)
 import Options.Applicative (Parser, ParserInfo, command, execParser, flag, fullDesc, help, helper,
                             info, infoFooter, infoHeader, long, metavar, optional, progDesc, short,
-                            strArgument, subparser)
+                            strArgument, strOption, subparser)
 import Options.Applicative.Help.Chunk (stringChunk)
+import System.Directory (doesFileExist, getHomeDirectory)
 
 import Summoner.Ansi (boldText)
+import Summoner.Config (ConfigP (..), PartialConfig, defaultConfig, finalise, loadFileConfig)
 import Summoner.Default (endLine)
-import Summoner.Project (Decision (..), Targets (..), generateProject)
+import Summoner.Project (generateProject)
+import Summoner.ProjectData (Decision (..))
 
 import qualified Data.Text as T
 
@@ -31,27 +34,55 @@ summon = execParser prsr >>= runWithOptions
 
 -- | Run 'hs-init' with cli options
 runWithOptions :: InitOpts -> IO ()
-runWithOptions (InitOpts projectName targets) = do
-     -- Generate the project.
-    generateProject projectName targets
+runWithOptions (InitOpts projectName cliConfig maybeFile) = do
+    file <- case maybeFile of
+        Nothing -> getHomeDirectory >>= pure . (++ "/summoner.toml")
+        Just x  -> pure x
+    isFile <- doesFileExist file
+    config <-
+        if isFile then do
+            parsedFile <- loadFileConfig file
+            case parsedFile of
+                Left msg -> do
+                    putStrLn $ "Couldn't parse file " ++ file ++ ": " ++ show msg
+                    putStrLn "Using default config.."
+                    pure defaultConfig
+                Right conf -> pure $ defaultConfig <> conf
+        else pure defaultConfig
+     -- get the final config
+    let globalConfig = case finalise (config <> cliConfig) of
+             Left msg -> error $ T.unpack msg
+             Right c  -> c
+    -- Generate the project.
+    generateProject projectName globalConfig
 
     boldText "\nJob's done\n"
 
 -- | Initial parsed options from cli
-data InitOpts = InitOpts Text Targets   -- ^ Includes the project name and target options.
+data InitOpts = InitOpts Text PartialConfig (Maybe FilePath)   -- ^ Includes the project name and target options.
 
-targetsP ::  Decision -> Parser Targets
+targetsP ::  Decision -> Parser PartialConfig
 targetsP d = do
-    githubFlag   <- githubP    d
-    travisFlag   <- travisP    d
-    appVeyorFlag <- appVeyorP  d
-    privateFlag  <- privateP   d
-    scriptFlag   <- scriptP    d
-    isLibrary    <- libraryP   d
-    isExecutable <- execP      d
-    isTest       <- testP      d
-    isBenchmark  <- benchmarkP d
-    pure Targets{..}
+    cGitHub  <- githubP    d
+    cTravis  <- travisP    d
+    cAppVey  <- appVeyorP  d
+    cPrivate <- privateP   d
+    cScript  <- scriptP    d
+    cLib     <- libraryP   d
+    cExe     <- execP      d
+    cTest    <- testP      d
+    cBench   <- benchmarkP d
+    pure mempty
+        { cGitHub = cGitHub
+        , cTravis = cTravis
+        , cAppVey = cAppVey
+        , cPrivate= cPrivate
+        , cScript = cScript
+        , cLib    = cLib
+        , cExe    = cExe
+        , cTest   = cTest
+        , cBench  = cBench
+        }
 
 githubP :: Decision -> Parser Decision
 githubP d = flag Idk d
@@ -107,25 +138,33 @@ benchmarkP d = flag Idk d
             <> short 'b'
             <> help "Benchmarks"
 
-withP :: Parser Targets
+withP :: Parser PartialConfig
 withP = subparser $ mconcat
     [ metavar "with [OPTIONS]"
     , command "with" $ info (helper <*> targetsP Yes) (progDesc "Specify options to enable")
     ]
 
-withoutP :: Parser Targets
+withoutP :: Parser PartialConfig
 withoutP = subparser $ mconcat
     [ metavar "without [OPTIONS]"
     , command "without" $ info (helper <*> targetsP Nop) (progDesc "Specify options to disable")
     ]
+
+fileP :: Parser FilePath
+fileP = strOption
+    $ long "file"
+   <> short 'f'
+   <> metavar "FILENAME"
+   <> help "Path to the toml file with configurations"
 
 optsP :: Parser InitOpts
 optsP = do
     projectName <- strArgument (metavar "PROJECT_NAME")
     with    <- optional withP
     without <- optional withoutP
+    file    <- optional fileP
 
-    pure $ InitOpts projectName (fold $ with <> without)
+    pure $ InitOpts projectName (fold $ with <> without) file
 
 prsr :: ParserInfo InitOpts
 prsr = modifyHeader

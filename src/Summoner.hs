@@ -1,6 +1,7 @@
 module Summoner
        ( module Summoner.Ansi
        , module Summoner.CLI
+       , module Summoner.Config
        , module Summoner.Default
        , module Summoner.License
        , module Summoner.Process
@@ -12,6 +13,7 @@ module Summoner
 
 import Summoner.Ansi
 import Summoner.CLI
+import Summoner.Config
 import Summoner.Default
 import Summoner.License
 import Summoner.Process

@@ -20,6 +20,7 @@ library
   exposed-modules:     Summoner
                          Summoner.Ansi
                          Summoner.CLI
+                         Summoner.Config
                          Summoner.Default
                          Summoner.License
                          Summoner.Process
@@ -35,11 +36,13 @@ library
                      , bytestring
                      , directory
                      , filepath
+                     , generic-deriving
                      , neat-interpolation
                      , optparse-applicative
                      , process
                      , text
                      , time
+                     , tomland
 
   default-extensions:  GeneralizedNewtypeDeriving
                        LambdaCase
