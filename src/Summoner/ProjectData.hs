@@ -1,5 +1,3 @@
-{-# LANGUAGE DeriveAnyClass #-}
-
 module Summoner.ProjectData
        ( ProjectData (..)
        , GhcVer (..)

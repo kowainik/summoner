@@ -90,9 +90,13 @@ generateProject projectName Config{..} = do
 
     T.putStrLn $ "Supported by 'summoner' GHCs: " <> T.intercalate " " (map showGhcVer supportedGhcVers)
     T.putStrLn $ "The project will be created with the latest resolver for default GHC-" <> showGhcVer defaultGHC
-    testedVersions <- queryManyRepeatOnFail
-        parseGhcVer
-        "Additionally you can specify versions of GHC to test with (space-separated): "
+    testedVersions <- case cGhcVer of
+        [] -> queryManyRepeatOnFail
+            parseGhcVer
+            "Additionally you can specify versions of GHC to test with (space-separated): "
+        vers -> do
+            T.putStrLn $ "Also these GHC versions will be added: " <> T.intercalate " " (map showGhcVer vers)
+            pure vers
 
     -- Create project data from all variables in scope
     let projectData = ProjectData{..}

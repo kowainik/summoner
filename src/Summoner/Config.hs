@@ -174,7 +174,7 @@ finalise Config{..} = Config
 
 -- | Read configuration from the given file and return it in data type.
 loadFileConfig :: MonadIO m => FilePath -> m PartialConfig
-loadFileConfig filePath = liftIO $ TIO.readFile filePath >>= pure . Toml.encode configT >>= errorWhenLeft
+loadFileConfig filePath = liftIO $ (Toml.encode configT <$> TIO.readFile filePath) >>= errorWhenLeft
   where
     errorWhenLeft :: Either Toml.EncodeException PartialConfig -> IO PartialConfig
     errorWhenLeft (Left e)   = throwIO $ LoadTomlException filePath $ show e

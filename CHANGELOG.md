@@ -4,8 +4,12 @@
 =====
 
 * __Important:__ Rename `hs-init` to `summoner`. Transform the script into the package.
-* [#54](https://github.com/vrom911/hs-init/issues/54):
+* [#54](https://github.com/kowainik/summoner/issues/54):
    Rename `on` and `off` commands to `with` and `without`.
+* [#48](https://github.com/kowainik/summoner/issues/48):
+  - Add ability to write configurations file. Remove `Targets` data type.
+    Use `Config` instead for default, file and CLI configurations.
+
 
 # hs-init
 
