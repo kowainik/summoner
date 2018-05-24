@@ -1,6 +1,4 @@
 {-# LANGUAGE DeriveAnyClass #-}
-{-# LANGUAGE DeriveGeneric  #-}
-{-# LANGUAGE InstanceSigs   #-}
 
 module Summoner.ProjectData
        ( ProjectData (..)

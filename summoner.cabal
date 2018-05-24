@@ -28,6 +28,7 @@ library
                          Summoner.ProjectData
                          Summoner.Question
                          Summoner.Template
+                         Summoner.Validation
 
   ghc-options:         -Wall
   build-depends:       base
@@ -44,7 +45,9 @@ library
                      , time
                      , tomland
 
-  default-extensions:  GeneralizedNewtypeDeriving
+  default-extensions:  DeriveGeneric
+                       GeneralizedNewtypeDeriving
+                       InstanceSigs
                        LambdaCase
                        OverloadedStrings
                        RecordWildCards

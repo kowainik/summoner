@@ -16,12 +16,14 @@ import Options.Applicative (Parser, ParserInfo, command, execParser, flag, fullD
                             strArgument, strOption, subparser)
 import Options.Applicative.Help.Chunk (stringChunk)
 import System.Directory (doesFileExist, getHomeDirectory)
+import System.FilePath ((</>))
 
 import Summoner.Ansi (boldText)
 import Summoner.Config (ConfigP (..), PartialConfig, defaultConfig, finalise, loadFileConfig)
 import Summoner.Default (endLine)
 import Summoner.Project (generateProject)
 import Summoner.ProjectData (Decision (..))
+import Summoner.Validation (Validation (..))
 
 import qualified Data.Text as T
 
@@ -36,30 +38,27 @@ summon = execParser prsr >>= runWithOptions
 runWithOptions :: InitOpts -> IO ()
 runWithOptions (InitOpts projectName cliConfig maybeFile) = do
     file <- case maybeFile of
-        Nothing -> getHomeDirectory >>= pure . (++ "/summoner.toml")
+        Nothing -> (</> "summoner.toml") <$> getHomeDirectory
         Just x  -> pure x
     isFile <- doesFileExist file
-    config <-
-        if isFile then do
-            parsedFile <- loadFileConfig file
-            case parsedFile of
-                Left msg -> do
-                    putStrLn $ "Couldn't parse file " ++ file ++ ": " ++ show msg
-                    putStrLn "Using default config.."
-                    pure defaultConfig
-                Right conf -> pure $ defaultConfig <> conf
-        else pure defaultConfig
-     -- get the final config
-    let globalConfig = case finalise (config <> cliConfig) of
-             Left msg -> error $ T.unpack msg
-             Right c  -> c
+    fileConfig <-
+        if isFile
+        then loadFileConfig file
+        else pure mempty
+    -- union all possible configs
+    let unionConfig = defaultConfig <> fileConfig <> cliConfig
+    -- get the final config
+    let finalConfig = case finalise unionConfig of
+             Failure msgs -> error $ T.unpack $ T.intercalate "\n" msgs
+             Success c    -> c
     -- Generate the project.
-    generateProject projectName globalConfig
+    generateProject projectName finalConfig
 
     boldText "\nJob's done\n"
 
 -- | Initial parsed options from cli
-data InitOpts = InitOpts Text PartialConfig (Maybe FilePath)   -- ^ Includes the project name and target options.
+data InitOpts = InitOpts Text PartialConfig (Maybe FilePath)
+    -- ^ Includes the project name, config from the CLI and possible file where custom congifs are.
 
 targetsP ::  Decision -> Parser PartialConfig
 targetsP d = do
@@ -155,7 +154,7 @@ fileP = strOption
     $ long "file"
    <> short 'f'
    <> metavar "FILENAME"
-   <> help "Path to the toml file with configurations"
+   <> help "Path to the toml file with configurations. If not specified '~/summoner.toml' will be used if present"
 
 optsP :: Parser InitOpts
 optsP = do

@@ -18,7 +18,7 @@ import System.Process (readProcess)
 
 import Summoner.Ansi (successMessage, warningMessage)
 import Summoner.Config (Config, ConfigP (..))
-import Summoner.Default (currentYear, defaultGHC, defaultLicense)
+import Summoner.Default (currentYear, defaultGHC)
 import Summoner.License (License (..), customizeLicense, githubLicenseQueryNames, licenseNames)
 import Summoner.Process (deleteFile)
 import Summoner.ProjectData (Decision (..), ProjectData (..), parseGhcVer, showGhcVer,
@@ -55,7 +55,7 @@ generateProject projectName Config{..} = do
     email       <- queryDef "Maintainer e-mail: " cEmail
     T.putStr categoryText
     category <- query "Category: "
-    license  <- choose "License: " $ map unLicense $ nub (defaultLicense : licenseNames)
+    license  <- choose "License: " $ map unLicense $ nub (cLicense : licenseNames)
 
     -- License creation
     let licenseGithub = snd

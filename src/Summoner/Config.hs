@@ -1,9 +1,9 @@
 {-# LANGUAGE DataKinds            #-}
 {-# LANGUAGE DeriveAnyClass       #-}
-{-# LANGUAGE DeriveGeneric        #-}
 {-# LANGUAGE FlexibleContexts     #-}
 {-# LANGUAGE FlexibleInstances    #-}
 {-# LANGUAGE KindSignatures       #-}
+{-# LANGUAGE ScopedTypeVariables  #-}
 {-# LANGUAGE StandaloneDeriving   #-}
 {-# LANGUAGE TypeFamilies         #-}
 {-# LANGUAGE TypeOperators        #-}
@@ -23,21 +23,25 @@ module Summoner.Config
        , loadFileConfig
        ) where
 
-import Control.Monad ((>=>))
+import Control.Exception (Exception, throwIO)
+import Control.Monad (join, (>=>))
 import Control.Monad.IO.Class (MonadIO, liftIO)
+import Data.Maybe (fromMaybe)
 import Data.Monoid (Last (..))
 import Data.Semigroup (Semigroup (..))
 import Data.Text (Text)
+import Data.Tuple (swap)
 import Generics.Deriving.Monoid (GMonoid, gmemptydefault)
 import Generics.Deriving.Semigroup (GSemigroup, gsappenddefault)
 import GHC.Generics (Generic)
-import Toml (ValueType (TString), bijectionMaker, matchText)
+import Toml (ValueType (TString), matchText)
 import Toml.Bi (BiToml, dimapBijection, (.=))
 import Toml.Bi.Combinators (Valuer (..))
 import Toml.PrefixTree (Key)
 
 import Summoner.License (License (..))
 import Summoner.ProjectData (Decision (..), GhcVer (..), parseGhcVer, showGhcVer)
+import Summoner.Validation (Validation (..))
 
 import qualified Data.Text.IO as TIO
 import qualified Toml
@@ -50,6 +54,7 @@ data ConfigP (p :: Phase) = Config
     , cFullName :: p :- Text
     , cEmail    :: p :- Text
     , cLicense  :: p :- License
+    , cGhcVer   :: p :- [GhcVer]
     , cGitHub   :: Decision
     , cTravis   :: Decision
     , cAppVey   :: Decision
@@ -59,7 +64,6 @@ data ConfigP (p :: Phase) = Config
     , cExe      :: Decision
     , cTest     :: Decision
     , cBench    :: Decision
-    , cGhcVer   :: p :- [GhcVer]
     } deriving (Generic)
 
 deriving instance (GSemigroup (p :- Text), GSemigroup (p :- License), GSemigroup (p :- [GhcVer])) => GSemigroup (ConfigP p)
@@ -90,6 +94,7 @@ defaultConfig = Config
     , cFullName = Last (Just "Kowainik")
     , cEmail    = Last (Just "xrom.xkov@gmail.com")
     , cLicense  = Last (Just $ License "MPL-2.0")
+    , cGhcVer   = Last (Just [])
     , cGitHub   = Idk
     , cTravis   = Idk
     , cAppVey   = Idk
@@ -99,26 +104,25 @@ defaultConfig = Config
     , cExe      = Idk
     , cTest     = Idk
     , cBench    = Idk
-    , cGhcVer   = Last (Just [])
     }
 
 -- | Identifies how to read 'Config' data from the @.toml@ file.
 configT :: BiToml PartialConfig
 configT = Config
-    <$> lastP Toml.str "owner"       .= cOwner
-    <*> lastP Toml.str "fullName"    .= cFullName
-    <*> lastP Toml.str "email"       .= cEmail
-    <*> lastP license  "license"     .= cLicense
-    <*> decision       "github"      .= cGitHub
-    <*> decision       "travis"      .= cTravis
-    <*> decision       "appveyor"    .= cAppVey
-    <*> decision       "private"     .= cPrivate
-    <*> decision       "bscript"     .= cScript
-    <*> decision       "lib"         .= cLib
-    <*> decision       "exe"         .= cExe
-    <*> decision       "test"        .= cTest
-    <*> decision       "bench"       .= cBench
-    <*> lastP (Toml.arrayOf ghcVerV) "ghcVersions" .= cGhcVer
+    <$> lastP Toml.str  "owner"       .= cOwner
+    <*> lastP Toml.str  "fullName"    .= cFullName
+    <*> lastP Toml.str  "email"       .= cEmail
+    <*> lastP license   "license"     .= cLicense
+    <*> lastP ghcVerArr "ghcVersions" .= cGhcVer
+    <*> decision        "github"      .= cGitHub
+    <*> decision        "travis"      .= cTravis
+    <*> decision        "appveyor"    .= cAppVey
+    <*> decision        "private"     .= cPrivate
+    <*> decision        "bscript"     .= cScript
+    <*> decision        "lib"         .= cLib
+    <*> decision        "exe"         .= cExe
+    <*> decision        "test"        .= cTest
+    <*> decision        "bench"       .= cBench
   where
     lastP :: (Key -> BiToml a) -> Key -> BiToml (Last a)
     lastP f = dimapBijection getLast Last . Toml.maybeP f
@@ -126,8 +130,11 @@ configT = Config
     ghcVerV :: Valuer 'TString GhcVer
     ghcVerV = Valuer (matchText >=> parseGhcVer) (Toml.String . showGhcVer)
 
+    ghcVerArr :: Key -> BiToml [GhcVer]
+    ghcVerArr = Toml.arrayOf ghcVerV
+
     license :: Key -> BiToml License
-    license =  bijectionMaker "License" (matchText >=> Just . License) (Toml.String . unLicense)
+    license =  dimapBijection unLicense License . Toml.str
 
     decision :: Key -> BiToml Decision
     decision = dimapBijection fromDecision toDecision . Toml.maybeP Toml.bool
@@ -139,19 +146,20 @@ configT = Config
                     ]
 
     fromDecision :: Decision -> Maybe Bool
-    fromDecision d = snd $ head $ filter ((== d) . fst) decisionMaybe
+    fromDecision d = join $ lookup d decisionMaybe
 
     toDecision :: Maybe Bool -> Decision
-    toDecision m = fst $ head $ filter ((== m) . snd) decisionMaybe
+    toDecision m = fromMaybe (error "Impossible") $ lookup m $ map swap decisionMaybe
 
 
 -- | Make sure that all the required configurations options were specified.
-finalise :: PartialConfig -> Either Text Config
+finalise :: PartialConfig -> Validation [Text] Config
 finalise Config{..} = Config
-    <$> fin  "owner"    cOwner
-    <*> fin  "fullName" cFullName
-    <*> fin  "email"    cEmail
-    <*> fin  "license"  cLicense
+    <$> fin  "owner"      cOwner
+    <*> fin  "fullName"   cFullName
+    <*> fin  "email"      cEmail
+    <*> fin  "license"    cLicense
+    <*> fin  "ghcersions" cGhcVer
     <*> pure cGitHub
     <*> pure cTravis
     <*> pure cAppVey
@@ -161,10 +169,20 @@ finalise Config{..} = Config
     <*> pure cExe
     <*> pure cTest
     <*> pure cBench
-    <*> fin  "ghcVersions" cGhcVer
   where
-    fin name = maybe (Left $ "Missing field: " <> name) Right . getLast
+    fin name = maybe (Failure ["Missing field: " <> name]) Success . getLast
 
 -- | Read configuration from the given file and return it in data type.
-loadFileConfig :: MonadIO m => FilePath -> m (Either Toml.EncodeException PartialConfig)
-loadFileConfig filePath = liftIO $ TIO.readFile filePath >>= pure . Toml.encode configT
+loadFileConfig :: MonadIO m => FilePath -> m PartialConfig
+loadFileConfig filePath = liftIO $ TIO.readFile filePath >>= pure . Toml.encode configT >>= errorWhenLeft
+  where
+    errorWhenLeft :: Either Toml.EncodeException PartialConfig -> IO PartialConfig
+    errorWhenLeft (Left e)   = throwIO $ LoadTomlException filePath $ show e
+    errorWhenLeft (Right pc) = pure pc
+
+data LoadTomlException = LoadTomlException FilePath String
+
+instance Show LoadTomlException where
+    show (LoadTomlException filePath msg) = "Couldnt parse file " ++ filePath ++ ": " ++ show msg
+
+instance Exception LoadTomlException

@@ -9,6 +9,7 @@ module Summoner
        , module Summoner.ProjectData
        , module Summoner.Question
        , module Summoner.Template
+       , module Summoner.Validation
        ) where
 
 import Summoner.Ansi
@@ -21,3 +22,4 @@ import Summoner.Project
 import Summoner.ProjectData
 import Summoner.Question
 import Summoner.Template
+import Summoner.Validation

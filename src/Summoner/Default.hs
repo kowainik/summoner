@@ -1,11 +1,7 @@
 -- | This module contains some default values to use.
 
 module Summoner.Default
-       ( defaultOwner
-       , defaultName
-       , defaultEmail
-       , defaultLicense
-       , defaultGHC
+       ( defaultGHC
        , currentYear
        , endLine
        ) where
@@ -13,7 +9,6 @@ module Summoner.Default
 import Data.Text (Text)
 import Data.Time (getCurrentTime, toGregorian, utctDay)
 
-import Summoner.License (License)
 import Summoner.ProjectData (GhcVer (Ghc822))
 
 import qualified Data.Text as T
@@ -21,18 +16,6 @@ import qualified Data.Text as T
 ----------------------------------------------------------------------------
 -- Default Settings
 ----------------------------------------------------------------------------
-
-defaultOwner :: Text
-defaultOwner = "kowainik"
-
-defaultName :: Text
-defaultName = "Kowainik"
-
-defaultEmail :: Text
-defaultEmail = "xrom.xkov@gmail.com"
-
-defaultLicense :: License
-defaultLicense = "MIT"
 
 defaultGHC :: GhcVer
 defaultGHC = Ghc822
