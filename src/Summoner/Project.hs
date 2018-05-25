@@ -16,7 +16,7 @@ import NeatInterpolation (text)
 import System.Info (os)
 import System.Process (readProcess)
 
-import Summoner.Ansi (successMessage, warningMessage)
+import Summoner.Ansi (infoMessage, skipMessage, successMessage)
 import Summoner.Config (Config, ConfigP (..))
 import Summoner.Default (currentYear, defaultGHC)
 import Summoner.License (License (..), customizeLicense, githubLicenseQueryNames, licenseNames)
@@ -42,7 +42,7 @@ decisionToBool decision target = case decision of
 
 trueMessage, falseMessage :: Text -> IO Bool
 trueMessage  target = True  <$ successMessage (T.toTitle target <> " will be added to the project")
-falseMessage target = False <$ warningMessage (T.toTitle target <> " won't be added to the project")
+falseMessage target = False <$ skipMessage (T.toTitle target <> " won't be added to the project")
 
 
 -- | Generate the project.
@@ -88,12 +88,12 @@ generateProject projectName Config{..} = do
     test   <- decisionToBool cTest "tests"
     bench  <- decisionToBool cBench "benchmarks"
 
-    T.putStrLn $ "Supported by 'summoner' GHCs: " <> T.intercalate " " (map showGhcVer supportedGhcVers)
     T.putStrLn $ "The project will be created with the latest resolver for default GHC-" <> showGhcVer defaultGHC
     testedVersions <- case cGhcVer of
-        [] -> queryManyRepeatOnFail
-            parseGhcVer
-            "Additionally you can specify versions of GHC to test with (space-separated): "
+        [] -> do
+            T.putStrLn "Additionally you can specify versions of GHC to test with (space-separated): "
+            infoMessage $ "Supported by 'summoner' GHCs: " <> T.intercalate " " (map showGhcVer supportedGhcVers)
+            queryManyRepeatOnFail parseGhcVer
         vers -> do
             T.putStrLn $ "Also these GHC versions will be added: " <> T.intercalate " " (map showGhcVer vers)
             pure vers

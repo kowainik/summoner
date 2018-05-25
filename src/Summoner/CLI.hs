@@ -1,5 +1,6 @@
 {-# LANGUAGE ApplicativeDo #-}
 {-# LANGUAGE QuasiQuotes   #-}
+{-# LANGUAGE TupleSections #-}
 
 -- | This module contains functions and data types to parse CLI inputs.
 
@@ -7,7 +8,7 @@ module Summoner.CLI
        ( summon
        ) where
 
-import Data.Foldable (fold)
+import Data.Foldable (fold, for_)
 import Data.Semigroup (Semigroup (..))
 import Data.Text (Text)
 import NeatInterpolation (text)
@@ -15,12 +16,12 @@ import Options.Applicative (Parser, ParserInfo, command, execParser, flag, fullD
                             info, infoFooter, infoHeader, long, metavar, optional, progDesc, short,
                             strArgument, strOption, subparser)
 import Options.Applicative.Help.Chunk (stringChunk)
-import System.Directory (doesFileExist, getHomeDirectory)
-import System.FilePath ((</>))
+import System.Directory (doesFileExist)
+import System.Exit (exitFailure)
 
-import Summoner.Ansi (boldText)
+import Summoner.Ansi (boldText, errorMessage, infoMessage, warningMessage)
 import Summoner.Config (ConfigP (..), PartialConfig, defaultConfig, finalise, loadFileConfig)
-import Summoner.Default (endLine)
+import Summoner.Default (defaultConfigFile, endLine)
 import Summoner.Project (generateProject)
 import Summoner.ProjectData (Decision (..))
 import Summoner.Validation (Validation (..))
@@ -37,20 +38,30 @@ summon = execParser prsr >>= runWithOptions
 -- | Run 'hs-init' with cli options
 runWithOptions :: InitOpts -> IO ()
 runWithOptions (InitOpts projectName cliConfig maybeFile) = do
-    file <- case maybeFile of
-        Nothing -> (</> "summoner.toml") <$> getHomeDirectory
-        Just x  -> pure x
+    (isDefault, file) <- case maybeFile of
+        Nothing -> (True,) <$> defaultConfigFile
+        Just x  -> pure (False, x)
     isFile <- doesFileExist file
     fileConfig <-
         if isFile
-        then loadFileConfig file
-        else pure mempty
+        then do
+            infoMessage $ "Configurations from " <> T.pack file <> " will be used."
+            loadFileConfig file
+        else  if isDefault
+              then do
+                  warningMessage "Default config file is missing."
+                  pure mempty
+              else do
+                  errorMessage $ "Specified configuration file " <> T.pack file <> " is not found."
+                  exitFailure
     -- union all possible configs
     let unionConfig = defaultConfig <> fileConfig <> cliConfig
     -- get the final config
-    let finalConfig = case finalise unionConfig of
-             Failure msgs -> error $ T.unpack $ T.intercalate "\n" msgs
-             Success c    -> c
+    finalConfig <- case finalise unionConfig of
+             Failure msgs -> do
+                 for_ msgs $ \msg -> errorMessage msg
+                 exitFailure
+             Success c    ->  pure c
     -- Generate the project.
     generateProject projectName finalConfig
 

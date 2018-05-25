@@ -10,11 +10,13 @@ module Summoner.Ansi
        , successMessage
        , warningMessage
        , errorMessage
+       , infoMessage
+       , skipMessage
        ) where
 
 import Data.Semigroup (Semigroup (..))
 import Data.Text (Text)
-import System.Console.ANSI (Color (Blue, Green, Red, Yellow), ColorIntensity (Vivid),
+import System.Console.ANSI (Color (Blue, Cyan, Green, Red, Yellow), ColorIntensity (Vivid),
                             ConsoleIntensity (BoldIntensity), ConsoleLayer (Foreground),
                             SGR (Reset, SetColor, SetConsoleIntensity), setSGR)
 import System.IO (hFlush, stdout)
@@ -63,7 +65,9 @@ colorMessage color message = do
     T.putStrLn $ "  " <> message
     reset
 
-errorMessage, warningMessage, successMessage :: Text -> IO ()
+errorMessage, warningMessage, successMessage, infoMessage, skipMessage :: Text -> IO ()
 errorMessage   = colorMessage Red
 warningMessage = colorMessage Yellow
 successMessage = colorMessage Green
+infoMessage    = colorMessage Blue
+skipMessage    = colorMessage Cyan

@@ -74,17 +74,17 @@ Here is the list of the options that could be configured for your needs:
               If not specified it would be asked during each run of the `summoner`.
 * `bscript` – `true` if you want to include [build script](#build-script) by default,
               `false` if you don't. If not specified it would be asked during each run of the `summoner`.
-* `lib` – `true` if you want to create `src` folder by default,
+* `lib` – `true` if you want to create `src` folder with dummy `Lib.hs` file and library target by default,
           `false` if you don't. If not specified it would be asked during each run of the `summoner`.
-* `exe` – `true` if you want to create `app` folder by default,
+* `exe` – `true` if you want to create `app` folder with dummy `Main.hs` file and executable target by default,
           `false` if you don't. If not specified it would be asked during each run of the `summoner`.
-* `test` – `true` if you want to create `test` folder by default,
+* `test` – `true` if you want to create `test` folder with dummy `Spec.hs` file and test target by default,
           `false` if you don't. If not specified it would be asked during each run of the `summoner`.
-* `bench` – `true` if you want to create `benchmark` folder by default with `gauge` library usage,
+* `bench` – `true` if you want to create `benchmark` folder  with `Main.hs` file with dummy `gauge` library usage example by default,
           `false` if you don't. If not specified it would be asked during each run of the `summoner`.
 
 
-See example of [configuration for projects of `Kowainik` organization]().
+See example of [configuration for projects of `Kowainik` organization](https://github.com/kowainik/org/blob/master/summoner.toml).
 
 
 By default the `summoner` will look for the configuration file (`summoner.toml`) in home directory.
