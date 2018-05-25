@@ -47,9 +47,10 @@ runWithOptions (InitOpts projectName cliConfig maybeFile) = do
         then do
             infoMessage $ "Configurations from " <> T.pack file <> " will be used."
             loadFileConfig file
-        else  if isDefault
+        else if isDefault
               then do
-                  warningMessage "Default config file is missing."
+                  fp <- T.pack <$> defaultConfigFile
+                  warningMessage $ "Default config " <> fp <> " file is missing."
                   pure mempty
               else do
                   errorMessage $ "Specified configuration file " <> T.pack file <> " is not found."
@@ -59,7 +60,7 @@ runWithOptions (InitOpts projectName cliConfig maybeFile) = do
     -- get the final config
     finalConfig <- case finalise unionConfig of
              Failure msgs -> do
-                 for_ msgs $ \msg -> errorMessage msg
+                 for_ msgs errorMessage
                  exitFailure
              Success c    ->  pure c
     -- Generate the project.

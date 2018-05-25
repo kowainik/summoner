@@ -64,8 +64,7 @@ queryDef question defAnswer = do
        | otherwise     -> pure answer
 
 queryManyRepeatOnFail :: forall a . (Text -> Maybe a) -> IO [a]
-queryManyRepeatOnFail parser = do
-    promptLoop
+queryManyRepeatOnFail parser = promptLoop
   where
     promptLoop :: IO [a]
     promptLoop = do
