@@ -67,7 +67,7 @@ createStackTemplate
         build-type:          Simple
         extra-doc-files:     README.md
         cabal-version:       1.24
-        testedWith:          $testedGhcs
+        tested-with:         $testedGhcs
         $endLine
         |]
 

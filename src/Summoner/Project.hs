@@ -1,81 +1,33 @@
-{-# LANGUAGE InstanceSigs #-}
-{-# LANGUAGE QuasiQuotes  #-}
+{-# LANGUAGE QuasiQuotes #-}
 
 -- | This module introduces functional for project creation.
 
 module Summoner.Project
-       ( Decision (..)
-       , Targets (..)
-       , generateProject
+       ( generateProject
        ) where
 
 import Control.Monad (when)
 import Data.Aeson (decodeStrict)
 import Data.ByteString.Char8 (pack)
 import Data.List (nub)
-import Data.Semigroup (Semigroup (..))
+import Data.Semigroup ((<>))
 import Data.Text (Text)
 import NeatInterpolation (text)
 import System.Info (os)
 import System.Process (readProcess)
 
-import Summoner.Ansi (successMessage, warningMessage)
-import Summoner.Default (currentYear, defaultEmail, defaultGHC, defaultLicense, defaultName,
-                         defaultOwner)
+import Summoner.Ansi (infoMessage, skipMessage, successMessage)
+import Summoner.Config (Config, ConfigP (..))
+import Summoner.Default (currentYear, defaultGHC)
 import Summoner.License (License (..), customizeLicense, githubLicenseQueryNames, licenseNames)
 import Summoner.Process (deleteFile)
-import Summoner.ProjectData (ProjectData (..), parseGhcVer, showGhcVer, supportedGhcVers)
+import Summoner.ProjectData (Decision (..), ProjectData (..), parseGhcVer, showGhcVer,
+                             supportedGhcVers)
 import Summoner.Question (checkUniqueName, choose, query, queryDef, queryManyRepeatOnFail)
 import Summoner.Template (createStackTemplate)
 
 import qualified Data.Text as T
 import qualified Data.Text.IO as T
-
--- | Used for detecting the user decision during CLI input.
-data Decision = Yes | Nop | Idk
-    deriving (Eq, Show, Enum, Bounded)
-
-instance Semigroup Decision where
-    (<>) :: Decision -> Decision -> Decision
-    Idk <> x   = x
-    x   <> Idk = x
-    _   <> x   = x
-
-instance Monoid Decision where
-    mempty  = Idk
-    mappend = (<>)
-
-data Targets = Targets
-    { githubFlag   :: Decision
-    , travisFlag   :: Decision
-    , appVeyorFlag :: Decision
-    , privateFlag  :: Decision
-    , scriptFlag   :: Decision
-    , isLibrary    :: Decision
-    , isExecutable :: Decision
-    , isTest       :: Decision
-    , isBenchmark  :: Decision
-    }
-
-instance Semigroup Targets where
-    t1 <> t2 = Targets
-        { githubFlag   = combine githubFlag
-        , travisFlag   = combine travisFlag
-        , appVeyorFlag = combine appVeyorFlag
-        , privateFlag  = combine privateFlag
-        , scriptFlag   = combine scriptFlag
-        , isLibrary    = combine isLibrary
-        , isExecutable = combine isExecutable
-        , isTest       = combine isTest
-        , isBenchmark  = combine isBenchmark
-        }
-      where
-        combine field = field t1 <> field t2
-
-instance Monoid Targets where
-    mempty  = Targets mempty mempty mempty mempty mempty mempty mempty mempty mempty
-    mappend = (<>)
-
 
 decisionToBool :: Decision -> Text -> IO Bool
 decisionToBool decision target = case decision of
@@ -90,38 +42,20 @@ decisionToBool decision target = case decision of
 
 trueMessage, falseMessage :: Text -> IO Bool
 trueMessage  target = True  <$ successMessage (T.toTitle target <> " will be added to the project")
-falseMessage target = False <$ warningMessage (T.toTitle target <> " won't be added to the project")
-
+falseMessage target = False <$ skipMessage (T.toTitle target <> " won't be added to the project")
 
 
 -- | Generate the project.
-generateProject :: Text -> Targets -> IO ()
-generateProject projectName Targets{..} = do
+generateProject :: Text -> Config -> IO ()
+generateProject projectName Config{..} = do
     repo        <- checkUniqueName projectName
-    owner       <- queryDef "Repository owner: " defaultOwner
+    owner       <- queryDef "Repository owner: " cOwner
     description <- query "Short project description: "
-    nm          <- queryDef "Author: " defaultName
-    email       <- queryDef "Maintainer e-mail: " defaultEmail
-    T.putStr
-        [text|
-        List of categories to choose from:
-
-          * Control                    * Concurrency
-          * Codec                      * Graphics
-          * Data                       * Sound
-          * Math                       * System
-          * Parsing                    * Network
-          * Text
-
-          * Application                * Development
-          * Compilers/Interpreters     * Testing
-          * Web
-          * Game
-          * Utility
-
-        |]
+    nm          <- queryDef "Author: " cFullName
+    email       <- queryDef "Maintainer e-mail: " cEmail
+    T.putStr categoryText
     category <- query "Category: "
-    license  <- choose "License: " $ map unLicense $ nub (defaultLicense : licenseNames)
+    license  <- choose "License: " $ map unLicense $ nub (cLicense : licenseNames)
 
     -- License creation
     let licenseGithub = snd
@@ -141,24 +75,28 @@ generateProject projectName Targets{..} = do
             Nothing -> error "Broken predefined license list"
 
     -- Library/Executable/Tests/Benchmarks flags
-    github <- decisionToBool githubFlag "github integration"
-    travis <- ifGithub github "Travis CI integration" travisFlag
-    appVey <- ifGithub github "AppVeyor CI integration" appVeyorFlag
-    privat <- ifGithub github "Private repository" privateFlag
-    script <- decisionToBool scriptFlag "build script"
-    isLib  <- decisionToBool isLibrary "library target"
+    github <- decisionToBool cGitHub "github integration"
+    travis <- ifGithub github "Travis CI integration" cTravis
+    appVey <- ifGithub github "AppVeyor CI integration" cAppVey
+    privat <- ifGithub github "Private repository" cPrivate
+    script <- decisionToBool cScript "build script"
+    isLib  <- decisionToBool cLib "library target"
     isExe  <- let target = "executable target" in
               if isLib
-              then decisionToBool isExecutable target
+              then decisionToBool cExe target
               else trueMessage target
-    test   <- decisionToBool isTest "tests"
-    bench  <- decisionToBool isBenchmark "benchmarks"
+    test   <- decisionToBool cTest "tests"
+    bench  <- decisionToBool cBench "benchmarks"
 
-    T.putStrLn $ "Supported by 'summoner' GHCs: " <> T.intercalate " " (map showGhcVer supportedGhcVers)
     T.putStrLn $ "The project will be created with the latest resolver for default GHC-" <> showGhcVer defaultGHC
-    testedVersions <- queryManyRepeatOnFail
-        parseGhcVer
-        "Additionally you can specify versions of GHC to test with (space-separated): "
+    testedVersions <- case cGhcVer of
+        [] -> do
+            T.putStrLn "Additionally you can specify versions of GHC to test with (space-separated): "
+            infoMessage $ "Supported by 'summoner' GHCs: " <> T.intercalate " " (map showGhcVer supportedGhcVers)
+            queryManyRepeatOnFail parseGhcVer
+        vers -> do
+            T.putStrLn $ "Also these GHC versions will be added: " <> T.intercalate " " (map showGhcVer vers)
+            pure vers
 
     -- Create project data from all variables in scope
     let projectData = ProjectData{..}
@@ -199,3 +137,23 @@ generateProject projectName Targets{..} = do
         "git" ["add", "."]
         "git" ["commit", "-m", "Create the project"]
         "git" ["push", "-u", "origin", "master"]
+
+    categoryText :: Text
+    categoryText =
+        [text|
+        List of categories to choose from:
+
+          * Control                    * Concurrency
+          * Codec                      * Graphics
+          * Data                       * Sound
+          * Math                       * System
+          * Parsing                    * Network
+          * Text
+
+          * Application                * Development
+          * Compilers/Interpreters     * Testing
+          * Web
+          * Game
+          * Utility
+
+        |]

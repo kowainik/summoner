@@ -18,7 +18,7 @@ import Data.Text (Text)
 import System.Directory (doesPathExist, getCurrentDirectory)
 import System.FilePath ((</>))
 
-import Summoner.Ansi (boldDefault, errorMessage, prompt, putStrFlush)
+import Summoner.Ansi (boldDefault, errorMessage, prompt, putStrFlush, warningMessage)
 
 import qualified Data.Text as T
 import qualified Data.Text.IO as T
@@ -63,10 +63,8 @@ queryDef question defAnswer = do
     if | T.null answer -> pure defAnswer
        | otherwise     -> pure answer
 
-queryManyRepeatOnFail :: forall a . (Text -> Maybe a) -> Text -> IO [a]
-queryManyRepeatOnFail parser question = do
-    T.putStrLn question
-    promptLoop
+queryManyRepeatOnFail :: forall a . (Text -> Maybe a) -> IO [a]
+queryManyRepeatOnFail parser = promptLoop
   where
     promptLoop :: IO [a]
     promptLoop = do
@@ -97,7 +95,7 @@ checkUniqueName nm = do
     curPath <- getCurrentDirectory
     exist   <- doesPathExist $ curPath </> T.unpack nm
     if exist then do
-        errorMessage "Project with this name is already exist. Please choose another one"
+        warningMessage "Project with this name is already exist. Please choose another one"
         newNm <- query "Project name: "
         checkUniqueName newNm
     else

@@ -36,14 +36,72 @@ as well as a repository under your github account (if requested).
 
 ### Usage
 
-See the basic usage syntax below:
+There are several options how to set particular configurations:
+
+1. Default configuration file (`~/summoner.toml`).
+2. Explicitly specified configuration file by `--file FILENAME` option (used instead of default one if specified).
+3. Options that are stated by CLI arguments.
+4. Interactively inputed answers during work of the `summon` command
+  (for the options that were not specified on previous steps).
+
+So the configuration uses [`Partial Options Monoid Pattern`](https://medium.com/@jonathangfischoff/the-partial-options-monoid-pattern-31914a71fc67).
+
+If none of the mentioned above cases used then the configuration will be built interactively.
+
+#### Configurations
+
+##### `.toml` files:
+
+Here is the list of the options that could be configured for your needs:
+
+* `owner` – `GitHub` login.
+* `fullName` – full name.
+* `email` – e-mail address.
+* `license` – license (possible options: `MIT`, `BSD2`, `BSD3`, `GPL-2`, `GPL-3`,
+              `LGPL-2.1`, `LGPL-3`, `AGPL-3`, `Apache-2.0`, `MPL-2.0`).
+* `ghcVersions` – `summoner` uses default `GHC-8.2.2`. But additionally you can specify other versions.
+                   For each version `x.y.z` the `stack-x.y.z.yaml` will be created.
+* `github` – `true` if you want to turn on `GitHub` integration by default,
+             `false` if you don't. If not specified it would be asked during each run of the `summoner`.
+* `travis` – `true` if you want to turn on `Travis` integration by default,
+             `false` if you don't. Ignored if `github = false`.
+             If not specified it would be asked during each run of the `summoner`.
+* `appveyor` – `true` if you want to turn on `AppVeyor` integration by default,
+               `false` if you don't. Ignored if `github = false`.
+               If not specified it would be asked during each run of the `summoner`.
+* `private` – `true` if you want to create private repositories by default,
+              `false` if you don't. Ignored if `github = false`.
+              If not specified it would be asked during each run of the `summoner`.
+* `bscript` – `true` if you want to include [build script](#build-script) by default,
+              `false` if you don't. If not specified it would be asked during each run of the `summoner`.
+* `lib` – `true` if you want to create `src` folder with dummy `Lib.hs` file and library target by default,
+          `false` if you don't. If not specified it would be asked during each run of the `summoner`.
+* `exe` – `true` if you want to create `app` folder with dummy `Main.hs` file and executable target by default,
+          `false` if you don't. If not specified it would be asked during each run of the `summoner`.
+* `test` – `true` if you want to create `test` folder with dummy `Spec.hs` file and test target by default,
+          `false` if you don't. If not specified it would be asked during each run of the `summoner`.
+* `bench` – `true` if you want to create `benchmark` folder  with `Main.hs` file with dummy `gauge` library usage example by default,
+          `false` if you don't. If not specified it would be asked during each run of the `summoner`.
+
+
+See example of [configuration for projects of `Kowainik` organization](https://github.com/kowainik/org/blob/master/summoner.toml).
+
+
+By default the `summoner` will look for the configuration file (`summoner.toml`) in home directory.
+
+The other way to specify some particular `.toml` file is `summon PROJECTNAME --file FILEPATH` command.
+
+##### CLI
+
+See the basic usage syntax below (you can check it out with `summon --help` command):
 
 ```
 summon PROJECT_NAME [with [OPTIONS]] [without [OPTIONS]]
 
 Available global options:
   -h, --help               Show this help text
-
+  -f,--file FILENAME       Path to the toml file with configurations. If not
+                           specified '~/summoner.toml' will be used if present
 Available commands:
   with                     Specify options to enable
   without                  Specify options to disable

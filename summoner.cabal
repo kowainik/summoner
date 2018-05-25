@@ -20,6 +20,7 @@ library
   exposed-modules:     Summoner
                          Summoner.Ansi
                          Summoner.CLI
+                         Summoner.Config
                          Summoner.Default
                          Summoner.License
                          Summoner.Process
@@ -27,6 +28,7 @@ library
                          Summoner.ProjectData
                          Summoner.Question
                          Summoner.Template
+                         Summoner.Validation
 
   ghc-options:         -Wall
   build-depends:       base
@@ -35,13 +37,17 @@ library
                      , bytestring
                      , directory
                      , filepath
+                     , generic-deriving
                      , neat-interpolation
                      , optparse-applicative
                      , process
                      , text
                      , time
+                     , tomland
 
-  default-extensions:  GeneralizedNewtypeDeriving
+  default-extensions:  DeriveGeneric
+                       GeneralizedNewtypeDeriving
+                       InstanceSigs
                        LambdaCase
                        OverloadedStrings
                        RecordWildCards

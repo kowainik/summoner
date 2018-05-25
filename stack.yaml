@@ -1,1 +1,4 @@
 resolver: lts-11.9
+
+extra-deps:
+  - tomland-0.1.0
