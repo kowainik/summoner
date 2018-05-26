@@ -12,6 +12,7 @@ import NeatInterpolation (text)
 import Summoner.Default (defaultGHC, endLine)
 import Summoner.ProjectData (CustomPrelude (..), GhcVer (..), ProjectData (..), baseNopreludeVer,
                              latestLts, showGhcVer)
+import Summoner.Tree (TreeFs (..))
 
 import qualified Data.Text as T
 
@@ -23,27 +24,30 @@ emptyIfNot :: Bool -> Text -> Text
 emptyIfNot p txt = if p then txt else ""
 
 -- | Creating template file to use in `stack new` command
-createStackTemplate :: ProjectData ->  Text
-createStackTemplate ProjectData{..} =
-       createCabalTop
-    <> emptyIfNot isLib createCabalLib
-    <> emptyIfNot isExe
-                  ( createCabalExe
-                  $ emptyIfNot isLib $ ", " <> repo )
-    <> emptyIfNot test createCabalTest
-    <> emptyIfNot bench
-                  ( createCabalBenchmark
-                  $ emptyIfNot isLib $ ", " <> repo )
-    <> emptyIfNot github createCabalGit
-    <> createCabalFiles
-    <> readme
-    <> emptyIfNot github gitignore
-    <> emptyIfNot travis travisYml
-    <> emptyIfNot appVey appVeyorYml
-    <> emptyIfNot script scriptSh
-    <> changelog
-    <> createLicense
-    <> createStackYamls testedVersions
+createStackTemplate :: ProjectData ->  TreeFs
+createStackTemplate ProjectData{..} = Dir (toString repo) $
+    [ File (toString repo <> ".cabal")
+           ( createCabalTop
+          <> emptyIfNot isLib createCabalLib
+          <> emptyIfNot isExe
+                        ( createCabalExe
+                        $ emptyIfNot isLib $ ", " <> repo )
+          <> emptyIfNot test createCabalTest
+          <> emptyIfNot bench
+                        ( createCabalBenchmark
+                        $ emptyIfNot isLib $ ", " <> repo )
+          <> emptyIfNot github createCabalGit
+           )
+    , File "README.md" readme
+    , File "CHANGELOG.md" changelog
+    , File "LICENSE" licenseText
+    ]
+ ++ createCabalFiles
+ ++ createStackYamls testedVersions
+ ++ [File ".gitignore" gitignore | github]
+ ++ [File ".travis.yml" travisYml | travis]
+ ++ [File "appveyor.yml" appVeyorYml | appVey]
+ ++ [File "b" scriptSh | script]
   where
     -- Creates module name from the name of the project
     -- Ex: @my-lovely-project@ — @MyLovelyProject@
@@ -64,7 +68,6 @@ createStackTemplate ProjectData{..} =
     createCabalTop :: Text
     createCabalTop =
         [text|
-        {-# START_FILE ${repo}.cabal #-}
         name:                $repo
         version:             0.0.0
         description:         $description
@@ -155,26 +158,24 @@ createStackTemplate ProjectData{..} =
         $endLine
         |]
 
-    createCabalFiles :: Text
+    createCabalFiles :: [TreeFs]
     createCabalFiles =
-           emptyIfNot isExe (if isLib then createExe else createOnlyExe)
-        <> emptyIfNot isLib (createLib <> createPrelude)
-        <> emptyIfNot test  createTest
-        <> emptyIfNot bench createBenchmark
+        [ Dir "app"       [exeFile]                | isExe ]
+     ++ [ Dir "test"      [testFile]               | test  ]
+     ++ [ Dir "benchmark" [benchmarkFile]          | bench ]
+     ++ [ Dir "src"     $ [libFile] ++ preludeFile | isLib ]
 
-    createTest :: Text
-    createTest =
+    testFile :: TreeFs
+    testFile = File "Spec.hs"
         [text|
-        {-# START_FILE test/Spec.hs #-}
         main :: IO ()
         main = putStrLn "Test suite not yet implemented"
         $endLine
         |]
 
-    createLib :: Text
-    createLib =
+    libFile :: TreeFs
+    libFile = File (toString libModuleName <> ".hs")
         [text|
-        {-# START_FILE src/${libModuleName}.hs #-}
         module $libModuleName
                ( someFunc
                ) where
@@ -184,12 +185,11 @@ createStackTemplate ProjectData{..} =
         $endLine
         |]
 
-    createPrelude :: Text
-    createPrelude = case prelude of
-        Nothing -> ""
-        Just Prelude{..} ->
+    preludeFile :: [TreeFs]
+    preludeFile = case prelude of
+        Nothing -> []
+        Just Prelude{..} -> one $ File "Prelude.hs"
             [text|
-            {-# START_FILE src/Prelude.hs #-}
             -- | Uses [$cpPackage](https://hackage.haskell.org/package/${cpPackage}) as default Prelude.
 
             module Prelude
@@ -200,10 +200,12 @@ createStackTemplate ProjectData{..} =
             $endLine
             |]
 
+    exeFile :: TreeFs
+    exeFile = File "Main.hs" $ if isLib then createExe else createOnlyExe
+
     createOnlyExe :: Text
     createOnlyExe =
         [text|
-        {-# START_FILE app/Main.hs #-}
         module Main where
 
         main :: IO ()
@@ -214,7 +216,6 @@ createStackTemplate ProjectData{..} =
     createExe :: Text
     createExe =
         [text|
-        {-# START_FILE app/Main.hs #-}
         module Main where
 
         import $libModuleName (someFunc)
@@ -224,10 +225,9 @@ createStackTemplate ProjectData{..} =
         $endLine
         |]
 
-    createBenchmark :: Text
-    createBenchmark =
+    benchmarkFile :: TreeFs
+    benchmarkFile = File "Main.hs"
       [text|
-      {-# START_FILE benchmark/Main.hs #-}
       import Gauge.Main
 
       main :: IO ()
@@ -239,7 +239,6 @@ createStackTemplate ProjectData{..} =
     readme :: Text
     readme =
         [text|
-        {-# START_FILE README.md #-}
         # $repo
 
         [![Hackage]($hackageShield)]($hackageLink)
@@ -272,7 +271,6 @@ createStackTemplate ProjectData{..} =
     gitignore :: Text
     gitignore =
         [text|
-        {-# START_FILE .gitignore #-}
         ### Haskell
         dist
         dist-*
@@ -333,7 +331,6 @@ createStackTemplate ProjectData{..} =
     changelog :: Text
     changelog =
         [text|
-        {-# START_FILE CHANGELOG.md #-}
         Change log
         ==========
 
@@ -349,16 +346,12 @@ createStackTemplate ProjectData{..} =
         $endLine
         |]
 
-    createLicense :: Text
-    createLicense = "{-# START_FILE LICENSE #-}\n" <> licenseText
-
     -- create travis.yml template
     travisYml :: Text
     travisYml =
         let travisMtr = T.concat (map (travisMatrixItem . showGhcVer) testedVersions)
             defGhc    = showGhcVer defaultGHC in
         [text|
-        {-# START_FILE .travis.yml #-}
         sudo: true
         language: haskell
 
@@ -416,19 +409,18 @@ createStackTemplate ProjectData{..} =
         |]
 
     -- create @stack.yaml@ file with LTS corresponding to specified ghc version
-    createStackYamls :: [GhcVer] -> Text
-    createStackYamls = T.concat . map createStackYaml
+    createStackYamls :: [GhcVer] -> [TreeFs]
+    createStackYamls = map createStackYaml
       where
-        createStackYaml :: GhcVer -> Text
+        createStackYaml :: GhcVer -> TreeFs
         createStackYaml ghcV = let ver = case ghcV of
                                       Ghc822 -> ""
                                       _      -> "-" <> showGhcVer ghcV
             in stackYaml ver (latestLts ghcV) (baseNopreludeVer ghcV)
           where
-            stackYaml :: Text -> Text -> Text -> Text
-            stackYaml ghc lts baseVer =
+            stackYaml :: Text -> Text -> Text -> TreeFs
+            stackYaml ghc lts baseVer = File (toString $ "stack" <> ghc <> ".yaml")
                 [text|
-                {-# START_FILE stack${ghc}.yaml #-}
                 resolver: lts-${lts}
 
                 $extraDeps
@@ -445,7 +437,6 @@ createStackTemplate ProjectData{..} =
     appVeyorYml :: Text
     appVeyorYml =
         [text|
-        {-# START_FILE appveyor.yml #-}
         build: off
 
         before_test:
@@ -470,7 +461,6 @@ createStackTemplate ProjectData{..} =
     scriptSh :: Text
     scriptSh =
         [text|
-        {-# START_FILE b #-}
         #!/usr/bin/env bash
         set -e
 

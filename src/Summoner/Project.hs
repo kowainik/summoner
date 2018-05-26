@@ -16,11 +16,12 @@ import Summoner.Ansi (infoMessage, skipMessage, successMessage, warningMessage)
 import Summoner.Config (Config, ConfigP (..))
 import Summoner.Default (currentYear, defaultGHC)
 import Summoner.License (License (..), customizeLicense, githubLicenseQueryNames, licenseNames)
-import Summoner.Process (deleteFile)
+import Summoner.Process ()
 import Summoner.ProjectData (CustomPrelude (..), Decision (..), ProjectData (..), parseGhcVer,
                              showGhcVer, supportedGhcVers)
 import Summoner.Question (checkUniqueName, choose, query, queryDef, queryManyRepeatOnFail)
 import Summoner.Template (createStackTemplate)
+import Summoner.Tree (traverseTree)
 
 import qualified Data.Text as T
 import qualified Data.Text.IO as T
@@ -117,12 +118,7 @@ generateProject projectName Config{..} = do
 
     doStackCommands :: ProjectData -> IO ()
     doStackCommands projectData@ProjectData{..} = do
-        -- create haskell template
-        writeFile "temp.hsfiles" $ createStackTemplate projectData
-        -- create new project with stack
-        "stack" ["new", repo, "temp.hsfiles"]
-        -- do not need template file anymore
-        deleteFile "temp.hsfiles"
+        traverseTree $ createStackTemplate projectData
         "cd" [repo]
 
     doScriptCommand :: IO ()
