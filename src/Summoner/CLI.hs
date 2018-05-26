@@ -31,7 +31,7 @@ summon = execParser prsr >>= runWithOptions
 
 -- | Run 'hs-init' with cli options
 runWithOptions :: InitOpts -> IO ()
-runWithOptions (InitOpts projectName cliConfig maybeFile) = do
+runWithOptions (InitOpts projectName maybeFile cliConfig) = do
     (isDefault, file) <- case maybeFile of
         Nothing -> (True,) <$> defaultConfigFile
         Just x  -> pure (False, x)
@@ -63,7 +63,7 @@ runWithOptions (InitOpts projectName cliConfig maybeFile) = do
     boldText "\nJob's done\n"
 
 -- | Initial parsed options from cli
-data InitOpts = InitOpts Text PartialConfig (Maybe FilePath)
+data InitOpts = InitOpts Text (Maybe FilePath) PartialConfig
     -- ^ Includes the project name, config from the CLI and possible file where custom congifs are.
 
 targetsP ::  Decision -> Parser PartialConfig
@@ -162,14 +162,32 @@ fileP = strOption
    <> metavar "FILENAME"
    <> help "Path to the toml file with configurations. If not specified '~/summoner.toml' will be used if present"
 
+preludePackP :: Parser Text
+preludePackP = strOption
+    $ long "package"
+   <> metavar "CUSTOM_PRELUDE_PACKAGE"
+   <> help "Name for the package of the custom prelude to use in the project"
+
+preludeModP :: Parser Text
+preludeModP = strOption
+    $ long "module"
+   <> metavar "CUSTOM_PRELUDE_MODULE"
+   <> help "Name for the module of the custom prelude to use in the project"
+
 optsP :: Parser InitOpts
 optsP = do
     projectName <- strArgument (metavar "PROJECT_NAME")
     with    <- optional withP
     without <- optional withoutP
     file    <- optional fileP
+    preludePack <- optional preludePackP
+    preludeMod  <- optional preludeModP
 
-    pure $ InitOpts projectName (maybeToMonoid $ with <> without) file
+    pure $ InitOpts projectName file
+        $ (maybeToMonoid $ with <> without)
+            { cPreludePackage = Last preludePack
+            , cPreludeModule  = Last preludeMod
+            }
 
 prsr :: ParserInfo InitOpts
 prsr = modifyHeader

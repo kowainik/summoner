@@ -5,8 +5,10 @@ module Summoner.ProjectData
        , parseGhcVer
        , showGhcVer
        , latestLts
+       , baseNopreludeVer
 
        , Decision (..)
+       , CustomPrelude (..)
        ) where
 
 import Generics.Deriving.Monoid (GMonoid (..))
@@ -32,6 +34,8 @@ data ProjectData = ProjectData
     , test           :: Bool   -- ^ add tests
     , bench          :: Bool   -- ^ add benchmarks
     , testedVersions :: [GhcVer]  -- ^ ghc versions
+    , base           :: Text -- ^ Base library to use
+    , prelude        :: Maybe CustomPrelude  -- ^ custom prelude to be used
     } deriving (Show)
 
 -- | Used for detecting the user decision during CLI input.
@@ -82,8 +86,19 @@ parseGhcVer "8.2.2"  = Just Ghc822
 parseGhcVer _        = Nothing
 
 -- | Returns latest known LTS resolver for all GHC versions except default one.
-latestLts :: GhcVer -> Maybe Text
-latestLts Ghc7103 = Just "6.35"
-latestLts Ghc801  = Just "7.24"
-latestLts Ghc802  = Just "9.21"
-latestLts Ghc822  = Nothing  -- Ghc822 is latest known, so default stack yaml will be created
+latestLts :: GhcVer -> Text
+latestLts Ghc7103 = "6.35"
+latestLts Ghc801  = "7.24"
+latestLts Ghc802  = "9.21"
+latestLts Ghc822  = "11.10"
+
+baseNopreludeVer :: GhcVer -> Text
+baseNopreludeVer Ghc7103 = "4.8.0.2"
+baseNopreludeVer Ghc801  = "4.9.0.0"
+baseNopreludeVer Ghc802  = "4.9.1.0"
+baseNopreludeVer Ghc822  = "4.10.1.0"
+
+data CustomPrelude = Prelude
+    { cpPackage :: Text
+    , cpModule  :: Text
+    } deriving (Show)

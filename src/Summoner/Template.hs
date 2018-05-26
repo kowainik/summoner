@@ -10,7 +10,8 @@ module Summoner.Template
 import NeatInterpolation (text)
 
 import Summoner.Default (defaultGHC, endLine)
-import Summoner.ProjectData (GhcVer (..), ProjectData (..), latestLts, showGhcVer)
+import Summoner.ProjectData (CustomPrelude (..), GhcVer (..), ProjectData (..), baseNopreludeVer,
+                             latestLts, showGhcVer)
 
 import qualified Data.Text as T
 
@@ -23,27 +24,42 @@ emptyIfNot p txt = if p then txt else ""
 
 -- | Creating template file to use in `stack new` command
 createStackTemplate :: ProjectData ->  Text
-createStackTemplate
-    ProjectData{..} = createCabalTop
-                   <> emptyIfNot isLib createCabalLib
-                   <> emptyIfNot isExe
-                                 ( createCabalExe
-                                 $ emptyIfNot isLib $ ", " <> repo )
-                   <> emptyIfNot test createCabalTest
-                   <> emptyIfNot bench
-                                 ( createCabalBenchmark
-                                 $ emptyIfNot isLib $ ", " <> repo )
-                   <> emptyIfNot github createCabalGit
-                   <> createCabalFiles
-                   <> readme
-                   <> emptyIfNot github gitignore
-                   <> emptyIfNot travis travisYml
-                   <> emptyIfNot appVey appVeyorYml
-                   <> emptyIfNot script scriptSh
-                   <> changelog
-                   <> createLicense
-                   <> createStackYamls testedVersions
+createStackTemplate ProjectData{..} =
+       createCabalTop
+    <> emptyIfNot isLib createCabalLib
+    <> emptyIfNot isExe
+                  ( createCabalExe
+                  $ emptyIfNot isLib $ ", " <> repo )
+    <> emptyIfNot test createCabalTest
+    <> emptyIfNot bench
+                  ( createCabalBenchmark
+                  $ emptyIfNot isLib $ ", " <> repo )
+    <> emptyIfNot github createCabalGit
+    <> createCabalFiles
+    <> readme
+    <> emptyIfNot github gitignore
+    <> emptyIfNot travis travisYml
+    <> emptyIfNot appVey appVeyorYml
+    <> emptyIfNot script scriptSh
+    <> changelog
+    <> createLicense
+    <> createStackYamls testedVersions
   where
+    -- Creates module name from the name of the project
+    -- Ex: @my-lovely-project@ — @MyLovelyProject@
+    libModuleName :: Text
+    libModuleName = T.concat $ map T.toTitle $ T.splitOn "-" repo
+
+    preludeMod :: Text
+    preludeMod = case prelude of
+        Nothing -> ""
+        Just _  -> "Prelude"
+
+    customPreludePack :: Text
+    customPreludePack = case prelude of
+        Nothing          -> ""
+        Just Prelude{..} -> ", " <> cpPackage
+
     -- all basic project information for `*.cabal` file
     createCabalTop :: Text
     createCabalTop =
@@ -69,17 +85,18 @@ createStackTemplate
         |]
 
     testedGhcs :: Text
-    testedGhcs = intercalateMap ", " (mappend "GHC == " . showGhcVer)
-               $ sortNub (defaultGHC : testedVersions)
+    testedGhcs = intercalateMap ", " (mappend "GHC == " . showGhcVer) testedVersions
 
     createCabalLib :: Text
     createCabalLib =
         [text|
         library
           hs-source-dirs:      src
-          exposed-modules:     Lib
+          exposed-modules:     $libModuleName
+                               $preludeMod
           ghc-options:         -Wall
-          build-depends:       base
+          build-depends:       $base
+                             $customPreludePack
           default-language:    Haskell2010
         $endLine
         |]
@@ -91,8 +108,9 @@ createStackTemplate
           hs-source-dirs:      app
           main-is:             Main.hs
           ghc-options:         -Wall -threaded -rtsopts -with-rtsopts=-N
-          build-depends:       base
+          build-depends:       $base
                              $r
+                             $customPreludePack
           default-language:    Haskell2010
         $endLine
         |]
@@ -104,8 +122,9 @@ createStackTemplate
           type:                exitcode-stdio-1.0
           hs-source-dirs:      test
           main-is:             Spec.hs
-          build-depends:       base
+          build-depends:       $base
                              , $repo
+                             $customPreludePack
           ghc-options:         -Wall -Werror -threaded -rtsopts -with-rtsopts=-N
           default-language:    Haskell2010
         $endLine
@@ -120,8 +139,9 @@ createStackTemplate
           ghc-options:         -Wall -Werror -O2 -threaded -rtsopts -with-rtsopts=-N
           hs-source-dirs:      benchmark
           main-is:             Main.hs
-          build-depends:       base
+          build-depends:       $base
                              , gauge
+                             $customPreludePack
                              $r
         $endLine
         |]
@@ -138,7 +158,7 @@ createStackTemplate
     createCabalFiles :: Text
     createCabalFiles =
            emptyIfNot isExe (if isLib then createExe else createOnlyExe)
-        <> emptyIfNot isLib createLib
+        <> emptyIfNot isLib (createLib <> createPrelude)
         <> emptyIfNot test  createTest
         <> emptyIfNot bench createBenchmark
 
@@ -154,15 +174,31 @@ createStackTemplate
     createLib :: Text
     createLib =
         [text|
-        {-# START_FILE src/Lib.hs #-}
-        module Lib
-            ( someFunc
-            ) where
+        {-# START_FILE src/${libModuleName}.hs #-}
+        module $libModuleName
+               ( someFunc
+               ) where
 
         someFunc :: IO ()
         someFunc = putStrLn "someFunc"
         $endLine
         |]
+
+    createPrelude :: Text
+    createPrelude = case prelude of
+        Nothing -> ""
+        Just Prelude{..} ->
+            [text|
+            {-# START_FILE src/Prelude.hs #-}
+            -- | Uses [$cpPackage](https://hackage.haskell.org/package/${cpPackage}) as default Prelude.
+
+            module Prelude
+                   ( module $cpModule
+                   ) where
+
+            import $cpModule
+            $endLine
+            |]
 
     createOnlyExe :: Text
     createOnlyExe =
@@ -181,7 +217,7 @@ createStackTemplate
         {-# START_FILE app/Main.hs #-}
         module Main where
 
-        import Lib
+        import $libModuleName (someFunc)
 
         main :: IO ()
         main = someFunc
@@ -384,16 +420,26 @@ createStackTemplate
     createStackYamls = T.concat . map createStackYaml
       where
         createStackYaml :: GhcVer -> Text
-        createStackYaml ghcVer = maybeToMonoid $ stackYaml (showGhcVer ghcVer) <$> latestLts ghcVer
+        createStackYaml ghcV = let ver = case ghcV of
+                                      Ghc822 -> ""
+                                      _      -> "-" <> showGhcVer ghcV
+            in stackYaml ver (latestLts ghcV) (baseNopreludeVer ghcV)
           where
-            stackYaml :: Text -> Text -> Text
-            stackYaml ghc lts =
+            stackYaml :: Text -> Text -> Text -> Text
+            stackYaml ghc lts baseVer =
                 [text|
-                {-# START_FILE stack-${ghc}.yaml #-}
+                {-# START_FILE stack${ghc}.yaml #-}
                 resolver: lts-${lts}
 
+                $extraDeps
                 $endLine
                 |]
+              where
+                extraDeps :: Text
+                extraDeps = case prelude of
+                    Nothing -> ""
+                    Just _  -> "extra-deps: [base-noprelude-" <> baseVer <> "]"
+
 
     -- create appveyor.yml template
     appVeyorYml :: Text
