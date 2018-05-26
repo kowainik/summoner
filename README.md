@@ -99,20 +99,19 @@ See the basic usage syntax below (you can check it out with `summon --help` comm
 
 ```
 summon PROJECT_NAME [with [OPTIONS]] [without [OPTIONS]]
-       [-f|--file FILENAME] [--package CUSTOM_PRELUDE_PACKAGE]
-       [--module CUSTOM_PRELUDE_MODULE]
+       [-f|--file FILENAME]  [--prelude-package PACKAGE_NAME]
+       [--prelude-module MODULE_NAME]
 
 Available global options:
   -h, --help               Show this help text
   -f,--file FILENAME       Path to the toml file with configurations. If not
                            specified '~/summoner.toml' will be used if present
-  --package CUSTOM_PRELUDE_PACKAGE
+  --prelude-package PACKAGE_NAME
                            Name for the package of the custom prelude to use in
                            the project
-  --module CUSTOM_PRELUDE_MODULE
+  --prelude-module MODULE_NAME
                            Name for the module of the custom prelude to use in
                            the project
-
 
 Available commands:
   with                     Specify options to enable

@@ -164,14 +164,14 @@ fileP = strOption
 
 preludePackP :: Parser Text
 preludePackP = strOption
-    $ long "package"
-   <> metavar "CUSTOM_PRELUDE_PACKAGE"
+    $ long "prelude-package"
+   <> metavar "PACKAGE_NAME"
    <> help "Name for the package of the custom prelude to use in the project"
 
 preludeModP :: Parser Text
 preludeModP = strOption
-    $ long "module"
-   <> metavar "CUSTOM_PRELUDE_MODULE"
+    $ long "prelude-module"
+   <> metavar "MODULE_NAME"
    <> help "Name for the module of the custom prelude to use in the project"
 
 optsP :: Parser InitOpts
