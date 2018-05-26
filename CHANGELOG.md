@@ -13,6 +13,8 @@
   Use custom prelude `universum`.
 * [#39](https://github.com/kowainik/summoner/issues/39):
   Add option to use custom prelude in CLI and in `.toml` configuration.
+* [#38](https://github.com/kowainik/summoner/issues/38):
+  Add option to add default extensions to `.toml` config.
 
 # hs-init
 

@@ -89,6 +89,8 @@ generateProject projectName Config{..} = do
             Nothing -> "base"
             Just _  -> "base-noprelude"
 
+    let extensions = cExtensions
+
     putTextLn $ "The project will be created with the latest resolver for default GHC-" <> showGhcVer defaultGHC
     testedVersions <- (sortNub . (defaultGHC :)) <$> case cGhcVer of
         [] -> do

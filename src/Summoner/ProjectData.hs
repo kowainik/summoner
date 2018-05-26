@@ -36,6 +36,7 @@ data ProjectData = ProjectData
     , testedVersions :: [GhcVer]  -- ^ ghc versions
     , base           :: Text -- ^ Base library to use
     , prelude        :: Maybe CustomPrelude  -- ^ custom prelude to be used
+    , extensions     :: [Text] -- ^ default extensions
     } deriving (Show)
 
 -- | Used for detecting the user decision during CLI input.
