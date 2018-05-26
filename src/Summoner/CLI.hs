@@ -8,16 +8,12 @@ module Summoner.CLI
        ( summon
        ) where
 
-import Data.Foldable (fold, for_)
-import Data.Semigroup (Semigroup (..))
-import Data.Text (Text)
 import NeatInterpolation (text)
 import Options.Applicative (Parser, ParserInfo, command, execParser, flag, fullDesc, help, helper,
                             info, infoFooter, infoHeader, long, metavar, optional, progDesc, short,
                             strArgument, strOption, subparser)
 import Options.Applicative.Help.Chunk (stringChunk)
 import System.Directory (doesFileExist)
-import System.Exit (exitFailure)
 
 import Summoner.Ansi (boldText, errorMessage, infoMessage, warningMessage)
 import Summoner.Config (ConfigP (..), PartialConfig, defaultConfig, finalise, loadFileConfig)
@@ -26,9 +22,7 @@ import Summoner.Project (generateProject)
 import Summoner.ProjectData (Decision (..))
 import Summoner.Validation (Validation (..))
 
-import qualified Data.Text as T
-
-----------------------------------------------------------------------------
+---------------------------------------------------------------------------
 -- CLI
 ----------------------------------------------------------------------------
 
@@ -45,15 +39,15 @@ runWithOptions (InitOpts projectName cliConfig maybeFile) = do
     fileConfig <-
         if isFile
         then do
-            infoMessage $ "Configurations from " <> T.pack file <> " will be used."
+            infoMessage $ "Configurations from " <> toText file <> " will be used."
             loadFileConfig file
         else if isDefault
               then do
-                  fp <- T.pack <$> defaultConfigFile
+                  fp <- toText <$> defaultConfigFile
                   warningMessage $ "Default config " <> fp <> " file is missing."
                   pure mempty
               else do
-                  errorMessage $ "Specified configuration file " <> T.pack file <> " is not found."
+                  errorMessage $ "Specified configuration file " <> toText file <> " is not found."
                   exitFailure
     -- union all possible configs
     let unionConfig = defaultConfig <> fileConfig <> cliConfig
@@ -175,7 +169,7 @@ optsP = do
     without <- optional withoutP
     file    <- optional fileP
 
-    pure $ InitOpts projectName (fold $ with <> without) file
+    pure $ InitOpts projectName (maybeToMonoid $ with <> without) file
 
 prsr :: ParserInfo InitOpts
 prsr = modifyHeader
@@ -186,11 +180,11 @@ prsr = modifyHeader
 
 -- to put custom header which doesn't cut all spaces
 modifyHeader :: ParserInfo InitOpts -> ParserInfo InitOpts
-modifyHeader initOpts = initOpts {infoHeader = stringChunk $ T.unpack artHeader}
+modifyHeader initOpts = initOpts {infoHeader = stringChunk $ toString artHeader}
 
 -- to put custom footer which doesn't cut all spaces
 modifyFooter :: ParserInfo InitOpts -> ParserInfo InitOpts
-modifyFooter initOpts = initOpts {infoFooter = stringChunk $ T.unpack artFooter}
+modifyFooter initOpts = initOpts {infoFooter = stringChunk $ toString artFooter}
 
 artHeader :: Text
 artHeader = [text|

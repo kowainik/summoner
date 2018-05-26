@@ -1,6 +1,5 @@
 module Test.DecisionSpec where
 
-import Data.Semigroup ((<>))
 import Hedgehog (MonadGen, forAll, property, (===))
 import Test.Tasty (TestTree)
 import Test.Tasty.Hedgehog (testProperty)

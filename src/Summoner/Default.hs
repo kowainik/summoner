@@ -8,14 +8,11 @@ module Summoner.Default
        , endLine
        ) where
 
-import Data.Text (Text)
 import Data.Time (getCurrentTime, toGregorian, utctDay)
 import System.Directory (getHomeDirectory)
 import System.FilePath ((</>))
 
 import Summoner.ProjectData (GhcVer (Ghc822))
-
-import qualified Data.Text as T
 
 ----------------------------------------------------------------------------
 -- Default Settings
@@ -34,7 +31,7 @@ currentYear :: IO Text
 currentYear = do
     now <- getCurrentTime
     let (year, _, _) = toGregorian $ utctDay now
-    pure $ T.pack $ show year
+    pure $ show year
 
 endLine :: Text
 endLine = "\n"

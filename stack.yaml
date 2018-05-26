@@ -1,4 +1,6 @@
 resolver: lts-11.9
 
 extra-deps:
+  - base-noprelude-4.10.1.0
   - tomland-0.1.0
+  - universum-1.2.0

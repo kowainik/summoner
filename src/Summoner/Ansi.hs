@@ -14,14 +14,10 @@ module Summoner.Ansi
        , skipMessage
        ) where
 
-import Data.Semigroup (Semigroup (..))
-import Data.Text (Text)
 import System.Console.ANSI (Color (Blue, Cyan, Green, Red, Yellow), ColorIntensity (Vivid),
                             ConsoleIntensity (BoldIntensity), ConsoleLayer (Foreground),
                             SGR (Reset, SetColor, SetConsoleIntensity), setSGR)
-import System.IO (hFlush, stdout)
-
-import qualified Data.Text.IO as T
+import System.IO (hFlush)
 
 ----------------------------------------------------------------------------
 -- Ansi-terminal
@@ -30,7 +26,7 @@ import qualified Data.Text.IO as T
 -- Explicit flush ensures prompt messages are in the correct order on all systems.
 putStrFlush :: Text -> IO ()
 putStrFlush msg = do
-    T.putStr msg
+    putText msg
     hFlush stdout
 
 setColor :: Color -> IO ()
@@ -51,7 +47,7 @@ prompt = do
     setColor Blue
     putStrFlush "  ->   "
     reset
-    T.getLine
+    getLine
 
 boldText :: Text -> IO ()
 boldText message = bold >> putStrFlush message >> reset
@@ -62,7 +58,7 @@ boldDefault message = boldText (" [" <> message <> "]")
 colorMessage :: Color -> Text -> IO ()
 colorMessage color message = do
     setColor color
-    T.putStrLn $ "  " <> message
+    putTextLn $ "  " <> message
     reset
 
 errorMessage, warningMessage, successMessage, infoMessage, skipMessage :: Text -> IO ()

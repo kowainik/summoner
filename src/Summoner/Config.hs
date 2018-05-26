@@ -23,17 +23,11 @@ module Summoner.Config
        , loadFileConfig
        ) where
 
-import Control.Exception (Exception, throwIO)
-import Control.Monad (join, (>=>))
-import Control.Monad.IO.Class (MonadIO, liftIO)
-import Data.Maybe (fromMaybe)
+import Control.Exception (throwIO)
+import Data.List (lookup)
 import Data.Monoid (Last (..))
-import Data.Semigroup (Semigroup (..))
-import Data.Text (Text)
-import Data.Tuple (swap)
 import Generics.Deriving.Monoid (GMonoid, gmemptydefault)
 import Generics.Deriving.Semigroup (GSemigroup, gsappenddefault)
-import GHC.Generics (Generic)
 import Toml (ValueType (TString), matchText)
 import Toml.Bi (BiToml, dimapBijection, (.=))
 import Toml.Bi.Combinators (Valuer (..))
@@ -43,7 +37,7 @@ import Summoner.License (License (..))
 import Summoner.ProjectData (Decision (..), GhcVer (..), parseGhcVer, showGhcVer)
 import Summoner.Validation (Validation (..))
 
-import qualified Data.Text.IO as TIO
+import qualified Text.Show as Show
 import qualified Toml
 
 data Phase = Partial | Final
@@ -174,7 +168,7 @@ finalise Config{..} = Config
 
 -- | Read configuration from the given file and return it in data type.
 loadFileConfig :: MonadIO m => FilePath -> m PartialConfig
-loadFileConfig filePath = liftIO $ (Toml.encode configT <$> TIO.readFile filePath) >>= errorWhenLeft
+loadFileConfig filePath = (Toml.encode configT <$> readFile filePath) >>= liftIO . errorWhenLeft
   where
     errorWhenLeft :: Either Toml.EncodeException PartialConfig -> IO PartialConfig
     errorWhenLeft (Left e)   = throwIO $ LoadTomlException filePath $ show e
@@ -182,7 +176,7 @@ loadFileConfig filePath = liftIO $ (Toml.encode configT <$> TIO.readFile filePat
 
 data LoadTomlException = LoadTomlException FilePath String
 
-instance Show LoadTomlException where
+instance Show.Show LoadTomlException where
     show (LoadTomlException filePath msg) = "Couldnt parse file " ++ filePath ++ ": " ++ show msg
 
 instance Exception LoadTomlException
