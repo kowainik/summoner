@@ -140,7 +140,7 @@ configT = Config
     license =  dimapBijection unLicense License . Toml.str
 
     extensions :: Key -> BiToml [Text]
-    extensions = dimapBijection Just (fromMaybe []) . Toml.maybeP (Toml.arrayOf Toml.strV)
+    extensions = dimapBijection Just maybeToMonoid . Toml.maybeP (Toml.arrayOf Toml.strV)
 
     decision :: Key -> BiToml Decision
     decision = dimapBijection fromDecision toDecision . Toml.maybeP Toml.bool
