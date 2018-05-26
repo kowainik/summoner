@@ -11,6 +11,8 @@
     Use `Config` instead for default, file and CLI configurations.
 * [#60](https://github.com/kowainik/summoner/issues/60):
   Use custom prelude `universum`.
+* [#39](https://github.com/kowainik/summoner/issues/39):
+  Add option to use custom prelude in CLI and in `.toml` configuration.
 
 # hs-init
 

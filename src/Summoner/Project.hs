@@ -12,13 +12,13 @@ import NeatInterpolation (text)
 import System.Info (os)
 import System.Process (readProcess)
 
-import Summoner.Ansi (infoMessage, skipMessage, successMessage)
+import Summoner.Ansi (infoMessage, skipMessage, successMessage, warningMessage)
 import Summoner.Config (Config, ConfigP (..))
 import Summoner.Default (currentYear, defaultGHC)
 import Summoner.License (License (..), customizeLicense, githubLicenseQueryNames, licenseNames)
 import Summoner.Process (deleteFile)
-import Summoner.ProjectData (Decision (..), ProjectData (..), parseGhcVer, showGhcVer,
-                             supportedGhcVers)
+import Summoner.ProjectData (CustomPrelude (..), Decision (..), ProjectData (..), parseGhcVer,
+                             showGhcVer, supportedGhcVers)
 import Summoner.Question (checkUniqueName, choose, query, queryDef, queryManyRepeatOnFail)
 import Summoner.Template (createStackTemplate)
 
@@ -84,9 +84,13 @@ generateProject projectName Config{..} = do
               else trueMessage target
     test   <- decisionToBool cTest "tests"
     bench  <- decisionToBool cBench "benchmarks"
+    prelude <- if isLib then getPrelude else pure Nothing
+    let base = case prelude of
+            Nothing -> "base"
+            Just _  -> "base-noprelude"
 
     putTextLn $ "The project will be created with the latest resolver for default GHC-" <> showGhcVer defaultGHC
-    testedVersions <- case cGhcVer of
+    testedVersions <- (sortNub . (defaultGHC :)) <$> case cGhcVer of
         [] -> do
             putTextLn "Additionally you can specify versions of GHC to test with (space-separated): "
             infoMessage $ "Supported by 'summoner' GHCs: " <> intercalateMap " " showGhcVer supportedGhcVers
@@ -154,3 +158,24 @@ generateProject projectName Config{..} = do
           * Utility
 
         |]
+
+    getPrelude :: IO (Maybe CustomPrelude)
+    getPrelude = case (cPreludePackage, cPreludeModule) of
+        (Last Nothing, Last Nothing) -> do
+            ch <- choose "Add custom prelude?" ["y", "n"]
+            case ch of
+                "y" -> do
+                    p <- query "Custom prelude package: "
+                    m <- query "Custom prelude module: "
+                    pure $ Just $ Prelude p m
+                "n" -> Nothing <$ skipMessage "Custom prelude won't be added to the project"
+                _   -> error "Impossible happened"
+        (Last Nothing, Last (Just m)) -> do
+            warningMessage $ "Prelude is not specified for " <> m <> " module. Base prelude will be used"
+            pure Nothing
+        (Last (Just p), Last Nothing) -> do
+            warningMessage $ "Module is not specified for " <> p <> ". Base prelude will be used"
+            pure Nothing
+        (Last (Just p), Last (Just m)) -> do
+            successMessage $ "Custom prelude " <> p <> " will be used in the project"
+            pure $ Just $ Prelude p m

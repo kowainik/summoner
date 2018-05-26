@@ -44,20 +44,22 @@ data Phase = Partial | Final
 
 -- | Potentially incomplete configuration.
 data ConfigP (p :: Phase) = Config
-    { cOwner    :: p :- Text
-    , cFullName :: p :- Text
-    , cEmail    :: p :- Text
-    , cLicense  :: p :- License
-    , cGhcVer   :: p :- [GhcVer]
-    , cGitHub   :: Decision
-    , cTravis   :: Decision
-    , cAppVey   :: Decision
-    , cPrivate  :: Decision
-    , cScript   :: Decision
-    , cLib      :: Decision
-    , cExe      :: Decision
-    , cTest     :: Decision
-    , cBench    :: Decision
+    { cOwner          :: p :- Text
+    , cFullName       :: p :- Text
+    , cEmail          :: p :- Text
+    , cLicense        :: p :- License
+    , cGhcVer         :: p :- [GhcVer]
+    , cGitHub         :: Decision
+    , cTravis         :: Decision
+    , cAppVey         :: Decision
+    , cPrivate        :: Decision
+    , cScript         :: Decision
+    , cLib            :: Decision
+    , cExe            :: Decision
+    , cTest           :: Decision
+    , cBench          :: Decision
+    , cPreludePackage :: Last Text
+    , cPreludeModule  :: Last Text
     } deriving (Generic)
 
 deriving instance (GSemigroup (p :- Text), GSemigroup (p :- License), GSemigroup (p :- [GhcVer])) => GSemigroup (ConfigP p)
@@ -98,6 +100,8 @@ defaultConfig = Config
     , cExe      = Idk
     , cTest     = Idk
     , cBench    = Idk
+    , cPreludePackage = Last Nothing
+    , cPreludeModule  = Last Nothing
     }
 
 -- | Identifies how to read 'Config' data from the @.toml@ file.
@@ -117,6 +121,8 @@ configT = Config
     <*> decision        "exe"         .= cExe
     <*> decision        "test"        .= cTest
     <*> decision        "bench"       .= cBench
+    <*> lastP Toml.str "prelude.package" .= cPreludePackage
+    <*> lastP Toml.str "prelude.module"  .= cPreludePackage
   where
     lastP :: (Key -> BiToml a) -> Key -> BiToml (Last a)
     lastP f = dimapBijection getLast Last . Toml.maybeP f
@@ -163,6 +169,8 @@ finalise Config{..} = Config
     <*> pure cExe
     <*> pure cTest
     <*> pure cBench
+    <*> pure cPreludePackage
+    <*> pure cPreludeModule
   where
     fin name = maybe (Failure ["Missing field: " <> name]) Success . getLast
 

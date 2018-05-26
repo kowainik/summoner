@@ -82,6 +82,8 @@ Here is the list of the options that could be configured for your needs:
           `false` if you don't. If not specified it would be asked during each run of the `summoner`.
 * `bench` – `true` if you want to create `benchmark` folder  with `Main.hs` file with dummy `gauge` library usage example by default,
           `false` if you don't. If not specified it would be asked during each run of the `summoner`.
+* `prelude.package` – Name of the package of the custom prelude you'd like to use in the project (doesn't work without `prelude.module` field).
+* `prelude.module` – Name of the module of the custom prelude you'd like to use in the project (doesn't work without `prelude.package` field).
 
 
 See example of [configuration for projects of `Kowainik` organization](https://github.com/kowainik/org/blob/master/summoner.toml).
@@ -97,17 +99,28 @@ See the basic usage syntax below (you can check it out with `summon --help` comm
 
 ```
 summon PROJECT_NAME [with [OPTIONS]] [without [OPTIONS]]
+       [-f|--file FILENAME]  [--prelude-package PACKAGE_NAME]
+       [--prelude-module MODULE_NAME]
 
 Available global options:
   -h, --help               Show this help text
   -f,--file FILENAME       Path to the toml file with configurations. If not
                            specified '~/summoner.toml' will be used if present
+  --prelude-package PACKAGE_NAME
+                           Name for the package of the custom prelude to use in
+                           the project
+  --prelude-module MODULE_NAME
+                           Name for the module of the custom prelude to use in
+                           the project
+
 Available commands:
   with                     Specify options to enable
   without                  Specify options to disable
 
 Available command options:
+  -h,--help                Show this help text
   -g, --github             Github integration
+  -p, --private            Create private GitHub repository
   -c, --travis             Travis CI integration
   -w, --app-veyor          AppVeyor CI integration
   -s, --script             Build script
@@ -115,7 +128,7 @@ Available command options:
   -e, --exec               Executable target
   -t, --test               Tests
   -b, --benchmark          Benchmarks
-  -p, --private            Create private GitHub repository
+
 ```
 
 The options to be enabled/disabled can be specified while running the command.
@@ -125,10 +138,11 @@ the question will be asked during the work of the script.
 For example,
 
 ```
-  summon newProject with -letgcspw without -b
+  summon newProject with -letgcspw without -b --prelude-package universum --prelude-module Universum
 ```
-will create fully functional project with library, executable file, tests,
-[build script](#build-script) and create private repository on [github](https://github.com)
+will create fully functional project which uses custom prelude `universum`, contains
+library, executable file, tests, [build script](#build-script)
+and create private repository on [github](https://github.com)
 integrated with `Travis-CI`, `AppVeyor-CI`, but benchmarks won't be attached to this one.
 
 But when calling this command
@@ -154,18 +168,19 @@ If you're running the `summoner` with all options enabled a project with the fol
 hierarchy will be created:
 
 ```
-PROJECT_NAME
+project-name
 ├── app
 │   └── Main.hs
 ├── benchmark
 │   └── Main.hs
 ├── src
-│   └── Lib.hs
+│   ├── ProjectName.hs
+│   └── Prelude.hs
 ├── test
 │   └── Spec.hs
 ├── CHANGELOG.md
 ├── LICENSE
-├── PROJECT_NAME.cabal
+├── project-name.cabal
 ├── README.md
 ├── Setup.hs
 ├── stack.yaml
