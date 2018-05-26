@@ -138,7 +138,7 @@ the question will be asked during the work of the script.
 For example,
 
 ```
-  summon newProject with -letgcspw without -b --package universum --module Universum
+  summon newProject with -letgcspw without -b --prelude-package universum --prelude-module Universum
 ```
 will create fully functional project which uses custom prelude `universum`, contains
 library, executable file, tests, [build script](#build-script)
