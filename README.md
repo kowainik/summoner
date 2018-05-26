@@ -84,6 +84,7 @@ Here is the list of the options that could be configured for your needs:
           `false` if you don't. If not specified it would be asked during each run of the `summoner`.
 * `prelude.package` – Name of the package of the custom prelude you'd like to use in the project (doesn't work without `prelude.module` field).
 * `prelude.module` – Name of the module of the custom prelude you'd like to use in the project (doesn't work without `prelude.package` field).
+* `extensions` – List of the default extensions to add into `default-extensions` section in the `.cabal`.
 
 
 See example of [configuration for projects of `Kowainik` organization](https://github.com/kowainik/org/blob/master/summoner.toml).

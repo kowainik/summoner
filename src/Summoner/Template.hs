@@ -87,6 +87,11 @@ createStackTemplate ProjectData{..} =
     testedGhcs :: Text
     testedGhcs = intercalateMap ", " (mappend "GHC == " . showGhcVer) testedVersions
 
+    defaultExtensions :: Text
+    defaultExtensions = case extensions of
+        [] -> ""
+        xs -> "default-extensions:  " <> T.intercalate "\n                     " xs
+
     createCabalLib :: Text
     createCabalLib =
         [text|
@@ -98,6 +103,7 @@ createStackTemplate ProjectData{..} =
           build-depends:       $base
                              $customPreludePack
           default-language:    Haskell2010
+          $defaultExtensions
         $endLine
         |]
 
@@ -112,6 +118,7 @@ createStackTemplate ProjectData{..} =
                              $r
                              $customPreludePack
           default-language:    Haskell2010
+          $defaultExtensions
         $endLine
         |]
 
@@ -127,6 +134,7 @@ createStackTemplate ProjectData{..} =
                              $customPreludePack
           ghc-options:         -Wall -Werror -threaded -rtsopts -with-rtsopts=-N
           default-language:    Haskell2010
+          $defaultExtensions
         $endLine
         |]
 
@@ -143,6 +151,7 @@ createStackTemplate ProjectData{..} =
                              , gauge
                              $customPreludePack
                              $r
+          $defaultExtensions
         $endLine
         |]
 
