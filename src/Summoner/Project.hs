@@ -6,12 +6,8 @@ module Summoner.Project
        ( generateProject
        ) where
 
-import Control.Monad (when)
 import Data.Aeson (decodeStrict)
 import Data.ByteString.Char8 (pack)
-import Data.List (nub)
-import Data.Semigroup ((<>))
-import Data.Text (Text)
 import NeatInterpolation (text)
 import System.Info (os)
 import System.Process (readProcess)
@@ -28,6 +24,7 @@ import Summoner.Template (createStackTemplate)
 
 import qualified Data.Text as T
 import qualified Data.Text.IO as T
+import qualified Universum.Unsafe as Unsafe
 
 decisionToBool :: Decision -> Text -> IO Bool
 decisionToBool decision target = case decision of
@@ -55,16 +52,16 @@ generateProject projectName Config{..} = do
     email       <- queryDef "Maintainer e-mail: " cEmail
     T.putStr categoryText
     category <- query "Category: "
-    license  <- choose "License: " $ map unLicense $ nub (cLicense : licenseNames)
+    license  <- choose "License: " $ map unLicense $ ordNub (cLicense : licenseNames)
 
     -- License creation
     let licenseGithub = snd
-                      $ head
+                      $ Unsafe.head
                       $ dropWhile ((/= license) . unLicense . fst) githubLicenseQueryNames
     let licenseLink = "https://api.github.com/licenses/" <> licenseGithub
     licenseJson <-
       readProcess "curl"
-                  [ T.unpack licenseLink
+                  [ toString licenseLink
                   , "-H"
                   , "Accept: application/vnd.github.drax-preview+json"
                   ]
@@ -88,14 +85,14 @@ generateProject projectName Config{..} = do
     test   <- decisionToBool cTest "tests"
     bench  <- decisionToBool cBench "benchmarks"
 
-    T.putStrLn $ "The project will be created with the latest resolver for default GHC-" <> showGhcVer defaultGHC
+    putTextLn $ "The project will be created with the latest resolver for default GHC-" <> showGhcVer defaultGHC
     testedVersions <- case cGhcVer of
         [] -> do
-            T.putStrLn "Additionally you can specify versions of GHC to test with (space-separated): "
-            infoMessage $ "Supported by 'summoner' GHCs: " <> T.intercalate " " (map showGhcVer supportedGhcVers)
+            putTextLn "Additionally you can specify versions of GHC to test with (space-separated): "
+            infoMessage $ "Supported by 'summoner' GHCs: " <> intercalateMap " " showGhcVer supportedGhcVers
             queryManyRepeatOnFail parseGhcVer
         vers -> do
-            T.putStrLn $ "Also these GHC versions will be added: " <> T.intercalate " " (map showGhcVer vers)
+            putTextLn $ "Also these GHC versions will be added: " <> intercalateMap " " showGhcVer vers
             pure vers
 
     -- Create project data from all variables in scope
@@ -117,7 +114,7 @@ generateProject projectName Config{..} = do
     doStackCommands :: ProjectData -> IO ()
     doStackCommands projectData@ProjectData{..} = do
         -- create haskell template
-        T.writeFile "temp.hsfiles" $ createStackTemplate projectData
+        writeFile "temp.hsfiles" $ createStackTemplate projectData
         -- create new project with stack
         "stack" ["new", repo, "temp.hsfiles"]
         -- do not need template file anymore

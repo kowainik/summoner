@@ -2,8 +2,6 @@ module Summoner.Validation
        ( Validation (..)
        ) where
 
-import Data.Semigroup (Semigroup ((<>)))
-
 -- | 'Validation' is 'Either' with a Left that is a 'Monoid'
 data Validation e a
   = Failure e

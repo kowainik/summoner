@@ -7,13 +7,10 @@ module Summoner.Template
        ( createStackTemplate
        ) where
 
-import Data.List (nub, sort)
-import Data.Semigroup ((<>))
-import Data.Text (Text)
 import NeatInterpolation (text)
 
 import Summoner.Default (defaultGHC, endLine)
-import Summoner.ProjectData (GhcVer (..), ProjectData (..), showGhcVer)
+import Summoner.ProjectData (GhcVer (..), ProjectData (..), latestLts, showGhcVer)
 
 import qualified Data.Text as T
 
@@ -72,10 +69,8 @@ createStackTemplate
         |]
 
     testedGhcs :: Text
-    testedGhcs = T.intercalate ", "
-               $ map (mappend "GHC == " . showGhcVer)
-               $ sort  -- need sortNub here...
-               $ nub (defaultGHC : testedVersions)
+    testedGhcs = intercalateMap ", " (mappend "GHC == " . showGhcVer)
+               $ sortNub (defaultGHC : testedVersions)
 
     createCabalLib :: Text
     createCabalLib =
@@ -389,11 +384,7 @@ createStackTemplate
     createStackYamls = T.concat . map createStackYaml
       where
         createStackYaml :: GhcVer -> Text
-        createStackYaml = \case
-            Ghc7103 -> stackYaml "7.10.3" "6.35"
-            Ghc801  -> stackYaml "8.0.1"  "7.24"
-            Ghc802  -> stackYaml "8.0.2"  "9.21"
-            Ghc822  -> ""  -- Ghc822 is latest known, so default stack yaml will be created
+        createStackYaml ghcVer = maybeToMonoid $ stackYaml (showGhcVer ghcVer) <$> latestLts ghcVer
           where
             stackYaml :: Text -> Text -> Text
             stackYaml ghc lts =

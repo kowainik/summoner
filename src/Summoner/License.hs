@@ -6,9 +6,6 @@ module Summoner.License
        ) where
 
 import Data.Aeson (FromJSON (..), withObject, (.:))
-import Data.Semigroup ((<>))
-import Data.Text (Text)
-import Data.String (IsString (..))
 
 import qualified Data.Text as T
 
@@ -34,14 +31,14 @@ githubLicenseQueryNames =
     ]
 
 newtype License = License { unLicense :: Text }
-    deriving (IsString, Eq, Show)
+    deriving (IsString, Eq, Ord, Show)
 
 instance FromJSON License where
     parseJSON = withObject "License" $ \o -> License <$> o .: "body"
 
 customizeLicense :: Text -> Text -> Text -> Text -> Text
 customizeLicense l t nm year
-    | l `elem` T.words "MIT BSD2 BSD3" = updateLicenseText
+    | l `elem` words "MIT BSD2 BSD3" = updateLicenseText
     | otherwise = t
   where
     updateLicenseText =

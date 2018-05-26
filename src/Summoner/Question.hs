@@ -12,9 +12,6 @@ module Summoner.Question
        , checkUniqueName
        ) where
 
-import Control.Arrow ((&&&))
-import Data.Semigroup ((<>))
-import Data.Text (Text)
 import System.Directory (doesPathExist, getCurrentDirectory)
 import System.FilePath ((</>))
 
@@ -22,6 +19,7 @@ import Summoner.Ansi (boldDefault, errorMessage, prompt, putStrFlush, warningMes
 
 import qualified Data.Text as T
 import qualified Data.Text.IO as T
+import qualified Universum.Unsafe as Unsafe
 
 ----------------------------------------------------------------------------
 -- IO Questioning
@@ -32,14 +30,14 @@ printQuestion question (def:rest) = do
     let restSlash = T.intercalate "/" rest
     putStrFlush question
     boldDefault def
-    T.putStrLn $ "/" <> restSlash
+    putTextLn $ "/" <> restSlash
 printQuestion question [] = T.putStrLn question
 
 choose :: Text -> [Text] -> IO Text
 choose question choices = do
     printQuestion question choices
     answer <- prompt
-    if | T.null answer -> pure (head choices)
+    if | T.null answer -> pure (Unsafe.head choices)
        | answer `elem` choices -> pure answer
        | otherwise -> do
            errorMessage "This wasn't a valid choice."
@@ -58,7 +56,7 @@ queryDef :: Text -> Text -> IO Text
 queryDef question defAnswer = do
     putStrFlush question
     boldDefault defAnswer
-    T.putStrLn ""
+    putTextLn ""
     answer <- prompt
     if | T.null answer -> pure defAnswer
        | otherwise     -> pure answer
@@ -69,11 +67,11 @@ queryManyRepeatOnFail parser = promptLoop
     promptLoop :: IO [a]
     promptLoop = do
         answer <- prompt
-        let answers = map (id &&& parser) $ T.words answer  -- converts [Text] into [(Text, Maybe a)]
+        let answers = map (id &&& parser) $ words answer  -- converts [Text] into [(Text, Maybe a)]
         case partitionPairs answers of
             Left unparsed -> do
                 -- TODO: create intercalateMap function
-                errorMessage $ "Unable to parse the following items: " <> T.intercalate " " (map quote unparsed)
+                errorMessage $ "Unable to parse the following items: " <> intercalateMap " " quote unparsed
                 promptLoop
             Right results -> pure results
 
@@ -93,7 +91,7 @@ queryManyRepeatOnFail parser = promptLoop
 checkUniqueName :: Text -> IO Text
 checkUniqueName nm = do
     curPath <- getCurrentDirectory
-    exist   <- doesPathExist $ curPath </> T.unpack nm
+    exist   <- doesPathExist $ curPath </> toString nm
     if exist then do
         warningMessage "Project with this name is already exist. Please choose another one"
         newNm <- query "Project name: "

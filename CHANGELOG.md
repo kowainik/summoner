@@ -9,7 +9,8 @@
 * [#48](https://github.com/kowainik/summoner/issues/48):
   - Add ability to write configurations file. Remove `Targets` data type.
     Use `Config` instead for default, file and CLI configurations.
-
+* [#60](https://github.com/kowainik/summoner/issues/60):
+  Use custom prelude `universum`.
 
 # hs-init
 

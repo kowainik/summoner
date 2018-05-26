@@ -4,15 +4,13 @@ module Summoner.ProjectData
        , supportedGhcVers
        , parseGhcVer
        , showGhcVer
+       , latestLts
 
        , Decision (..)
        ) where
 
-import Data.Semigroup (Semigroup (..))
-import Data.Text (Text)
 import Generics.Deriving.Monoid (GMonoid (..))
 import Generics.Deriving.Semigroup (GSemigroup (..))
-import GHC.Generics (Generic)
 
 -- | Data needed for project creation.
 data ProjectData = ProjectData
@@ -82,3 +80,10 @@ parseGhcVer "8.0.1"  = Just Ghc801
 parseGhcVer "8.0.2"  = Just Ghc802
 parseGhcVer "8.2.2"  = Just Ghc822
 parseGhcVer _        = Nothing
+
+-- | Returns latest known LTS resolver for all GHC versions except default one.
+latestLts :: GhcVer -> Maybe Text
+latestLts Ghc7103 = Just "6.35"
+latestLts Ghc801  = Just "7.24"
+latestLts Ghc802  = Just "9.21"
+latestLts Ghc822  = Nothing  -- Ghc822 is latest known, so default stack yaml will be created
