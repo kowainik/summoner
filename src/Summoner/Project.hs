@@ -28,8 +28,8 @@ import qualified Universum.Unsafe as Unsafe
 
 decisionToBool :: Decision -> Text -> IO Bool
 decisionToBool decision target = case decision of
-    Yes -> True  <$ trueMessage  target
-    Nop -> False <$ falseMessage target
+    Yes -> trueMessage  target
+    Nop -> falseMessage target
     Idk -> chooseYesNoBool target
 
 -- | Generate the project.
