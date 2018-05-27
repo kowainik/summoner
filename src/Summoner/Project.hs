@@ -24,6 +24,8 @@ import Summoner.Question (checkUniqueName, choose, query, queryDef, queryManyRep
 import Summoner.Template (createStackTemplate)
 import Summoner.Tree (traverseTree)
 
+import qualified Data.Char as C
+import qualified Data.Text as T
 import qualified Universum.Unsafe as Unsafe
 
 decisionToBool :: Decision -> Text -> IO Bool
@@ -37,13 +39,18 @@ decisionToBool decision target = case decision of
             "n" -> falseMessage target
             _   -> error "Impossible happened"
 
+headToUpper :: Text -> Text
+headToUpper t = case T.uncons t of
+    Nothing      -> ""
+    Just (x, xs) -> T.cons (C.toUpper x) xs
+
 targetMessage :: Bool -> Text -> IO Bool
 targetMessage result target = do
     let (color, actionResult) = case result of
           False -> (Cyan,  " won't be added to the project")
           True  -> (Green, " will be added to the project")
 
-    beautyPrint [italic, bold, setColor color] $ "  " <> target
+    beautyPrint [italic, bold, setColor color] $ "  " <> headToUpper target
     beautyPrint [setColor color] actionResult
     putTextLn ""
 
@@ -86,15 +93,15 @@ generateProject projectName Config{..} = do
     github <- decisionToBool cGitHub "GitHub integration"
     travis <- ifGithub github "Travis CI integration" cTravis
     appVey <- ifGithub github "AppVeyor CI integration" cAppVey
-    privat <- ifGithub github "Private repository" cPrivate
-    script <- decisionToBool cScript "Build script"
-    isLib  <- decisionToBool cLib "Library target"
-    isExe  <- let target = "Executable target" in
+    privat <- ifGithub github "private repository" cPrivate
+    script <- decisionToBool cScript "build script"
+    isLib  <- decisionToBool cLib "library target"
+    isExe  <- let target = "executable target" in
               if isLib
               then decisionToBool cExe target
               else trueMessage target
-    test   <- decisionToBool cTest "Tests"
-    bench  <- decisionToBool cBench "Benchmarks"
+    test   <- decisionToBool cTest "tests"
+    bench  <- decisionToBool cBench "benchmarks"
     prelude <- if isLib then getPrelude else pure Nothing
     let base = case prelude of
             Nothing -> "base"
