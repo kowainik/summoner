@@ -1,12 +1,16 @@
 -- | This module contains functions for colorful printing into terminal.
 
 module Summoner.Ansi
-       ( putStrFlush
+       ( Color (..)
+       , putStrFlush
+       , beautyPrint
        , bold
        , boldText
        , boldDefault
+       , italic
        , reset
        , prompt
+       , setColor
        , successMessage
        , warningMessage
        , errorMessage
@@ -14,9 +18,8 @@ module Summoner.Ansi
        , skipMessage
        ) where
 
-import System.Console.ANSI (Color (Blue, Cyan, Green, Red, Yellow), ColorIntensity (Vivid),
-                            ConsoleIntensity (BoldIntensity), ConsoleLayer (Foreground),
-                            SGR (Reset, SetColor, SetConsoleIntensity), setSGR)
+import System.Console.ANSI (Color (..), ColorIntensity (Vivid), ConsoleIntensity (BoldIntensity),
+                            ConsoleLayer (Foreground), SGR (..), setSGR)
 import System.IO (hFlush)
 
 ----------------------------------------------------------------------------
@@ -36,11 +39,21 @@ setColor color = setSGR [SetColor Foreground Vivid color]
 bold :: IO ()
 bold = setSGR [SetConsoleIntensity BoldIntensity]
 
+italic :: IO ()
+italic = setSGR [SetItalicized True]
+
 -- | Resets all previous settings.
 reset :: IO ()
 reset = do
     setSGR [Reset]
     hFlush stdout
+
+-- | Takes list of formatting options, prints text using this format options.
+beautyPrint :: [IO ()] -> Text -> IO ()
+beautyPrint formats msg = do
+    sequence_ formats
+    putText msg
+    reset
 
 prompt :: IO Text
 prompt = do
