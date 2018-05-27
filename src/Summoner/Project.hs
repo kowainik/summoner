@@ -12,53 +12,25 @@ import NeatInterpolation (text)
 import System.Info (os)
 import System.Process (readProcess)
 
-import Summoner.Ansi (Color (..), beautyPrint, bold, infoMessage, italic, setColor, skipMessage,
-                      successMessage, warningMessage)
+import Summoner.Ansi (infoMessage, successMessage, warningMessage)
 import Summoner.Config (Config, ConfigP (..))
 import Summoner.Default (currentYear, defaultGHC)
 import Summoner.License (License (..), customizeLicense, githubLicenseQueryNames, licenseNames)
 import Summoner.Process ()
 import Summoner.ProjectData (CustomPrelude (..), Decision (..), ProjectData (..), parseGhcVer,
                              showGhcVer, supportedGhcVers)
-import Summoner.Question (checkUniqueName, choose, query, queryDef, queryManyRepeatOnFail)
+import Summoner.Question (checkUniqueName, choose, chooseYesNo, chooseYesNoBool, falseMessage,
+                          query, queryDef, queryManyRepeatOnFail, trueMessage)
 import Summoner.Template (createStackTemplate)
 import Summoner.Tree (traverseTree)
 
-import qualified Data.Char as C
-import qualified Data.Text as T
 import qualified Universum.Unsafe as Unsafe
 
 decisionToBool :: Decision -> Text -> IO Bool
 decisionToBool decision target = case decision of
-    Yes -> trueMessage  target
-    Nop -> falseMessage target
-    Idk -> do
-        ch <- choose ("Add " <> target <> "?") ["y", "n"]
-        case ch of
-            "y" -> trueMessage  target
-            "n" -> falseMessage target
-            _   -> error "Impossible happened"
-
-headToUpper :: Text -> Text
-headToUpper t = case T.uncons t of
-    Nothing      -> ""
-    Just (x, xs) -> T.cons (C.toUpper x) xs
-
-targetMessage :: Bool -> Text -> IO Bool
-targetMessage result target = do
-    let (color, actionResult) = case result of
-          False -> (Cyan,  " won't be added to the project")
-          True  -> (Green, " will be added to the project")
-
-    beautyPrint [italic, bold, setColor color] $ "  " <> headToUpper target
-    beautyPrint [setColor color] actionResult
-    putTextLn ""
-
-    pure result
-
-trueMessage, falseMessage :: Text -> IO Bool
-trueMessage  = targetMessage True
-falseMessage = targetMessage False
+    Yes -> True  <$ trueMessage  target
+    Nop -> False <$ falseMessage target
+    Idk -> chooseYesNoBool target
 
 -- | Generate the project.
 generateProject :: Text -> Config -> IO ()
@@ -176,15 +148,14 @@ generateProject projectName Config{..} = do
 
     getPrelude :: IO (Maybe CustomPrelude)
     getPrelude = case (cPreludePackage, cPreludeModule) of
-        (Last Nothing, Last Nothing) -> do
-            ch <- choose "Add custom prelude?" ["y", "n"]
-            case ch of
-                "y" -> do
+        (Last Nothing, Last Nothing) ->
+            let yesDo, noDo :: IO (Maybe CustomPrelude)
+                yesDo = do
                     p <- query "Custom prelude package: "
                     m <- query "Custom prelude module: "
                     pure $ Just $ Prelude p m
-                "n" -> Nothing <$ skipMessage "Custom prelude won't be added to the project"
-                _   -> error "Impossible happened"
+                noDo = pure Nothing in
+            chooseYesNo "custom prelude" yesDo noDo
         (Last Nothing, Last (Just m)) -> do
             warningMessage $ "Prelude is not specified for " <> m <> " module. Base prelude will be used"
             pure Nothing
