@@ -116,7 +116,7 @@ generateProject projectName Config{..} = do
     let projectData = ProjectData{..}
 
     -- create stack project
-    doStackCommands projectData
+    createProjectDirectory projectData
     -- make b executable
     when script doScriptCommand
     -- create github repository and commit
@@ -128,8 +128,8 @@ generateProject projectName Config{..} = do
         then decisionToBool decision target
         else falseMessage target
 
-    doStackCommands :: ProjectData -> IO ()
-    doStackCommands projectData@ProjectData{..} = do
+    createProjectDirectory :: ProjectData -> IO ()
+    createProjectDirectory projectData@ProjectData{..} = do
         traverseTree $ createStackTemplate projectData
         "cd" [repo]
 

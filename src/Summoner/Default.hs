@@ -22,7 +22,7 @@ defaultGHC :: GhcVer
 defaultGHC = Ghc822
 
 defaultTomlFile :: String
-defaultTomlFile = "summoner.toml"
+defaultTomlFile = ".summoner.toml"
 
 defaultConfigFile :: IO FilePath
 defaultConfigFile = (</> defaultTomlFile) <$> getHomeDirectory

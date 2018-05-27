@@ -38,7 +38,7 @@ as well as a repository under your github account (if requested).
 
 There are several options how to set particular configurations:
 
-1. Default configuration file (`~/summoner.toml`).
+1. Default configuration file (`~/.summoner.toml`).
 2. Explicitly specified configuration file by `--file FILENAME` option (used instead of default one if specified).
 3. Options that are stated by CLI arguments.
 4. Interactively inputed answers during work of the `summon` command
@@ -90,7 +90,7 @@ Here is the list of the options that could be configured for your needs:
 See example of [configuration for projects of `Kowainik` organization](https://github.com/kowainik/org/blob/master/summoner.toml).
 
 
-By default the `summoner` will look for the configuration file (`summoner.toml`) in home directory.
+By default the `summoner` will look for the configuration file (`.summoner.toml`) in home directory.
 
 The other way to specify some particular `.toml` file is `summon PROJECTNAME --file FILEPATH` command.
 
@@ -106,7 +106,7 @@ summon PROJECT_NAME [with [OPTIONS]] [without [OPTIONS]]
 Available global options:
   -h, --help               Show this help text
   -f,--file FILENAME       Path to the toml file with configurations. If not
-                           specified '~/summoner.toml' will be used if present
+                           specified '~/.summoner.toml' will be used if present
   --prelude-package PACKAGE_NAME
                            Name for the package of the custom prelude to use in
                            the project
