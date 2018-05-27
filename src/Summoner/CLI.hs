@@ -15,7 +15,8 @@ import Options.Applicative (Parser, ParserInfo, command, execParser, flag, fullD
 import Options.Applicative.Help.Chunk (stringChunk)
 import System.Directory (doesFileExist)
 
-import Summoner.Ansi (boldText, errorMessage, infoMessage, warningMessage)
+import Summoner.Ansi (Color (Green), beautyPrint, bold, errorMessage, infoMessage, setColor,
+                      warningMessage)
 import Summoner.Config (ConfigP (..), PartialConfig, defaultConfig, finalise, loadFileConfig)
 import Summoner.Default (defaultConfigFile, endLine)
 import Summoner.Project (generateProject)
@@ -60,7 +61,7 @@ runWithOptions (InitOpts projectName maybeFile cliConfig) = do
     -- Generate the project.
     generateProject projectName finalConfig
 
-    boldText "\nJob's done\n"
+    beautyPrint [bold, setColor Green] "\nJob's done\n"
 
 -- | Initial parsed options from cli
 data InitOpts = InitOpts Text (Maybe FilePath) PartialConfig
@@ -160,7 +161,7 @@ fileP = strOption
     $ long "file"
    <> short 'f'
    <> metavar "FILENAME"
-   <> help "Path to the toml file with configurations. If not specified '~/summoner.toml' will be used if present"
+   <> help "Path to the toml file with configurations. If not specified '~/.summoner.toml' will be used if present"
 
 preludePackP :: Parser Text
 preludePackP = strOption

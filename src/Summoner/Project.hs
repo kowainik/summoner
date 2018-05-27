@@ -12,7 +12,8 @@ import NeatInterpolation (text)
 import System.Info (os)
 import System.Process (readProcess)
 
-import Summoner.Ansi (infoMessage, skipMessage, successMessage, warningMessage)
+import Summoner.Ansi (Color (..), beautyPrint, bold, infoMessage, italic, setColor, skipMessage,
+                      successMessage, warningMessage)
 import Summoner.Config (Config, ConfigP (..))
 import Summoner.Default (currentYear, defaultGHC)
 import Summoner.License (License (..), customizeLicense, githubLicenseQueryNames, licenseNames)
@@ -23,8 +24,8 @@ import Summoner.Question (checkUniqueName, choose, query, queryDef, queryManyRep
 import Summoner.Template (createStackTemplate)
 import Summoner.Tree (traverseTree)
 
+import qualified Data.Char as C
 import qualified Data.Text as T
-import qualified Data.Text.IO as T
 import qualified Universum.Unsafe as Unsafe
 
 decisionToBool :: Decision -> Text -> IO Bool
@@ -38,10 +39,26 @@ decisionToBool decision target = case decision of
             "n" -> falseMessage target
             _   -> error "Impossible happened"
 
-trueMessage, falseMessage :: Text -> IO Bool
-trueMessage  target = True  <$ successMessage (T.toTitle target <> " will be added to the project")
-falseMessage target = False <$ skipMessage (T.toTitle target <> " won't be added to the project")
+headToUpper :: Text -> Text
+headToUpper t = case T.uncons t of
+    Nothing      -> ""
+    Just (x, xs) -> T.cons (C.toUpper x) xs
 
+targetMessage :: Bool -> Text -> IO Bool
+targetMessage result target = do
+    let (color, actionResult) = case result of
+          False -> (Cyan,  " won't be added to the project")
+          True  -> (Green, " will be added to the project")
+
+    beautyPrint [italic, bold, setColor color] $ "  " <> headToUpper target
+    beautyPrint [setColor color] actionResult
+    putTextLn ""
+
+    pure result
+
+trueMessage, falseMessage :: Text -> IO Bool
+trueMessage  = targetMessage True
+falseMessage = targetMessage False
 
 -- | Generate the project.
 generateProject :: Text -> Config -> IO ()
@@ -51,7 +68,7 @@ generateProject projectName Config{..} = do
     description <- query "Short project description: "
     nm          <- queryDef "Author: " cFullName
     email       <- queryDef "Maintainer e-mail: " cEmail
-    T.putStr categoryText
+    putText categoryText
     category <- query "Category: "
     license  <- choose "License: " $ map unLicense $ ordNub (cLicense : licenseNames)
 
@@ -73,10 +90,10 @@ generateProject projectName Config{..} = do
             Nothing -> error "Broken predefined license list"
 
     -- Library/Executable/Tests/Benchmarks flags
-    github <- decisionToBool cGitHub "github integration"
+    github <- decisionToBool cGitHub "GitHub integration"
     travis <- ifGithub github "Travis CI integration" cTravis
     appVey <- ifGithub github "AppVeyor CI integration" cAppVey
-    privat <- ifGithub github "Private repository" cPrivate
+    privat <- ifGithub github "private repository" cPrivate
     script <- decisionToBool cScript "build script"
     isLib  <- decisionToBool cLib "library target"
     isExe  <- let target = "executable target" in
@@ -106,7 +123,7 @@ generateProject projectName Config{..} = do
     let projectData = ProjectData{..}
 
     -- create stack project
-    doStackCommands projectData
+    createProjectDirectory projectData
     -- make b executable
     when script doScriptCommand
     -- create github repository and commit
@@ -118,8 +135,8 @@ generateProject projectName Config{..} = do
         then decisionToBool decision target
         else falseMessage target
 
-    doStackCommands :: ProjectData -> IO ()
-    doStackCommands projectData@ProjectData{..} = do
+    createProjectDirectory :: ProjectData -> IO ()
+    createProjectDirectory projectData@ProjectData{..} = do
         traverseTree $ createStackTemplate projectData
         "cd" [repo]
 

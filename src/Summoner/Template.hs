@@ -82,6 +82,7 @@ createStackTemplate ProjectData{..} = Dir (toString repo) $
         category:            $category
         build-type:          Simple
         extra-doc-files:     README.md
+                           , CHANGELOG.md
         cabal-version:       1.24
         tested-with:         $testedGhcs
         $endLine
