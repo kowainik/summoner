@@ -105,7 +105,8 @@ summon PROJECT_NAME [with [OPTIONS]] [without [OPTIONS]]
 
 Available global options:
   -h, --help               Show this help text
-  -f,--file FILENAME       Path to the toml file with configurations. If not
+  -v, --version            Show summoner's version
+  -f, --file FILENAME      Path to the toml file with configurations. If not
                            specified '~/.summoner.toml' will be used if present
   --prelude-package PACKAGE_NAME
                            Name for the package of the custom prelude to use in

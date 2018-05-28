@@ -8,13 +8,15 @@ module Summoner.CLI
        ( summon
        ) where
 
+import Data.Version (showVersion)
 import NeatInterpolation (text)
 import Options.Applicative (Parser, ParserInfo, command, execParser, flag, fullDesc, help, helper,
-                            info, infoFooter, infoHeader, long, metavar, optional, progDesc, short,
-                            strArgument, strOption, subparser)
+                            info, infoFooter, infoHeader, infoOption, long, metavar, optional,
+                            progDesc, short, strArgument, strOption, subparser)
 import Options.Applicative.Help.Chunk (stringChunk)
 import System.Directory (doesFileExist)
 
+import Paths_summoner (version)
 import Summoner.Ansi (Color (Green), beautyPrint, bold, errorMessage, infoMessage, setColor,
                       warningMessage)
 import Summoner.Config (ConfigP (..), PartialConfig, defaultConfig, finalise, loadFileConfig)
@@ -190,10 +192,20 @@ optsP = do
             , cPreludeModule  = Last preludeMod
             }
 
+versionP :: Parser (a -> a)
+versionP = infoOption summonerVersion
+    $ long "version"
+   <> short 'v'
+   <> help "Show summoner's version"
+  where
+    summonerVersion :: String
+    summonerVersion = showVersion version
+
+
 prsr :: ParserInfo InitOpts
 prsr = modifyHeader
      $ modifyFooter
-     $ info ( helper <*> optsP )
+     $ info ( helper <*> versionP <*> optsP )
             $ fullDesc
            <> progDesc "Create your own haskell project"
 
