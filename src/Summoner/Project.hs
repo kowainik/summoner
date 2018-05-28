@@ -22,7 +22,7 @@ import Summoner.ProjectData (CustomPrelude (..), Decision (..), ProjectData (..)
 import Summoner.Question (checkUniqueName, choose, chooseYesNo, chooseYesNoBool, falseMessage,
                           query, queryDef, queryManyRepeatOnFail, trueMessage)
 import Summoner.Template (createStackTemplate)
-import Summoner.Tree (traverseTree)
+import Summoner.Tree (showTree, traverseTree)
 
 import qualified Universum.Unsafe as Unsafe
 
@@ -109,7 +109,10 @@ generateProject projectName Config{..} = do
 
     createProjectDirectory :: ProjectData -> IO ()
     createProjectDirectory projectData@ProjectData{..} = do
-        traverseTree $ createStackTemplate projectData
+        let tree = createStackTemplate projectData
+        traverseTree tree
+        successMessage "\nThe project with the following structure has been created:"
+        putTextLn $ showTree tree
         "cd" [repo]
 
     doScriptCommand :: IO ()
