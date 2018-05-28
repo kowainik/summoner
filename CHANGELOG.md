@@ -21,6 +21,8 @@
   Add `Aswer` data type to handle yes-no CLI questions.
 * [#61](https://github.com/kowainik/summoner/issues/61):
   Add CLI `--version` option.
+* [#73](https://github.com/kowainik/summoner/issues/73):
+  Make custom prelude be table in toml.
 
 # hs-init
 

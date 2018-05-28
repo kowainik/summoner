@@ -22,7 +22,7 @@ import Summoner.Ansi (Color (Green), beautyPrint, bold, errorMessage, infoMessag
 import Summoner.Config (ConfigP (..), PartialConfig, defaultConfig, finalise, loadFileConfig)
 import Summoner.Default (defaultConfigFile, endLine)
 import Summoner.Project (generateProject)
-import Summoner.ProjectData (Decision (..))
+import Summoner.ProjectData (CustomPrelude (..), Decision (..))
 import Summoner.Validation (Validation (..))
 
 ---------------------------------------------------------------------------
@@ -35,35 +35,43 @@ summon = execParser prsr >>= runWithOptions
 -- | Run 'hs-init' with cli options
 runWithOptions :: InitOpts -> IO ()
 runWithOptions (InitOpts projectName maybeFile cliConfig) = do
-    (isDefault, file) <- case maybeFile of
-        Nothing -> (True,) <$> defaultConfigFile
-        Just x  -> pure (False, x)
-    isFile <- doesFileExist file
-    fileConfig <-
-        if isFile
-        then do
-            infoMessage $ "Configurations from " <> toText file <> " will be used."
-            loadFileConfig file
-        else if isDefault
-              then do
-                  fp <- toText <$> defaultConfigFile
-                  warningMessage $ "Default config " <> fp <> " file is missing."
-                  pure mempty
-              else do
-                  errorMessage $ "Specified configuration file " <> toText file <> " is not found."
-                  exitFailure
+    -- read config from file
+    fileConfig <- readFileConfig maybeFile
+
     -- union all possible configs
     let unionConfig = defaultConfig <> fileConfig <> cliConfig
+
     -- get the final config
     finalConfig <- case finalise unionConfig of
+             Success c    -> pure c
              Failure msgs -> do
                  for_ msgs errorMessage
                  exitFailure
-             Success c    ->  pure c
+
     -- Generate the project.
     generateProject projectName finalConfig
 
+    -- print result
     beautyPrint [bold, setColor Green] "\nJob's done\n"
+
+readFileConfig :: Maybe FilePath -> IO PartialConfig
+readFileConfig maybeFile = do
+    (isDefault, file) <- case maybeFile of
+        Nothing -> (True,) <$> defaultConfigFile
+        Just x  -> pure (False, x)
+
+    isFile <- doesFileExist file
+
+    if isFile then do
+        infoMessage $ "Configurations from " <> toText file <> " will be used."
+        loadFileConfig file
+    else if isDefault then do
+        fp <- toText <$> defaultConfigFile
+        warningMessage $ "Default config " <> fp <> " file is missing."
+        pure mempty
+    else do
+        errorMessage $ "Specified configuration file " <> toText file <> " is not found."
+        exitFailure
 
 -- | Initial parsed options from cli
 data InitOpts = InitOpts Text (Maybe FilePath) PartialConfig
@@ -188,8 +196,7 @@ optsP = do
 
     pure $ InitOpts projectName file
         $ (maybeToMonoid $ with <> without)
-            { cPreludePackage = Last preludePack
-            , cPreludeModule  = Last preludeMod
+            { cPrelude = Last $ Prelude <$> preludePack <*> preludeMod
             }
 
 versionP :: Parser (a -> a)

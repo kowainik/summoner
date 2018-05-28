@@ -29,12 +29,13 @@ import Data.Monoid (Last (..))
 import Generics.Deriving.Monoid (GMonoid, gmemptydefault)
 import Generics.Deriving.Semigroup (GSemigroup, gsappenddefault)
 import Toml (ValueType (TString), matchText)
-import Toml.Bi (BiToml, dimapBijection, (.=))
+import Toml.Bi (BiToml, dimap, (.=))
 import Toml.Bi.Combinators (Valuer (..))
 import Toml.PrefixTree (Key)
 
 import Summoner.License (License (..))
-import Summoner.ProjectData (Decision (..), GhcVer (..), parseGhcVer, showGhcVer)
+import Summoner.ProjectData (CustomPrelude (..), Decision (..), GhcVer (..), parseGhcVer,
+                             showGhcVer)
 import Summoner.Validation (Validation (..))
 
 import qualified Text.Show as Show
@@ -44,23 +45,22 @@ data Phase = Partial | Final
 
 -- | Potentially incomplete configuration.
 data ConfigP (p :: Phase) = Config
-    { cOwner          :: p :- Text
-    , cFullName       :: p :- Text
-    , cEmail          :: p :- Text
-    , cLicense        :: p :- License
-    , cGhcVer         :: p :- [GhcVer]
-    , cGitHub         :: Decision
-    , cTravis         :: Decision
-    , cAppVey         :: Decision
-    , cPrivate        :: Decision
-    , cScript         :: Decision
-    , cLib            :: Decision
-    , cExe            :: Decision
-    , cTest           :: Decision
-    , cBench          :: Decision
-    , cPreludePackage :: Last Text
-    , cPreludeModule  :: Last Text
-    , cExtensions     :: [Text]
+    { cOwner      :: p :- Text
+    , cFullName   :: p :- Text
+    , cEmail      :: p :- Text
+    , cLicense    :: p :- License
+    , cGhcVer     :: p :- [GhcVer]
+    , cGitHub     :: Decision
+    , cTravis     :: Decision
+    , cAppVey     :: Decision
+    , cPrivate    :: Decision
+    , cScript     :: Decision
+    , cLib        :: Decision
+    , cExe        :: Decision
+    , cTest       :: Decision
+    , cBench      :: Decision
+    , cPrelude    :: Last CustomPrelude
+    , cExtensions :: [Text]
     } deriving (Generic)
 
 deriving instance (GSemigroup (p :- Text), GSemigroup (p :- License), GSemigroup (p :- [GhcVer])) => GSemigroup (ConfigP p)
@@ -101,8 +101,7 @@ defaultConfig = Config
     , cExe      = Idk
     , cTest     = Idk
     , cBench    = Idk
-    , cPreludePackage = Last Nothing
-    , cPreludeModule  = Last Nothing
+    , cPrelude  = Last Nothing
     , cExtensions = []
     }
 
@@ -123,12 +122,11 @@ configT = Config
     <*> decision        "exe"         .= cExe
     <*> decision        "test"        .= cTest
     <*> decision        "bench"       .= cBench
-    <*> lastP Toml.str "prelude.package" .= cPreludePackage
-    <*> lastP Toml.str "prelude.module"  .= cPreludePackage
-    <*> extensions     "extensions"      .= cExtensions
+    <*> lastP (Toml.table preludeT)  "prelude" .= cPrelude
+    <*> extensions      "extensions"      .= cExtensions
   where
     lastP :: (Key -> BiToml a) -> Key -> BiToml (Last a)
-    lastP f = dimapBijection getLast Last . Toml.maybeP f
+    lastP f = dimap getLast Last . Toml.maybeP f
 
     ghcVerV :: Valuer 'TString GhcVer
     ghcVerV = Valuer (matchText >=> parseGhcVer) (Toml.String . showGhcVer)
@@ -137,13 +135,13 @@ configT = Config
     ghcVerArr = Toml.arrayOf ghcVerV
 
     license :: Key -> BiToml License
-    license =  dimapBijection unLicense License . Toml.str
+    license =  dimap unLicense License . Toml.str
 
     extensions :: Key -> BiToml [Text]
-    extensions = dimapBijection Just maybeToMonoid . Toml.maybeP (Toml.arrayOf Toml.strV)
+    extensions = dimap Just maybeToMonoid . Toml.maybeP (Toml.arrayOf Toml.strV)
 
     decision :: Key -> BiToml Decision
-    decision = dimapBijection fromDecision toDecision . Toml.maybeP Toml.bool
+    decision = dimap fromDecision toDecision . Toml.maybeP Toml.bool
 
     decisionMaybe :: [(Decision, Maybe Bool)]
     decisionMaybe = [ (Idk, Nothing)
@@ -157,6 +155,10 @@ configT = Config
     toDecision :: Maybe Bool -> Decision
     toDecision m = fromMaybe (error "Impossible") $ lookup m $ map swap decisionMaybe
 
+    preludeT :: BiToml CustomPrelude
+    preludeT = Prelude
+        <$> Toml.str "package" .= cpPackage
+        <*> Toml.str "module"  .= cpModule
 
 -- | Make sure that all the required configurations options were specified.
 finalise :: PartialConfig -> Validation [Text] Config
@@ -175,21 +177,20 @@ finalise Config{..} = Config
     <*> pure cExe
     <*> pure cTest
     <*> pure cBench
-    <*> pure cPreludePackage
-    <*> pure cPreludeModule
+    <*> pure cPrelude
     <*> pure cExtensions
   where
     fin name = maybe (Failure ["Missing field: " <> name]) Success . getLast
 
 -- | Read configuration from the given file and return it in data type.
 loadFileConfig :: MonadIO m => FilePath -> m PartialConfig
-loadFileConfig filePath = (Toml.encode configT <$> readFile filePath) >>= liftIO . errorWhenLeft
+loadFileConfig filePath = (Toml.decode configT <$> readFile filePath) >>= liftIO . errorWhenLeft
   where
-    errorWhenLeft :: Either Toml.EncodeException PartialConfig -> IO PartialConfig
-    errorWhenLeft (Left e)   = throwIO $ LoadTomlException filePath $ show e
+    errorWhenLeft :: Either Toml.DecodeException PartialConfig -> IO PartialConfig
+    errorWhenLeft (Left e)   = throwIO $ LoadTomlException filePath $ Toml.prettyException e
     errorWhenLeft (Right pc) = pure pc
 
-data LoadTomlException = LoadTomlException FilePath String
+data LoadTomlException = LoadTomlException FilePath Text
 
 instance Show.Show LoadTomlException where
     show (LoadTomlException filePath msg) = "Couldnt parse file " ++ filePath ++ ": " ++ show msg

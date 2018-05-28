@@ -12,7 +12,7 @@ import NeatInterpolation (text)
 import System.Info (os)
 import System.Process (readProcess)
 
-import Summoner.Ansi (infoMessage, successMessage, warningMessage)
+import Summoner.Ansi (infoMessage, successMessage)
 import Summoner.Config (Config, ConfigP (..))
 import Summoner.Default (currentYear, defaultGHC)
 import Summoner.License (License (..), customizeLicense, githubLicenseQueryNames, licenseNames)
@@ -147,21 +147,15 @@ generateProject projectName Config{..} = do
         |]
 
     getPrelude :: IO (Maybe CustomPrelude)
-    getPrelude = case (cPreludePackage, cPreludeModule) of
-        (Last Nothing, Last Nothing) ->
+    getPrelude = case cPrelude of
+        Last Nothing -> do
             let yesDo, noDo :: IO (Maybe CustomPrelude)
                 yesDo = do
                     p <- query "Custom prelude package: "
                     m <- query "Custom prelude module: "
+                    successMessage $ "Custom prelude " <> p <> " will be used in the project"
                     pure $ Just $ Prelude p m
-                noDo = pure Nothing in
+                noDo = pure Nothing
             chooseYesNo "custom prelude" yesDo noDo
-        (Last Nothing, Last (Just m)) -> do
-            warningMessage $ "Prelude is not specified for " <> m <> " module. Base prelude will be used"
-            pure Nothing
-        (Last (Just p), Last Nothing) -> do
-            warningMessage $ "Module is not specified for " <> p <> ". Base prelude will be used"
-            pure Nothing
-        (Last (Just p), Last (Just m)) -> do
-            successMessage $ "Custom prelude " <> p <> " will be used in the project"
-            pure $ Just $ Prelude p m
+        Last prelude@(Just (Prelude p _)) -> do
+            prelude <$ successMessage ("Custom prelude " <> p <> " will be used in the project")

@@ -179,7 +179,7 @@ createStackTemplate ProjectData{..} = Dir (toString repo) $
     testFile = File "Spec.hs"
         [text|
         main :: IO ()
-        main = putStrLn "Test suite not yet implemented"
+        main = putStrLn ("Test suite not yet implemented" :: String)
         $endLine
         |]
 
@@ -191,7 +191,7 @@ createStackTemplate ProjectData{..} = Dir (toString repo) $
                ) where
 
         someFunc :: IO ()
-        someFunc = putStrLn "someFunc"
+        someFunc = putStrLn ("someFunc" :: String)
         $endLine
         |]
 
@@ -219,7 +219,7 @@ createStackTemplate ProjectData{..} = Dir (toString repo) $
         module Main where
 
         main :: IO ()
-        main = putStrLn "Hello, world!"
+        main = putStrLn ("Hello, world!" :: String)
         $endLine
         |]
 
