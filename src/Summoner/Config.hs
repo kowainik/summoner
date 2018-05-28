@@ -187,10 +187,10 @@ loadFileConfig :: MonadIO m => FilePath -> m PartialConfig
 loadFileConfig filePath = (Toml.decode configT <$> readFile filePath) >>= liftIO . errorWhenLeft
   where
     errorWhenLeft :: Either Toml.DecodeException PartialConfig -> IO PartialConfig
-    errorWhenLeft (Left e)   = throwIO $ LoadTomlException filePath $ show e
+    errorWhenLeft (Left e)   = throwIO $ LoadTomlException filePath $ Toml.prettyException e
     errorWhenLeft (Right pc) = pure pc
 
-data LoadTomlException = LoadTomlException FilePath String
+data LoadTomlException = LoadTomlException FilePath Text
 
 instance Show.Show LoadTomlException where
     show (LoadTomlException filePath msg) = "Couldnt parse file " ++ filePath ++ ": " ++ show msg
