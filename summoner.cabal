@@ -17,7 +17,8 @@ tested-with:         GHC == 8.2.2
 
 library
   hs-source-dirs:      src
-  exposed-modules:     Prelude
+  exposed-modules:     Paths_summoner
+                       Prelude
                        Summoner
                          Summoner.Ansi
                          Summoner.CLI
