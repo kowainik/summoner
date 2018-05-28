@@ -17,6 +17,8 @@
   Add option to add default extensions to `.toml` config.
 * [#62](https://github.com/kowainik/summoner/issues/62):
   Make some parts of output not only colorful, but also bold. This makes output prettier.
+* [#67](https://github.com/kowainik/summoner/issues/67):
+  Add `Aswer` data type to handle yes-no CLI questions.
 
 # hs-init
 

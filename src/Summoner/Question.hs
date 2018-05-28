@@ -6,17 +6,25 @@
 module Summoner.Question
        ( printQuestion
        , choose
+       , chooseYesNo
+       , chooseYesNoBool
        , query
        , queryDef
        , queryManyRepeatOnFail
        , checkUniqueName
+
+       , trueMessage
+       , falseMessage
        ) where
 
 import System.Directory (doesPathExist, getCurrentDirectory)
 import System.FilePath ((</>))
 
-import Summoner.Ansi (boldDefault, errorMessage, prompt, putStrFlush, warningMessage)
+import Summoner.Ansi (Color (..), beautyPrint, bold, boldDefault, errorMessage, italic, prompt,
+                      putStrFlush, setColor, warningMessage)
+import Summoner.ProjectData (Answer (..), yesOrNo)
 
+import qualified Data.Char as C
 import qualified Data.Text as T
 import qualified Data.Text.IO as T
 import qualified Universum.Unsafe as Unsafe
@@ -42,6 +50,44 @@ choose question choices = do
        | otherwise -> do
            errorMessage "This wasn't a valid choice."
            choose question choices
+
+chooseYesNo :: Text -- ^ target
+            -> IO a -- ^ action for 'Y' answer
+            -> IO a -- ^ action for 'N' answer
+            -> IO a
+chooseYesNo target yesDo noDo = do
+    printQuestion ("Add " <> target <> "?") ["y", "n"]
+    answer <- yesOrNo <$> prompt
+    case answer of
+        Nothing -> do
+           errorMessage "This wasn't a valid choice."
+           chooseYesNo target yesDo noDo
+        Just Y -> trueMessage target >> yesDo
+        Just N -> falseMessage target >> noDo
+
+chooseYesNoBool :: Text -> IO Bool
+chooseYesNoBool target = chooseYesNo target (pure True) (pure False)
+
+headToUpper :: Text -> Text
+headToUpper t = case T.uncons t of
+    Nothing      -> ""
+    Just (x, xs) -> T.cons (C.toUpper x) xs
+
+targetMessage :: Bool -> Text -> IO Bool
+targetMessage result target = do
+    let (color, actionResult) = case result of
+          False -> (Cyan,  " won't be added to the project")
+          True  -> (Green, " will be added to the project")
+
+    beautyPrint [italic, bold, setColor color] $ "  " <> headToUpper target
+    beautyPrint [setColor color] actionResult
+    putTextLn ""
+
+    pure result
+
+trueMessage, falseMessage :: Text -> IO Bool
+trueMessage  = targetMessage True
+falseMessage = targetMessage False
 
 query :: Text -> IO Text
 query question = do

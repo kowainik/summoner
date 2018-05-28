@@ -1,3 +1,5 @@
+{-# LANGUAGE ViewPatterns #-}
+
 module Summoner.ProjectData
        ( ProjectData (..)
        , GhcVer (..)
@@ -9,10 +11,15 @@ module Summoner.ProjectData
 
        , Decision (..)
        , CustomPrelude (..)
+
+       , Answer (..)
+       , yesOrNo
        ) where
 
 import Generics.Deriving.Monoid (GMonoid (..))
 import Generics.Deriving.Semigroup (GSemigroup (..))
+
+import qualified Data.Text as T
 
 -- | Data needed for project creation.
 data ProjectData = ProjectData
@@ -103,3 +110,12 @@ data CustomPrelude = Prelude
     { cpPackage :: Text
     , cpModule  :: Text
     } deriving (Show)
+
+data Answer = Y | N
+
+yesOrNo :: Text -> Maybe Answer
+yesOrNo (T.toLower -> answer )
+    | T.null answer = Just Y
+    | answer `elem` ["yes", "y", "ys"] = Just Y
+    | answer `elem` ["no", "n"]  = Just N
+    | otherwise = Nothing
