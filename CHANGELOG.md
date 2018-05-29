@@ -23,6 +23,8 @@
   Add CLI `--version` option.
 * [#73](https://github.com/kowainik/summoner/issues/73):
   Make custom prelude be table in toml.
+* [#74](https://github.com/kowainik/summoner/issues/74):
+  Print hierarchy tree for the created project.
 
 # hs-init
 
