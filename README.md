@@ -1,4 +1,4 @@
-# Summoner
+# :crystal_ball: Summoner
 
 [![Build status](https://secure.travis-ci.org/kowainik/summoner.svg)](http://travis-ci.org/kowainik/summoner)
 [![Windows build status](https://ci.appveyor.com/api/projects/status/github/kowainik/summoner?branch=master&svg=true)](https://ci.appveyor.com/project/kowainik/summoner)
@@ -8,6 +8,10 @@
 This is tool for creating completely configured production Haskell projects.
 Consider that it's using [`Stack`](http://haskellstack.org) for
 creating and setting up projects.
+
+## Demo
+
+[![asciicast](https://asciinema.org/a/Wf8ZOMAZSUFyAJob70pwM6rZ1.png)](https://asciinema.org/a/Wf8ZOMAZSUFyAJob70pwM6rZ1)
 
 ## Getting started
 

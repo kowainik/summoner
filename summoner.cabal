@@ -1,7 +1,8 @@
 name:                summoner
 version:             1.0.0
-description:         Tool for creating completely configured production Haskell projects.
 synopsis:            Tool for creating completely configured production Haskell projects.
+description:         Tool for creating completely configured production Haskell projects.
+                     See README.md for details.
 homepage:            https://github.com/kowainik/summoner
 bug-reports:         https://github.com/kowainik/summoner/issues
 license:             MPL-2.0
@@ -11,14 +12,20 @@ maintainer:          xrom.xkov@gmail.com
 copyright:           2018 Kowainik
 category:            CLI, CLI Tool, Development
 build-type:          Simple
+stability:           stable
 extra-doc-files:     README.md
+                   , CHANGELOG.md
 cabal-version:       2.0
 tested-with:         GHC == 8.2.2
+                   , GHC == 8.4.2
+
+source-repository head
+  type:     git
+  location: git@github.com:kowainik/summoner.git
 
 library
   hs-source-dirs:      src
-  exposed-modules:     Paths_summoner
-                       Prelude
+  exposed-modules:     Prelude
                        Summoner
                          Summoner.Ansi
                          Summoner.CLI
@@ -33,6 +40,9 @@ library
                          Summoner.Text
                          Summoner.Tree
                          Summoner.Validation
+
+  other-modules:       Paths_summoner
+  autogen-modules:     Paths_summoner
 
   ghc-options:         -Wall
   build-depends:       base-noprelude >= 4.9 && < 5

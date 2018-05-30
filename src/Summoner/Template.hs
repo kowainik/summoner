@@ -434,6 +434,9 @@ createStackTemplate ProjectData{..} = Dir (toString repo) $
                 resolver: lts-${lts}
 
                 $extraDeps
+
+                ghc-options:
+                  "$$locals": -fhide-source-paths
                 $endLine
                 |]
               where
