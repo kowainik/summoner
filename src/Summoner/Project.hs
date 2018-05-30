@@ -22,6 +22,7 @@ import Summoner.ProjectData (CustomPrelude (..), Decision (..), ProjectData (..)
 import Summoner.Question (checkUniqueName, choose, chooseYesNo, chooseYesNoBool, falseMessage,
                           query, queryDef, queryManyRepeatOnFail, trueMessage)
 import Summoner.Template (createStackTemplate)
+import Summoner.Text (intercalateMap, packageToModule)
 import Summoner.Tree (showTree, traverseTree)
 
 import qualified Universum.Unsafe as Unsafe
@@ -155,7 +156,7 @@ generateProject projectName Config{..} = do
             let yesDo, noDo :: IO (Maybe CustomPrelude)
                 yesDo = do
                     p <- query "Custom prelude package: "
-                    m <- query "Custom prelude module: "
+                    m <- queryDef "Custom prelude module: " (packageToModule p)
                     successMessage $ "Custom prelude " <> p <> " will be used in the project"
                     pure $ Just $ Prelude p m
                 noDo = pure Nothing

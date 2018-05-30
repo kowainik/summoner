@@ -30,6 +30,7 @@ library
                          Summoner.ProjectData
                          Summoner.Question
                          Summoner.Template
+                         Summoner.Text
                          Summoner.Tree
                          Summoner.Validation
 

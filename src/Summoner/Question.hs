@@ -23,8 +23,8 @@ import System.FilePath ((</>))
 import Summoner.Ansi (Color (..), beautyPrint, bold, boldDefault, errorMessage, italic, prompt,
                       putStrFlush, setColor, warningMessage)
 import Summoner.ProjectData (Answer (..), yesOrNo)
+import Summoner.Text (headToUpper, intercalateMap)
 
-import qualified Data.Char as C
 import qualified Data.Text as T
 import qualified Data.Text.IO as T
 import qualified Universum.Unsafe as Unsafe
@@ -67,11 +67,6 @@ chooseYesNo target yesDo noDo = do
 
 chooseYesNoBool :: Text -> IO Bool
 chooseYesNoBool target = chooseYesNo target (pure True) (pure False)
-
-headToUpper :: Text -> Text
-headToUpper t = case T.uncons t of
-    Nothing      -> ""
-    Just (x, xs) -> T.cons (C.toUpper x) xs
 
 targetMessage :: Bool -> Text -> IO Bool
 targetMessage result target = do
