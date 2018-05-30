@@ -17,6 +17,8 @@ module Summoner.Question
        , falseMessage
        ) where
 
+import Universum
+
 import System.Directory (doesPathExist, getCurrentDirectory)
 import System.FilePath ((</>))
 

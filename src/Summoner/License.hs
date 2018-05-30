@@ -5,6 +5,8 @@ module Summoner.License
        , githubLicenseQueryNames
        ) where
 
+import Universum
+
 import Data.Aeson (FromJSON (..), withObject, (.:))
 
 import qualified Data.Text as T

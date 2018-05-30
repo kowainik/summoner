@@ -8,6 +8,8 @@ module Summoner.Process
        ( deleteFile
        ) where
 
+import Universum
+
 import Control.Exception (displayException)
 import System.Directory (removeFile, setCurrentDirectory)
 import System.Process (callProcess)

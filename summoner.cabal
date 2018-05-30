@@ -1,5 +1,5 @@
 name:                summoner
-version:             1.0.0
+version:             1.0.1
 synopsis:            Tool for creating completely configured production Haskell projects.
 description:         Tool for creating completely configured production Haskell projects.
                      See README.md for details.
@@ -25,8 +25,7 @@ source-repository head
 
 library
   hs-source-dirs:      src
-  exposed-modules:     Prelude
-                       Summoner
+  exposed-modules:     Summoner
                          Summoner.Ansi
                          Summoner.CLI
                          Summoner.Config
@@ -45,7 +44,7 @@ library
   autogen-modules:     Paths_summoner
 
   ghc-options:         -Wall
-  build-depends:       base-noprelude >= 4.9 && < 5
+  build-depends:       base >= 4.9 && < 5
                      , aeson
                      , ansi-terminal
                      , bytestring
@@ -57,13 +56,14 @@ library
                      , process
                      , text
                      , time
-                     , tomland
+                     , tomland >= 0.2.1
                      , universum >= 1.2.0
 
   default-extensions:  DeriveGeneric
                        GeneralizedNewtypeDeriving
                        InstanceSigs
                        LambdaCase
+                       NoImplicitPrelude
                        OverloadedStrings
                        RecordWildCards
 
@@ -73,8 +73,9 @@ executable summon
   hs-source-dirs:      app
   main-is:             Main.hs
   ghc-options:         -Wall -threaded -rtsopts -with-rtsopts=-N
-  build-depends:       base-noprelude
+  build-depends:       base
                      , summoner
+                     , universum
   default-language:    Haskell2010
 
 test-suite summoner-test
@@ -85,7 +86,7 @@ test-suite summoner-test
   other-modules:       Test.DecisionSpec
 
   build-tool-depends:  tasty-discover:tasty-discover
-  build-depends:       base-noprelude
+  build-depends:       base
                      , hedgehog
                      , tasty
                      , tasty-hedgehog

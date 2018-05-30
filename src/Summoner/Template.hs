@@ -7,6 +7,8 @@ module Summoner.Template
        ( createStackTemplate
        ) where
 
+import Universum
+
 import NeatInterpolation (text)
 
 import Summoner.Default (defaultGHC, endLine)

@@ -8,6 +8,8 @@ module Summoner.CLI
        ( summon
        ) where
 
+import Universum
+
 import Data.Version (showVersion)
 import NeatInterpolation (text)
 import Options.Applicative (Parser, ParserInfo, command, execParser, flag, fullDesc, help, helper,

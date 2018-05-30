@@ -6,6 +6,8 @@ module Summoner.Tree
        , showTree
        ) where
 
+import Universum
+
 import System.Directory (createDirectoryIfMissing, withCurrentDirectory)
 
 -- | Describes simple structure of filesystem tree.

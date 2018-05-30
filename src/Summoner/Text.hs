@@ -4,6 +4,8 @@ module Summoner.Text
        , headToUpper
        ) where
 
+import Universum
+
 import qualified Data.Char as C
 import qualified Data.Text as T
 
