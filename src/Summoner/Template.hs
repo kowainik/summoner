@@ -12,8 +12,7 @@ import NeatInterpolation (text)
 import Summoner.Default (defaultGHC, endLine)
 import Summoner.ProjectData (CustomPrelude (..), GhcVer (..), ProjectData (..), baseNopreludeVer,
                              latestLts, showGhcVer)
-import Summoner.Text (packageToModule)
-import Summoner.Text (intercalateMap)
+import Summoner.Text (intercalateMap, packageToModule)
 import Summoner.Tree (TreeFs (..))
 
 import qualified Data.Text as T
