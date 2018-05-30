@@ -12,6 +12,8 @@ import NeatInterpolation (text)
 import Summoner.Default (defaultGHC, endLine)
 import Summoner.ProjectData (CustomPrelude (..), GhcVer (..), ProjectData (..), baseNopreludeVer,
                              latestLts, showGhcVer)
+import Summoner.Text (packageToModule)
+import Summoner.Text (intercalateMap)
 import Summoner.Tree (TreeFs (..))
 
 import qualified Data.Text as T
@@ -50,9 +52,8 @@ createStackTemplate ProjectData{..} = Dir (toString repo) $
  ++ [File "b" scriptSh | script]
   where
     -- Creates module name from the name of the project
-    -- Ex: @my-lovely-project@ — @MyLovelyProject@
     libModuleName :: Text
-    libModuleName = T.concat $ map T.toTitle $ T.splitOn "-" repo
+    libModuleName = packageToModule repo
 
     preludeMod :: Text
     preludeMod = case prelude of

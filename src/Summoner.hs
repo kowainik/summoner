@@ -9,6 +9,7 @@ module Summoner
        , module Summoner.ProjectData
        , module Summoner.Question
        , module Summoner.Template
+       , module Summoner.Text
        , module Summoner.Validation
        ) where
 
@@ -22,4 +23,5 @@ import Summoner.Project
 import Summoner.ProjectData
 import Summoner.Question
 import Summoner.Template
+import Summoner.Text
 import Summoner.Validation

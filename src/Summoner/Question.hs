@@ -23,6 +23,7 @@ import System.FilePath ((</>))
 import Summoner.Ansi (Color (..), beautyPrint, bold, boldDefault, errorMessage, italic, prompt,
                       putStrFlush, setColor, warningMessage)
 import Summoner.ProjectData (Answer (..), yesOrNo)
+import Summoner.Text (intercalateMap)
 
 import qualified Data.Char as C
 import qualified Data.Text as T
