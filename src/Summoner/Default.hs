@@ -8,6 +8,8 @@ module Summoner.Default
        , endLine
        ) where
 
+import Universum
+
 import Data.Time (getCurrentTime, toGregorian, utctDay)
 import System.Directory (getHomeDirectory)
 import System.FilePath ((</>))

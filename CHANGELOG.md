@@ -1,5 +1,11 @@
 # Summoner
 
+1.0.1
+=====
+
+* [#85](https://github.com/kowainik/summoner/issues/85):
+  Remove `base-noprelude` from dependencies.
+
 1.0.0
 =====
 

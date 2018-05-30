@@ -23,6 +23,8 @@ module Summoner.Config
        , loadFileConfig
        ) where
 
+import Universum hiding (Key)
+
 import Control.Exception (throwIO)
 import Data.List (lookup)
 import Data.Monoid (Last (..))

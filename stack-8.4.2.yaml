@@ -1,6 +1,1 @@
-resolver: nightly-2018-05-28
-
-extra-deps:
-  - base-noprelude-4.11.1.0
-  - tomland-0.2.1
-  - universum-1.2.0
+resolver: nightly-2018-05-30

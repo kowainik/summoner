@@ -16,6 +16,8 @@ module Summoner.ProjectData
        , yesOrNo
        ) where
 
+import Universum
+
 import Generics.Deriving.Monoid (GMonoid (..))
 import Generics.Deriving.Semigroup (GSemigroup (..))
 

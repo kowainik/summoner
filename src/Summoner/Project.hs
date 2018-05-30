@@ -6,6 +6,8 @@ module Summoner.Project
        ( generateProject
        ) where
 
+import Universum
+
 import Data.Aeson (decodeStrict)
 import Data.ByteString.Char8 (pack)
 import NeatInterpolation (text)

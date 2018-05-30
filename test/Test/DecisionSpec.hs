@@ -1,5 +1,7 @@
 module Test.DecisionSpec where
 
+import Universum
+
 import Hedgehog (MonadGen, forAll, property, (===))
 import Test.Tasty (TestTree)
 import Test.Tasty.Hedgehog (testProperty)
