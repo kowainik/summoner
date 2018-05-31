@@ -1,5 +1,11 @@
 # Summoner
 
+1.0.2
+=====
+
+* [#87](https://github.com/kowainik/summoner/issues/87):
+  Fix Travis matrix for not default `ghc` versions.
+
 1.0.1
 =====
 

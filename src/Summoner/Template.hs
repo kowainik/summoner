@@ -9,6 +9,7 @@ module Summoner.Template
 
 import Universum
 
+import Data.List (delete)
 import NeatInterpolation (text)
 
 import Summoner.Default (defaultGHC, endLine)
@@ -361,7 +362,7 @@ createStackTemplate ProjectData{..} = Dir (toString repo) $
     -- create travis.yml template
     travisYml :: Text
     travisYml =
-        let travisMtr = T.concat (map (travisMatrixItem . showGhcVer) testedVersions)
+        let travisMtr = T.concat (map (travisMatrixItem . showGhcVer) (delete defaultGHC testedVersions))
             defGhc    = showGhcVer defaultGHC in
         [text|
         sudo: true
