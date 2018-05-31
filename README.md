@@ -11,7 +11,7 @@ creating and setting up projects.
 
 ## Demo
 
-[![asciicast](https://asciinema.org/a/Wf8ZOMAZSUFyAJob70pwM6rZ1.png)](https://asciinema.org/a/Wf8ZOMAZSUFyAJob70pwM6rZ1)
+[![asciicast](https://asciinema.org/a/PCt492vIY7ccuNw3qBJFM9q9G.png)](https://asciinema.org/a/PCt492vIY7ccuNw3qBJFM9q9G)
 
 ## Getting started
 
