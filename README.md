@@ -26,7 +26,7 @@ To start using it make sure you have next tools installed on your machine:
 
 Installation process can be done with one simple command:
 
-    $ stack install summoner
+    $ stack install summoner --resolver nightly-2018-06-01
 
 You can turn on the bash auto-completion by running the following command:
 
