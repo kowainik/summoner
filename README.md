@@ -4,10 +4,10 @@
 [![Windows build status](https://ci.appveyor.com/api/projects/status/github/kowainik/summoner?branch=master&svg=true)](https://ci.appveyor.com/project/kowainik/summoner)
 [![MPL-2.0 license](https://img.shields.io/badge/license-MPL--2.0-blue.svg)](https://github.com/kowainik/summoner/blob/master/LICENSE)
 [![Hackage](https://img.shields.io/hackage/v/summoner.svg)](https://hackage.haskell.org/package/summoner)
+[![Stackage LTS](http://stackage.org/package/summoner/badge/lts)](http://stackage.org/lts/package/summoner)
+[![Stackage Nightly](http://stackage.org/package/summoner/badge/nightly)](http://stackage.org/nightly/package/summoner)
 
 This is tool for creating completely configured production Haskell projects.
-Consider that it's using [`Stack`](http://haskellstack.org) for
-creating and setting up projects.
 
 ## Demo
 
@@ -18,13 +18,17 @@ creating and setting up projects.
 ### Prerequisites
 
 To start using it make sure you have next tools installed on your machine:
-* [`Stack`](http://haskellstack.org)
+* [`Stack`](http://haskellstack.org) or [`cabal`](https://www.haskell.org/cabal/)
 * [`git`](https://git-scm.com)
 * [`hub`](https://github.com/github/hub)
 
 ### Installation
 
 Installation process can be done with one simple command:
+
+    $ cabal install summoner
+
+or
 
     $ stack install summoner --resolver nightly-2018-06-01
 
@@ -227,5 +231,5 @@ tidies up and highlights error messages in GHC output.
 ## Acknowledgments
 
 This project was inspired by [Aelve/new-hs](https://github.com/aelve/new-hs#readme),
-which is the tool with the same goal but the difference is that it's using
+which is the tool with the same goal but it's using
 [`cabal`](https://www.haskell.org/cabal/) for creating projects.
