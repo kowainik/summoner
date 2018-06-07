@@ -90,7 +90,7 @@ Here is the list of the options that could be configured for your needs:
           `false` if you don't. If not specified it would be asked during each run of the `summoner`.
 * `test` – `true` if you want to create `test` folder with dummy `Spec.hs` file and test target by default,
           `false` if you don't. If not specified it would be asked during each run of the `summoner`.
-* `bench` – `true` if you want to create `benchmark` folder  with `Main.hs` file with dummy `gauge` library usage example by default,
+* `bench` – `true` if you want to create `benchmark` folder  with `Main.hs` file with [`gauge`](https://hackage.haskell.org/package/gauge) library usage example by default,
           `false` if you don't. If not specified it would be asked during each run of the `summoner`.
 * `extensions` – List of the default extensions to add into `default-extensions` section in the `.cabal`.
 
