@@ -1,5 +1,10 @@
 # Summoner
 
+1.0.3
+=====
+* [#40](https://github.com/kowainik/summoner/issues/40):
+  Add hpack support
+
 1.0.2
 =====
 

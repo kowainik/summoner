@@ -30,22 +30,11 @@ emptyIfNot p txt = if p then txt else ""
 -- | Creating template file to use in `stack new` command
 createStackTemplate :: ProjectData ->  TreeFs
 createStackTemplate ProjectData{..} = Dir (toString repo) $
-    [ File (toString repo <> ".cabal")
-           ( createCabalTop
-          <> emptyIfNot isLib createCabalLib
-          <> emptyIfNot isExe
-                        ( createCabalExe
-                        $ emptyIfNot isLib $ ", " <> repo )
-          <> emptyIfNot test createCabalTest
-          <> emptyIfNot bench
-                        ( createCabalBenchmark
-                        $ emptyIfNot isLib $ ", " <> repo )
-          <> emptyIfNot github createCabalGit
-           )
-    , File "README.md" readme
+    [ File "README.md" readme
     , File "CHANGELOG.md" changelog
     , File "LICENSE" licenseText
     ]
+ ++ [if hpack then hpackFile else cabalFile]
  ++ createCabalFiles
  ++ createStackYamls testedVersions
  ++ [File ".gitignore" gitignore | github]
@@ -66,6 +55,30 @@ createStackTemplate ProjectData{..} = Dir (toString repo) $
     customPreludePack = case prelude of
         Nothing          -> ""
         Just Prelude{..} -> ", " <> cpPackage
+
+    hpackFile :: TreeFs
+    hpackFile = File "package.yaml"
+           ( createHpackTop
+          <> emptyIfNot github createHpackGithub
+          <> emptyIfNot isLib  createHpackLib
+          <> emptyIfNot isExe  createHpackExe
+          <> emptyIfNot test   createHpackTest
+          <> emptyIfNot bench  createHpackBench
+           )
+
+    cabalFile :: TreeFs
+    cabalFile = File (toString repo <> ".cabal")
+           ( createCabalTop
+          <> emptyIfNot isLib createCabalLib
+          <> emptyIfNot isExe
+                        ( createCabalExe
+                        $ emptyIfNot isLib $ ", " <> repo )
+          <> emptyIfNot test createCabalTest
+          <> emptyIfNot bench
+                        ( createCabalBenchmark
+                        $ emptyIfNot isLib $ ", " <> repo )
+          <> emptyIfNot github createCabalGit
+           )
 
     -- all basic project information for `*.cabal` file
     createCabalTop :: Text
@@ -91,6 +104,47 @@ createStackTemplate ProjectData{..} = Dir (toString repo) $
         $endLine
         |]
 
+    createHpackTop :: Text
+    createHpackTop =
+        [text|
+        name:            $repo
+        version:         0.0.0
+        description:     $description
+        synopsis:        $description
+        license:         $license
+        license-file:    LICENSE
+        author:          $nm
+        maintainer:      $email
+        homepage:        https://github.com/${owner}/${repo}
+        bug-reports:     https://github.com/${owner}/${repo}/issues
+        copyright:       $year $nm
+        category:        $category
+        tested-with:     $testedGhcs
+        extra-doc-files:
+        - README.md
+        - CHANGELOG.md
+
+        ghc-options: -Wall
+        $defaultExtensionsHpack
+
+        dependencies:
+        - $base
+        $cpHpackDep
+        $endLine
+        |]
+
+    createHpackGithub :: Text
+    createHpackGithub =
+        [text|
+        github: ${owner}/${repo}
+        $endLine
+        |]
+
+    cpHpackDep :: Text
+    cpHpackDep = case prelude of
+      Nothing -> ""
+      Just cp -> "- " <> cpPackage cp
+
     testedGhcs :: Text
     testedGhcs = intercalateMap ", " (mappend "GHC == " . showGhcVer) testedVersions
 
@@ -98,6 +152,11 @@ createStackTemplate ProjectData{..} = Dir (toString repo) $
     defaultExtensions = case extensions of
         [] -> ""
         xs -> "default-extensions:  " <> T.intercalate "\n                     " xs
+
+    defaultExtensionsHpack :: Text
+    defaultExtensionsHpack = case extensions of
+        [] -> ""
+        xs -> "default-extensions:" <> T.concat (fmap ("\n- " <>) xs)
 
     createCabalLib :: Text
     createCabalLib =
@@ -114,6 +173,14 @@ createStackTemplate ProjectData{..} = Dir (toString repo) $
         $endLine
         |]
 
+    createHpackLib :: Text
+    createHpackLib =
+        [text|
+        library:
+          source-dirs: src
+        $endLine
+        |]
+
     createCabalExe :: Text -> Text
     createCabalExe r =
         [text|
@@ -126,6 +193,20 @@ createStackTemplate ProjectData{..} = Dir (toString repo) $
                              $customPreludePack
           default-language:    Haskell2010
           $defaultExtensions
+        $endLine
+        |]
+
+    createHpackExe :: Text
+    createHpackExe =
+        [text|
+        executables:
+          ${repo}:
+            source-dirs: app
+            main:     Main.hs
+            ghc-options: -threaded -rtsopts -with-rtsopts=-N
+            dependencies:
+            - $repo
+            $cpHpackDep
         $endLine
         |]
 
@@ -145,6 +226,20 @@ createStackTemplate ProjectData{..} = Dir (toString repo) $
         $endLine
         |]
 
+    createHpackTest :: Text
+    createHpackTest =
+        [text|
+        tests:
+          ${repo}-test:
+            source-dirs: test
+            main: Spec.hs
+            ghc-options: -Wall -Werror -threaded -rtsopts -with-rtsopts=-N
+            dependencies:
+            - $repo
+            $cpHpackDep
+        $endLine
+        |]
+
     createCabalBenchmark :: Text -> Text
     createCabalBenchmark r =
         [text|
@@ -159,6 +254,20 @@ createStackTemplate ProjectData{..} = Dir (toString repo) $
                              $customPreludePack
                              $r
           $defaultExtensions
+        $endLine
+        |]
+
+    createHpackBench :: Text
+    createHpackBench =
+        [text|
+        benchmarks:
+          ${repo}-benchmark:
+            source-dirs: benchmark
+            main: Main.hs
+            dependencies:
+            - ${repo}
+            - gauge
+            $cpHpackDep
         $endLine
         |]
 
@@ -280,6 +389,14 @@ createStackTemplate ProjectData{..} = Dir (toString repo) $
         licenseLink :: Text =
           "https://github.com/" <> owner <> "/" <> repo <> "/blob/master/LICENSE"
 
+    hpackGitignore :: Text
+    hpackGitignore
+      | hpack = [text|
+                  # Hpack
+                  *.cabal
+                |]
+      | otherwise = ""
+
     -- create .gitignore template
     gitignore :: Text
     gitignore =
@@ -309,6 +426,7 @@ createStackTemplate ProjectData{..} = Dir (toString repo) $
         .HTF/
         # Stack
         .stack-work/
+        $hpackGitignore
 
         ### IDE/support
         # Vim

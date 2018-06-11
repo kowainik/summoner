@@ -37,6 +37,7 @@ data ProjectData = ProjectData
     , github         :: Bool   -- ^ github repository
     , travis         :: Bool   -- ^ Travis CI integration
     , appVey         :: Bool   -- ^ AppVeyor CI integration
+    , hpack          :: Bool   -- ^ Use hpack for project configuration
     , script         :: Bool   -- ^ build script
     , isLib          :: Bool   -- ^ is library
     , isExe          :: Bool   -- ^ is executable

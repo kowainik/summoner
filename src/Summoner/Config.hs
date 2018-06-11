@@ -52,6 +52,7 @@ data ConfigP (p :: Phase) = Config
     , cEmail      :: p :- Text
     , cLicense    :: p :- License
     , cGhcVer     :: p :- [GhcVer]
+    , cHpack      :: Decision
     , cGitHub     :: Decision
     , cTravis     :: Decision
     , cAppVey     :: Decision
@@ -94,6 +95,7 @@ defaultConfig = Config
     , cEmail    = Last (Just "xrom.xkov@gmail.com")
     , cLicense  = Last (Just $ License "MIT")
     , cGhcVer   = Last (Just [])
+    , cHpack    = Idk
     , cGitHub   = Idk
     , cTravis   = Idk
     , cAppVey   = Idk
@@ -115,6 +117,7 @@ configT = Config
     <*> lastP Toml.str  "email"       .= cEmail
     <*> lastP license   "license"     .= cLicense
     <*> lastP ghcVerArr "ghcVersions" .= cGhcVer
+    <*> decision        "hpack"       .= cHpack
     <*> decision        "github"      .= cGitHub
     <*> decision        "travis"      .= cTravis
     <*> decision        "appveyor"    .= cAppVey
@@ -170,6 +173,7 @@ finalise Config{..} = Config
     <*> fin  "email"      cEmail
     <*> fin  "license"    cLicense
     <*> fin  "ghcersions" cGhcVer
+    <*> pure cHpack
     <*> pure cGitHub
     <*> pure cTravis
     <*> pure cAppVey

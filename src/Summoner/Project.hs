@@ -69,6 +69,7 @@ generateProject projectName Config{..} = do
     travis <- ifGithub github "Travis CI integration" cTravis
     appVey <- ifGithub github "AppVeyor CI integration" cAppVey
     privat <- ifGithub github "private repository" cPrivate
+    hpack  <- decisionToBool cHpack "hpack yaml file"
     script <- decisionToBool cScript "build script"
     isLib  <- decisionToBool cLib "library target"
     isExe  <- let target = "executable target" in
