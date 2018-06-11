@@ -82,6 +82,8 @@ Here is the list of the options that could be configured for your needs:
 * `private` – `true` if you want to create private repositories by default,
               `false` if you don't. Ignored if `github = false`.
               If not specified it would be asked during each run of the `summoner`.
+* `hpack` - `true` if you want to use hpack, `false` if you don't. If not specified it would be asked
+            during each run of the `summoner`.
 * `bscript` – `true` if you want to include [build script](#build-script) by default,
               `false` if you don't. If not specified it would be asked during each run of the `summoner`.
 * `lib` – `true` if you want to create `src` folder with dummy `Lib.hs` file and library target by default,
@@ -140,6 +142,7 @@ Available command options:
   -p, --private            Create private GitHub repository
   -c, --travis             Travis CI integration
   -w, --app-veyor          AppVeyor CI integration
+  -h, --hpack              Use hpack for project configuration
   -s, --script             Build script
   -l, --library            Library target
   -e, --exec               Executable target

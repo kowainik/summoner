@@ -85,6 +85,7 @@ targetsP d = do
     cTravis  <- travisP    d
     cAppVey  <- appVeyorP  d
     cPrivate <- privateP   d
+    cHpack   <- hpackP     d
     cScript  <- scriptP    d
     cLib     <- libraryP   d
     cExe     <- execP      d
@@ -95,12 +96,19 @@ targetsP d = do
         , cTravis = cTravis
         , cAppVey = cAppVey
         , cPrivate= cPrivate
+        , cHpack  = cHpack
         , cScript = cScript
         , cLib    = cLib
         , cExe    = cExe
         , cTest   = cTest
         , cBench  = cBench
         }
+
+hpackP :: Decision -> Parser Decision
+hpackP d = flag Idk d
+         $ long "hpack"
+        <> short 'h'
+        <> help "Use hpack for project configuration"
 
 githubP :: Decision -> Parser Decision
 githubP d = flag Idk d
