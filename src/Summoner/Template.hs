@@ -438,8 +438,7 @@ createStackTemplate ProjectData{..} = Dir (toString repo) $
 
                 $extraDeps
 
-                ghc-options:
-                  "$$locals": -fhide-source-paths
+                $ghcOpts
                 $endLine
                 |]
               where
@@ -447,6 +446,14 @@ createStackTemplate ProjectData{..} = Dir (toString repo) $
                 extraDeps = case prelude of
                     Nothing -> ""
                     Just _  -> "extra-deps: [base-noprelude-" <> baseVer <> "]"
+                ghcOpts :: Text
+                ghcOpts = if ghcV <= Ghc802 then
+                            ""
+                          else
+                            [text|
+                            ghc-options:
+                              "$$locals": -fhide-sourcepaths
+                            |]
 
 
     -- create appveyor.yml template

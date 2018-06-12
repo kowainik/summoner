@@ -1,5 +1,11 @@
 # Summoner
 
+1.0.3
+=====
+* [#92](https://github.com/kowainik/summoner/issues/92):
+  Remove -fhide-source-paths from generated stack yaml files for
+  GHC < 8.2
+
 1.0.2
 =====
 
