@@ -11,8 +11,9 @@ If you found any bugs or have any proposals how to make this project better
 don't hesitate to create issues [here][issues] in a free format.
 
 #### Create a PR
-We love pull requests from everyone :heart:.
-To get started with this you should first fork, then clone the repo:
+We love pull requests from everyone :heart:. But, please, tell about your intention to work on something under corresponding issue.
+
+To get started with Pull Request implementation you should first fork, then clone the repo:
 
     git clone git@github.com:your-username/summoner.git
 
