@@ -11,8 +11,9 @@ If you found any bugs or have any proposals how to make this project better
 don't hesitate to create issues [here][issues] in a free format.
 
 #### Create a PR
-We love pull requests from everyone :heart:.
-To get started with this you should first fork, then clone the repo:
+We love pull requests from everyone :heart:. But, please, tell about your intention to work on something under corresponding issue. And if there's no such issue — just create one!
+
+To get started with Pull Request implementation you should first fork, then clone the repo:
 
     git clone git@github.com:your-username/summoner.git
 
@@ -26,8 +27,8 @@ Make your changes and consider the following check list to go through before sub
 - [ ] `hlint .` output is: _No Hints_
 - [ ] Code is stylish :lipstick:
     **_Note:_** Use [stylish-haskell.yaml][stylish] file in the repository.
-- [ ] Commit messages are in the proper format. If the commit addresses an issue start
-      the first line of the commit with the issue number in square parentheses.
+- [ ] Commit messages are in the proper format.
+      Start the first line of the commit with the issue number in square parentheses.
     **_Example:_** `[#42] Short commit description`
 
 After all above is done commit and push to your fork.
@@ -39,4 +40,4 @@ Thanks for spending time on reading this contributing guide! :sparkling_heart:
 
 [pr]: https://github.com/kowainik/summoner/compare/
 [issues]: https://github.com/kowainik/summoner/issues/new
-[stylish]:
+[stylish]: https://github.com/kowainik/summoner/blob/master/.stylish-haskell.yaml
