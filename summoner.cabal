@@ -1,5 +1,5 @@
 name:                summoner
-version:             1.0.2
+version:             1.0.3
 synopsis:            Tool for creating completely configured production Haskell projects.
 description:         Tool for creating completely configured production Haskell projects.
                      See README.md for details.
