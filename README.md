@@ -30,7 +30,7 @@ Installation process can be done with one simple command:
 
 or
 
-    $ stack install summoner --resolver nightly-2018-06-01
+    $ stack install summoner --resolver nightly-2018-06-14
 
 You can turn on the bash auto-completion by running the following command:
 
@@ -103,7 +103,7 @@ Should be specified inside `[prelude]` table.
 
 ###### Examples
 
-See example of [configuration for projects of `Kowainik` organization](https://github.com/kowainik/org/blob/master/summoner.toml).
+See example of [configuration for projects of `Kowainik` organization](https://github.com/kowainik/org/blob/master/.summoner.toml).
 
 By default the `summoner` will look for the configuration file (`.summoner.toml`) in home directory.
 
