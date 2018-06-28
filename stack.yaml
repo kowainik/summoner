@@ -1,7 +1,7 @@
 resolver: lts-11.10
 
 extra-deps:
-  - tomland-0.2.1
+  - tomland-0.3
   - universum-1.2.0
 
 ghc-options:
