@@ -1,0 +1,4 @@
+resolver: nightly-2018-06-27
+
+extra-deps:
+  - tomland-0.3

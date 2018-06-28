@@ -30,10 +30,7 @@ import Data.List (lookup)
 import Data.Monoid (Last (..))
 import Generics.Deriving.Monoid (GMonoid, gmemptydefault)
 import Generics.Deriving.Semigroup (GSemigroup, gsappenddefault)
-import Toml (ValueType (TString), matchText)
-import Toml.Bi (BiToml, dimap, (.=))
-import Toml.Bi.Combinators (Valuer (..))
-import Toml.PrefixTree (Key)
+import Toml (AnyValue (..), BiToml, Key, Prism (..), dimap, (.=))
 
 import Summoner.License (License (..))
 import Summoner.ProjectData (CustomPrelude (..), Decision (..), GhcVer (..), parseGhcVer,
@@ -110,11 +107,11 @@ defaultConfig = Config
 -- | Identifies how to read 'Config' data from the @.toml@ file.
 configT :: BiToml PartialConfig
 configT = Config
-    <$> lastP Toml.str  "owner"       .= cOwner
-    <*> lastP Toml.str  "fullName"    .= cFullName
-    <*> lastP Toml.str  "email"       .= cEmail
-    <*> lastP license   "license"     .= cLicense
-    <*> lastP ghcVerArr "ghcVersions" .= cGhcVer
+    <$> lastT Toml.text "owner"       .= cOwner
+    <*> lastT Toml.text "fullName"    .= cFullName
+    <*> lastT Toml.text "email"       .= cEmail
+    <*> lastT license   "license"     .= cLicense
+    <*> lastT ghcVerArr "ghcVersions" .= cGhcVer
     <*> decision        "github"      .= cGitHub
     <*> decision        "travis"      .= cTravis
     <*> decision        "appveyor"    .= cAppVey
@@ -124,26 +121,29 @@ configT = Config
     <*> decision        "exe"         .= cExe
     <*> decision        "test"        .= cTest
     <*> decision        "bench"       .= cBench
-    <*> lastP (Toml.table preludeT)  "prelude" .= cPrelude
-    <*> extensions      "extensions"      .= cExtensions
+    <*> lastT (Toml.table preludeT) "prelude" .= cPrelude
+    <*> extensions      "extensions"  .= cExtensions
   where
-    lastP :: (Key -> BiToml a) -> Key -> BiToml (Last a)
-    lastP f = dimap getLast Last . Toml.maybeP f
+    lastT :: (Key -> BiToml a) -> Key -> BiToml (Last a)
+    lastT f = dimap getLast Last . Toml.maybeT f
 
-    ghcVerV :: Valuer 'TString GhcVer
-    ghcVerV = Valuer (matchText >=> parseGhcVer) (Toml.String . showGhcVer)
+    _GhcVer :: Prism AnyValue GhcVer
+    _GhcVer = Prism
+        { preview = \(AnyValue t) -> Toml.matchText t >>= parseGhcVer
+        , review = AnyValue . Toml.Text . showGhcVer
+        }
 
     ghcVerArr :: Key -> BiToml [GhcVer]
-    ghcVerArr = Toml.arrayOf ghcVerV
+    ghcVerArr = Toml.arrayOf _GhcVer
 
     license :: Key -> BiToml License
-    license =  dimap unLicense License . Toml.str
+    license =  dimap unLicense License . Toml.text
 
     extensions :: Key -> BiToml [Text]
-    extensions = dimap Just maybeToMonoid . Toml.maybeP (Toml.arrayOf Toml.strV)
+    extensions = dimap Just maybeToMonoid . Toml.maybeT (Toml.arrayOf Toml._Text)
 
     decision :: Key -> BiToml Decision
-    decision = dimap fromDecision toDecision . Toml.maybeP Toml.bool
+    decision = dimap fromDecision toDecision . Toml.maybeT Toml.bool
 
     decisionMaybe :: [(Decision, Maybe Bool)]
     decisionMaybe = [ (Idk, Nothing)
@@ -159,8 +159,8 @@ configT = Config
 
     preludeT :: BiToml CustomPrelude
     preludeT = Prelude
-        <$> Toml.str "package" .= cpPackage
-        <*> Toml.str "module"  .= cpModule
+        <$> Toml.text "package" .= cpPackage
+        <*> Toml.text "module"  .= cpModule
 
 -- | Make sure that all the required configurations options were specified.
 finalise :: PartialConfig -> Validation [Text] Config

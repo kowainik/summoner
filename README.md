@@ -18,6 +18,7 @@ This is tool for creating completely configured production Haskell projects.
 ### Prerequisites
 
 To start using it make sure you have next tools installed on your machine:
+
 * [`Stack`](http://haskellstack.org) or [`cabal`](https://www.haskell.org/cabal/)
 * [`git`](https://git-scm.com)
 * [`hub`](https://github.com/github/hub)

@@ -1,5 +1,9 @@
 # Summoner
 
+1.0.4
+=====
+* Bump up `tomland` to version `0.3`.
+
 1.0.3
 =====
 * [#92](https://github.com/kowainik/summoner/issues/92):

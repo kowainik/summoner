@@ -1,5 +1,5 @@
 name:                summoner
-version:             1.0.3
+version:             1.0.4
 synopsis:            Tool for creating completely configured production Haskell projects.
 description:         Tool for creating completely configured production Haskell projects.
                      See README.md for details.
@@ -17,7 +17,7 @@ extra-doc-files:     README.md
                    , CHANGELOG.md
 cabal-version:       2.0
 tested-with:         GHC == 8.2.2
-                   , GHC == 8.4.2
+                   , GHC == 8.4.3
 
 source-repository head
   type:     git
@@ -56,7 +56,7 @@ library
                      , process
                      , text
                      , time
-                     , tomland >= 0.2.1
+                     , tomland ^>= 0.3
                      , universum >= 1.2.0
 
   default-extensions:  DeriveGeneric
