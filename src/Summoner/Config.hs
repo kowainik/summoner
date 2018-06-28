@@ -107,11 +107,11 @@ defaultConfig = Config
 -- | Identifies how to read 'Config' data from the @.toml@ file.
 configT :: BiToml PartialConfig
 configT = Config
-    <$> lastP Toml.text "owner"       .= cOwner
-    <*> lastP Toml.text "fullName"    .= cFullName
-    <*> lastP Toml.text "email"       .= cEmail
-    <*> lastP license   "license"     .= cLicense
-    <*> lastP ghcVerArr "ghcVersions" .= cGhcVer
+    <$> lastT Toml.text "owner"       .= cOwner
+    <*> lastT Toml.text "fullName"    .= cFullName
+    <*> lastT Toml.text "email"       .= cEmail
+    <*> lastT license   "license"     .= cLicense
+    <*> lastT ghcVerArr "ghcVersions" .= cGhcVer
     <*> decision        "github"      .= cGitHub
     <*> decision        "travis"      .= cTravis
     <*> decision        "appveyor"    .= cAppVey
@@ -121,20 +121,20 @@ configT = Config
     <*> decision        "exe"         .= cExe
     <*> decision        "test"        .= cTest
     <*> decision        "bench"       .= cBench
-    <*> lastP (Toml.table preludeT) "prelude" .= cPrelude
+    <*> lastT (Toml.table preludeT) "prelude" .= cPrelude
     <*> extensions      "extensions"  .= cExtensions
   where
-    lastP :: (Key -> BiToml a) -> Key -> BiToml (Last a)
-    lastP f = dimap getLast Last . Toml.maybeT f
+    lastT :: (Key -> BiToml a) -> Key -> BiToml (Last a)
+    lastT f = dimap getLast Last . Toml.maybeT f
 
-    ghcVerV :: Prism AnyValue GhcVer
-    ghcVerV = Prism
+    _GhcVer :: Prism AnyValue GhcVer
+    _GhcVer = Prism
         { preview = \(AnyValue t) -> Toml.matchText t >>= parseGhcVer
         , review = AnyValue . Toml.Text . showGhcVer
         }
 
     ghcVerArr :: Key -> BiToml [GhcVer]
-    ghcVerArr = Toml.arrayOf ghcVerV
+    ghcVerArr = Toml.arrayOf _GhcVer
 
     license :: Key -> BiToml License
     license =  dimap unLicense License . Toml.text
