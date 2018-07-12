@@ -452,7 +452,7 @@ createStackTemplate ProjectData{..} = Dir (toString repo) $
                           else
                             [text|
                             ghc-options:
-                              "$$locals": -fhide-sourcepaths
+                              "$$locals": -fhide-source-paths
                             |]
 
 
