@@ -14,14 +14,14 @@ import Data.Time (getCurrentTime, toGregorian, utctDay)
 import System.Directory (getHomeDirectory)
 import System.FilePath ((</>))
 
-import Summoner.ProjectData (GhcVer (Ghc822))
+import Summoner.ProjectData (GhcVer (Ghc843))
 
 ----------------------------------------------------------------------------
 -- Default Settings
 ----------------------------------------------------------------------------
 
 defaultGHC :: GhcVer
-defaultGHC = Ghc822
+defaultGHC = Ghc843
 
 defaultTomlFile :: String
 defaultTomlFile = ".summoner.toml"

@@ -173,10 +173,10 @@ createStackTemplate ProjectData{..} = Dir (toString repo) $
 
     createCabalFiles :: [TreeFs]
     createCabalFiles =
-        [ Dir "app"       [exeFile]                | isExe ]
-     ++ [ Dir "test"      [testFile]               | test  ]
-     ++ [ Dir "benchmark" [benchmarkFile]          | bench ]
-     ++ [ Dir "src"     $ [libFile] ++ preludeFile | isLib ]
+        [ Dir "app"       [exeFile]               | isExe ]
+     ++ [ Dir "test"      [testFile]              | test  ]
+     ++ [ Dir "benchmark" [benchmarkFile]         | bench ]
+     ++ [ Dir "src"       $ libFile : preludeFile | isLib ]
 
     testFile :: TreeFs
     testFile = File "Spec.hs"
@@ -427,7 +427,7 @@ createStackTemplate ProjectData{..} = Dir (toString repo) $
       where
         createStackYaml :: GhcVer -> TreeFs
         createStackYaml ghcV = let ver = case ghcV of
-                                      Ghc822 -> ""
+                                      Ghc843 -> ""
                                       _      -> "-" <> showGhcVer ghcV
             in stackYaml ver (latestLts ghcV) (baseNopreludeVer ghcV)
           where
@@ -452,7 +452,7 @@ createStackTemplate ProjectData{..} = Dir (toString repo) $
                           else
                             [text|
                             ghc-options:
-                              "$$locals": -fhide-sourcepaths
+                              "$$locals": -fhide-source-paths
                             |]
 
 

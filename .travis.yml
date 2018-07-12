@@ -13,10 +13,10 @@ matrix:
   include:
 
   - ghc: 8.2.2
-    env: GHCVER='8.2.2' STACK_YAML="$HOME/build/kowainik/summoner/stack.yaml"
+    env: GHCVER='8.2.2' STACK_YAML="$HOME/build/kowainik/summoner/stack-$GHCVER.yaml"
 
   - ghc: 8.4.3
-    env: GHCVER='8.4.3' STACK_YAML="$HOME/build/kowainik/summoner/stack-$GHCVER.yaml"
+    env: GHCVER='8.4.3' STACK_YAML="$HOME/build/kowainik/summoner/stack.yaml"
 
 addons:
   apt:

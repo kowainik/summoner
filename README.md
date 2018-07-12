@@ -1,7 +1,6 @@
 # 🔮 Summoner
 
 [![Build status](https://secure.travis-ci.org/kowainik/summoner.svg)](http://travis-ci.org/kowainik/summoner)
-[![Windows build status](https://ci.appveyor.com/api/projects/status/github/kowainik/summoner?branch=master&svg=true)](https://ci.appveyor.com/project/kowainik/summoner)
 [![MPL-2.0 license](https://img.shields.io/badge/license-MPL--2.0-blue.svg)](https://github.com/kowainik/summoner/blob/master/LICENSE)
 [![Hackage](https://img.shields.io/hackage/v/summoner.svg)](https://hackage.haskell.org/package/summoner)
 [![Stackage LTS](http://stackage.org/package/summoner/badge/lts)](http://stackage.org/lts/package/summoner)
@@ -31,7 +30,7 @@ Installation process can be done with one simple command:
 
 or
 
-    $ stack install summoner --resolver nightly-2018-06-14
+    $ stack install summoner
 
 You can turn on the bash auto-completion by running the following command:
 
