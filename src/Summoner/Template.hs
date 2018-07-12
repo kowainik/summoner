@@ -427,7 +427,7 @@ createStackTemplate ProjectData{..} = Dir (toString repo) $
       where
         createStackYaml :: GhcVer -> TreeFs
         createStackYaml ghcV = let ver = case ghcV of
-                                      Ghc822 -> ""
+                                      Ghc843 -> ""
                                       _      -> "-" <> showGhcVer ghcV
             in stackYaml ver (latestLts ghcV) (baseNopreludeVer ghcV)
           where

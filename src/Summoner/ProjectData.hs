@@ -74,6 +74,7 @@ data GhcVer = Ghc7103
             | Ghc801
             | Ghc802
             | Ghc822
+            | Ghc843
             deriving (Eq, Ord, Show, Enum, Bounded)
 
 -- | Supported by @summoner@ GHC versions for project templates.
@@ -86,6 +87,7 @@ showGhcVer Ghc7103 = "7.10.3"
 showGhcVer Ghc801  = "8.0.1"
 showGhcVer Ghc802  = "8.0.2"
 showGhcVer Ghc822  = "8.2.2"
+showGhcVer Ghc843  = "8.4.3"
 
 -- | Converts numeric dot-separated GHC version into 'GhcVer'.
 parseGhcVer :: Text -> Maybe GhcVer
@@ -93,6 +95,7 @@ parseGhcVer "7.10.3" = Just Ghc7103
 parseGhcVer "8.0.1"  = Just Ghc801
 parseGhcVer "8.0.2"  = Just Ghc802
 parseGhcVer "8.2.2"  = Just Ghc822
+parseGhcVer "8.4.3"  = Just Ghc843
 parseGhcVer _        = Nothing
 
 -- | Returns latest known LTS resolver for all GHC versions except default one.
@@ -101,12 +104,14 @@ latestLts Ghc7103 = "6.35"
 latestLts Ghc801  = "7.24"
 latestLts Ghc802  = "9.21"
 latestLts Ghc822  = "11.10"
+latestLts Ghc843  = "12.0"
 
 baseNopreludeVer :: GhcVer -> Text
 baseNopreludeVer Ghc7103 = "4.8.0.2"
 baseNopreludeVer Ghc801  = "4.9.0.0"
 baseNopreludeVer Ghc802  = "4.9.1.0"
 baseNopreludeVer Ghc822  = "4.10.1.0"
+baseNopreludeVer Ghc843  = "4.11.1.0"
 
 data CustomPrelude = Prelude
     { cpPackage :: Text
