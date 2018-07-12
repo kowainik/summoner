@@ -72,9 +72,9 @@ chooseYesNoBool target = chooseYesNo target (pure True) (pure False)
 
 targetMessage :: Bool -> Text -> IO Bool
 targetMessage result target = do
-    let (color, actionResult) = case result of
-          False -> (Cyan,  " won't be added to the project")
-          True  -> (Green, " will be added to the project")
+    let (color, actionResult) = if result
+          then (Green, " will be added to the project")
+          else (Cyan,  " won't be added to the project")
 
     beautyPrint [italic, bold, setColor color] $ "  " <> headToUpper target
     beautyPrint [setColor color] actionResult

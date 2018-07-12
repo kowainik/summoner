@@ -173,10 +173,10 @@ createStackTemplate ProjectData{..} = Dir (toString repo) $
 
     createCabalFiles :: [TreeFs]
     createCabalFiles =
-        [ Dir "app"       [exeFile]                | isExe ]
-     ++ [ Dir "test"      [testFile]               | test  ]
-     ++ [ Dir "benchmark" [benchmarkFile]          | bench ]
-     ++ [ Dir "src"     $ [libFile] ++ preludeFile | isLib ]
+        [ Dir "app"       [exeFile]               | isExe ]
+     ++ [ Dir "test"      [testFile]              | test  ]
+     ++ [ Dir "benchmark" [benchmarkFile]         | bench ]
+     ++ [ Dir "src"       $ libFile : preludeFile | isLib ]
 
     testFile :: TreeFs
     testFile = File "Spec.hs"

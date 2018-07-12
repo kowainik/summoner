@@ -85,7 +85,7 @@ generateProject projectName Config{..} = do
     let extensions = cExtensions
 
     putTextLn $ "The project will be created with the latest resolver for default GHC-" <> showGhcVer defaultGHC
-    testedVersions <- (sortNub . (defaultGHC :)) <$> case cGhcVer of
+    testedVersions <- sortNub . (defaultGHC :) <$> case cGhcVer of
         [] -> do
             putTextLn "Additionally you can specify versions of GHC to test with (space-separated): "
             infoMessage $ "Supported by 'summoner' GHCs: " <> intercalateMap " " showGhcVer supportedGhcVers
@@ -163,5 +163,5 @@ generateProject projectName Config{..} = do
                     pure $ Just $ Prelude p m
                 noDo = pure Nothing
             chooseYesNo "custom prelude" yesDo noDo
-        Last prelude@(Just (Prelude p _)) -> do
+        Last prelude@(Just (Prelude p _)) ->
             prelude <$ successMessage ("Custom prelude " <> p <> " will be used in the project")
