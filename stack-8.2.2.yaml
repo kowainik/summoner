@@ -1,4 +1,4 @@
-resolver: lts-11.10
+resolver: lts-11.17
 
 extra-deps:
   - tomland-0.3
