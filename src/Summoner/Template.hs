@@ -1,5 +1,6 @@
 {-# LANGUAGE QuasiQuotes         #-}
 {-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE ViewPatterns        #-}
 
 -- | This module contains functions for stack template creation.
 
@@ -369,8 +370,9 @@ createStackTemplate ProjectData{..} = Dir (toString repo) $
     -- create travis.yml template
     travisYml :: Text
     travisYml =
-        let travisMtr = T.concat (map (travisMatrixItem . showGhcVer) (delete defaultGHC testedVersions))
-            defGhc    = showGhcVer defaultGHC in
+        let travisStackMtr = T.concat $ map travisStackMatrixItem (delete defaultGHC testedVersions)
+            travisCabalMtr = T.concat $ map travisCabalMatrixItem testedVersions
+            defGhc = showGhcVer defaultGHC in
         [text|
         sudo: true
         language: haskell
@@ -381,51 +383,81 @@ createStackTemplate ProjectData{..} = Dir (toString repo) $
         cache:
           directories:
           - "$$HOME/.stack"
-          - "$$HOME/build/${owner}/${repo}/.stack-work"
+          - "$$TRAVIS_BUILD_DIR/.stack-work"
 
         matrix:
           include:
 
-          $travisMtr
+          $travisCabalMtr
+          $travisStackMtr
 
           - ghc: $defGhc
-            env: GHCVER='${defGhc}' STACK_YAML="$$HOME/build/${owner}/${repo}/stack.yaml"
-
-        addons:
-          apt:
-            sources:
-              - sourceline: 'ppa:hvr/ghc'
-            packages:
-              - libgmp-dev
-
-        before_install:
-          - mkdir -p ~/.local/bin
-          - export PATH="$$HOME/.local/bin:$$PATH"
-          - travis_retry curl -L 'https://www.stackage.org/stack/linux-x86_64' | tar xz --wildcards --strip-components=1 -C ~/.local/bin '*/stack'
-          - stack --version
-
+            env: GHCVER='${defGhc}' STACK_YAML="$$TRAVIS_BUILD_DIR/stack.yaml"
+            os: linux
+            addons:
+              apt:
+                packages:
+                - libgmp-dev
 
         install:
-          - travis_wait 30 stack setup --no-terminal
-          - stack ghc -- --version
-
-          - travis_wait 40 stack build --only-dependencies --no-terminal
-          - travis_wait 40 stack build --test --bench --haddock --no-run-tests --no-run-benchmarks --no-haddock-deps --no-terminal
-
+          - |
+            if [ -z "$$STACK_YAML" ]; then
+              export PATH="/opt/ghc/$$GHCVER/bin:/opt/cabal/$$CABALVER/bin:$$PATH"
+              echo $$PATH
+              cabal new-update
+              cabal new-build --enable-tests --enable-benchmarks
+            else
+              mkdir -p ~/.local/bin
+              export PATH="$$HOME/.local/bin:$$PATH"
+              travis_retry curl -L 'https://www.stackage.org/stack/linux-x86_64' | tar xz --wildcards --strip-components=1 -C ~/.local/bin '*/stack'
+              stack --version
+              stack setup --no-terminal --install-cabal 2.0.1.0
+              stack ghc -- --version
+              stack build --only-dependencies --no-terminal
+            fi
         script:
-          - travis_wait 40 stack build --test --no-terminal
+          - |
+            if [ -z "$$STACK_YAML" ]; then
+               ${cabalTest}
+            else
+              stack build --test --bench --no-run-benchmarks --no-terminal
+            fi
 
         notifications:
           email: false
         $endLine
         |]
 
-    travisMatrixItem :: Text -> Text
-    travisMatrixItem ghcV =
+    cabalTest :: Text
+    cabalTest = if test then "cabal new-test" else "echo 'No tests'"
+
+    travisCabalMatrixItem :: GhcVer -> Text
+    travisCabalMatrixItem (showGhcVer -> ghcV) =
         [text|
         - ghc: ${ghcV}
-          env: GHCVER='${ghcV}' STACK_YAML="$$HOME/build/${owner}/${repo}/stack-$$GHCVER.yaml"
+          env: GHCVER='${ghcV}' CABALVER='head'
+          os: linux
+          addons:
+            apt:
+              sources:
+              - hvr-ghc
+              packages:
+              - ghc-${ghcV}
+              - cabal-install-head
         $endLine
+        |]
+
+    travisStackMatrixItem :: GhcVer -> Text
+    travisStackMatrixItem (showGhcVer -> ghcV) =
+        [text|
+        - ghc: ${ghcV}
+          env: GHCVER='${ghcV}' STACK_YAML="$$TRAVIS_BUILD_DIR/stack-$$GHCVER.yaml"
+          os: linux
+          addons:
+            apt:
+              packages:
+              - libgmp-dev
+          $endLine
         |]
 
     -- create @stack.yaml@ file with LTS corresponding to specified ghc version
