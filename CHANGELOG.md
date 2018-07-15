@@ -6,6 +6,7 @@
 * [#100](https://github.com/kowainik/summoner/issues/100):
   Bump up to `ghc-8.4.3`. Add support for `Ghc843` in code
   and make it default.
+* Make CI badges in README be shown depending on the chosen options.
 
 1.0.4
 =====

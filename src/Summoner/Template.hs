@@ -255,9 +255,9 @@ createStackTemplate ProjectData{..} = Dir (toString repo) $
         # $repo
 
         [![Hackage]($hackageShield)]($hackageLink)
-        [![Build status](${travisShield})](${travisLink})
-        [![Windows build status](${appVeyorShield})](${appVeyorLink})
         [![$license license](${licenseShield})](${licenseLink})
+        $travisBadge
+        $appVeyorBadge
 
         $description
         $endLine
@@ -267,14 +267,21 @@ createStackTemplate ProjectData{..} = Dir (toString repo) $
           "https://img.shields.io/hackage/v/" <> repo <> ".svg"
         hackageLink :: Text =
           "https://hackage.haskell.org/package/" <> repo
+
         travisShield :: Text =
           "https://secure.travis-ci.org/" <> owner <> "/" <> repo <> ".svg"
         travisLink :: Text =
           "https://travis-ci.org/" <> owner <> "/" <> repo
+        travisBadge :: Text = emptyIfNot travis
+            [text|[![Build status](${travisShield})](${travisLink})|]
+
         appVeyorShield :: Text =
           "https://ci.appveyor.com/api/projects/status/github/" <> owner <> "/" <> repo <> "?branch=master&svg=true"
         appVeyorLink :: Text =
           "https://ci.appveyor.com/project/" <> owner <> "/" <> repo
+        appVeyorBadge :: Text = emptyIfNot appVey
+            [text|[![Windows build status](${appVeyorShield})](${appVeyorLink})|]
+
         licenseShield :: Text =
           "https://img.shields.io/badge/license-" <> T.replace "-" "--" license <> "-blue.svg"
         licenseLink :: Text =
