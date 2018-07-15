@@ -7,6 +7,10 @@
   Bump up to `ghc-8.4.3`. Add support for `Ghc843` in code
   and make it default.
 * Make CI badges in README be shown depending on the chosen options.
+* [#99](https://github.com/kowainik/summoner/issues/99):
+  UseTravis-specific env variable `TRAVIS_BUILD_DIR` in created travis file.
+* [#97](https://github.com/kowainik/summoner/issues/97):
+  Add cabal to created travis file.
 
 1.0.4
 =====
