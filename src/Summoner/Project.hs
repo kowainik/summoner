@@ -14,7 +14,7 @@ import NeatInterpolation (text)
 import System.Info (os)
 import System.Process (readProcess)
 
-import Summoner.Ansi (infoMessage, successMessage)
+import Summoner.Ansi (errorMessage, infoMessage, successMessage)
 import Summoner.Config (Config, ConfigP (..))
 import Summoner.Default (currentYear, defaultGHC)
 import Summoner.License (License (..), customizeLicense, githubLicenseQueryNames, licenseNames)
@@ -22,7 +22,8 @@ import Summoner.Process ()
 import Summoner.ProjectData (CustomPrelude (..), Decision (..), ProjectData (..), parseGhcVer,
                              showGhcVer, supportedGhcVers)
 import Summoner.Question (checkUniqueName, choose, chooseYesNo, chooseYesNoBool, falseMessage,
-                          query, queryDef, queryManyRepeatOnFail, trueMessage)
+                          query, queryDef, queryManyRepeatOnFail, targetMessageWithText,
+                          trueMessage)
 import Summoner.Template (createStackTemplate)
 import Summoner.Text (intercalateMap, packageToModule)
 import Summoner.Tree (showTree, traverseTree)
@@ -39,6 +40,9 @@ decisionToBool decision target = case decision of
 generateProject :: Text -> Config -> IO ()
 generateProject projectName Config{..} = do
     repo        <- checkUniqueName projectName
+    -- decide cabal stack or both
+    (cabal, stack) <- getCabalStack (cCabal, cStack)
+
     owner       <- queryDef "Repository owner: " cOwner
     description <- query "Short project description: "
     nm          <- queryDef "Author: " cFullName
@@ -67,7 +71,9 @@ generateProject projectName Config{..} = do
     -- Library/Executable/Tests/Benchmarks flags
     github <- decisionToBool cGitHub "GitHub integration"
     travis <- ifGithub github "Travis CI integration" cTravis
-    appVey <- ifGithub github "AppVeyor CI integration" cAppVey
+    appVey <- let appTar = "AppVeyor CI integration" in
+              if stack then ifGithub github appTar cAppVey
+                       else falseMessage appTar
     privat <- ifGithub github "private repository" cPrivate
     script <- decisionToBool cScript "build script"
     isLib  <- decisionToBool cLib "library target"
@@ -165,3 +171,23 @@ generateProject projectName Config{..} = do
             chooseYesNo "custom prelude" yesDo noDo
         Last prelude@(Just (Prelude p _)) ->
             prelude <$ successMessage ("Custom prelude " <> p <> " will be used in the project")
+
+    -- get what build tool to use in the project
+    -- If user chose only one during CLI, we assume to use only that one.
+    getCabalStack :: (Decision, Decision) -> IO (Bool, Bool)
+    getCabalStack = \case
+        (Idk, Idk) -> decisionToBool cCabal "cabal" >>= \c ->
+            if c then decisionToBool cStack "stack" >>= \s -> pure (c, s)
+            else stackMsg True >> pure (False, True)
+        (Nop, Nop) -> errorMessage "Neither cabal nor stack was choosen" >> exitFailure
+        (Yes, Yes) -> output (True, True)
+        (Yes, _)   -> output (True, False)
+        (_, Yes)   -> output (False, True)
+        (Nop, Idk) -> output (False, True)
+        (Idk, Nop) -> output (True, False)
+      where
+        output :: (Bool, Bool) -> IO (Bool, Bool)
+        output x@(c, s) = cabalMsg c >> stackMsg s >> pure x
+
+        cabalMsg c = targetMessageWithText c "Cabal" "used in this project"
+        stackMsg c = targetMessageWithText c "Stack" "used in this project"

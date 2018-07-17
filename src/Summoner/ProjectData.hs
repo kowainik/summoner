@@ -46,6 +46,8 @@ data ProjectData = ProjectData
     , base           :: Text -- ^ Base library to use
     , prelude        :: Maybe CustomPrelude  -- ^ custom prelude to be used
     , extensions     :: [Text] -- ^ default extensions
+    , cabal          :: Bool
+    , stack          :: Bool
     } deriving (Show)
 
 -- | Used for detecting the user decision during CLI input.
