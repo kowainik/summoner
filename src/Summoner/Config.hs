@@ -175,7 +175,7 @@ finalise Config{..} = Config
     <*> fin  "fullName"   cFullName
     <*> fin  "email"      cEmail
     <*> fin  "license"    cLicense
-    <*> fin  "ghcersions" cGhcVer
+    <*> fin  "ghcVersions" cGhcVer
     <*> pure cCabal
     <*> pure cStack
     <*> pure cGitHub

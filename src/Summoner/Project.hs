@@ -71,9 +71,7 @@ generateProject projectName Config{..} = do
     -- Library/Executable/Tests/Benchmarks flags
     github <- decisionToBool cGitHub "GitHub integration"
     travis <- ifGithub github "Travis CI integration" cTravis
-    appVey <- let appTar = "AppVeyor CI integration" in
-              if stack then ifGithub github appTar cAppVey
-                       else falseMessage appTar
+    appVey <- ifGithub (stack && github) "AppVeyor CI integration" cAppVey
     privat <- ifGithub github "private repository" cPrivate
     script <- decisionToBool cScript "build script"
     isLib  <- decisionToBool cLib "library target"
@@ -179,7 +177,7 @@ generateProject projectName Config{..} = do
         (Idk, Idk) -> decisionToBool cCabal "cabal" >>= \c ->
             if c then decisionToBool cStack "stack" >>= \s -> pure (c, s)
             else stackMsg True >> pure (False, True)
-        (Nop, Nop) -> errorMessage "Neither cabal nor stack was choosen" >> exitFailure
+        (Nop, Nop) -> errorMessage "Neither cabal nor stack was chosen" >> exitFailure
         (Yes, Yes) -> output (True, True)
         (Yes, _)   -> output (True, False)
         (_, Yes)   -> output (False, True)
