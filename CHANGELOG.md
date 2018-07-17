@@ -11,6 +11,8 @@
   UseTravis-specific env variable `TRAVIS_BUILD_DIR` in created travis file.
 * [#97](https://github.com/kowainik/summoner/issues/97):
   Add cabal to created travis file.
+* [#96](https://github.com/kowainik/summoner/issues/96):
+  Add option to choose `cabal`, `stack` or both.
 
 1.0.4
 =====

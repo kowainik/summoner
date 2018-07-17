@@ -25,14 +25,15 @@ import qualified Data.Text as T
 -- Stack File Creation
 ----------------------------------------------------------------------------
 
-emptyIfNot :: Bool -> Text -> Text
-emptyIfNot p txt = if p then txt else ""
+emptyIfNot :: Monoid m => Bool -> m -> m
+emptyIfNot p val = if p then val else mempty
 
 -- | Creating template file to use in `stack new` command
 createStackTemplate :: ProjectData ->  TreeFs
 createStackTemplate ProjectData{..} = Dir (toString repo) $
     [ File (toString repo <> ".cabal")
            ( createCabalTop
+          <> emptyIfNot github createCabalGit
           <> emptyIfNot isLib createCabalLib
           <> emptyIfNot isExe
                         ( createCabalExe
@@ -41,14 +42,13 @@ createStackTemplate ProjectData{..} = Dir (toString repo) $
           <> emptyIfNot bench
                         ( createCabalBenchmark
                         $ emptyIfNot isLib $ ", " <> repo )
-          <> emptyIfNot github createCabalGit
            )
     , File "README.md" readme
     , File "CHANGELOG.md" changelog
     , File "LICENSE" licenseText
     ]
  ++ createCabalFiles
- ++ createStackYamls testedVersions
+ ++ emptyIfNot stack (createStackYamls testedVersions)
  ++ [File ".gitignore" gitignore | github]
  ++ [File ".travis.yml" travisYml | travis]
  ++ [File "appveyor.yml" appVeyorYml | appVey]
@@ -99,6 +99,15 @@ createStackTemplate ProjectData{..} = Dir (toString repo) $
     defaultExtensions = case extensions of
         [] -> ""
         xs -> "default-extensions:  " <> T.intercalate "\n                     " xs
+
+    createCabalGit :: Text
+    createCabalGit =
+        [text|
+        source-repository head
+          type:                git
+          location:            https://github.com/${owner}/${repo}.git
+        $endLine
+        |]
 
     createCabalLib :: Text
     createCabalLib =
@@ -160,15 +169,6 @@ createStackTemplate ProjectData{..} = Dir (toString repo) $
                              $customPreludePack
                              $r
           $defaultExtensions
-        $endLine
-        |]
-
-    createCabalGit :: Text
-    createCabalGit =
-        [text|
-        source-repository head
-          type:                git
-          location:            https://github.com/${owner}/${repo}.git
         $endLine
         |]
 
@@ -370,9 +370,18 @@ createStackTemplate ProjectData{..} = Dir (toString repo) $
     -- create travis.yml template
     travisYml :: Text
     travisYml =
-        let travisStackMtr = T.concat $ map travisStackMatrixItem (delete defaultGHC testedVersions)
-            travisCabalMtr = T.concat $ map travisCabalMatrixItem testedVersions
-            defGhc = showGhcVer defaultGHC in
+        let travisStackMtr = emptyIfNot stack $
+                T.concat (map travisStackMatrixItem $ delete defaultGHC testedVersions)
+                    <> travisStackMatrixDefaultItem
+            travisCabalMtr = emptyIfNot cabal $
+                T.concat $ map travisCabalMatrixItem testedVersions
+            installAndScript =
+                if cabal
+                then if stack
+                     then installScriptBoth
+                     else installScriptCabal
+                else installScriptStack
+        in
         [text|
         sudo: true
         language: haskell
@@ -391,37 +400,7 @@ createStackTemplate ProjectData{..} = Dir (toString repo) $
           $travisCabalMtr
           $travisStackMtr
 
-          - ghc: $defGhc
-            env: GHCVER='${defGhc}' STACK_YAML="$$TRAVIS_BUILD_DIR/stack.yaml"
-            os: linux
-            addons:
-              apt:
-                packages:
-                - libgmp-dev
-
-        install:
-          - |
-            if [ -z "$$STACK_YAML" ]; then
-              export PATH="/opt/ghc/$$GHCVER/bin:/opt/cabal/$$CABALVER/bin:$$PATH"
-              echo $$PATH
-              cabal new-update
-              cabal new-build --enable-tests --enable-benchmarks
-            else
-              mkdir -p ~/.local/bin
-              export PATH="$$HOME/.local/bin:$$PATH"
-              travis_retry curl -L 'https://www.stackage.org/stack/linux-x86_64' | tar xz --wildcards --strip-components=1 -C ~/.local/bin '*/stack'
-              stack --version
-              stack setup --no-terminal --install-cabal 2.0.1.0
-              stack ghc -- --version
-              stack build --only-dependencies --no-terminal
-            fi
-        script:
-          - |
-            if [ -z "$$STACK_YAML" ]; then
-               ${cabalTest}
-            else
-              stack build --test --bench --no-run-benchmarks --no-terminal
-            fi
+        $installAndScript
 
         notifications:
           email: false
@@ -458,6 +437,77 @@ createStackTemplate ProjectData{..} = Dir (toString repo) $
               packages:
               - libgmp-dev
           $endLine
+        |]
+
+    travisStackMatrixDefaultItem :: Text
+    travisStackMatrixDefaultItem = let defGhc = showGhcVer defaultGHC in
+        [text|
+        - ghc: ${defGhc}
+          env: GHCVER='${defGhc}' STACK_YAML="$$TRAVIS_BUILD_DIR/stack.yaml"
+          os: linux
+          addons:
+            apt:
+              packages:
+              - libgmp-dev
+        $endLine
+        |]
+
+    installScriptBoth :: Text
+    installScriptBoth =
+        [text|
+        install:
+          - |
+            if [ -z "$$STACK_YAML" ]; then
+              export PATH="/opt/ghc/$$GHCVER/bin:/opt/cabal/$$CABALVER/bin:$$PATH"
+              echo $$PATH
+              cabal new-update
+              cabal new-build --enable-tests --enable-benchmarks
+            else
+              mkdir -p ~/.local/bin
+              export PATH="$$HOME/.local/bin:$$PATH"
+              travis_retry curl -L 'https://www.stackage.org/stack/linux-x86_64' | tar xz --wildcards --strip-components=1 -C ~/.local/bin '*/stack'
+              stack --version
+              stack setup --no-terminal --install-cabal 2.0.1.0
+              stack ghc -- --version
+              stack build --only-dependencies --no-terminal
+            fi
+        script:
+          - |
+            if [ -z "$$STACK_YAML" ]; then
+               ${cabalTest}
+            else
+              stack build --test --bench --no-run-benchmarks --no-terminal
+            fi
+        $endLine
+        |]
+
+    installScriptCabal :: Text
+    installScriptCabal =
+        [text|
+        install:
+          - export PATH="/opt/ghc/$$GHCVER/bin:/opt/cabal/$$CABALVER/bin:$$PATH"
+          - echo $$PATH
+          - cabal new-update
+          - cabal new-build --enable-tests --enable-benchmarks
+        script:
+          - ${cabalTest}
+        $endLine
+        |]
+
+    installScriptStack :: Text
+    installScriptStack =
+        [text|
+        install:
+          - mkdir -p ~/.local/bin
+          - export PATH="$$HOME/.local/bin:$$PATH"
+          - travis_retry curl -L 'https://www.stackage.org/stack/linux-x86_64' | tar xz --wildcards --strip-components=1 -C ~/.local/bin '*/stack'
+          - stack --version
+          - stack setup --no-terminal --install-cabal 2.0.1.0
+          - stack ghc -- --version
+          - stack build --only-dependencies --no-terminal
+        script:
+          - stack build --test --bench --no-run-benchmarks --no-terminal
+        $endLine
         |]
 
     -- create @stack.yaml@ file with LTS corresponding to specified ghc version

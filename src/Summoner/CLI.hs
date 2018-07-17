@@ -187,9 +187,21 @@ preludeModP = strOption
    <> metavar "MODULE_NAME"
    <> help "Name for the module of the custom prelude to use in the project"
 
+cabalP :: Parser Decision
+cabalP = flag Idk Yes
+       $ long "cabal"
+      <> help "Cabal support for the project"
+
+stackP :: Parser Decision
+stackP = flag Idk Yes
+       $ long "stack"
+      <> help "Stack support for the project"
+
 optsP :: Parser InitOpts
 optsP = do
     projectName <- strArgument (metavar "PROJECT_NAME")
+    cabal   <- cabalP
+    stack   <- stackP
     with    <- optional withP
     without <- optional withoutP
     file    <- optional fileP
@@ -199,6 +211,8 @@ optsP = do
     pure $ InitOpts projectName file
         $ (maybeToMonoid $ with <> without)
             { cPrelude = Last $ Prelude <$> preludePack <*> preludeMod
+            , cCabal = cabal
+            , cStack = stack
             }
 
 versionP :: Parser (a -> a)

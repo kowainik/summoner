@@ -13,6 +13,8 @@ module Summoner.Question
        , queryManyRepeatOnFail
        , checkUniqueName
 
+       , targetMessageWithText
+
        , trueMessage
        , falseMessage
        ) where
@@ -71,10 +73,13 @@ chooseYesNoBool :: Text -> IO Bool
 chooseYesNoBool target = chooseYesNo target (pure True) (pure False)
 
 targetMessage :: Bool -> Text -> IO Bool
-targetMessage result target = do
+targetMessage result target = targetMessageWithText result target "added to the project"
+
+targetMessageWithText :: Bool -> Text -> Text -> IO Bool
+targetMessageWithText result target text = do
     let (color, actionResult) = if result
-          then (Green, " will be added to the project")
-          else (Cyan,  " won't be added to the project")
+          then (Green, " will be " <> text)
+          else (Cyan,  " won't be" <> text)
 
     beautyPrint [italic, bold, setColor color] $ "  " <> headToUpper target
     beautyPrint [setColor color] actionResult

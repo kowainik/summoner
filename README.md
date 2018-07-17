@@ -64,6 +64,10 @@ Here is the list of the options that could be configured for your needs:
 
 ###### Global keys
 
+* `cabal` – `true` if you want to build you project with `cabal`,
+             `false` if you don't. If not specified it would be asked during each run of the `summoner`.
+* `stack` – `true` if you want to build your project with `stack`,
+             `false` if you don't. If not specified it would be asked during each run of the `summoner`.
 * `owner` – `GitHub` login.
 * `fullName` – full name.
 * `email` – e-mail address.
@@ -114,13 +118,16 @@ The other way to specify some particular `.toml` file is `summon PROJECTNAME --f
 See the basic usage syntax below (you can check it out with `summon --help` command):
 
 ```
-summon PROJECT_NAME [with [OPTIONS]] [without [OPTIONS]]
+summon PROJECT_NAME [--cabal] [--stack]
+       [with [OPTIONS]] [without [OPTIONS]]
        [-f|--file FILENAME]  [--prelude-package PACKAGE_NAME]
        [--prelude-module MODULE_NAME]
 
 Available global options:
   -h, --help               Show this help text
   -v, --version            Show summoner's version
+  --cabal                  Cabal support for the project
+  --stack                  Stack support for the project
   -f, --file FILENAME      Path to the toml file with configurations. If not
                            specified '~/.summoner.toml' will be used if present
   --prelude-package PACKAGE_NAME
