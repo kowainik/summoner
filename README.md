@@ -162,9 +162,9 @@ the question will be asked during the work of the script.
 For example,
 
 ```
-  summon newProject with -letgcspw without -b --prelude-package universum --prelude-module Universum
+  summon newProject with -letgcspw without -b --prelude-package relude --prelude-module Relude
 ```
-will create fully functional project which uses custom prelude `universum`, contains
+will create fully functional project which uses custom prelude `relude`, contains
 library, executable file, tests, [build script](#build-script)
 and create private repository on [github](https://github.com)
 integrated with `Travis-CI`, `AppVeyor-CI`, but benchmarks won't be attached to this one.

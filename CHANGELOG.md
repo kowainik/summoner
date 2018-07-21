@@ -1,5 +1,10 @@
 # Summoner
 
+1.0.6
+=====
+
+* Use `relude` instead of `universum`
+
 1.0.5
 =====
 

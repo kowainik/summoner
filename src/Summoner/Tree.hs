@@ -6,7 +6,7 @@ module Summoner.Tree
        , showTree
        ) where
 
-import Universum
+import Relude
 
 import System.Directory (createDirectoryIfMissing, withCurrentDirectory)
 

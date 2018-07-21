@@ -8,7 +8,7 @@ module Summoner.Template
        ( createStackTemplate
        ) where
 
-import Universum
+import Relude
 
 import Data.List (delete)
 import NeatInterpolation (text)
