@@ -118,7 +118,7 @@ The other way to specify some particular `.toml` file is `summon PROJECTNAME --f
 See the basic usage syntax below (you can check it out with `summon --help` command):
 
 ```
-summon PROJECT_NAME [--cabal] [--stack]
+summon PROJECT_NAME [--cabal] [--stack] [--ignore-config]
        [with [OPTIONS]] [without [OPTIONS]]
        [-f|--file FILENAME]  [--prelude-package PACKAGE_NAME]
        [--prelude-module MODULE_NAME]
@@ -126,6 +126,7 @@ summon PROJECT_NAME [--cabal] [--stack]
 Available global options:
   -h, --help               Show this help text
   -v, --version            Show summoner's version
+  --ignore-config          Ignore configuration file
   --cabal                  Cabal support for the project
   --stack                  Stack support for the project
   -f, --file FILENAME      Path to the toml file with configurations. If not
