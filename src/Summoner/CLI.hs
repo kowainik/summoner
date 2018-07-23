@@ -14,7 +14,7 @@ import Data.Version (showVersion)
 import NeatInterpolation (text)
 import Options.Applicative (Parser, ParserInfo, command, execParser, flag, fullDesc, help, helper,
                             info, infoFooter, infoHeader, infoOption, long, metavar, optional,
-                            progDesc, short, strArgument, strOption, subparser)
+                            progDesc, short, strArgument, strOption, subparser, switch)
 import Options.Applicative.Help.Chunk (stringChunk)
 import System.Directory (doesFileExist)
 
@@ -36,9 +36,9 @@ summon = execParser prsr >>= runWithOptions
 
 -- | Run 'hs-init' with cli options
 runWithOptions :: InitOpts -> IO ()
-runWithOptions (InitOpts projectName maybeFile cliConfig) = do
+runWithOptions InitOpts{..} = do
     -- read config from file
-    fileConfig <- readFileConfig maybeFile
+    fileConfig <- readFileConfig ignoreFile maybeFile
 
     -- union all possible configs
     let unionConfig = defaultConfig <> fileConfig <> cliConfig
@@ -56,8 +56,8 @@ runWithOptions (InitOpts projectName maybeFile cliConfig) = do
     -- print result
     beautyPrint [bold, setColor Green] "\nJob's done\n"
 
-readFileConfig :: Maybe FilePath -> IO PartialConfig
-readFileConfig maybeFile = do
+readFileConfig :: Bool -> Maybe FilePath -> IO PartialConfig
+readFileConfig ignoreFile maybeFile = if ignoreFile then pure mempty else do
     (isDefault, file) <- case maybeFile of
         Nothing -> (True,) <$> defaultConfigFile
         Just x  -> pure (False, x)
@@ -76,8 +76,12 @@ readFileConfig maybeFile = do
         exitFailure
 
 -- | Initial parsed options from cli
-data InitOpts = InitOpts Text (Maybe FilePath) PartialConfig
-    -- ^ Includes the project name, config from the CLI and possible file where custom congifs are.
+data InitOpts = InitOpts
+    { projectName :: Text           -- ^ project name
+    , ignoreFile  :: Bool           -- ^ ignore all config files if 'True'
+    , maybeFile   :: Maybe FilePath -- ^ file with custom configuration
+    , cliConfig   :: PartialConfig  -- ^ config gathered during CLI
+    }
 
 targetsP ::  Decision -> Parser PartialConfig
 targetsP d = do
@@ -168,6 +172,9 @@ withoutP = subparser $ mconcat
     , command "without" $ info (helper <*> targetsP Nop) (progDesc "Specify options to disable")
     ]
 
+ignoreFileP :: Parser Bool
+ignoreFileP = switch $ long "ignore-config" <> help "Ignore configuration file"
+
 fileP :: Parser FilePath
 fileP = strOption
     $ long "file"
@@ -200,6 +207,7 @@ stackP = flag Idk Yes
 optsP :: Parser InitOpts
 optsP = do
     projectName <- strArgument (metavar "PROJECT_NAME")
+    ignoreFile  <- ignoreFileP
     cabal   <- cabalP
     stack   <- stackP
     with    <- optional withP
@@ -208,7 +216,7 @@ optsP = do
     preludePack <- optional preludePackP
     preludeMod  <- optional preludeModP
 
-    pure $ InitOpts projectName file
+    pure $ InitOpts projectName ignoreFile file
         $ (maybeToMonoid $ with <> without)
             { cPrelude = Last $ Prelude <$> preludePack <*> preludeMod
             , cCabal = cabal

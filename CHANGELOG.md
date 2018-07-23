@@ -4,6 +4,8 @@
 =====
 
 * Use `relude` instead of `universum`
+* [#105](https://github.com/kowainik/summoner/issues/105):
+  Add `--ignore-config` option.
 
 1.0.5
 =====
