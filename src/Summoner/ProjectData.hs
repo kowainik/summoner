@@ -106,7 +106,7 @@ latestLts Ghc7103 = "6.35"
 latestLts Ghc801  = "7.24"
 latestLts Ghc802  = "9.21"
 latestLts Ghc822  = "11.17"
-latestLts Ghc843  = "12.0"
+latestLts Ghc843  = "12.2"
 
 baseNopreludeVer :: GhcVer -> Text
 baseNopreludeVer Ghc7103 = "4.8.0.2"
