@@ -6,7 +6,7 @@ module Summoner.Project
        ( generateProject
        ) where
 
-import Universum
+import Relude
 
 import Data.Aeson (decodeStrict)
 import Data.ByteString.Char8 (pack)
@@ -28,7 +28,7 @@ import Summoner.Template (createStackTemplate)
 import Summoner.Text (intercalateMap, packageToModule)
 import Summoner.Tree (showTree, traverseTree)
 
-import qualified Universum.Unsafe as Unsafe
+import qualified Relude.Unsafe as Unsafe
 
 decisionToBool :: Decision -> Text -> IO Bool
 decisionToBool decision target = case decision of

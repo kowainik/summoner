@@ -1,6 +1,6 @@
 module Test.DecisionSpec where
 
-import Universum
+import Relude
 
 import Hedgehog (MonadGen, forAll, property, (===))
 import Test.Tasty (TestTree)

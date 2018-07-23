@@ -2,7 +2,7 @@ resolver: lts-11.17
 
 extra-deps:
   - tomland-0.3
-  - universum-1.2.0
+  - relude-0.1.0
 
 ghc-options:
   "$locals": -fhide-source-paths

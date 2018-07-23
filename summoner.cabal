@@ -1,5 +1,5 @@
 name:                summoner
-version:             1.0.5
+version:             1.0.6
 synopsis:            Tool for creating completely configured production Haskell projects.
 description:         Tool for creating completely configured production Haskell projects.
                      See README.md for details.
@@ -57,7 +57,7 @@ library
                      , text
                      , time
                      , tomland ^>= 0.3
-                     , universum >= 1.2.0
+                     , relude
 
   default-extensions:  DeriveGeneric
                        GeneralizedNewtypeDeriving
@@ -74,8 +74,8 @@ executable summon
   main-is:             Main.hs
   ghc-options:         -Wall -threaded -rtsopts -with-rtsopts=-N
   build-depends:       base
+                     , relude
                      , summoner
-                     , universum
   default-language:    Haskell2010
 
 test-suite summoner-test
@@ -88,10 +88,11 @@ test-suite summoner-test
   build-tool-depends:  tasty-discover:tasty-discover
   build-depends:       base
                      , hedgehog
+                     , relude
                      , tasty
                      , tasty-hedgehog
                      , summoner
-                     , universum
+  default-extensions:  NoImplicitPrelude
 
   ghc-options:         -Wall -threaded -rtsopts -with-rtsopts=-N
   default-language:    Haskell2010

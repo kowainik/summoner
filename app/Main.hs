@@ -1,6 +1,6 @@
 module Main where
 
-import Universum
+import Relude
 
 import System.IO (hSetEncoding, utf8)
 

@@ -8,7 +8,7 @@ module Summoner.CLI
        ( summon
        ) where
 
-import Universum
+import Relude
 
 import Data.Version (showVersion)
 import NeatInterpolation (text)

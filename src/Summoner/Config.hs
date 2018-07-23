@@ -23,7 +23,7 @@ module Summoner.Config
        , loadFileConfig
        ) where
 
-import Universum hiding (Key)
+import Relude
 
 import Control.Exception (throwIO)
 import Data.List (lookup)

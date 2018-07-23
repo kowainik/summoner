@@ -5,7 +5,7 @@ module Summoner.License
        , githubLicenseQueryNames
        ) where
 
-import Universum
+import Relude
 
 import Data.Aeson (FromJSON (..), withObject, (.:))
 

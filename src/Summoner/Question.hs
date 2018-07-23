@@ -19,7 +19,7 @@ module Summoner.Question
        , falseMessage
        ) where
 
-import Universum
+import Relude
 
 import System.Directory (doesPathExist, getCurrentDirectory)
 import System.FilePath ((</>))
@@ -31,7 +31,7 @@ import Summoner.Text (headToUpper, intercalateMap)
 
 import qualified Data.Text as T
 import qualified Data.Text.IO as T
-import qualified Universum.Unsafe as Unsafe
+import qualified Relude.Unsafe as Unsafe
 
 ----------------------------------------------------------------------------
 -- IO Questioning

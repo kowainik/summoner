@@ -8,7 +8,7 @@ module Summoner.Default
        , endLine
        ) where
 
-import Universum
+import Relude
 
 import Data.Time (getCurrentTime, toGregorian, utctDay)
 import System.Directory (getHomeDirectory)
