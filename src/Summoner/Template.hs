@@ -270,21 +270,21 @@ createStackTemplate ProjectData{..} = Dir (toString repo) $
         hackageLink :: Text =
           "https://hackage.haskell.org/package/" <> repo
 
-        stackBadges :: Text = stackBadgeLts <> stackBadgeNightly
-
         stackShieldLts :: Text =
             "http://stackage.org/package/" <> repo <> "/badge/lts"
         stackLinkLts :: Text =
             "http://stackage.org/lts/package/" <> repo
-        stackBadgeLts :: Text = emptyIfNot stack
-            [text|[![Stackage Lts](${stackShieldLts})](${stackLinkLts})|]
 
         stackShieldNightly :: Text =
             "http://stackage.org/package/" <> repo <> "/badge/nightly"
         stackLinkNightly :: Text =
             "http://stackage.org/nightly/package/" <> repo
-        stackBadgeNightly :: Text = emptyIfNot stack
-            [text|[![Stackage Nightly](${stackShieldNightly})](${stackLinkNightly})|]
+
+        stackBadges :: Text = emptyIfNot stack
+            [text|
+            [![Stackage Lts](${stackShieldLts})](${stackLinkLts})
+            [![Stackage Nightly](${stackShieldNightly})](${stackLinkNightly})
+            |]
 
         travisShield :: Text =
           "https://secure.travis-ci.org/" <> owner <> "/" <> repo <> ".svg"
