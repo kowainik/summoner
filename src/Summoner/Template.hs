@@ -257,6 +257,8 @@ createStackTemplate ProjectData{..} = Dir (toString repo) $
 
         [![Hackage]($hackageShield)]($hackageLink)
         [![$license license](${licenseShield})](${licenseLink})
+        $stackBadgeLts
+        $stackBadgeNight
         $travisBadge
         $appVeyorBadge
 
@@ -268,6 +270,20 @@ createStackTemplate ProjectData{..} = Dir (toString repo) $
           "https://img.shields.io/hackage/v/" <> repo <> ".svg"
         hackageLink :: Text =
           "https://hackage.haskell.org/package/" <> repo
+
+        stackShieldLts :: Text =
+            "http://stackage.org/package/" <> repo <> "/badge/lts"
+        stackLinkLts :: Text =
+            "http://stackage.org/lts/package/" <> repo
+        stackBadgeLts :: Text = emptyIfNot stack
+            [text|[![Build status](${stackShieldLts})](${stackLinkLts})|]
+
+        stackShieldNight :: Text =
+            "http://stackage.org/package/" <> repo <> "/badge/nightly"
+        stackLinkNight :: Text =
+            "http://stackage.org/nightly/package/" <> repo
+        stackBadgeNight :: Text = emptyIfNot stack
+            [text|[![Build status](${stackShieldNight})](${stackLinkNight})|]
 
         travisShield :: Text =
           "https://secure.travis-ci.org/" <> owner <> "/" <> repo <> ".svg"
