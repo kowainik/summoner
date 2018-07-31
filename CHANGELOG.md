@@ -1,5 +1,12 @@
 # Summoner
 
+1.0.7
+=====
+
+* Add stackage badges
+* Fix travis cache
+
+
 1.0.6
 =====
 

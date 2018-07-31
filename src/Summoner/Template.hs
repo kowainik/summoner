@@ -398,6 +398,15 @@ createStackTemplate ProjectData{..} = Dir (toString repo) $
                      then installScriptBoth
                      else installScriptCabal
                 else installScriptStack
+            travisCabalCache = emptyIfNot cabal
+                [text|
+                - "$$HOME/.cabal"
+                |]
+            travisStackCache = emptyIfNot stack
+                [text|
+                - "$$HOME/.stack"
+                - "$$TRAVIS_BUILD_DIR/.stack-work"
+                |]
         in
         [text|
         sudo: true
@@ -408,8 +417,8 @@ createStackTemplate ProjectData{..} = Dir (toString repo) $
 
         cache:
           directories:
-          - "$$HOME/.stack"
-          - "$$TRAVIS_BUILD_DIR/.stack-work"
+          $travisCabalCache
+          $travisStackCache
 
         matrix:
           include:
