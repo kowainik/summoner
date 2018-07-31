@@ -3,9 +3,10 @@
 1.0.7
 =====
 
-* Add stackage badges
-* Fix travis cache
-
+* [#82](https://github.com/kowainik/summoner/issues/82):
+  Add stackage badges
+* [#109](https://github.com/kowainik/summoner/issues/109):
+  Fix travis cache directories
 
 1.0.6
 =====
