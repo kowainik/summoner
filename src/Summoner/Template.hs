@@ -398,10 +398,7 @@ createStackTemplate ProjectData{..} = Dir (toString repo) $
                      then installScriptBoth
                      else installScriptCabal
                 else installScriptStack
-            travisCabalCache = emptyIfNot cabal
-                [text|
-                - "$$HOME/.cabal"
-                |]
+            travisCabalCache = emptyIfNot cabal "- \"$$HOME/.cabal\""
             travisStackCache = emptyIfNot stack
                 [text|
                 - "$$HOME/.stack"
