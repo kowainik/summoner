@@ -11,8 +11,8 @@ module Summoner.Process
 import Relude
 
 import Control.Exception (catch, displayException)
-import System.Directory (removeFile, setCurrentDirectory)
-import System.Process (callProcess)
+import System.Directory (removeFile)
+import System.Process (callCommand, showCommandForUser)
 
 import Summoner.Ansi (errorMessage)
 
@@ -22,8 +22,10 @@ import Summoner.Ansi (errorMessage)
 
 -- This is needed to be able to call commands by writing strings.
 instance (a ~ Text, b ~ ()) => IsString ([a] -> IO b) where
-    fromString "cd" [arg] = setCurrentDirectory $ toString arg
-    fromString cmd args   = callProcess cmd (map toString args)
+    fromString cmd args = do
+        let cmdStr = showCommandForUser cmd (map toString args)
+        putStrLn $ "⚙  " ++ cmdStr
+        callCommand cmdStr
 
 -- Delete file, but just print a message if delete fails and continue instead of raising an error.
 deleteFile :: FilePath -> IO  ()

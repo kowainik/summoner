@@ -7,6 +7,8 @@
   Add stackage badges
 * [#109](https://github.com/kowainik/summoner/issues/109):
   Fix travis cache directories
+* [#110](https://github.com/kowainik/summoner/issues/110):
+  Print executing command
 
 1.0.6
 =====
