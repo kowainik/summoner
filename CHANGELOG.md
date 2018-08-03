@@ -9,6 +9,8 @@
   Fix travis cache directories
 * [#110](https://github.com/kowainik/summoner/issues/110):
   Print executing command
+* [#91](https://github.com/kowainik/summoner/issues/91):
+  Add warning fields for ghc
 
 1.0.6
 =====

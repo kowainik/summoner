@@ -109,18 +109,37 @@ createStackTemplate ProjectData{..} = Dir (toString repo) $
         $endLine
         |]
 
+    createWarnings :: Text
+    createWarnings = case warnings of
+        [] -> defaultWarnings
+        xs -> "ghc-options:        " <> T.intercalate "\n                    " xs
+
+    defaultWarnings :: Text
+    defaultWarnings =
+        [text|
+        ghc-options:        -Wall
+                            -threaded
+                            -rtsopts
+                            -with-rtsopts=-N
+                            -Wincomplete-uni-patterns
+                            -Wincomplete-record-updates
+                            -Wmissing-import-lists
+                            -Wcompat
+                            -Widentities
+        |]
+
     createCabalLib :: Text
     createCabalLib =
         [text|
         library
-          hs-source-dirs:      src
-          exposed-modules:     $libModuleName
-                               $preludeMod
-          ghc-options:         -Wall
-          build-depends:       $base
-                             $customPreludePack
-          default-language:    Haskell2010
-          $defaultExtensions
+            hs-source-dirs:     src
+            exposed-modules:    $libModuleName
+                                $preludeMod
+            $createWarnings
+            build-depends:      $base
+                              $customPreludePack
+            default-language:   Haskell2010
+            $defaultExtensions
         $endLine
         |]
 
@@ -128,14 +147,14 @@ createStackTemplate ProjectData{..} = Dir (toString repo) $
     createCabalExe r =
         [text|
         executable $repo
-          hs-source-dirs:      app
-          main-is:             Main.hs
-          ghc-options:         -Wall -threaded -rtsopts -with-rtsopts=-N
-          build-depends:       $base
-                             $r
-                             $customPreludePack
-          default-language:    Haskell2010
-          $defaultExtensions
+            hs-source-dirs:     app
+            main-is:            Main.hs
+            $createWarnings
+            build-depends:      $base
+                              $r
+                              $customPreludePack
+            default-language:   Haskell2010
+            $defaultExtensions
         $endLine
         |]
 
@@ -143,15 +162,15 @@ createStackTemplate ProjectData{..} = Dir (toString repo) $
     createCabalTest =
         [text|
         test-suite ${repo}-test
-          type:                exitcode-stdio-1.0
-          hs-source-dirs:      test
-          main-is:             Spec.hs
-          build-depends:       $base
-                             , $repo
-                             $customPreludePack
-          ghc-options:         -Wall -Werror -threaded -rtsopts -with-rtsopts=-N
-          default-language:    Haskell2010
-          $defaultExtensions
+            type:                exitcode-stdio-1.0
+            hs-source-dirs:      test
+            main-is:             Spec.hs
+            build-depends:       $base
+                               , $repo
+                               $customPreludePack
+            $createWarnings
+            default-language:   Haskell2010
+            $defaultExtensions
         $endLine
         |]
 
@@ -159,16 +178,16 @@ createStackTemplate ProjectData{..} = Dir (toString repo) $
     createCabalBenchmark r =
         [text|
         benchmark ${repo}-benchmark
-          type:                exitcode-stdio-1.0
-          default-language:    Haskell2010
-          ghc-options:         -Wall -Werror -O2 -threaded -rtsopts -with-rtsopts=-N
-          hs-source-dirs:      benchmark
-          main-is:             Main.hs
-          build-depends:       $base
-                             , gauge
-                             $customPreludePack
-                             $r
-          $defaultExtensions
+            type:               exitcode-stdio-1.0
+            default-language:   Haskell2010
+            $createWarnings
+            hs-source-dirs:     benchmark
+            main-is:            Main.hs
+            build-depends:      $base
+                              , gauge
+                              $customPreludePack
+                              $r
+            $defaultExtensions
         $endLine
         |]
 
