@@ -126,7 +126,18 @@ createStackTemplate ProjectData{..} = Dir (toString repo) $
                             -Wmissing-import-lists
                             -Wcompat
                             -Widentities
+                            $warningFromGHC8
         |]
+
+    warningFromGHC8 :: Text
+    warningFromGHC8 =
+        if Ghc7103 `elem` testedVersions then ""
+        else
+            [text|
+            -Wredundant-constraints
+            -Wmissing-export-lists
+            -Wpartial-fields
+            |]
 
     createCabalLib :: Text
     createCabalLib =
