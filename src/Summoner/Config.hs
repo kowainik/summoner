@@ -130,8 +130,8 @@ configT = Config
     <*> decision        "test"        .= cTest
     <*> decision        "bench"       .= cBench
     <*> lastT (Toml.table preludeT) "prelude" .= cPrelude
-    <*> extensions      "extensions"  .= cExtensions
-    <*> warnings        "warnings"    .= cWarnings
+    <*> textArr         "extensions"  .= cExtensions
+    <*> textArr         "warnings"    .= cWarnings
   where
     lastT :: (Key -> BiToml a) -> Key -> BiToml (Last a)
     lastT f = dimap getLast Last . Toml.maybeT f
@@ -148,8 +148,8 @@ configT = Config
     license :: Key -> BiToml License
     license =  dimap unLicense License . Toml.text
 
-    extensions :: Key -> BiToml [Text]
-    extensions = dimap Just maybeToMonoid . Toml.maybeT (Toml.arrayOf Toml._Text)
+    textArr :: Key -> BiToml [Text]
+    textArr = dimap Just maybeToMonoid . Toml.maybeT (Toml.arrayOf Toml._Text)
 
     decision :: Key -> BiToml Decision
     decision = dimap fromDecision toDecision . Toml.maybeT Toml.bool
@@ -170,9 +170,6 @@ configT = Config
     preludeT = Prelude
         <$> Toml.text "package" .= cpPackage
         <*> Toml.text "module"  .= cpModule
-
-    warnings :: Key -> BiToml [Text]
-    warnings = dimap Just maybeToMonoid . Toml.maybeT (Toml.arrayOf Toml._Text)
 
 -- | Make sure that all the required configurations options were specified.
 finalise :: PartialConfig -> Validation [Text] Config

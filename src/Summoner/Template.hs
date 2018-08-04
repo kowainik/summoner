@@ -10,7 +10,7 @@ module Summoner.Template
 
 import Relude
 
-import Data.List (delete)
+import Data.List (delete, (\\))
 import NeatInterpolation (text)
 
 import Summoner.Default (defaultGHC, endLine)
@@ -25,30 +25,32 @@ import qualified Data.Text as T
 -- Stack File Creation
 ----------------------------------------------------------------------------
 
-emptyIfNot :: Monoid m => Bool -> m -> m
-emptyIfNot p val = if p then val else mempty
+memptyIfFalse :: Monoid m => Bool -> m -> m
+memptyIfFalse p val = if p then val else mempty
 
 -- | Creating template file to use in `stack new` command
 createStackTemplate :: ProjectData ->  TreeFs
 createStackTemplate ProjectData{..} = Dir (toString repo) $
     [ File (toString repo <> ".cabal")
            ( createCabalTop
-          <> emptyIfNot github createCabalGit
-          <> emptyIfNot isLib createCabalLib
-          <> emptyIfNot isExe
+          <> memptyIfFalse github createCabalGit
+          <> memptyIfFalse isLib createCabalLib
+          <> memptyIfFalse isExe
                         ( createCabalExe
-                        $ emptyIfNot isLib $ ", " <> repo )
-          <> emptyIfNot test createCabalTest
-          <> emptyIfNot bench
+                        $ memptyIfFalse isLib $ ", " <> repo )
+          <> memptyIfFalse test
+                        ( createCabalTest
+                        $ memptyIfFalse isLib $ ", " <> repo )
+          <> memptyIfFalse bench
                         ( createCabalBenchmark
-                        $ emptyIfNot isLib $ ", " <> repo )
+                        $ memptyIfFalse isLib $ ", " <> repo )
            )
     , File "README.md" readme
     , File "CHANGELOG.md" changelog
     , File "LICENSE" licenseText
     ]
  ++ createCabalFiles
- ++ emptyIfNot stack (createStackYamls testedVersions)
+ ++ memptyIfFalse stack (createStackYamls testedVersions)
  ++ [File ".gitignore" gitignore | github]
  ++ [File ".travis.yml" travisYml | travis]
  ++ [File "appveyor.yml" appVeyorYml | appVey]
@@ -109,32 +111,30 @@ createStackTemplate ProjectData{..} = Dir (toString repo) $
         $endLine
         |]
 
-    createWarnings :: Text
-    createWarnings = case warnings of
-        [] -> defaultWarnings
-        xs -> "ghc-options:        " <> T.intercalate "\n                    " xs
+    ghcOptions :: Text
+    ghcOptions = case warnings of
+        [] -> extraWarnings
+        xs -> T.intercalate "\n" xs
 
-    defaultWarnings :: Text
-    defaultWarnings =
+    extraWarnings :: Text
+    extraWarnings =
         [text|
-        ghc-options:        -Wall
-                            -threaded
-                            -rtsopts
-                            -with-rtsopts=-N
-                            -Wincomplete-uni-patterns
-                            -Wincomplete-record-updates
-                            -Wmissing-import-lists
-                            -Wcompat
-                            -Widentities
-                            $warningFromGHC8
+        -Wincomplete-uni-patterns
+        -Wincomplete-record-updates
+        -Wmissing-import-lists
+        -Wcompat
+        -Widentities
+        $versionWarnings
         |]
 
-    warningFromGHC8 :: Text
-    warningFromGHC8 =
-        if Ghc7103 `elem` testedVersions then ""
-        else
+    versionWarnings :: Text
+    versionWarnings
+        =  memptyIfFalse (Ghc7103 `notElem` testedVersions)
+            "-Wredundant-constraints\n"
+        <> memptyIfFalse (null (testedVersions \\ [Ghc822, Ghc843]))
+            "-fhide-source-paths\n"
+        <> memptyIfFalse (testedVersions == [Ghc843])
             [text|
-            -Wredundant-constraints
             -Wmissing-export-lists
             -Wpartial-fields
             |]
@@ -143,62 +143,77 @@ createStackTemplate ProjectData{..} = Dir (toString repo) $
     createCabalLib =
         [text|
         library
-            hs-source-dirs:     src
-            exposed-modules:    $libModuleName
-                                $preludeMod
-            $createWarnings
-            build-depends:      $base
-                              $customPreludePack
-            default-language:   Haskell2010
-            $defaultExtensions
+          hs-source-dirs:      src
+          exposed-modules:     $libModuleName
+                               $preludeMod
+          ghc-options:         -Wall
+                               $ghcOptions
+          build-depends:       $base
+                               $customPreludePack
+          default-language:    Haskell2010
+          $defaultExtensions
         $endLine
         |]
 
     createCabalExe :: Text -> Text
     createCabalExe r =
         [text|
-        executable $repo
-            hs-source-dirs:     app
-            main-is:            Main.hs
-            $createWarnings
-            build-depends:      $base
-                              $r
-                              $customPreludePack
-            default-language:   Haskell2010
-            $defaultExtensions
+        executable             $repo
+          hs-source-dirs:      app
+          main-is:             Main.hs
+          ghc-options:         -Wall
+                               -threaded
+                               -rtsopts
+                               -with-rtsopts=-N
+                               $ghcOptions
+          build-depends:       $base
+                             $r
+                             $customPreludePack
+          default-language:    Haskell2010
+          $defaultExtensions
         $endLine
         |]
 
-    createCabalTest :: Text
-    createCabalTest =
+    createCabalTest :: Text -> Text
+    createCabalTest r =
         [text|
-        test-suite ${repo}-test
-            type:                exitcode-stdio-1.0
-            hs-source-dirs:      test
-            main-is:             Spec.hs
-            build-depends:       $base
-                               , $repo
-                               $customPreludePack
-            $createWarnings
-            default-language:   Haskell2010
-            $defaultExtensions
+        test-suite             ${repo}-test
+          type:                exitcode-stdio-1.0
+          hs-source-dirs:      test
+          main-is:             Spec.hs
+          build-depends:       $base
+                             , $repo
+                             $r
+                             $customPreludePack
+          ghc-options:         -Wall
+                               -threaded
+                               -rtsopts
+                               -with-rtsopts=-N
+                               $ghcOptions
+          default-language:    Haskell2010
+          $defaultExtensions
         $endLine
         |]
 
     createCabalBenchmark :: Text -> Text
     createCabalBenchmark r =
         [text|
-        benchmark ${repo}-benchmark
-            type:               exitcode-stdio-1.0
-            default-language:   Haskell2010
-            $createWarnings
-            hs-source-dirs:     benchmark
-            main-is:            Main.hs
-            build-depends:      $base
-                              , gauge
-                              $customPreludePack
-                              $r
-            $defaultExtensions
+        benchmark             ${repo}-benchmark
+          type:               exitcode-stdio-1.0
+          default-language:   Haskell2010
+          ghc-options:        -Wall
+                              -threaded
+                              -rtsopts
+                              -with-rtsopts=-N
+                              -02
+                              $ghcOptions
+          hs-source-dirs:     benchmark
+          main-is:            Main.hs
+          build-depends:      $base
+                            , gauge
+                            $r
+                            $customPreludePack
+          $defaultExtensions
         $endLine
         |]
 
@@ -310,7 +325,7 @@ createStackTemplate ProjectData{..} = Dir (toString repo) $
         stackLinkNightly :: Text =
             "http://stackage.org/nightly/package/" <> repo
 
-        stackBadges :: Text = emptyIfNot stack
+        stackBadges :: Text = memptyIfFalse stack
             [text|
             [![Stackage Lts](${stackShieldLts})](${stackLinkLts})
             [![Stackage Nightly](${stackShieldNightly})](${stackLinkNightly})
@@ -320,14 +335,14 @@ createStackTemplate ProjectData{..} = Dir (toString repo) $
           "https://secure.travis-ci.org/" <> owner <> "/" <> repo <> ".svg"
         travisLink :: Text =
           "https://travis-ci.org/" <> owner <> "/" <> repo
-        travisBadge :: Text = emptyIfNot travis
+        travisBadge :: Text = memptyIfFalse travis
             [text|[![Build status](${travisShield})](${travisLink})|]
 
         appVeyorShield :: Text =
           "https://ci.appveyor.com/api/projects/status/github/" <> owner <> "/" <> repo <> "?branch=master&svg=true"
         appVeyorLink :: Text =
           "https://ci.appveyor.com/project/" <> owner <> "/" <> repo
-        appVeyorBadge :: Text = emptyIfNot appVey
+        appVeyorBadge :: Text = memptyIfFalse appVey
             [text|[![Windows build status](${appVeyorShield})](${appVeyorLink})|]
 
         licenseShield :: Text =
@@ -417,10 +432,10 @@ createStackTemplate ProjectData{..} = Dir (toString repo) $
     -- create travis.yml template
     travisYml :: Text
     travisYml =
-        let travisStackMtr = emptyIfNot stack $
+        let travisStackMtr = memptyIfFalse stack $
                 T.concat (map travisStackMatrixItem $ delete defaultGHC testedVersions)
                     <> travisStackMatrixDefaultItem
-            travisCabalMtr = emptyIfNot cabal $
+            travisCabalMtr = memptyIfFalse cabal $
                 T.concat $ map travisCabalMatrixItem testedVersions
             installAndScript =
                 if cabal
@@ -428,8 +443,8 @@ createStackTemplate ProjectData{..} = Dir (toString repo) $
                      then installScriptBoth
                      else installScriptCabal
                 else installScriptStack
-            travisCabalCache = emptyIfNot cabal "- \"$HOME/.cabal\""
-            travisStackCache = emptyIfNot stack
+            travisCabalCache = memptyIfFalse cabal "- \"$HOME/.cabal\""
+            travisStackCache = memptyIfFalse stack
                 [text|
                 - "$$HOME/.stack"
                 - "$$TRAVIS_BUILD_DIR/.stack-work"
