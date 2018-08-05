@@ -10,7 +10,7 @@ module Summoner.Template
 
 import Relude
 
-import Data.List (delete, (\\))
+import Data.List (delete)
 import NeatInterpolation (text)
 
 import Summoner.Default (defaultGHC, endLine)
@@ -128,7 +128,7 @@ createStackTemplate ProjectData{..} = Dir (toString repo) $
         |]
 
     hasLeast :: Ord a => [a] -> a -> Bool
-    hasLeast list elem = list == filter (>= elem) list
+    hasLeast list el = list == filter (>= el) list
 
     versionWarnings :: Text
     versionWarnings
