@@ -113,11 +113,11 @@ createStackTemplate ProjectData{..} = Dir (toString repo) $
 
     ghcOptions :: Text
     ghcOptions = case warnings of
-        [] -> extraWarnings
+        [] -> defaultWarnings
         xs -> T.intercalate "\n" xs
 
-    extraWarnings :: Text
-    extraWarnings =
+    defaultWarnings :: Text
+    defaultWarnings =
         [text|
         -Wincomplete-uni-patterns
         -Wincomplete-record-updates
@@ -127,13 +127,16 @@ createStackTemplate ProjectData{..} = Dir (toString repo) $
         $versionWarnings
         |]
 
+    hasLeast :: Ord a => [a] -> a -> Bool
+    hasLeast list elem = list == filter (>= elem) list
+
     versionWarnings :: Text
     versionWarnings
-        =  memptyIfFalse (Ghc7103 `notElem` testedVersions)
+        =  memptyIfFalse (testedVersions `hasLeast` Ghc801)
             "-Wredundant-constraints\n"
-        <> memptyIfFalse (null (testedVersions \\ [Ghc822, Ghc843]))
+        <> memptyIfFalse (testedVersions `hasLeast` Ghc822)
             "-fhide-source-paths\n"
-        <> memptyIfFalse (testedVersions == [Ghc843])
+        <> memptyIfFalse (testedVersions `hasLeast` Ghc843)
             [text|
             -Wmissing-export-lists
             -Wpartial-fields
@@ -149,7 +152,7 @@ createStackTemplate ProjectData{..} = Dir (toString repo) $
           ghc-options:         -Wall
                                $ghcOptions
           build-depends:       $base
-                               $customPreludePack
+                             $customPreludePack
           default-language:    Haskell2010
           $defaultExtensions
         $endLine
@@ -158,7 +161,7 @@ createStackTemplate ProjectData{..} = Dir (toString repo) $
     createCabalExe :: Text -> Text
     createCabalExe r =
         [text|
-        executable             $repo
+        executable $repo
           hs-source-dirs:      app
           main-is:             Main.hs
           ghc-options:         -Wall
@@ -177,19 +180,18 @@ createStackTemplate ProjectData{..} = Dir (toString repo) $
     createCabalTest :: Text -> Text
     createCabalTest r =
         [text|
-        test-suite             ${repo}-test
+        test-suite ${repo}-test
           type:                exitcode-stdio-1.0
           hs-source-dirs:      test
           main-is:             Spec.hs
-          build-depends:       $base
-                             , $repo
-                             $r
-                             $customPreludePack
           ghc-options:         -Wall
                                -threaded
                                -rtsopts
                                -with-rtsopts=-N
                                $ghcOptions
+          build-depends:       $base
+                             $r
+                             $customPreludePack
           default-language:    Haskell2010
           $defaultExtensions
         $endLine
@@ -198,21 +200,21 @@ createStackTemplate ProjectData{..} = Dir (toString repo) $
     createCabalBenchmark :: Text -> Text
     createCabalBenchmark r =
         [text|
-        benchmark             ${repo}-benchmark
+        benchmark ${repo}-benchmark
           type:               exitcode-stdio-1.0
-          default-language:   Haskell2010
+          hs-source-dirs:     benchmark
+          main-is:            Main.hs
           ghc-options:        -Wall
                               -threaded
                               -rtsopts
                               -with-rtsopts=-N
                               -02
                               $ghcOptions
-          hs-source-dirs:     benchmark
-          main-is:            Main.hs
           build-depends:      $base
                             , gauge
                             $r
                             $customPreludePack
+          default-language:   Haskell2010
           $defaultExtensions
         $endLine
         |]
