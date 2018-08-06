@@ -46,6 +46,7 @@ data ProjectData = ProjectData
     , base           :: Text -- ^ Base library to use
     , prelude        :: Maybe CustomPrelude  -- ^ custom prelude to be used
     , extensions     :: [Text] -- ^ default extensions
+    , warnings       :: [Text] -- ^ default warnings
     , cabal          :: Bool
     , stack          :: Bool
     } deriving (Show)

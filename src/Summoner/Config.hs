@@ -62,6 +62,7 @@ data ConfigP (p :: Phase) = Config
     , cBench      :: Decision
     , cPrelude    :: Last CustomPrelude
     , cExtensions :: [Text]
+    , cWarnings   :: [Text]
     } deriving (Generic)
 
 deriving instance (GSemigroup (p :- Text), GSemigroup (p :- License), GSemigroup (p :- [GhcVer])) => GSemigroup (ConfigP p)
@@ -106,6 +107,7 @@ defaultConfig = Config
     , cBench    = Idk
     , cPrelude  = Last Nothing
     , cExtensions = []
+    , cWarnings = []
     }
 
 -- | Identifies how to read 'Config' data from the @.toml@ file.
@@ -128,7 +130,8 @@ configT = Config
     <*> decision        "test"        .= cTest
     <*> decision        "bench"       .= cBench
     <*> lastT (Toml.table preludeT) "prelude" .= cPrelude
-    <*> extensions      "extensions"  .= cExtensions
+    <*> textArr         "extensions"  .= cExtensions
+    <*> textArr         "warnings"    .= cWarnings
   where
     lastT :: (Key -> BiToml a) -> Key -> BiToml (Last a)
     lastT f = dimap getLast Last . Toml.maybeT f
@@ -145,8 +148,8 @@ configT = Config
     license :: Key -> BiToml License
     license =  dimap unLicense License . Toml.text
 
-    extensions :: Key -> BiToml [Text]
-    extensions = dimap Just maybeToMonoid . Toml.maybeT (Toml.arrayOf Toml._Text)
+    textArr :: Key -> BiToml [Text]
+    textArr = dimap Just maybeToMonoid . Toml.maybeT (Toml.arrayOf Toml._Text)
 
     decision :: Key -> BiToml Decision
     decision = dimap fromDecision toDecision . Toml.maybeT Toml.bool
@@ -189,6 +192,7 @@ finalise Config{..} = Config
     <*> pure cBench
     <*> pure cPrelude
     <*> pure cExtensions
+    <*> pure cWarnings
   where
     fin name = maybe (Failure ["Missing field: " <> name]) Success . getLast
 
