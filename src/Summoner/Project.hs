@@ -11,6 +11,7 @@ import Relude
 import Data.Aeson (decodeStrict)
 import Data.ByteString.Char8 (pack)
 import NeatInterpolation (text)
+import System.Directory (setCurrentDirectory)
 import System.Info (os)
 import System.Process (readProcess)
 
@@ -120,7 +121,7 @@ generateProject projectName Config{..} = do
         traverseTree tree
         successMessage "\nThe project with the following structure has been created:"
         putTextLn $ showTree tree
-        "cd" [repo]
+        setCurrentDirectory (toString repo)
 
     doScriptCommand :: IO ()
     doScriptCommand = when (os /= "mingw32") ("chmod" ["+x", "b"])
