@@ -7,13 +7,15 @@
   Add stackage badges
 * [#109](https://github.com/kowainik/summoner/issues/109):
   Fix travis cache directories
+* [#117](https://github.com/kowainik/summoner/issues/117):
+  Step into created project properly
 * [#110](https://github.com/kowainik/summoner/issues/110):
   Print executing command
 
 1.0.6
 =====
 
-* Use `relude` instead of `universum`
+* Use `relude` instead of `universum`.
 * [#105](https://github.com/kowainik/summoner/issues/105):
   Add `--ignore-config` option.
 
