@@ -97,6 +97,7 @@ Here is the list of the options that could be configured for your needs:
 * `bench` – `true` if you want to create `benchmark` folder  with `Main.hs` file with [`gauge`](https://hackage.haskell.org/package/gauge) library usage example by default,
           `false` if you don't. If not specified it would be asked during each run of the `summoner`.
 * `extensions` – List of the default extensions to add into `default-extensions` section in the `.cabal`.
+* `warnings` - List of the default checks and warnings to add into `ghc-options` section in the `.cabal`.
 
 ###### Custom prelude options
 
@@ -216,15 +217,19 @@ project-name
 ```
 and also repository with one commit at master will be added with enabled `Travis-CI` for that.
 
-## Warnings
+## GHC options 
 
-`ghc-options` field has default warnings in the  _project-name.cabal_:
+The following warning checks are added by default to every stanza:
 
     -Wall
     -threaded
     -rtsopts
     -with-rtsopts=-N
-    -02                          (benchmark only)
+
+If `--file` option is not used, then
+
+the following ghc-options are added to executable, test-suite and benchmark stanza.
+
     -Wincomplete-uni-patterns
     -Wincomplete-record-updates
     -Wmissing-import-lists
@@ -234,6 +239,10 @@ and also repository with one commit at master will be added with enabled `Travis
     -fhide-source-paths          (ghc >= 8.2.2)
     -Wmissing-export-lists       (ghc >= 8.4.1)
     -Wpartial-fields             (ghc >= 8.4.1)
+
+and the following ghc-options are added to benchmark stanza.
+
+    -02
 
 ### Build script
 
