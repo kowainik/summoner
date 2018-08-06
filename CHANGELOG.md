@@ -13,6 +13,8 @@
   Print executing command
 * [#91](https://github.com/kowainik/summoner/issues/91):
   Add warning fields for ghc
+* [#90](https://github.com/kowainik/summoner/issues/90):
+  Add TOML test
 
 1.0.6
 =====

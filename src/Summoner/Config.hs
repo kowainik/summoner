@@ -14,12 +14,10 @@
 
 module Summoner.Config
        ( ConfigP (..)
-
        , PartialConfig
-       , Config
+       , configT
        , defaultConfig
        , finalise
-
        , loadFileConfig
        ) where
 
