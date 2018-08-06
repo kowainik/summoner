@@ -127,9 +127,6 @@ createStackTemplate ProjectData{..} = Dir (toString repo) $
         $versionWarnings
         |]
 
-    hasLeast :: Ord a => [a] -> a -> Bool
-    hasLeast list el = list == filter (>= el) list
-
     versionWarnings :: Text
     versionWarnings
         =  memptyIfFalse (testedVersions `hasLeast` Ghc801)
@@ -141,6 +138,8 @@ createStackTemplate ProjectData{..} = Dir (toString repo) $
             -Wmissing-export-lists
             -Wpartial-fields
             |]
+      where
+        hasLeast list el = all (>= el) list
 
     createCabalLib :: Text
     createCabalLib =

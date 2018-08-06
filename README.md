@@ -216,6 +216,25 @@ project-name
 ```
 and also repository with one commit at master will be added with enabled `Travis-CI` for that.
 
+## Warnings
+
+`ghc-options` field has default warnings in the  _project-name.cabal_:
+
+    -Wall
+    -threaded
+    -rtsopts
+    -with-rtsopts=-N
+    -02                          (benchmark only)
+    -Wincomplete-uni-patterns
+    -Wincomplete-record-updates
+    -Wmissing-import-lists
+    -Wcompat
+    -Widentities
+    -Wredundant-constraints      (ghc >= 8.0)
+    -fhide-source-paths          (ghc >= 8.2.2)
+    -Wmissing-export-lists       (ghc >= 8.4.1)
+    -Wpartial-fields             (ghc >= 8.4.1)
+
 ### Build script
 
 The `b` script builds the project in a way that is convenient for developers.
