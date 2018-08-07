@@ -97,7 +97,7 @@ Here is the list of the options that could be configured for your needs:
 * `bench` – `true` if you want to create `benchmark` folder  with `Main.hs` file with [`gauge`](https://hackage.haskell.org/package/gauge) library usage example by default,
           `false` if you don't. If not specified it would be asked during each run of the `summoner`.
 * `extensions` – List of the default extensions to add into `default-extensions` section in the `.cabal`.
-* `warnings` - List of the default checks and warnings to add into `ghc-options` section in the `.cabal`.
+* `warnings` – List of the default checks and warnings to add into `ghc-options` section in the `.cabal`.
 
 ###### Custom prelude options
 
