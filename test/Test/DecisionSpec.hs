@@ -5,6 +5,7 @@ import Relude
 import Hedgehog (MonadGen, forAll, liftGen, property, (===))
 import Test.Tasty (TestTree)
 import Test.Tasty.Hedgehog (testProperty)
+import Toml.Bi.Code (decode, encode, prettyException)
 
 import Summoner.Config (ConfigP (..), PartialConfig, configT)
 import Summoner.License (License (..), licenseNames)
@@ -12,7 +13,6 @@ import Summoner.ProjectData (CustomPrelude (..), Decision, GhcVer (..))
 
 import qualified Hedgehog.Gen as Gen
 import qualified Hedgehog.Range as Range
--- import qualified Toml
 
 test_decisionSemigroupAssoc :: [TestTree]
 test_decisionSemigroupAssoc = pure $ testProperty "Decision Semigroup:Assoc" $ property $ do
@@ -51,9 +51,9 @@ randomConfig :: MonadGen m => m PartialConfig
 randomConfig = do
     text <- liftGen genText
     list <- liftGen genTextArr
-    dec <- liftGen genDecision
-    lic <- liftGen genLicense
-    ghc <- liftGen genGhcVerArr
+    dec  <- liftGen genDecision
+    lic  <- liftGen genLicense
+    ghc  <- liftGen genGhcVerArr
     lude <- liftGen genCustomPrelude
     pure Config
         { cOwner      = Last $ Just text
@@ -76,3 +76,12 @@ randomConfig = do
         , cExtensions = list
         , cWarnings   = list
         }
+
+test_Toml :: [TestTree]
+test_Toml = pure $ testProperty "Test TOML" $ property $ do
+    configToml     <- forAll randomConfig
+    let textToml    = encode configT configToml
+    let mConfigToml = decode configT textToml
+    case mConfigToml of
+        Left err           -> putStrLn $ prettyException err
+        Right deConfigToml -> configToml === deConfigToml

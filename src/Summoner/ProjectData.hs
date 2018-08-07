@@ -119,7 +119,7 @@ baseNopreludeVer Ghc843  = "4.11.1.0"
 data CustomPrelude = Prelude
     { cpPackage :: Text
     , cpModule  :: Text
-    } deriving (Show)
+    } deriving (Show, Eq)
 
 data Answer = Y | N
 

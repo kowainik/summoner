@@ -91,6 +91,7 @@ test-suite summoner-test
                      , relude
                      , tasty
                      , tasty-hedgehog
+                     , tomland
                      , summoner
   default-extensions:  NoImplicitPrelude
 
