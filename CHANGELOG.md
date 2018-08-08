@@ -15,6 +15,8 @@
   Add warning fields for ghc
 * [#90](https://github.com/kowainik/summoner/issues/90):
   Add TOML test
+* [#120](https://github.com/kowainik/summoner/issues/120):
+  Bump up dependencies
 
 1.0.6
 =====

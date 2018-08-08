@@ -62,8 +62,8 @@ library
                      , process
                      , text
                      , time
-                     , tomland ^>= 0.3
-                     , relude
+                     , tomland ^>= 0.3.1
+                     , relude ^>= 0.1.1
 
   default-extensions:  DeriveGeneric
                        GeneralizedNewtypeDeriving
@@ -89,7 +89,7 @@ executable summon
                        -Wredundant-constraints
                        -fhide-source-paths
   build-depends:       base
-                     , relude
+                     , relude ^>= 0.1.1
                      , summoner
   default-language:    Haskell2010
 
@@ -104,10 +104,10 @@ test-suite summoner-test
   build-tool-depends:  tasty-discover:tasty-discover
   build-depends:       base
                      , hedgehog
-                     , relude
+                     , relude ^>= 0.1.1
                      , tasty
                      , tasty-hedgehog
-                     , tomland
+                     , tomland ^>= 0.3.1
                      , summoner
   default-extensions:  NoImplicitPrelude
 

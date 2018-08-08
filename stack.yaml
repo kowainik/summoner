@@ -1,4 +1,5 @@
-resolver: lts-12.2
+resolver: lts-12.5
 
 extra-deps:
-  - relude-0.1.0
+  - relude-0.1.1
+  - tomland-0.3.1

@@ -3,7 +3,6 @@
 module Summoner.ProjectData
        ( ProjectData (..)
        , GhcVer (..)
-       , supportedGhcVers
        , parseGhcVer
        , showGhcVer
        , latestLts
@@ -17,6 +16,7 @@ module Summoner.ProjectData
        ) where
 
 import Relude
+import Relude.Extra.Enum (inverseMap)
 
 import Generics.Deriving.Monoid (GMonoid (..))
 import Generics.Deriving.Semigroup (GSemigroup (..))
@@ -80,10 +80,6 @@ data GhcVer = Ghc7103
             | Ghc843
             deriving (Eq, Ord, Show, Enum, Bounded)
 
--- | Supported by @summoner@ GHC versions for project templates.
-supportedGhcVers :: [GhcVer]
-supportedGhcVers = [minBound .. maxBound]
-
 -- | Converts 'GhcVer' into dot-separated string.
 showGhcVer :: GhcVer -> Text
 showGhcVer Ghc7103 = "7.10.3"
@@ -92,14 +88,8 @@ showGhcVer Ghc802  = "8.0.2"
 showGhcVer Ghc822  = "8.2.2"
 showGhcVer Ghc843  = "8.4.3"
 
--- | Converts numeric dot-separated GHC version into 'GhcVer'.
 parseGhcVer :: Text -> Maybe GhcVer
-parseGhcVer "7.10.3" = Just Ghc7103
-parseGhcVer "8.0.1"  = Just Ghc801
-parseGhcVer "8.0.2"  = Just Ghc802
-parseGhcVer "8.2.2"  = Just Ghc822
-parseGhcVer "8.4.3"  = Just Ghc843
-parseGhcVer _        = Nothing
+parseGhcVer = inverseMap showGhcVer
 
 -- | Returns latest known LTS resolver for all GHC versions except default one.
 latestLts :: GhcVer -> Text
