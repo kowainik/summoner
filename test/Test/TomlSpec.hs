@@ -11,7 +11,7 @@ import Toml.Bi.Code (decode, encode)
 
 import Summoner.Config (ConfigP (..), PartialConfig, configT)
 import Summoner.License (License (..), licenseNames)
-import Summoner.ProjectData (CustomPrelude (..), Decision, GhcVer (..))
+import Summoner.ProjectData (CustomPrelude (..), GhcVer (..))
 import Test.DecisionSpec (genDecision)
 
 import qualified Hedgehog.Gen as Gen

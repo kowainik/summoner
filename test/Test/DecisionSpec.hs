@@ -1,6 +1,4 @@
-module Test.DecisionSpec
-    (genDecision)
-    where
+module Test.DecisionSpec where
 
 import Relude
 
