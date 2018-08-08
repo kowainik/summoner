@@ -2,7 +2,7 @@
 
 module Test.TomlSpec where
 
-import Relude (Last (Last), Maybe (Just), Text, pure, ($), (.), (<$>), (<*>))
+import Relude
 
 import Hedgehog (MonadGen, forAll, property, tripping)
 import Test.Tasty (TestTree)
@@ -12,12 +12,10 @@ import Toml.Bi.Code (decode, encode)
 import Summoner.Config (ConfigP (..), PartialConfig, configT)
 import Summoner.License (License (..), licenseNames)
 import Summoner.ProjectData (CustomPrelude (..), Decision, GhcVer (..))
+import Test.DecisionSpec (genDecision)
 
 import qualified Hedgehog.Gen as Gen
 import qualified Hedgehog.Range as Range
-
-genDecision :: MonadGen m => m Decision
-genDecision = Gen.enumBounded
 
 genText :: MonadGen m => m Text
 genText = Gen.text
@@ -31,9 +29,7 @@ genGhcVerArr :: MonadGen m => m [GhcVer]
 genGhcVerArr = Gen.list (Range.constant 0 10) Gen.enumBounded
 
 genCustomPrelude :: MonadGen m => m CustomPrelude
-genCustomPrelude = Prelude
-    <$> genText
-    <*> genText
+genCustomPrelude = Prelude <$> genText <*> genText
 
 genLicense :: MonadGen m => m License
 genLicense = Gen.element licenseNames
@@ -63,5 +59,5 @@ genPartialConfig = do
 
 test_Toml :: [TestTree]
 test_Toml = pure $ testProperty "decode . encode == id" $ property $ do
-    configToml     <- forAll genPartialConfig
+    configToml <- forAll genPartialConfig
     tripping configToml (encode configT) (decode configT)

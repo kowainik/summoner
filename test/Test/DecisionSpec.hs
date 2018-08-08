@@ -1,6 +1,8 @@
-module Test.DecisionSpec where
+module Test.DecisionSpec
+    (genDecision)
+    where
 
-import Relude (mempty, pure, ($), (<>))
+import Relude
 
 import Hedgehog (MonadGen, forAll, property, (===))
 import Test.Tasty (TestTree)
