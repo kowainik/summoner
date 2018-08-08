@@ -32,6 +32,7 @@ matrix:
         - hvr-ghc
         packages:
         - ghc-8.4.3
+        - cabal-install-head
 
   - ghc: 8.2.2
     env: GHCVER='8.2.2' STACK_YAML="$TRAVIS_BUILD_DIR/stack-$GHCVER.yaml"
