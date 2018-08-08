@@ -232,7 +232,6 @@ the following ghc-options are added to executable, test-suite and benchmark stan
 
     -Wincomplete-uni-patterns
     -Wincomplete-record-updates
-    -Wmissing-import-lists
     -Wcompat
     -Widentities
     -Wredundant-constraints      (ghc >= 8.0)
