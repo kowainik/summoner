@@ -7,6 +7,7 @@ module Summoner.Project
        ) where
 
 import Relude
+import Relude.Extra.Enum (universe)
 
 import Data.Aeson (decodeStrict)
 import Data.ByteString.Char8 (pack)
@@ -21,7 +22,7 @@ import Summoner.Default (currentYear, defaultGHC)
 import Summoner.License (License (..), customizeLicense, githubLicenseQueryNames, licenseNames)
 import Summoner.Process ()
 import Summoner.ProjectData (CustomPrelude (..), Decision (..), ProjectData (..), parseGhcVer,
-                             showGhcVer, supportedGhcVers)
+                             showGhcVer)
 import Summoner.Question (checkUniqueName, choose, chooseYesNo, chooseYesNoBool, falseMessage,
                           query, queryDef, queryManyRepeatOnFail, targetMessageWithText,
                           trueMessage)
@@ -95,7 +96,7 @@ generateProject projectName Config{..} = do
     testedVersions <- sortNub . (defaultGHC :) <$> case cGhcVer of
         [] -> do
             putTextLn "Additionally you can specify versions of GHC to test with (space-separated): "
-            infoMessage $ "Supported by 'summoner' GHCs: " <> intercalateMap " " showGhcVer supportedGhcVers
+            infoMessage $ "Supported by 'summoner' GHCs: " <> intercalateMap " " showGhcVer universe
             queryManyRepeatOnFail parseGhcVer
         vers -> do
             putTextLn $ "Also these GHC versions will be added: " <> intercalateMap " " showGhcVer vers

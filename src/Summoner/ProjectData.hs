@@ -3,7 +3,6 @@
 module Summoner.ProjectData
        ( ProjectData (..)
        , GhcVer (..)
-       , supportedGhcVers
        , parseGhcVer
        , showGhcVer
        , latestLts
@@ -80,10 +79,6 @@ data GhcVer = Ghc7103
             | Ghc822
             | Ghc843
             deriving (Eq, Ord, Show, Enum, Bounded)
-
--- | Supported by @summoner@ GHC versions for project templates.
-supportedGhcVers :: [GhcVer]
-supportedGhcVers = [minBound .. maxBound]
 
 -- | Converts 'GhcVer' into dot-separated string.
 showGhcVer :: GhcVer -> Text
