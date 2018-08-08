@@ -121,7 +121,6 @@ createStackTemplate ProjectData{..} = Dir (toString repo) $
         [text|
         -Wincomplete-uni-patterns
         -Wincomplete-record-updates
-        -Wmissing-import-lists
         -Wcompat
         -Widentities
         $versionWarnings

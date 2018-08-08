@@ -17,6 +17,7 @@ module Summoner.Config
 
        , PartialConfig
        , Config
+       , configT
        , defaultConfig
        , finalise
 
@@ -67,6 +68,8 @@ data ConfigP (p :: Phase) = Config
 
 deriving instance (GSemigroup (p :- Text), GSemigroup (p :- License), GSemigroup (p :- [GhcVer])) => GSemigroup (ConfigP p)
 deriving instance (GMonoid (p :- Text), GMonoid (p :- License), GMonoid (p :- [GhcVer])) => GMonoid (ConfigP p)
+deriving instance (Eq (p :- Text), Eq (p :- License), Eq (p :- [GhcVer]), Eq (Last CustomPrelude)) => Eq (ConfigP p)
+deriving instance (Show (p :- Text), Show (p :- License), Show (p :- [GhcVer])) => Show (ConfigP p)
 
 infixl 3 :-
 type family phase :- field where
