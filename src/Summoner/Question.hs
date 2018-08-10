@@ -45,12 +45,13 @@ printQuestion question (def:rest) = do
     putTextLn $ "/" <> restSlash
 printQuestion question [] = T.putStrLn question
 
-choose :: Text -> [Text] -> IO Text
+choose :: forall a. (Show a, IsString a) => Text -> [a] -> IO a
 choose question choices = do
-    printQuestion question choices
+    let showChoices = map show choices
+    printQuestion question showChoices
     answer <- prompt
     if | T.null answer -> pure (Unsafe.head choices)
-       | answer `elem` choices -> pure answer
+       | answer `elem` showChoices -> pure $ fromString $ T.unpack answer
        | otherwise -> do
            errorMessage "This wasn't a valid choice."
            choose question choices

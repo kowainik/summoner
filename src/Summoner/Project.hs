@@ -19,8 +19,7 @@ import System.Process (readProcess)
 import Summoner.Ansi (errorMessage, infoMessage, successMessage)
 import Summoner.Config (Config, ConfigP (..))
 import Summoner.Default (currentYear, defaultGHC)
-import Summoner.License (License (..), cabalLicenseName, customizeLicense, githubLicenseQueryNames,
-                         parseLicense)
+import Summoner.License (License (..), cabalLicenseName, customizeLicense)
 import Summoner.Process ()
 import Summoner.ProjectData (CustomPrelude (..), Decision (..), ProjectData (..), parseGhcVer,
                              showGhcVer)
@@ -52,11 +51,7 @@ generateProject projectName Config{..} = do
     category <- query "Category: "
     license  <- choose "License: " $ map cabalLicenseName $ ordNub (cLicense : universe)
 
-    -- License creation
-    let licenseGithub = case parseLicense license of
-            Just l  -> githubLicenseQueryNames l
-            Nothing -> error "Unrecognised license name"
-    let licenseLink = "https://api.github.com/licenses/" <> licenseGithub
+    let licenseLink = "https://api.github.com/licenses/" <> license
     licenseJson <-
       readProcess "curl"
                   [ toString licenseLink
