@@ -3,6 +3,7 @@
 module Test.TomlSpec where
 
 import Relude
+import Relude.Extra.Enum (universe)
 
 import Hedgehog (MonadGen, forAll, property, tripping)
 import Test.Tasty (TestTree)
@@ -10,7 +11,7 @@ import Test.Tasty.Hedgehog (testProperty)
 import Toml.Bi.Code (decode, encode)
 
 import Summoner.Config (ConfigP (..), PartialConfig, configT)
-import Summoner.License (License (..), licenseNames)
+import Summoner.License (License (..))
 import Summoner.ProjectData (CustomPrelude (..), GhcVer (..))
 import Test.DecisionSpec (genDecision)
 
@@ -32,7 +33,7 @@ genCustomPrelude :: MonadGen m => m CustomPrelude
 genCustomPrelude = Prelude <$> genText <*> genText
 
 genLicense :: MonadGen m => m License
-genLicense = Gen.element licenseNames
+genLicense = Gen.element universe
 
 genPartialConfig :: MonadGen m => m PartialConfig
 genPartialConfig = do

@@ -19,7 +19,7 @@ import System.Process (readProcess)
 import Summoner.Ansi (errorMessage, infoMessage, successMessage)
 import Summoner.Config (Config, ConfigP (..))
 import Summoner.Default (currentYear, defaultGHC)
-import Summoner.License (License (..), customizeLicense, githubLicenseQueryNames, licenseNames)
+import Summoner.License (LicenseBody (..), customizeLicense, showLicense, githubLicenseQueryNames, parseLicense)
 import Summoner.Process ()
 import Summoner.ProjectData (CustomPrelude (..), Decision (..), ProjectData (..), parseGhcVer,
                              showGhcVer)
@@ -29,8 +29,6 @@ import Summoner.Question (checkUniqueName, choose, chooseYesNo, chooseYesNoBool,
 import Summoner.Template (createStackTemplate)
 import Summoner.Text (intercalateMap, packageToModule)
 import Summoner.Tree (showTree, traverseTree)
-
-import qualified Relude.Unsafe as Unsafe
 
 decisionToBool :: Decision -> Text -> IO Bool
 decisionToBool decision target = case decision of
@@ -51,12 +49,12 @@ generateProject projectName Config{..} = do
     email       <- queryDef "Maintainer e-mail: " cEmail
     putText categoryText
     category <- query "Category: "
-    license  <- choose "License: " $ map unLicense $ ordNub (cLicense : licenseNames)
+    license  <- choose "License: " $ map showLicense universe
 
     -- License creation
-    let licenseGithub = snd
-                      $ Unsafe.head
-                      $ dropWhile ((/= license) . unLicense . fst) githubLicenseQueryNames
+    let licenseGithub = case parseLicense license of 
+            Just l -> githubLicenseQueryNames l
+            Nothing -> error "Unrecognised license name"
     let licenseLink = "https://api.github.com/licenses/" <> licenseGithub
     licenseJson <-
       readProcess "curl"
@@ -66,8 +64,8 @@ generateProject projectName Config{..} = do
                   ]
                   ""
     year <- currentYear
-    let licenseText = case (decodeStrict $ pack licenseJson) :: Maybe License of
-            Just t  -> customizeLicense license (unLicense t) nm year
+    let licenseText = case (decodeStrict $ pack licenseJson) :: Maybe LicenseBody of
+            Just t  -> customizeLicense license (unBody t) nm year
             Nothing -> error "Broken predefined license list"
 
     -- Library/Executable/Tests/Benchmarks flags
