@@ -19,7 +19,7 @@ import System.Process (readProcess)
 import Summoner.Ansi (errorMessage, infoMessage, successMessage)
 import Summoner.Config (Config, ConfigP (..))
 import Summoner.Default (currentYear, defaultGHC)
-import Summoner.License (LicenseBody (..), customizeLicense, showLicense, githubLicenseQueryNames, parseLicense)
+import Summoner.License (License (..), customizeLicense, showLicense, githubLicenseQueryNames, parseLicense)
 import Summoner.Process ()
 import Summoner.ProjectData (CustomPrelude (..), Decision (..), ProjectData (..), parseGhcVer,
                              showGhcVer)
@@ -64,7 +64,7 @@ generateProject projectName Config{..} = do
                   ]
                   ""
     year <- currentYear
-    let licenseText = case (decodeStrict $ pack licenseJson) :: Maybe LicenseBody of
+    let licenseText = case (decodeStrict $ pack licenseJson) :: Maybe License of
             Just t  -> customizeLicense license (unBody t) nm year
             Nothing -> error "Broken predefined license list"
 

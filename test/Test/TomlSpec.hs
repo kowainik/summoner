@@ -11,7 +11,7 @@ import Test.Tasty.Hedgehog (testProperty)
 import Toml.Bi.Code (decode, encode)
 
 import Summoner.Config (ConfigP (..), PartialConfig, configT)
-import Summoner.License (License (..))
+import Summoner.License (LicenseName (..))
 import Summoner.ProjectData (CustomPrelude (..), GhcVer (..))
 import Test.DecisionSpec (genDecision)
 
@@ -32,7 +32,7 @@ genGhcVerArr = Gen.list (Range.constant 0 10) Gen.enumBounded
 genCustomPrelude :: MonadGen m => m CustomPrelude
 genCustomPrelude = Prelude <$> genText <*> genText
 
-genLicense :: MonadGen m => m License
+genLicense :: MonadGen m => m LicenseName
 genLicense = Gen.element universe
 
 genPartialConfig :: MonadGen m => m PartialConfig

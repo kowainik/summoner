@@ -1,6 +1,6 @@
 module Summoner.License
-       ( License (..)
-       , LicenseBody (..)
+       ( LicenseName (..)
+       , License (..)
        , customizeLicense
        , githubLicenseQueryNames
        , parseLicense
@@ -18,7 +18,7 @@ import qualified Data.Text as T
 -- License
 ----------------------------------------------------------------------------
 
-data License = MIT
+data LicenseName = MIT
              | BSD2
              | BSD3
              | GPL2
@@ -30,7 +30,7 @@ data License = MIT
              | MPL20
              deriving (Eq, Ord, Show, Enum, Bounded, Generic)
 
-githubLicenseQueryNames :: License -> Text
+githubLicenseQueryNames :: LicenseName -> Text
 githubLicenseQueryNames MIT      = "mit"
 githubLicenseQueryNames BSD2     = "bsd-2-clause"
 githubLicenseQueryNames BSD3     = "bsd-3-clause"
@@ -42,7 +42,7 @@ githubLicenseQueryNames AGPL3    = "agpl-3.0"
 githubLicenseQueryNames Apache20 = "apache-2.0"
 githubLicenseQueryNames MPL20    = "mpl-2.0"
 
-showLicense :: License -> Text
+showLicense :: LicenseName -> Text
 showLicense MIT      = "MIT"
 showLicense BSD2     = "BSD2"       
 showLicense BSD3     = "BSD3"       
@@ -54,14 +54,14 @@ showLicense AGPL3    = "AGPL-3"
 showLicense Apache20 = "Apache-2.0" 
 showLicense MPL20    = "MPL-2.0"
 
-parseLicense :: Text -> Maybe License
+parseLicense :: Text -> Maybe LicenseName
 parseLicense = inverseMap showLicense
 
-newtype LicenseBody = LicenseBody { unBody :: Text }
+newtype License = License { unBody :: Text }
     deriving (IsString, Show, Generic)
 
-instance FromJSON LicenseBody where
-    parseJSON = withObject "License" $ \o -> LicenseBody <$> o .: "body"
+instance FromJSON License where
+    parseJSON = withObject "License" $ \o -> License <$> o .: "body"
 
 customizeLicense :: Text -> Text -> Text -> Text -> Text
 customizeLicense l t nm year
