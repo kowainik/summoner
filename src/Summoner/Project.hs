@@ -19,8 +19,8 @@ import System.Process (readProcess)
 import Summoner.Ansi (errorMessage, infoMessage, successMessage)
 import Summoner.Config (Config, ConfigP (..))
 import Summoner.Default (currentYear, defaultGHC)
-import Summoner.License (License (..), customizeLicense, githubLicenseQueryNames, parseLicense,
-                         showLicense)
+import Summoner.License (License (..), cabalLicenseName, customizeLicense, githubLicenseQueryNames,
+                         parseLicense)
 import Summoner.Process ()
 import Summoner.ProjectData (CustomPrelude (..), Decision (..), ProjectData (..), parseGhcVer,
                              showGhcVer)
@@ -50,7 +50,7 @@ generateProject projectName Config{..} = do
     email       <- queryDef "Maintainer e-mail: " cEmail
     putText categoryText
     category <- query "Category: "
-    license  <- choose "License: " $ map showLicense universe
+    license  <- choose "License: " $ map cabalLicenseName $ ordNub (cLicense : universe)
 
     -- License creation
     let licenseGithub = case parseLicense license of
