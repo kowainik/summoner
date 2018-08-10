@@ -45,7 +45,7 @@ printQuestion question (def:rest) = do
     putTextLn $ "/" <> restSlash
 printQuestion question [] = T.putStrLn question
 
-choose :: forall a. (Show a, IsString a) => Text -> [a] -> IO a
+choose :: (Show a, IsString a) => Text -> [a] -> IO a
 choose question choices = do
     let showChoices = map show choices
     printQuestion question showChoices
