@@ -19,7 +19,8 @@ import System.Process (readProcess)
 import Summoner.Ansi (errorMessage, infoMessage, successMessage)
 import Summoner.Config (Config, ConfigP (..))
 import Summoner.Default (currentYear, defaultGHC)
-import Summoner.License (License (..), customizeLicense, showLicense, githubLicenseQueryNames, parseLicense)
+import Summoner.License (License (..), customizeLicense, githubLicenseQueryNames, parseLicense,
+                         showLicense)
 import Summoner.Process ()
 import Summoner.ProjectData (CustomPrelude (..), Decision (..), ProjectData (..), parseGhcVer,
                              showGhcVer)
@@ -52,8 +53,8 @@ generateProject projectName Config{..} = do
     license  <- choose "License: " $ map showLicense universe
 
     -- License creation
-    let licenseGithub = case parseLicense license of 
-            Just l -> githubLicenseQueryNames l
+    let licenseGithub = case parseLicense license of
+            Just l  -> githubLicenseQueryNames l
             Nothing -> error "Unrecognised license name"
     let licenseLink = "https://api.github.com/licenses/" <> licenseGithub
     licenseJson <-
@@ -65,7 +66,7 @@ generateProject projectName Config{..} = do
                   ""
     year <- currentYear
     let licenseText = case (decodeStrict $ pack licenseJson) :: Maybe License of
-            Just t  -> customizeLicense license (unBody t) nm year
+            Just t  -> customizeLicense license (unLicense t) nm year
             Nothing -> error "Broken predefined license list"
 
     -- Library/Executable/Tests/Benchmarks flags

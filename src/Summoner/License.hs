@@ -1,11 +1,12 @@
 module Summoner.License
-       ( LicenseName (..)
-       , License (..)
-       , customizeLicense
-       , githubLicenseQueryNames
-       , parseLicense
-       , showLicense
-       ) where
+    ( LicenseName(..)
+    , License(..)
+    , customizeLicense
+    , githubLicenseQueryNames
+    , parseLicense
+    , showLicense
+    )
+where
 
 import Relude
 import Relude.Extra.Enum (inverseMap)
@@ -18,17 +19,18 @@ import qualified Data.Text as T
 -- License
 ----------------------------------------------------------------------------
 
-data LicenseName = MIT
-             | BSD2
-             | BSD3
-             | GPL2
-             | GPL3
-             | LGPL21
-             | LGPL3
-             | AGPL3
-             | Apache20
-             | MPL20
-             deriving (Eq, Ord, Show, Enum, Bounded, Generic)
+data LicenseName
+    = MIT
+    | BSD2
+    | BSD3
+    | GPL2
+    | GPL3
+    | LGPL21
+    | LGPL3
+    | AGPL3
+    | Apache20
+    | MPL20
+    deriving (Eq, Ord, Show, Enum, Bounded, Generic)
 
 githubLicenseQueryNames :: LicenseName -> Text
 githubLicenseQueryNames MIT      = "mit"
@@ -44,20 +46,20 @@ githubLicenseQueryNames MPL20    = "mpl-2.0"
 
 showLicense :: LicenseName -> Text
 showLicense MIT      = "MIT"
-showLicense BSD2     = "BSD2"       
-showLicense BSD3     = "BSD3"       
-showLicense GPL2     = "GPL-2"      
-showLicense GPL3     = "GPL-3"      
-showLicense LGPL21   = "LGPL-2.1"   
-showLicense LGPL3    = "LGPL-3"     
-showLicense AGPL3    = "AGPL-3"     
-showLicense Apache20 = "Apache-2.0" 
+showLicense BSD2     = "BSD2"
+showLicense BSD3     = "BSD3"
+showLicense GPL2     = "GPL-2"
+showLicense GPL3     = "GPL-3"
+showLicense LGPL21   = "LGPL-2.1"
+showLicense LGPL3    = "LGPL-3"
+showLicense AGPL3    = "AGPL-3"
+showLicense Apache20 = "Apache-2.0"
 showLicense MPL20    = "MPL-2.0"
 
 parseLicense :: Text -> Maybe LicenseName
 parseLicense = inverseMap showLicense
 
-newtype License = License { unBody :: Text }
+newtype License = License { unLicense :: Text }
     deriving (IsString, Show, Generic)
 
 instance FromJSON License where
@@ -66,11 +68,11 @@ instance FromJSON License where
 customizeLicense :: Text -> Text -> Text -> Text -> Text
 customizeLicense l t nm year
     | l `elem` words "MIT BSD2 BSD3" = updateLicenseText
-    | otherwise = t
+    | otherwise                      = t
   where
     updateLicenseText =
         let (beforeY, withY) = T.span (/= '[') t
-            afterY = T.tail $ T.dropWhile (/= ']') withY
+            afterY           = T.tail $ T.dropWhile (/= ']') withY
             (beforeN, withN) = T.span (/= '[') afterY
-            afterN = T.tail $ T.dropWhile (/= ']') withN
-        in beforeY <> year <> beforeN <> nm <> afterN
+            afterN           = T.tail $ T.dropWhile (/= ']') withN
+        in  beforeY <> year <> beforeN <> nm <> afterN
