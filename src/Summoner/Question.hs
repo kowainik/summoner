@@ -53,7 +53,7 @@ choose question choices = do
     answer <- prompt
     if T.null answer
         then pure (Unsafe.head choices)
-        else whenNothing (readMaybe @a (T.unpack answer))
+        else whenNothing (readMaybe @a (toString answer))
                 (errorMessage "This wasn't a valid choice." >> choose question choices)
 
 chooseYesNo :: Text -- ^ target

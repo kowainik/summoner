@@ -9,7 +9,6 @@ module Summoner.Template
        ) where
 
 import Relude
-import Relude.String.Conversion (show)
 
 import Data.List (delete)
 import NeatInterpolation (text)
@@ -77,6 +76,7 @@ createStackTemplate ProjectData{..} = Dir (toString repo) $
     createCabalTop :: Text
     createCabalTop =
         [text|
+        cabal-version:       1.24
         name:                $repo
         version:             0.0.0
         description:         $description
@@ -92,7 +92,6 @@ createStackTemplate ProjectData{..} = Dir (toString repo) $
         build-type:          Simple
         extra-doc-files:     README.md
                            , CHANGELOG.md
-        cabal-version:       1.24
         tested-with:         $testedGhcs
         $endLine
         |]

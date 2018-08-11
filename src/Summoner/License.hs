@@ -8,7 +8,6 @@ module Summoner.License
 
 import Relude
 import Relude.Extra.Enum (inverseMap)
-import Relude.String.Conversion (show)
 
 import Data.Aeson (FromJSON (..), withObject, (.:))
 import qualified Data.Text as T
@@ -31,6 +30,18 @@ data LicenseName
     | MPL20
     deriving (Eq, Ord, Enum, Bounded, Generic, Read)
 
+instance Show LicenseName where
+    show MIT      = "MIT"
+    show BSD2     = "BSD2"
+    show BSD3     = "BSD3"
+    show GPL2     = "GPL-2"
+    show GPL3     = "GPL-3"
+    show LGPL21   = "LGPL-2.1"
+    show LGPL3    = "LGPL-3"
+    show AGPL3    = "AGPL-3"
+    show Apache20 = "Apache-2.0"
+    show MPL20    = "MPL-2.0"
+
 githubLicenseQueryNames :: LicenseName -> Text
 githubLicenseQueryNames = \case
     MIT      -> "mit"
@@ -43,18 +54,6 @@ githubLicenseQueryNames = \case
     AGPL3    -> "agpl-3.0"
     Apache20 -> "apache-2.0"
     MPL20    -> "mpl-2.0"
-
-instance Show LicenseName where
-    show MIT      = "MIT"
-    show BSD2     = "BSD2"
-    show BSD3     = "BSD3"
-    show GPL2     = "GPL-2"
-    show GPL3     = "GPL-3"
-    show LGPL21   = "LGPL-2.1"
-    show LGPL3    = "LGPL-3"
-    show AGPL3    = "AGPL-3"
-    show Apache20 = "Apache-2.0"
-    show MPL20    = "MPL-2.0"
 
 parseLicense :: Text -> Maybe LicenseName
 parseLicense = inverseMap show

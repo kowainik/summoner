@@ -18,11 +18,12 @@ module Summoner.ProjectData
 import Relude
 import Relude.Extra.Enum (inverseMap)
 
-import qualified Data.Text as T
 import Generics.Deriving.Monoid (GMonoid (..))
 import Generics.Deriving.Semigroup (GSemigroup (..))
 
 import Summoner.License (LicenseName)
+
+import qualified Data.Text as T
 
 -- | Data needed for project creation.
 data ProjectData = ProjectData
