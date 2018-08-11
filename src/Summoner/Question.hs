@@ -1,5 +1,6 @@
 {-# LANGUAGE MultiWayIf          #-}
 {-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE TypeApplications    #-}
 
 -- | This module contains function to proper questioning in terminal.
 
@@ -45,13 +46,17 @@ printQuestion question (def:rest) = do
     putTextLn $ "/" <> restSlash
 printQuestion question [] = T.putStrLn question
 
-choose :: (Show a, IsString a) => Text -> [a] -> IO a
+choose :: forall a. (Show a, Read a) => Text -> [a] -> IO a
 choose question choices = do
     let showChoices = map show choices
     printQuestion question showChoices
     answer <- prompt
     if | T.null answer -> pure (Unsafe.head choices)
-       | answer `elem` showChoices -> pure $ fromString $ T.unpack answer
+       | answer `elem` showChoices -> do
+           let mAnswer = readMaybe @a $ T.unpack answer
+           case mAnswer of
+               Nothing -> error "Unreadable answer type"
+               Just a  -> pure a
        | otherwise -> do
            errorMessage "This wasn't a valid choice."
            choose question choices

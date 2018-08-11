@@ -8,6 +8,7 @@ module Summoner.Project
 
 import Relude
 import Relude.Extra.Enum (universe)
+import Relude.String.Conversion (show)
 
 import Data.Aeson (decodeStrict)
 import Data.ByteString.Char8 (pack)
@@ -19,7 +20,7 @@ import System.Process (readProcess)
 import Summoner.Ansi (errorMessage, infoMessage, successMessage)
 import Summoner.Config (Config, ConfigP (..))
 import Summoner.Default (currentYear, defaultGHC)
-import Summoner.License (License (..), cabalLicenseName, customizeLicense)
+import Summoner.License (License (..), customizeLicense)
 import Summoner.Process ()
 import Summoner.ProjectData (CustomPrelude (..), Decision (..), ProjectData (..), parseGhcVer,
                              showGhcVer)
@@ -49,12 +50,12 @@ generateProject projectName Config{..} = do
     email       <- queryDef "Maintainer e-mail: " cEmail
     putText categoryText
     category <- query "Category: "
-    license  <- choose "License: " $ map cabalLicenseName $ ordNub (cLicense : universe)
+    license  <- choose "License: " $ ordNub (cLicense : universe)
 
-    let licenseLink = "https://api.github.com/licenses/" <> license
+    let licenseLink = "https://api.github.com/licenses/" <> show license
     licenseJson <-
       readProcess "curl"
-                  [ toString licenseLink
+                  [ licenseLink
                   , "-H"
                   , "Accept: application/vnd.github.drax-preview+json"
                   ]

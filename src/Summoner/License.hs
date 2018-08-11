@@ -1,20 +1,18 @@
-{-# LANGUAGE LambdaCase #-}
-
 module Summoner.License
-    ( LicenseName(..)
-    , License(..)
-    , cabalLicenseName
-    , customizeLicense
-    , githubLicenseQueryNames
-    , parseLicense
-    )
-where
+       ( LicenseName(..)
+       , License(..)
+       , customizeLicense
+       , githubLicenseQueryNames
+       , parseLicense
+       ) where
 
 import Relude
 import Relude.Extra.Enum (inverseMap)
+import Relude.String.Conversion (show)
 
 import Data.Aeson (FromJSON (..), withObject, (.:))
 import qualified Data.Text as T
+import qualified Text.Show as TS
 
 ----------------------------------------------------------------------------
 -- License
@@ -31,7 +29,7 @@ data LicenseName
     | AGPL3
     | Apache20
     | MPL20
-    deriving (Eq, Ord, Show, Enum, Bounded, Generic)
+    deriving (Eq, Ord, Enum, Bounded, Generic, Read)
 
 githubLicenseQueryNames :: LicenseName -> Text
 githubLicenseQueryNames = \case
@@ -46,21 +44,20 @@ githubLicenseQueryNames = \case
     Apache20 -> "apache-2.0"
     MPL20    -> "mpl-2.0"
 
-cabalLicenseName :: LicenseName -> Text
-cabalLicenseName = \case
-    MIT      -> "MIT"
-    BSD2     -> "BSD2"
-    BSD3     -> "BSD3"
-    GPL2     -> "GPL-2"
-    GPL3     -> "GPL-3"
-    LGPL21   -> "LGPL-2.1"
-    LGPL3    -> "LGPL-3"
-    AGPL3    -> "AGPL-3"
-    Apache20 -> "Apache-2.0"
-    MPL20    -> "MPL-2.0"
+instance Show LicenseName where
+    show MIT      = "MIT"
+    show BSD2     = "BSD2"
+    show BSD3     = "BSD3"
+    show GPL2     = "GPL-2"
+    show GPL3     = "GPL-3"
+    show LGPL21   = "LGPL-2.1"
+    show LGPL3    = "LGPL-3"
+    show AGPL3    = "AGPL-3"
+    show Apache20 = "Apache-2.0"
+    show MPL20    = "MPL-2.0"
 
 parseLicense :: Text -> Maybe LicenseName
-parseLicense = inverseMap cabalLicenseName
+parseLicense = inverseMap show
 
 newtype License = License { unLicense :: Text }
     deriving (IsString, Show, Generic)
@@ -68,10 +65,10 @@ newtype License = License { unLicense :: Text }
 instance FromJSON License where
     parseJSON = withObject "License" $ \o -> License <$> o .: "body"
 
-customizeLicense :: Text -> Text -> Text -> Text -> Text
+customizeLicense :: LicenseName -> Text -> Text -> Text -> Text
 customizeLicense l t nm year
-    | l `elem` ["MIT", "BSD2", "BSD3"] = updateLicenseText
-    | otherwise                        = t
+    | l `elem` [MIT, BSD2, BSD3] = updateLicenseText
+    | otherwise                  = t
   where
     updateLicenseText =
         let (beforeY, withY) = T.span (/= '[') t

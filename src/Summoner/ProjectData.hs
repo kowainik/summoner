@@ -18,10 +18,11 @@ module Summoner.ProjectData
 import Relude
 import Relude.Extra.Enum (inverseMap)
 
+import qualified Data.Text as T
 import Generics.Deriving.Monoid (GMonoid (..))
 import Generics.Deriving.Semigroup (GSemigroup (..))
 
-import qualified Data.Text as T
+import Summoner.License (LicenseName)
 
 -- | Data needed for project creation.
 data ProjectData = ProjectData
@@ -32,7 +33,7 @@ data ProjectData = ProjectData
     , email          :: Text   -- ^ e-mail
     , year           :: Text   -- ^ year
     , category       :: Text   -- ^ project category
-    , license        :: Text   -- ^ type of license
+    , license        :: LicenseName   -- ^ type of license
     , licenseText    :: Text   -- ^ license text
     , github         :: Bool   -- ^ github repository
     , travis         :: Bool   -- ^ Travis CI integration
