@@ -51,15 +51,13 @@ choose question choices = do
     let showChoices = map show choices
     printQuestion question showChoices
     answer <- prompt
-    if | T.null answer -> pure (Unsafe.head choices)
-       | answer `elem` showChoices -> do
-           let mAnswer = readMaybe @a $ T.unpack answer
-           case mAnswer of
-               Nothing -> error "Unreadable answer type"
-               Just a  -> pure a
-       | otherwise -> do
-           errorMessage "This wasn't a valid choice."
-           choose question choices
+    if T.null answer
+        then pure (Unsafe.head choices)
+        else case readMaybe @a (T.unpack answer) of
+                Just a  -> pure a
+                Nothing -> do
+                   errorMessage "This wasn't a valid choice."
+                   choose question choices
 
 chooseYesNo :: Text -- ^ target
             -> IO a -- ^ action for 'Y' answer
