@@ -19,7 +19,7 @@ import System.Process (readProcess)
 import Summoner.Ansi (errorMessage, infoMessage, successMessage)
 import Summoner.Config (Config, ConfigP (..))
 import Summoner.Default (currentYear, defaultGHC)
-import Summoner.License (License (..), customizeLicense)
+import Summoner.License (License (..), customizeLicense, githubLicenseQueryNames)
 import Summoner.Process ()
 import Summoner.ProjectData (CustomPrelude (..), Decision (..), ProjectData (..), parseGhcVer,
                              showGhcVer)
@@ -51,10 +51,11 @@ generateProject projectName Config{..} = do
     category <- query "Category: "
     license  <- choose "License: " $ ordNub (cLicense : universe)
 
-    let licenseLink = "https://api.github.com/licenses/" <> show license
+    -- License creation
+    let licenseLink = "https://api.github.com/licenses/" <> githubLicenseQueryNames license
     licenseJson <-
       readProcess "curl"
-                  [ licenseLink
+                  [ toString licenseLink
                   , "-H"
                   , "Accept: application/vnd.github.drax-preview+json"
                   ]

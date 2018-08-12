@@ -3,14 +3,15 @@ module Summoner.License
        , License(..)
        , customizeLicense
        , githubLicenseQueryNames
-       , parseLicense
        ) where
 
 import Relude
-import Relude.Extra.Enum (inverseMap)
 
 import Data.Aeson (FromJSON (..), withObject, (.:))
+import Text.ParserCombinators.ReadP (string)
+
 import qualified Data.Text as T
+import qualified Text.Read as TR
 import qualified Text.Show as TS
 
 ----------------------------------------------------------------------------
@@ -28,7 +29,7 @@ data LicenseName
     | AGPL3
     | Apache20
     | MPL20
-    deriving (Eq, Ord, Enum, Bounded, Generic, Read)
+    deriving (Eq, Ord, Enum, Bounded, Generic)
 
 instance Show LicenseName where
     show MIT      = "MIT"
@@ -42,6 +43,23 @@ instance Show LicenseName where
     show Apache20 = "Apache-2.0"
     show MPL20    = "MPL-2.0"
 
+instance Read LicenseName where
+    readPrec = TR.choice $ tryParse
+        [ ("MIT", MIT), ("BSD2", BSD2)
+        , ("BSD3", BSD3), ("GPL-2", GPL2)
+        , ("GPL-3", GPL3), ("LGPL-2.1", LGPL21)
+        , ("LGPL-3", LGPL3), ("AGPL-3", AGPL3)
+        , ("Apache-2.0", Apache20), ("MPL-2.0", MPL20)
+        ]
+          where
+            tryParse = map (\(x, y) -> TR.lift $ string x >> return y)
+
+newtype License = License { unLicense :: Text }
+    deriving (IsString, Show, Generic)
+
+instance FromJSON License where
+    parseJSON = withObject "License" $ \o -> License <$> o .: "body"
+
 githubLicenseQueryNames :: LicenseName -> Text
 githubLicenseQueryNames = \case
     MIT      -> "mit"
@@ -54,15 +72,6 @@ githubLicenseQueryNames = \case
     AGPL3    -> "agpl-3.0"
     Apache20 -> "apache-2.0"
     MPL20    -> "mpl-2.0"
-
-parseLicense :: Text -> Maybe LicenseName
-parseLicense = inverseMap show
-
-newtype License = License { unLicense :: Text }
-    deriving (IsString, Show, Generic)
-
-instance FromJSON License where
-    parseJSON = withObject "License" $ \o -> License <$> o .: "body"
 
 customizeLicense :: LicenseName -> Text -> Text -> Text -> Text
 customizeLicense l t nm year

@@ -33,7 +33,7 @@ import Generics.Deriving.Monoid (GMonoid, gmemptydefault)
 import Generics.Deriving.Semigroup (GSemigroup, gsappenddefault)
 import Toml (AnyValue (..), BiToml, Key, Prism (..), dimap, (.=))
 
-import Summoner.License (LicenseName (..), parseLicense)
+import Summoner.License (LicenseName (..))
 import Summoner.ProjectData (CustomPrelude (..), Decision (..), GhcVer (..), parseGhcVer,
                              showGhcVer)
 import Summoner.Validation (Validation (..))
@@ -165,7 +165,7 @@ configT = Config
     ghcVerArr = Toml.arrayOf _GhcVer
 
     license :: Key -> BiToml LicenseName
-    license = Toml.mdimap show parseLicense . Toml.text
+    license = Toml.mdimap show (readMaybe . toString) . Toml.text
 
     textArr :: Key -> BiToml [Text]
     textArr = dimap Just maybeToMonoid . Toml.maybeT (Toml.arrayOf Toml._Text)
