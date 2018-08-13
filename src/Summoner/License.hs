@@ -45,13 +45,10 @@ instance Show LicenseName where
     show MPL20    = "MPL-2.0"
 
 instance Read LicenseName where
-    readPrec = TR.parens
-        (do TR.Ident s <- TR.lexP
-            let mLicenseName = parseLicenseName (T.pack s)
-            case mLicenseName of
-                Just l  -> return l
-                Nothing -> TR.pfail
-        )
+    readPrec = TR.parens $ do
+        TR.Ident s <- TR.lexP
+        let mLicenseName = parseLicenseName $ toText s
+        whenNothing mLicenseName TR.pfail
 
 newtype License = License { unLicense :: Text }
     deriving (IsString, Show, Generic)
