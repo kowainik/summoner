@@ -12,7 +12,6 @@ import Relude.Extra.Enum (inverseMap)
 import Data.Aeson (FromJSON (..), withObject, (.:))
 
 import qualified Data.Text as T
-import qualified Text.Read as TR
 import qualified Text.Show as TS
 
 ----------------------------------------------------------------------------
@@ -43,12 +42,6 @@ instance Show LicenseName where
     show AGPL3    = "AGPL-3"
     show Apache20 = "Apache-2.0"
     show MPL20    = "MPL-2.0"
-
-instance Read LicenseName where
-    readPrec = TR.parens $ do
-        TR.Ident s <- TR.lexP
-        let mLicenseName = parseLicenseName $ toText s
-        whenNothing mLicenseName TR.pfail
 
 newtype License = License { unLicense :: Text }
     deriving (IsString, Show, Generic)

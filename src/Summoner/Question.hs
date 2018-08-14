@@ -27,6 +27,7 @@ import System.FilePath ((</>))
 
 import Summoner.Ansi (Color (..), beautyPrint, bold, boldDefault, errorMessage, italic, prompt,
                       putStrFlush, setColor, warningMessage)
+import Summoner.License (LicenseName, parseLicenseName)
 import Summoner.ProjectData (Answer (..), yesOrNo)
 import Summoner.Text (headToUpper, intercalateMap)
 
@@ -46,14 +47,14 @@ printQuestion question (def:rest) = do
     putTextLn $ "/" <> restSlash
 printQuestion question [] = T.putStrLn question
 
-choose :: forall a. (Show a, Read a) => Text -> [a] -> IO a
+choose :: Text -> [LicenseName] -> IO LicenseName
 choose question choices = do
     let showChoices = map show choices
     printQuestion question showChoices
     answer <- prompt
     if T.null answer
         then pure (Unsafe.head choices)
-        else whenNothing (readMaybe @a (toString answer))
+        else whenNothing (parseLicenseName answer)
                 (errorMessage "This wasn't a valid choice." >> choose question choices)
 
 chooseYesNo :: Text -- ^ target
