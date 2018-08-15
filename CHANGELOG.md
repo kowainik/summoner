@@ -19,6 +19,8 @@
   Bump up dependencies
 * [#58](https://github.com/kowainik/summoner/issues/58):
   Make `Licence` type safer
+* [#124](https://github.com/kowainik/summoner/issues/124):
+  Print dirictories bold
 
 1.0.6
 =====
