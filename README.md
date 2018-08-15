@@ -26,7 +26,7 @@ To start using it make sure you have next tools installed on your machine:
 
 Installation process can be done with one simple command:
 
-    $ cabal install summoner
+    $ cabal new-install summoner
 
 or
 
