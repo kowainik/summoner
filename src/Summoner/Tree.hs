@@ -36,8 +36,12 @@ showOne leader tie arm (Dir fp (sortWith treeFp -> trees)) =
     nodeRep : showChildren trees (leader <> extension)
   where
     nodeRep :: Text
-    nodeRep = leader <> arm <> tie <> toText
-        (setSGRCode [SetConsoleIntensity BoldIntensity] <> fp <> "/" <> setSGRCode [Reset])
+    nodeRep = leader <> arm <> tie <> boldDir (fp <> "/")
+      where
+        boldDir str = toText
+            $ setSGRCode [SetConsoleIntensity BoldIntensity]
+           <> str
+           <> setSGRCode [Reset]
 
     extension :: Text
     extension = case arm of ""  -> ""; "└" -> "    "; _   -> "│   "
