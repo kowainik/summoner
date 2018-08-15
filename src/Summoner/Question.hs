@@ -1,6 +1,7 @@
 {-# LANGUAGE MultiWayIf          #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeApplications    #-}
+{-# LANGUAGE TypeFamilies        #-}
 
 -- | This module contains function to proper questioning in terminal.
 
@@ -27,7 +28,6 @@ import System.FilePath ((</>))
 
 import Summoner.Ansi (Color (..), beautyPrint, bold, boldDefault, errorMessage, italic, prompt,
                       putStrFlush, setColor, warningMessage)
-import Summoner.License (LicenseName, parseLicenseName)
 import Summoner.ProjectData (Answer (..), yesOrNo)
 import Summoner.Text (headToUpper, intercalateMap)
 
@@ -47,15 +47,15 @@ printQuestion question (def:rest) = do
     putTextLn $ "/" <> restSlash
 printQuestion question [] = T.putStrLn question
 
-choose :: Text -> [LicenseName] -> IO LicenseName
-choose question choices = do
+choose :: Show a => (Text -> Maybe a) -> Text -> [a] -> IO a
+choose parser question choices = do
     let showChoices = map show choices
     printQuestion question showChoices
     answer <- prompt
     if T.null answer
         then pure (Unsafe.head choices)
-        else whenNothing (parseLicenseName answer)
-                (errorMessage "This wasn't a valid choice." >> choose question choices)
+        else whenNothing (parser answer)
+                (errorMessage "This wasn't a valid choice." >> choose parser question choices)
 
 chooseYesNo :: Text -- ^ target
             -> IO a -- ^ action for 'Y' answer
