@@ -9,7 +9,6 @@ module Summoner.Tree
 import Relude
 
 import System.Console.ANSI (ConsoleIntensity (BoldIntensity), SGR (..), setSGRCode)
-
 import System.Directory (createDirectoryIfMissing, withCurrentDirectory)
 
 -- | Describes simple structure of filesystem tree.
