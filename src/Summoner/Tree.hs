@@ -8,7 +8,6 @@ module Summoner.Tree
 
 import Relude
 
--- import Summoner.Ansi (bold, boldText)
 import System.Console.ANSI (ConsoleIntensity (BoldIntensity), SGR (..), setSGRCode)
 
 import System.Directory (createDirectoryIfMissing, withCurrentDirectory)
