@@ -33,7 +33,7 @@ import Generics.Deriving.Monoid (GMonoid, gmemptydefault)
 import Generics.Deriving.Semigroup (GSemigroup, gsappenddefault)
 import Toml (AnyValue (..), BiToml, Key, Prism (..), dimap, (.=))
 
-import Summoner.License (License (..))
+import Summoner.License (LicenseName (..), parseLicenseName)
 import Summoner.ProjectData (CustomPrelude (..), Decision (..), GhcVer (..), parseGhcVer,
                              showGhcVer)
 import Summoner.Validation (Validation (..))
@@ -48,7 +48,7 @@ data ConfigP (p :: Phase) = Config
     { cOwner      :: p :- Text
     , cFullName   :: p :- Text
     , cEmail      :: p :- Text
-    , cLicense    :: p :- License
+    , cLicense    :: p :- LicenseName
     , cGhcVer     :: p :- [GhcVer]
     , cCabal      :: Decision
     , cStack      :: Decision
@@ -66,10 +66,26 @@ data ConfigP (p :: Phase) = Config
     , cWarnings   :: [Text]
     } deriving (Generic)
 
-deriving instance (GSemigroup (p :- Text), GSemigroup (p :- License), GSemigroup (p :- [GhcVer])) => GSemigroup (ConfigP p)
-deriving instance (GMonoid (p :- Text), GMonoid (p :- License), GMonoid (p :- [GhcVer])) => GMonoid (ConfigP p)
-deriving instance (Eq (p :- Text), Eq (p :- License), Eq (p :- [GhcVer]), Eq (Last CustomPrelude)) => Eq (ConfigP p)
-deriving instance (Show (p :- Text), Show (p :- License), Show (p :- [GhcVer])) => Show (ConfigP p)
+deriving instance
+    ( GSemigroup (p :- Text)
+    , GSemigroup (p :- LicenseName)
+    , GSemigroup (p :- [GhcVer])
+    ) => GSemigroup (ConfigP p)
+deriving instance
+    ( GMonoid (p :- Text)
+    , GMonoid (p :- LicenseName)
+    , GMonoid (p :- [GhcVer])
+    ) => GMonoid (ConfigP p)
+deriving instance
+    ( Eq (p :- Text)
+    , Eq (p :- LicenseName)
+    , Eq (p :- [GhcVer])
+    ) => Eq (ConfigP p)
+deriving instance
+    ( Show (p :- Text)
+    , Show (p :- LicenseName)
+    , Show (p :- [GhcVer])
+    ) => Show (ConfigP p)
 
 infixl 3 :-
 type family phase :- field where
@@ -95,7 +111,7 @@ defaultConfig = Config
     { cOwner    = Last (Just "kowainik")
     , cFullName = Last (Just "Kowainik")
     , cEmail    = Last (Just "xrom.xkov@gmail.com")
-    , cLicense  = Last (Just $ License "MIT")
+    , cLicense  = Last (Just MIT)
     , cGhcVer   = Last (Just [])
     , cCabal    = Idk
     , cStack    = Idk
@@ -137,7 +153,7 @@ configT = Config
     <*> textArr         "warnings"    .= cWarnings
   where
     lastT :: (Key -> BiToml a) -> Key -> BiToml (Last a)
-    lastT f = dimap getLast Last . Toml.maybeT f
+    lastT = Toml.wrapper . Toml.maybeT
 
     _GhcVer :: Prism AnyValue GhcVer
     _GhcVer = Prism
@@ -148,8 +164,8 @@ configT = Config
     ghcVerArr :: Key -> BiToml [GhcVer]
     ghcVerArr = Toml.arrayOf _GhcVer
 
-    license :: Key -> BiToml License
-    license =  dimap unLicense License . Toml.text
+    license :: Key -> BiToml LicenseName
+    license = Toml.mdimap show parseLicenseName . Toml.text
 
     textArr :: Key -> BiToml [Text]
     textArr = dimap Just maybeToMonoid . Toml.maybeT (Toml.arrayOf Toml._Text)

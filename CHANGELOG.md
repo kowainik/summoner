@@ -17,6 +17,8 @@
   Add TOML test
 * [#120](https://github.com/kowainik/summoner/issues/120):
   Bump up dependencies
+* [#58](https://github.com/kowainik/summoner/issues/58):
+  Make `Licence` type safer
 
 1.0.6
 =====

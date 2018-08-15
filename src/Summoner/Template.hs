@@ -57,6 +57,8 @@ createStackTemplate ProjectData{..} = Dir (toString repo) $
  ++ [File "b" scriptSh | script]
   where
     -- Creates module name from the name of the project
+    licenseName = show license
+
     libModuleName :: Text
     libModuleName = packageToModule repo
 
@@ -74,13 +76,14 @@ createStackTemplate ProjectData{..} = Dir (toString repo) $
     createCabalTop :: Text
     createCabalTop =
         [text|
+        cabal-version:       1.24
         name:                $repo
         version:             0.0.0
         description:         $description
         synopsis:            $description
         homepage:            https://github.com/${owner}/${repo}
         bug-reports:         https://github.com/${owner}/${repo}/issues
-        license:             $license
+        license:             $licenseName
         license-file:        LICENSE
         author:              $nm
         maintainer:          $email
@@ -89,7 +92,6 @@ createStackTemplate ProjectData{..} = Dir (toString repo) $
         build-type:          Simple
         extra-doc-files:     README.md
                            , CHANGELOG.md
-        cabal-version:       1.24
         tested-with:         $testedGhcs
         $endLine
         |]
@@ -301,7 +303,7 @@ createStackTemplate ProjectData{..} = Dir (toString repo) $
         # $repo
 
         [![Hackage]($hackageShield)]($hackageLink)
-        [![$license license](${licenseShield})](${licenseLink})
+        [![$licenseName license](${licenseShield})](${licenseLink})
         $stackBadges
         $travisBadge
         $appVeyorBadge
@@ -346,7 +348,7 @@ createStackTemplate ProjectData{..} = Dir (toString repo) $
             [text|[![Windows build status](${appVeyorShield})](${appVeyorLink})|]
 
         licenseShield :: Text =
-          "https://img.shields.io/badge/license-" <> T.replace "-" "--" license <> "-blue.svg"
+          "https://img.shields.io/badge/license-" <> T.replace "-" "--" licenseName <> "-blue.svg"
         licenseLink :: Text =
           "https://github.com/" <> owner <> "/" <> repo <> "/blob/master/LICENSE"
 

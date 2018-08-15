@@ -19,7 +19,7 @@ import System.Process (readProcess)
 import Summoner.Ansi (errorMessage, infoMessage, successMessage)
 import Summoner.Config (Config, ConfigP (..))
 import Summoner.Default (currentYear, defaultGHC)
-import Summoner.License (License (..), customizeLicense, githubLicenseQueryNames, licenseNames)
+import Summoner.License (License (..), customizeLicense, githubLicenseQueryNames, parseLicenseName)
 import Summoner.Process ()
 import Summoner.ProjectData (CustomPrelude (..), Decision (..), ProjectData (..), parseGhcVer,
                              showGhcVer)
@@ -29,8 +29,6 @@ import Summoner.Question (checkUniqueName, choose, chooseYesNo, chooseYesNoBool,
 import Summoner.Template (createStackTemplate)
 import Summoner.Text (intercalateMap, packageToModule)
 import Summoner.Tree (showTree, traverseTree)
-
-import qualified Relude.Unsafe as Unsafe
 
 decisionToBool :: Decision -> Text -> IO Bool
 decisionToBool decision target = case decision of
@@ -51,13 +49,10 @@ generateProject projectName Config{..} = do
     email       <- queryDef "Maintainer e-mail: " cEmail
     putText categoryText
     category <- query "Category: "
-    license  <- choose "License: " $ map unLicense $ ordNub (cLicense : licenseNames)
+    license  <- choose parseLicenseName "License: " $ ordNub (cLicense : universe)
 
     -- License creation
-    let licenseGithub = snd
-                      $ Unsafe.head
-                      $ dropWhile ((/= license) . unLicense . fst) githubLicenseQueryNames
-    let licenseLink = "https://api.github.com/licenses/" <> licenseGithub
+    let licenseLink = "https://api.github.com/licenses/" <> githubLicenseQueryNames license
     licenseJson <-
       readProcess "curl"
                   [ toString licenseLink
