@@ -80,8 +80,8 @@ targetMessage result target = targetMessageWithText result target "added to the 
 targetMessageWithText :: Bool -> Text -> Text -> IO Bool
 targetMessageWithText result target text = do
     let (color, actionResult) = if result
-          then (Green, " will be " <> text)
-          else (Cyan,  " won't be" <> text)
+          then (Green, " will be "  <> text)
+          else (Cyan,  " won't be " <> text)
 
     beautyPrint [italic, bold, setColor color] $ "  " <> headToUpper target
     beautyPrint [setColor color] actionResult
