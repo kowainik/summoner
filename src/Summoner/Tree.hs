@@ -8,6 +8,7 @@ module Summoner.Tree
 
 import Relude
 
+import System.Console.ANSI (ConsoleIntensity (BoldIntensity), SGR (..), setSGRCode)
 import System.Directory (createDirectoryIfMissing, withCurrentDirectory)
 
 -- | Describes simple structure of filesystem tree.
@@ -35,7 +36,12 @@ showOne leader tie arm (Dir fp (sortWith treeFp -> trees)) =
     nodeRep : showChildren trees (leader <> extension)
   where
     nodeRep :: Text
-    nodeRep   = leader <> arm <> tie <> toText fp
+    nodeRep = leader <> arm <> tie <> boldDir (fp <> "/")
+      where
+        boldDir str = toText
+            $ setSGRCode [SetConsoleIntensity BoldIntensity]
+           <> str
+           <> setSGRCode [Reset]
 
     extension :: Text
     extension = case arm of ""  -> ""; "└" -> "    "; _   -> "│   "
