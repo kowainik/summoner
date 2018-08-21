@@ -18,8 +18,8 @@ import Options.Applicative (Parser, ParserInfo, command, execParser, flag, fullD
                             info, infoFooter, infoHeader, infoOption, long, metavar, optional,
                             progDesc, short, strArgument, strOption, subparser, switch)
 import Options.Applicative.Help.Chunk (stringChunk)
-import System.Console.ANSI (Color (..), ColorIntensity (..), ConsoleLayer (..), SGR (..),
-                            setSGRCode)
+import System.Console.ANSI (Color (..), ColorIntensity (..), ConsoleIntensity (..),
+                            ConsoleLayer (..), SGR (..), setSGRCode)
 import System.Directory (doesFileExist)
 
 import Paths_summoner (version)
@@ -120,20 +120,17 @@ versionP = infoOption summonerVersion
    <> help "Show summoner's version"
 
 summonerVersion :: String
-summonerVersion = toString
-    [text|
-    $sVersion
-    $sHash
-    $sDate
-    $sDirty
-    |]
+summonerVersion = toString $ unlines [sVersion, sHash, sDate, sDirty]
   where
     sVersion = toText $ setSGRCode [SetColor Foreground Vivid Blue]
+        <> setSGRCode [SetConsoleIntensity BoldIntensity]
         <> "Summoner version: " <> setSGRCode [Reset] <>  showVersion version
     sHash = toText $ setSGRCode [SetColor Foreground Vivid Blue]
-        <> "Git revision: " <> setSGRCode [Reset] <> $(gitHash)
+        <> setSGRCode [SetColor Foreground Vivid Blue]
+        <> "➤ Git revision: " <> setSGRCode [Reset] <> $(gitHash)
     sDate = toText $ setSGRCode [SetColor Foreground Vivid Blue]
-        <> "Commit date: " <> setSGRCode [Reset] <> $(gitCommitDate)
+        <> setSGRCode [SetColor Foreground Vivid Blue]
+        <> "➤ Commit date: " <> setSGRCode [Reset] <> $(gitCommitDate)
     sDirty = toText $
         if $(gitDirty) then setSGRCode [SetColor Foreground Vivid Red]
             <> "There are non-committed files." <> setSGRCode [Reset]
