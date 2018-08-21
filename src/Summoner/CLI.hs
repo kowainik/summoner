@@ -18,6 +18,8 @@ import Options.Applicative (Parser, ParserInfo, command, execParser, flag, fullD
                             info, infoFooter, infoHeader, infoOption, long, metavar, optional,
                             progDesc, short, strArgument, strOption, subparser, switch)
 import Options.Applicative.Help.Chunk (stringChunk)
+import System.Console.ANSI (Color (..), ColorIntensity (..), ConsoleLayer (..), SGR (..),
+                            setSGRCode)
 import System.Directory (doesFileExist)
 
 import Paths_summoner (version)
@@ -116,14 +118,26 @@ versionP = infoOption summonerVersion
     $ long "version"
    <> short 'v'
    <> help "Show summoner's version"
+
+summonerVersion :: String
+summonerVersion = toString
+    [text|
+    $sVersion
+    $sHash
+    $sDate
+    $sDirty
+    |]
   where
-    summonerVersion :: String
-    summonerVersion = concat
-        [ "Summoner v", showVersion version
-        , ", Git revision: ", $(gitHash)
-        , ", Commit date: ", $(gitCommitDate)
-        , if $(gitDirty) then ", there are non-committed files." else ""
-        ]
+    sVersion = toText $ setSGRCode [SetColor Foreground Vivid Blue]
+        <> "Summoner version: " <> setSGRCode [Reset] <>  showVersion version
+    sHash = toText $ setSGRCode [SetColor Foreground Vivid Blue]
+        <> "Git revision: " <> setSGRCode [Reset] <> $(gitHash)
+    sDate = toText $ setSGRCode [SetColor Foreground Vivid Blue]
+        <> "Commit date: " <> setSGRCode [Reset] <> $(gitCommitDate)
+    sDirty = toText $
+        if $(gitDirty) then setSGRCode [SetColor Foreground Vivid Red]
+            <> "There are non-committed files." <> setSGRCode [Reset]
+        else ""
 
 -- All possible commands.
 summonerP :: Parser Command
