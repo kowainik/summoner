@@ -118,14 +118,12 @@ versionP = infoOption summonerVersion
    <> help "Show summoner's version"
 
 summonerVersion :: String
-summonerVersion = toString $ intercalate "\n" [sVersion, sHash, sDate, sDirty]
+summonerVersion = toString $ intercalate "\n" $ [sVersion, sHash, sDate] ++ [sDirty | $(gitDirty)]
   where
     sVersion = blueCode <> boldCode <> "Summoner " <> "v" <>  showVersion version <> resetCode
     sHash = " ➤ " <> blueCode <> boldCode <> "Git revision: " <> resetCode <> $(gitHash)
     sDate = " ➤ " <> blueCode <> boldCode <> "Commit date:  " <> resetCode <> $(gitCommitDate)
-    sDirty = if $(gitDirty)
-        then redCode <> "There are non-committed files." <> resetCode
-        else mempty
+    sDirty = redCode <> "There are non-committed files." <> resetCode
 
 -- All possible commands.
 summonerP :: Parser Command
