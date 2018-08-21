@@ -7,7 +7,12 @@
 [![Stackage LTS](http://stackage.org/package/summoner/badge/lts)](http://stackage.org/lts/package/summoner)
 [![Stackage Nightly](http://stackage.org/package/summoner/badge/nightly)](http://stackage.org/nightly/package/summoner)
 
-This is tool for creating completely configured production Haskell projects.
+> So many of our dreams at first seem impossible, then they seem improbable, and
+> then, when we summon the will, they soon become inevitable.
+>
+> Christopher Reeve
+
+Summoner is the tool for creating completely configured production Haskell projects.
 
 ## Demo
 
