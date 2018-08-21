@@ -18,13 +18,11 @@ import Options.Applicative (Parser, ParserInfo, command, execParser, flag, fullD
                             info, infoFooter, infoHeader, infoOption, long, metavar, optional,
                             progDesc, short, strArgument, strOption, subparser, switch)
 import Options.Applicative.Help.Chunk (stringChunk)
-import System.Console.ANSI (Color (..), ColorIntensity (..), ConsoleIntensity (..),
-                            ConsoleLayer (..), SGR (..), setSGRCode)
 import System.Directory (doesFileExist)
 
 import Paths_summoner (version)
-import Summoner.Ansi (Color (Green), beautyPrint, bold, errorMessage, infoMessage, setColor,
-                      warningMessage)
+import Summoner.Ansi (Color (Green), beautyPrint, blueCode, bold, boldCode, errorMessage,
+                      infoMessage, redCode, resetCode, setColor, warningMessage)
 import Summoner.Config (ConfigP (..), PartialConfig, defaultConfig, finalise, loadFileConfig)
 import Summoner.Decision (Decision (..))
 import Summoner.Default (defaultConfigFile, endLine)
@@ -122,18 +120,14 @@ versionP = infoOption summonerVersion
 summonerVersion :: String
 summonerVersion = toString $ unlines [sVersion, sHash, sDate, sDirty]
   where
-    sVersion = toText $ setSGRCode [SetColor Foreground Vivid Blue]
-        <> setSGRCode [SetConsoleIntensity BoldIntensity]
-        <> "Summoner version: " <> setSGRCode [Reset] <>  showVersion version
-    sHash = toText $ setSGRCode [SetColor Foreground Vivid Blue]
-        <> setSGRCode [SetColor Foreground Vivid Blue]
-        <> "➤ Git revision: " <> setSGRCode [Reset] <> $(gitHash)
-    sDate = toText $ setSGRCode [SetColor Foreground Vivid Blue]
-        <> setSGRCode [SetColor Foreground Vivid Blue]
-        <> "➤ Commit date: " <> setSGRCode [Reset] <> $(gitCommitDate)
+    sVersion = toText $ blueCode <> boldCode <> "Summoner version: "
+        <> resetCode <>  showVersion version
+    sHash = toText $ blueCode <> boldCode <> "➤ Git revision: "
+        <> resetCode <> $(gitHash)
+    sDate = toText $ blueCode <> boldCode <> "➤ Commit date: "
+        <> resetCode <> $(gitCommitDate)
     sDirty = toText $
-        if $(gitDirty) then setSGRCode [SetColor Foreground Vivid Red]
-            <> "There are non-committed files." <> setSGRCode [Reset]
+        if $(gitDirty) then redCode <> "There are non-committed files." <> resetCode
         else ""
 
 -- All possible commands.
