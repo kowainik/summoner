@@ -1,6 +1,7 @@
-{-# LANGUAGE ApplicativeDo #-}
-{-# LANGUAGE QuasiQuotes   #-}
-{-# LANGUAGE TupleSections #-}
+{-# LANGUAGE ApplicativeDo   #-}
+{-# LANGUAGE QuasiQuotes     #-}
+{-# LANGUAGE TemplateHaskell #-}
+{-# LANGUAGE TupleSections   #-}
 
 -- | This module contains functions and data types to parse CLI inputs.
 
@@ -11,6 +12,7 @@ module Summoner.CLI
 import Relude
 
 import Data.Version (showVersion)
+import Development.GitRev (gitCommitDate, gitDirty, gitHash)
 import NeatInterpolation (text)
 import Options.Applicative (Parser, ParserInfo, command, execParser, flag, fullDesc, help, helper,
                             info, infoFooter, infoHeader, infoOption, long, metavar, optional,
@@ -116,7 +118,12 @@ versionP = infoOption summonerVersion
    <> help "Show summoner's version"
   where
     summonerVersion :: String
-    summonerVersion = showVersion version
+    summonerVersion = concat
+        [ "Summoner v", showVersion version
+        , ", Git revision: ", $(gitHash)
+        , ", Commit date: ", $(gitCommitDate)
+        , if $(gitDirty) then ", there are non-committed files." else ""
+        ]
 
 -- All possible commands.
 summonerP :: Parser Command

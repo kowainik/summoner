@@ -59,6 +59,7 @@ library
                      , directory
                      , filepath
                      , generic-deriving
+                     , gitrev
                      , neat-interpolation
                      , optparse-applicative
                      , process
