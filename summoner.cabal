@@ -29,7 +29,9 @@ library
                          Summoner.Ansi
                          Summoner.CLI
                          Summoner.Config
+                         Summoner.Decision
                          Summoner.Default
+                         Summoner.GhcVer
                          Summoner.License
                          Summoner.Process
                          Summoner.Project
@@ -78,9 +80,9 @@ library
 executable summon
   hs-source-dirs:      app
   main-is:             Main.hs
-  ghc-options:         -Wall 
-                       -threaded  
-                       -rtsopts 
+  ghc-options:         -Wall
+                       -threaded
+                       -rtsopts
                        -with-rtsopts=-N
                        -Wincomplete-uni-patterns
                        -Wincomplete-record-updates
@@ -111,9 +113,9 @@ test-suite summoner-test
                      , summoner
   default-extensions:  NoImplicitPrelude
 
-  ghc-options:         -Wall 
-                       -threaded 
-                       -rtsopts 
+  ghc-options:         -Wall
+                       -threaded
+                       -rtsopts
                        -with-rtsopts=-N
                        -Wincomplete-uni-patterns
                        -Wincomplete-record-updates

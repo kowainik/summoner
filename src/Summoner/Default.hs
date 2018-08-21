@@ -14,7 +14,7 @@ import Data.Time (getCurrentTime, toGregorian, utctDay)
 import System.Directory (getHomeDirectory)
 import System.FilePath ((</>))
 
-import Summoner.ProjectData (GhcVer (Ghc843))
+import Summoner.GhcVer (GhcVer (Ghc843))
 
 ----------------------------------------------------------------------------
 -- Default Settings

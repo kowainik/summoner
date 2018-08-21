@@ -5,7 +5,7 @@
 -- | This module contains functions for stack template creation.
 
 module Summoner.Template
-       ( createStackTemplate
+       ( createProjectTemplate
        ) where
 
 import Relude
@@ -14,23 +14,23 @@ import Data.List (delete)
 import NeatInterpolation (text)
 
 import Summoner.Default (defaultGHC, endLine)
-import Summoner.ProjectData (CustomPrelude (..), GhcVer (..), ProjectData (..), baseNopreludeVer,
-                             latestLts, showGhcVer)
+import Summoner.GhcVer (GhcVer (..), baseVer, latestLts, showGhcVer)
+import Summoner.ProjectData (CustomPrelude (..), ProjectData (..))
 import Summoner.Text (intercalateMap, packageToModule)
 import Summoner.Tree (TreeFs (..))
 
 import qualified Data.Text as T
 
 ----------------------------------------------------------------------------
--- Stack File Creation
+-- Project Directory Creation
 ----------------------------------------------------------------------------
 
 memptyIfFalse :: Monoid m => Bool -> m -> m
 memptyIfFalse p val = if p then val else mempty
 
 -- | Creating template file to use in `stack new` command
-createStackTemplate :: ProjectData ->  TreeFs
-createStackTemplate ProjectData{..} = Dir (toString repo) $
+createProjectTemplate :: ProjectData ->  TreeFs
+createProjectTemplate ProjectData{..} = Dir (toString repo) $
     [ File (toString repo <> ".cabal")
            ( createCabalTop
           <> memptyIfFalse github createCabalGit
@@ -588,10 +588,10 @@ createStackTemplate ProjectData{..} = Dir (toString repo) $
         createStackYaml ghcV = let ver = case ghcV of
                                       Ghc843 -> ""
                                       _      -> "-" <> showGhcVer ghcV
-            in stackYaml ver (latestLts ghcV) (baseNopreludeVer ghcV)
+            in stackYaml ver (latestLts ghcV) (baseVer ghcV)
           where
             stackYaml :: Text -> Text -> Text -> TreeFs
-            stackYaml ghc lts baseVer = File (toString $ "stack" <> ghc <> ".yaml")
+            stackYaml ghc lts baseV = File (toString $ "stack" <> ghc <> ".yaml")
                 [text|
                 resolver: lts-${lts}
 
@@ -604,7 +604,7 @@ createStackTemplate ProjectData{..} = Dir (toString repo) $
                 extraDeps :: Text
                 extraDeps = case prelude of
                     Nothing -> ""
-                    Just _  -> "extra-deps: [base-noprelude-" <> baseVer <> "]"
+                    Just _  -> "extra-deps: [base-noprelude-" <> baseV <> "]"
                 ghcOpts :: Text
                 ghcOpts = if ghcV <= Ghc802 then
                             ""

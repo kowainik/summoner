@@ -18,23 +18,17 @@ import System.Process (readProcess)
 
 import Summoner.Ansi (errorMessage, infoMessage, successMessage)
 import Summoner.Config (Config, ConfigP (..))
+import Summoner.Decision (Decision (..), decisionToBool)
 import Summoner.Default (currentYear, defaultGHC)
+import Summoner.GhcVer (parseGhcVer, showGhcVer)
 import Summoner.License (License (..), customizeLicense, githubLicenseQueryNames, parseLicenseName)
 import Summoner.Process ()
-import Summoner.ProjectData (CustomPrelude (..), Decision (..), ProjectData (..), parseGhcVer,
-                             showGhcVer)
-import Summoner.Question (checkUniqueName, choose, chooseYesNo, chooseYesNoBool, falseMessage,
-                          query, queryDef, queryManyRepeatOnFail, targetMessageWithText,
-                          trueMessage)
-import Summoner.Template (createStackTemplate)
+import Summoner.ProjectData (CustomPrelude (..), ProjectData (..))
+import Summoner.Question (checkUniqueName, choose, chooseYesNo, falseMessage, query, queryDef,
+                          queryManyRepeatOnFail, targetMessageWithText, trueMessage)
+import Summoner.Template (createProjectTemplate)
 import Summoner.Text (intercalateMap, packageToModule)
 import Summoner.Tree (showTree, traverseTree)
-
-decisionToBool :: Decision -> Text -> IO Bool
-decisionToBool decision target = case decision of
-    Yes -> trueMessage  target
-    Nop -> falseMessage target
-    Idk -> chooseYesNoBool target
 
 -- | Generate the project.
 generateProject :: Text -> Config -> IO ()
@@ -115,7 +109,7 @@ generateProject projectName Config{..} = do
 
     createProjectDirectory :: ProjectData -> IO ()
     createProjectDirectory projectData@ProjectData{..} = do
-        let tree = createStackTemplate projectData
+        let tree = createProjectTemplate projectData
         traverseTree tree
         successMessage "\nThe project with the following structure has been created:"
         putTextLn $ showTree tree

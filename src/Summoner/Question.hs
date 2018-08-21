@@ -2,6 +2,7 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeApplications    #-}
 {-# LANGUAGE TypeFamilies        #-}
+{-# LANGUAGE ViewPatterns        #-}
 
 -- | This module contains function to proper questioning in terminal.
 
@@ -28,12 +29,24 @@ import System.FilePath ((</>))
 
 import Summoner.Ansi (Color (..), beautyPrint, bold, boldDefault, errorMessage, italic, prompt,
                       putStrFlush, setColor, warningMessage)
-import Summoner.ProjectData (Answer (..), yesOrNo)
 import Summoner.Text (headToUpper, intercalateMap)
 
 import qualified Data.Text as T
 import qualified Data.Text.IO as T
 import qualified Relude.Unsafe as Unsafe
+
+----------------------------------------------------------------------------
+-- Yes/No
+----------------------------------------------------------------------------
+
+data Answer = Y | N
+
+yesOrNo :: Text -> Maybe Answer
+yesOrNo (T.toLower -> answer )
+    | T.null answer = Just Y
+    | answer `elem` ["yes", "y", "ys"] = Just Y
+    | answer `elem` ["no", "n"]  = Just N
+    | otherwise = Nothing
 
 ----------------------------------------------------------------------------
 -- IO Questioning

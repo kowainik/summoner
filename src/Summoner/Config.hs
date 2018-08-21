@@ -33,9 +33,10 @@ import Generics.Deriving.Monoid (GMonoid, gmemptydefault)
 import Generics.Deriving.Semigroup (GSemigroup, gsappenddefault)
 import Toml (AnyValue (..), BiToml, Key, Prism (..), dimap, (.=))
 
+import Summoner.Decision (Decision (..))
+import Summoner.GhcVer (GhcVer (..), parseGhcVer, showGhcVer)
 import Summoner.License (LicenseName (..), parseLicenseName)
-import Summoner.ProjectData (CustomPrelude (..), Decision (..), GhcVer (..), parseGhcVer,
-                             showGhcVer)
+import Summoner.ProjectData (CustomPrelude (..))
 import Summoner.Validation (Validation (..))
 
 import qualified Text.Show as Show
