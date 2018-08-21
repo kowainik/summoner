@@ -118,16 +118,13 @@ versionP = infoOption summonerVersion
    <> help "Show summoner's version"
 
 summonerVersion :: String
-summonerVersion = toString $ unlines [sVersion, sHash, sDate, sDirty]
+summonerVersion = toString $ unlines $ map toText [sVersion, sHash, sDate, sDirty]
   where
-    sVersion = toText $ blueCode <> boldCode <> "Summoner version: "
-        <> resetCode <>  showVersion version
-    sHash = toText $ blueCode <> boldCode <> "➤ Git revision: "
-        <> resetCode <> $(gitHash)
-    sDate = toText $ blueCode <> boldCode <> "➤ Commit date: "
-        <> resetCode <> $(gitCommitDate)
-    sDirty = toText $
-        if $(gitDirty) then redCode <> "There are non-committed files." <> resetCode
+    sVersion = blueCode <> boldCode <> "Summoner version: " <> resetCode <>  showVersion version
+    sHash = blueCode <> boldCode <> "➤ Git revision: " <> resetCode <> $(gitHash)
+    sDate = blueCode <> boldCode <> "➤ Commit date: " <> resetCode <> $(gitCommitDate)
+    sDirty = if $(gitDirty)
+        then redCode <> "There are non-committed files." <> resetCode
         else ""
 
 -- All possible commands.
