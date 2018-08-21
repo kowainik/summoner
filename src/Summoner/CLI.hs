@@ -22,9 +22,10 @@ import Paths_summoner (version)
 import Summoner.Ansi (Color (Green), beautyPrint, bold, errorMessage, infoMessage, setColor,
                       warningMessage)
 import Summoner.Config (ConfigP (..), PartialConfig, defaultConfig, finalise, loadFileConfig)
+import Summoner.Decision (Decision (..))
 import Summoner.Default (defaultConfigFile, endLine)
 import Summoner.Project (generateProject)
-import Summoner.ProjectData (CustomPrelude (..), Decision (..))
+import Summoner.ProjectData (CustomPrelude (..))
 import Summoner.Validation (Validation (..))
 
 ---------------------------------------------------------------------------

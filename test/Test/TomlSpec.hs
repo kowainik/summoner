@@ -11,8 +11,9 @@ import Test.Tasty.Hedgehog (testProperty)
 import Toml.Bi.Code (decode, encode)
 
 import Summoner.Config (ConfigP (..), PartialConfig, configT)
+import Summoner.GhcVer (GhcVer)
 import Summoner.License (LicenseName)
-import Summoner.ProjectData (CustomPrelude (..), GhcVer (..))
+import Summoner.ProjectData (CustomPrelude (..))
 import Test.DecisionSpec (genDecision)
 
 import qualified Hedgehog.Gen as Gen

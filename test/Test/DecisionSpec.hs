@@ -6,7 +6,7 @@ import Hedgehog (MonadGen, forAll, property, (===))
 import Test.Tasty (TestTree)
 import Test.Tasty.Hedgehog (testProperty)
 
-import Summoner.ProjectData (Decision)
+import Summoner.Decision (Decision)
 
 import qualified Hedgehog.Gen as Gen
 

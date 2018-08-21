@@ -29,7 +29,9 @@ library
                          Summoner.Ansi
                          Summoner.CLI
                          Summoner.Config
+                         Summoner.Decision
                          Summoner.Default
+                         Summoner.GhcVer
                          Summoner.License
                          Summoner.Process
                          Summoner.Project
