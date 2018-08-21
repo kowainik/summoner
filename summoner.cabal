@@ -1,5 +1,5 @@
 name:                summoner
-version:             1.0.7
+version:             1.1.0
 synopsis:            Tool for creating completely configured production Haskell projects.
 description:         Tool for creating completely configured production Haskell projects.
                      See README.md for details.
@@ -78,9 +78,9 @@ library
 executable summon
   hs-source-dirs:      app
   main-is:             Main.hs
-  ghc-options:         -Wall 
-                       -threaded  
-                       -rtsopts 
+  ghc-options:         -Wall
+                       -threaded
+                       -rtsopts
                        -with-rtsopts=-N
                        -Wincomplete-uni-patterns
                        -Wincomplete-record-updates
@@ -111,9 +111,9 @@ test-suite summoner-test
                      , summoner
   default-extensions:  NoImplicitPrelude
 
-  ghc-options:         -Wall 
-                       -threaded 
-                       -rtsopts 
+  ghc-options:         -Wall
+                       -threaded
+                       -rtsopts
                        -with-rtsopts=-N
                        -Wincomplete-uni-patterns
                        -Wincomplete-record-updates

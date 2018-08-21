@@ -32,11 +32,15 @@ import Summoner.Validation (Validation (..))
 ----------------------------------------------------------------------------
 
 summon :: IO ()
-summon = execParser prsr >>= runWithOptions
+summon = execParser prsr >>= runCommand
 
--- | Run 'hs-init' with cli options
-runWithOptions :: InitOpts -> IO ()
-runWithOptions InitOpts{..} = do
+-- | Run 'summoner' with cli command
+runCommand :: Command -> IO ()
+runCommand = \case
+    New opts -> runNew opts
+
+runNew :: NewOpts -> IO ()
+runNew NewOpts{..} = do
     -- read config from file
     fileConfig <- readFileConfig ignoreFile maybeFile
 
@@ -75,13 +79,74 @@ readFileConfig ignoreFile maybeFile = if ignoreFile then pure mempty else do
         errorMessage $ "Specified configuration file " <> toText file <> " is not found."
         exitFailure
 
--- | Initial parsed options from cli
-data InitOpts = InitOpts
+----------------------------------------------------------------------------
+-- Command data types
+----------------------------------------------------------------------------
+
+-- | Represent all available commands
+data Command
+    -- | @new@ command creates a new project
+    = New NewOpts
+
+-- | Options parsed with @new@ command
+data NewOpts = NewOpts
     { projectName :: Text           -- ^ project name
     , ignoreFile  :: Bool           -- ^ ignore all config files if 'True'
     , maybeFile   :: Maybe FilePath -- ^ file with custom configuration
     , cliConfig   :: PartialConfig  -- ^ config gathered during CLI
     }
+
+----------------------------------------------------------------------------
+-- Parsers
+----------------------------------------------------------------------------
+
+-- | Main parser of the app.
+prsr :: ParserInfo Command
+prsr = modifyHeader
+     $ modifyFooter
+     $ info ( helper <*> versionP <*> summonerP )
+            $ fullDesc
+           <> progDesc "Set up your own Haskell project"
+
+versionP :: Parser (a -> a)
+versionP = infoOption summonerVersion
+    $ long "version"
+   <> short 'v'
+   <> help "Show summoner's version"
+  where
+    summonerVersion :: String
+    summonerVersion = showVersion version
+
+-- All possible commands.
+summonerP :: Parser Command
+summonerP = subparser
+    ( command "new"
+      (info (helper <*> newP) $ progDesc "Create a new Haskell project")
+    )
+
+----------------------------------------------------------------------------
+-- New command parsers
+----------------------------------------------------------------------------
+
+-- | Parses options of the @new@ command.
+newP :: Parser Command
+newP = do
+    projectName <- strArgument (metavar "PROJECT_NAME")
+    ignoreFile  <- ignoreFileP
+    cabal   <- cabalP
+    stack   <- stackP
+    with    <- optional withP
+    without <- optional withoutP
+    file    <- optional fileP
+    preludePack <- optional preludePackP
+    preludeMod  <- optional preludeModP
+
+    pure $ New $ NewOpts projectName ignoreFile file
+        $ (maybeToMonoid $ with <> without)
+            { cPrelude = Last $ Prelude <$> preludePack <*> preludeMod
+            , cCabal = cabal
+            , cStack = stack
+            }
 
 targetsP ::  Decision -> Parser PartialConfig
 targetsP d = do
@@ -149,10 +214,10 @@ execP d = flag Idk d
        <> help "Executable target"
 
 testP :: Decision -> Parser Decision
-testP d =  flag Idk d
-        $  long "test"
-        <> short 't'
-        <> help "Test target"
+testP d = flag Idk d
+        $ long "test"
+       <> short 't'
+       <> help "Test target"
 
 benchmarkP :: Decision -> Parser Decision
 benchmarkP d = flag Idk d
@@ -204,49 +269,17 @@ stackP = flag Idk Yes
        $ long "stack"
       <> help "Stack support for the project"
 
-optsP :: Parser InitOpts
-optsP = do
-    projectName <- strArgument (metavar "PROJECT_NAME")
-    ignoreFile  <- ignoreFileP
-    cabal   <- cabalP
-    stack   <- stackP
-    with    <- optional withP
-    without <- optional withoutP
-    file    <- optional fileP
-    preludePack <- optional preludePackP
-    preludeMod  <- optional preludeModP
-
-    pure $ InitOpts projectName ignoreFile file
-        $ (maybeToMonoid $ with <> without)
-            { cPrelude = Last $ Prelude <$> preludePack <*> preludeMod
-            , cCabal = cabal
-            , cStack = stack
-            }
-
-versionP :: Parser (a -> a)
-versionP = infoOption summonerVersion
-    $ long "version"
-   <> short 'v'
-   <> help "Show summoner's version"
-  where
-    summonerVersion :: String
-    summonerVersion = showVersion version
-
-
-prsr :: ParserInfo InitOpts
-prsr = modifyHeader
-     $ modifyFooter
-     $ info ( helper <*> versionP <*> optsP )
-            $ fullDesc
-           <> progDesc "Create your own haskell project"
+----------------------------------------------------------------------------
+-- Beauty util
+----------------------------------------------------------------------------
 
 -- to put custom header which doesn't cut all spaces
-modifyHeader :: ParserInfo InitOpts -> ParserInfo InitOpts
-modifyHeader initOpts = initOpts {infoHeader = stringChunk $ toString artHeader}
+modifyHeader :: ParserInfo a -> ParserInfo a
+modifyHeader p = p {infoHeader = stringChunk $ toString artHeader}
 
 -- to put custom footer which doesn't cut all spaces
-modifyFooter :: ParserInfo InitOpts -> ParserInfo InitOpts
-modifyFooter initOpts = initOpts {infoFooter = stringChunk $ toString artFooter}
+modifyFooter :: ParserInfo a -> ParserInfo a
+modifyFooter p = p {infoFooter = stringChunk $ toString artFooter}
 
 artHeader :: Text
 artHeader = [text|

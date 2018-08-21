@@ -1,12 +1,18 @@
 # 🔮 Summoner
 
+![wizard](https://user-images.githubusercontent.com/8126674/44388234-320aac00-a55a-11e8-879d-5dca68512031.png)
 [![Build status](https://secure.travis-ci.org/kowainik/summoner.svg)](http://travis-ci.org/kowainik/summoner)
 [![MPL-2.0 license](https://img.shields.io/badge/license-MPL--2.0-blue.svg)](https://github.com/kowainik/summoner/blob/master/LICENSE)
 [![Hackage](https://img.shields.io/hackage/v/summoner.svg)](https://hackage.haskell.org/package/summoner)
 [![Stackage LTS](http://stackage.org/package/summoner/badge/lts)](http://stackage.org/lts/package/summoner)
 [![Stackage Nightly](http://stackage.org/package/summoner/badge/nightly)](http://stackage.org/nightly/package/summoner)
 
-This is tool for creating completely configured production Haskell projects.
+> _So many of our dreams at first seem impossible, then they seem improbable, and
+> then, when we summon the will, they soon become inevitable._
+>
+> Christopher Reeve
+
+Summoner is the tool for creating completely configured production Haskell projects.
 
 ## Demo
 
@@ -38,7 +44,7 @@ You can turn on the bash auto-completion by running the following command:
 $ source <(summon --bash-completion-script `which summon`)
 ```
 
-After that you can call `summon` with required command line options, follow
+After that you can call `summon new` with required command line options, follow
 the instructions that will appear, and a new project would be created in a subfolder
 as well as a repository under your github account (if requested).
 
@@ -112,14 +118,14 @@ See example of [configuration for projects of `Kowainik` organization](https://g
 
 By default the `summoner` will look for the configuration file (`.summoner.toml`) in home directory.
 
-The other way to specify some particular `.toml` file is `summon PROJECTNAME --file FILEPATH` command.
+The other way to specify some particular `.toml` file is `summon new PROJECTNAME --file FILEPATH` command.
 
 ##### CLI
 
 See the basic usage syntax below (you can check it out with `summon --help` command):
 
 ```
-summon PROJECT_NAME [--cabal] [--stack] [--ignore-config]
+summon new PROJECT_NAME [--cabal] [--stack] [--ignore-config]
        [with [OPTIONS]] [without [OPTIONS]]
        [-f|--file FILENAME]  [--prelude-package PACKAGE_NAME]
        [--prelude-module MODULE_NAME]
@@ -164,7 +170,7 @@ the question will be asked during the work of the script.
 For example,
 
 ```
-  summon newProject with -letgcspw without -b --prelude-package relude --prelude-module Relude
+  summon new my-project with -letgcspw without -b --prelude-package relude --prelude-module Relude
 ```
 will create fully functional project which uses custom prelude `relude`, contains
 library, executable file, tests, [build script](#build-script)
@@ -174,7 +180,7 @@ integrated with `Travis-CI`, `AppVeyor-CI`, but benchmarks won't be attached to 
 But when calling this command
 
 ```
-  summon newProject
+  summon new my-project
 ```
 
 the tool will ask about every particular option, rather you'd like to have it
@@ -217,7 +223,7 @@ project-name
 ```
 and also repository with one commit at master will be added with enabled `Travis-CI` for that.
 
-## GHC options 
+## GHC options
 
 The following warning checks are added by default to every stanza:
 
@@ -268,3 +274,7 @@ tidies up and highlights error messages in GHC output.
 This project was inspired by [Aelve/new-hs](https://github.com/aelve/new-hs#readme),
 which is the tool with the same goal but it's using
 [`cabal`](https://www.haskell.org/cabal/) for creating projects.
+
+Icons made by [Nikita Golubev](https://www.flaticon.com/authors/nikita-golubev)
+from [Flaticon](https://www.flaticon.com/) is licensed by
+[CC 3.0 BY](http://creativecommons.org/licenses/by/3.0/).

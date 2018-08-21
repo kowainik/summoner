@@ -1,26 +1,32 @@
 # Summoner
 
-1.0.7
+1.1.0
 =====
 
+* [#128](https://github.com/kowainik/summoner/issues/128):
+  __Important:__ Replace `summon` with `summon new` command.
+  To create a project now the following command should be used:
+  ```
+  summon new my-project
+  ```
 * [#82](https://github.com/kowainik/summoner/issues/82):
-  Add stackage badges
+  Add stackage badges.
 * [#109](https://github.com/kowainik/summoner/issues/109):
-  Fix travis cache directories
+  Fix travis cache directories.
 * [#117](https://github.com/kowainik/summoner/issues/117):
   Step into created project properly
 * [#110](https://github.com/kowainik/summoner/issues/110):
-  Print executing command
+  Print executing command.
 * [#91](https://github.com/kowainik/summoner/issues/91):
-  Add warning fields for ghc
+  Add warning fields for ghc.
 * [#90](https://github.com/kowainik/summoner/issues/90):
-  Add TOML test
+  Add TOML test.
 * [#120](https://github.com/kowainik/summoner/issues/120):
-  Bump up dependencies
+  Bump up dependencies.
 * [#58](https://github.com/kowainik/summoner/issues/58):
-  Make `Licence` type safer
+  Make `Licence` type safer.
 * [#124](https://github.com/kowainik/summoner/issues/124):
-  Print directories bold
+  Print directories bold.
 
 1.0.6
 =====
