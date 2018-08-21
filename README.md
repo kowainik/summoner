@@ -1,5 +1,6 @@
 # 🔮 Summoner
 
+![webp net-resizeimage 13](https://user-images.githubusercontent.com/8126674/44386910-82800a80-a556-11e8-8913-79b9e7d503ee.png)
 [![Build status](https://secure.travis-ci.org/kowainik/summoner.svg)](http://travis-ci.org/kowainik/summoner)
 [![MPL-2.0 license](https://img.shields.io/badge/license-MPL--2.0-blue.svg)](https://github.com/kowainik/summoner/blob/master/LICENSE)
 [![Hackage](https://img.shields.io/hackage/v/summoner.svg)](https://hackage.haskell.org/package/summoner)
@@ -38,7 +39,7 @@ You can turn on the bash auto-completion by running the following command:
 $ source <(summon --bash-completion-script `which summon`)
 ```
 
-After that you can call `summon` with required command line options, follow
+After that you can call `summon new` with required command line options, follow
 the instructions that will appear, and a new project would be created in a subfolder
 as well as a repository under your github account (if requested).
 
@@ -112,14 +113,14 @@ See example of [configuration for projects of `Kowainik` organization](https://g
 
 By default the `summoner` will look for the configuration file (`.summoner.toml`) in home directory.
 
-The other way to specify some particular `.toml` file is `summon PROJECTNAME --file FILEPATH` command.
+The other way to specify some particular `.toml` file is `summon new PROJECTNAME --file FILEPATH` command.
 
 ##### CLI
 
 See the basic usage syntax below (you can check it out with `summon --help` command):
 
 ```
-summon PROJECT_NAME [--cabal] [--stack] [--ignore-config]
+summon new PROJECT_NAME [--cabal] [--stack] [--ignore-config]
        [with [OPTIONS]] [without [OPTIONS]]
        [-f|--file FILENAME]  [--prelude-package PACKAGE_NAME]
        [--prelude-module MODULE_NAME]
@@ -164,7 +165,7 @@ the question will be asked during the work of the script.
 For example,
 
 ```
-  summon newProject with -letgcspw without -b --prelude-package relude --prelude-module Relude
+  summon new my-project with -letgcspw without -b --prelude-package relude --prelude-module Relude
 ```
 will create fully functional project which uses custom prelude `relude`, contains
 library, executable file, tests, [build script](#build-script)
@@ -174,7 +175,7 @@ integrated with `Travis-CI`, `AppVeyor-CI`, but benchmarks won't be attached to 
 But when calling this command
 
 ```
-  summon newProject
+  summon new my-project
 ```
 
 the tool will ask about every particular option, rather you'd like to have it
@@ -217,7 +218,7 @@ project-name
 ```
 and also repository with one commit at master will be added with enabled `Travis-CI` for that.
 
-## GHC options 
+## GHC options
 
 The following warning checks are added by default to every stanza:
 
