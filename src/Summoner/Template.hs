@@ -28,7 +28,7 @@ import qualified Data.Text as T
 memptyIfFalse :: Monoid m => Bool -> m -> m
 memptyIfFalse p val = if p then val else mempty
 
--- | Creating template file to use in `stack new` command
+-- | Creating tree structure of the project.
 createProjectTemplate :: ProjectData ->  TreeFs
 createProjectTemplate ProjectData{..} = Dir (toString repo) $
     [ File (toString repo <> ".cabal")

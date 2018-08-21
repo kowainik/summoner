@@ -1,3 +1,5 @@
+-- | Decision data type.
+
 module Summoner.Decision
        ( Decision (..)
        , decisionToBool
@@ -10,9 +12,6 @@ import Generics.Deriving.Semigroup (GSemigroup (..))
 
 import Summoner.Question (chooseYesNoBool, falseMessage, trueMessage)
 
-----------------------------------------------------------------------------
--- Decision data type
-----------------------------------------------------------------------------
 
 -- | Used for detecting the user decision during CLI input.
 data Decision = Idk | Nop | Yes
