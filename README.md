@@ -1,6 +1,6 @@
 # 🔮 Summoner
 
-![webp net-resizeimage 13](https://user-images.githubusercontent.com/8126674/44386910-82800a80-a556-11e8-8913-79b9e7d503ee.png)
+![wizard](https://user-images.githubusercontent.com/8126674/44388234-320aac00-a55a-11e8-879d-5dca68512031.png)
 [![Build status](https://secure.travis-ci.org/kowainik/summoner.svg)](http://travis-ci.org/kowainik/summoner)
 [![MPL-2.0 license](https://img.shields.io/badge/license-MPL--2.0-blue.svg)](https://github.com/kowainik/summoner/blob/master/LICENSE)
 [![Hackage](https://img.shields.io/hackage/v/summoner.svg)](https://hackage.haskell.org/package/summoner)
@@ -269,3 +269,7 @@ tidies up and highlights error messages in GHC output.
 This project was inspired by [Aelve/new-hs](https://github.com/aelve/new-hs#readme),
 which is the tool with the same goal but it's using
 [`cabal`](https://www.haskell.org/cabal/) for creating projects.
+
+Icons made by [Nikita Golubev](https://www.flaticon.com/authors/nikita-golubev)
+from [Flaticon](https://www.flaticon.com/) is licensed by
+[CC 3.0 BY](http://creativecommons.org/licenses/by/3.0/).
