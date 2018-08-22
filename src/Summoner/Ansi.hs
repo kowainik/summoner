@@ -4,11 +4,15 @@ module Summoner.Ansi
        ( Color (..)
        , putStrFlush
        , beautyPrint
+       , boldCode
+       , blueCode
        , bold
        , boldText
        , boldDefault
        , italic
+       , redCode
        , reset
+       , resetCode
        , prompt
        , setColor
        , successMessage
@@ -21,7 +25,7 @@ module Summoner.Ansi
 import Relude
 
 import System.Console.ANSI (Color (..), ColorIntensity (Vivid), ConsoleIntensity (BoldIntensity),
-                            ConsoleLayer (Foreground), SGR (..), setSGR)
+                            ConsoleLayer (Foreground), SGR (..), setSGR, setSGRCode)
 import System.IO (hFlush)
 
 ----------------------------------------------------------------------------
@@ -82,3 +86,9 @@ warningMessage = colorMessage Yellow
 successMessage = colorMessage Green
 infoMessage    = colorMessage Blue
 skipMessage    = colorMessage Cyan
+
+blueCode, boldCode, redCode, resetCode :: String
+redCode = setSGRCode [SetColor Foreground Vivid Red]
+blueCode = setSGRCode [SetColor Foreground Vivid Blue]
+boldCode = setSGRCode [SetConsoleIntensity BoldIntensity]
+resetCode = setSGRCode [Reset]

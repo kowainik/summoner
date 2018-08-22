@@ -1,6 +1,7 @@
-{-# LANGUAGE ApplicativeDo #-}
-{-# LANGUAGE QuasiQuotes   #-}
-{-# LANGUAGE TupleSections #-}
+{-# LANGUAGE ApplicativeDo   #-}
+{-# LANGUAGE QuasiQuotes     #-}
+{-# LANGUAGE TemplateHaskell #-}
+{-# LANGUAGE TupleSections   #-}
 
 -- | This module contains functions and data types to parse CLI inputs.
 
@@ -11,6 +12,7 @@ module Summoner.CLI
 import Relude
 
 import Data.Version (showVersion)
+import Development.GitRev (gitCommitDate, gitDirty, gitHash)
 import NeatInterpolation (text)
 import Options.Applicative (Parser, ParserInfo, command, execParser, flag, fullDesc, help, helper,
                             info, infoFooter, infoHeader, infoOption, long, metavar, optional,
@@ -19,8 +21,8 @@ import Options.Applicative.Help.Chunk (stringChunk)
 import System.Directory (doesFileExist)
 
 import Paths_summoner (version)
-import Summoner.Ansi (Color (Green), beautyPrint, bold, errorMessage, infoMessage, setColor,
-                      warningMessage)
+import Summoner.Ansi (Color (Green), beautyPrint, blueCode, bold, boldCode, errorMessage,
+                      infoMessage, redCode, resetCode, setColor, warningMessage)
 import Summoner.Config (ConfigP (..), PartialConfig, defaultConfig, finalise, loadFileConfig)
 import Summoner.Decision (Decision (..))
 import Summoner.Default (defaultConfigFile, endLine)
@@ -114,9 +116,14 @@ versionP = infoOption summonerVersion
     $ long "version"
    <> short 'v'
    <> help "Show summoner's version"
+
+summonerVersion :: String
+summonerVersion = toString $ intercalate "\n" $ [sVersion, sHash, sDate] ++ [sDirty | $(gitDirty)]
   where
-    summonerVersion :: String
-    summonerVersion = showVersion version
+    sVersion = blueCode <> boldCode <> "Summoner " <> "v" <>  showVersion version <> resetCode
+    sHash = " ➤ " <> blueCode <> boldCode <> "Git revision: " <> resetCode <> $(gitHash)
+    sDate = " ➤ " <> blueCode <> boldCode <> "Commit date:  " <> resetCode <> $(gitCommitDate)
+    sDirty = redCode <> "There are non-committed files." <> resetCode
 
 -- All possible commands.
 summonerP :: Parser Command

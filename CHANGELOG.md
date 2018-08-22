@@ -27,6 +27,8 @@
   Make `Licence` type safer.
 * [#124](https://github.com/kowainik/summoner/issues/124):
   Print directories bold.
+* [#130](https://github.com/kowainik/summoner/issues/130):
+  Show git revision version under `--version` command.
 
 1.0.6
 =====
