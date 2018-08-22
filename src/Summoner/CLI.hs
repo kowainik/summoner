@@ -10,15 +10,19 @@ module Summoner.CLI
        ) where
 
 import Relude
+import Relude.Extra.Enum (universe)
 
+import Data.Aeson (decodeStrict)
+import Data.ByteString.Char8 (pack)
 import Data.Version (showVersion)
 import Development.GitRev (gitCommitDate, gitDirty, gitHash)
 import NeatInterpolation (text)
-import Options.Applicative (Parser, ParserInfo, command, execParser, flag, fullDesc, help, helper,
-                            info, infoFooter, infoHeader, infoOption, long, metavar, optional,
-                            progDesc, short, strArgument, strOption, subparser, switch)
+import Options.Applicative (Parser, ParserInfo, command, execParser, flag, flag', fullDesc, help,
+                            helper, info, infoFooter, infoHeader, infoOption, long, metavar,
+                            optional, progDesc, short, strArgument, strOption, subparser, switch)
 import Options.Applicative.Help.Chunk (stringChunk)
 import System.Directory (doesFileExist)
+import System.Process (readProcess)
 
 import Paths_summoner (version)
 import Summoner.Ansi (Color (Green), beautyPrint, blueCode, bold, boldCode, errorMessage,
@@ -26,6 +30,8 @@ import Summoner.Ansi (Color (Green), beautyPrint, blueCode, bold, boldCode, erro
 import Summoner.Config (ConfigP (..), PartialConfig, defaultConfig, finalise, loadFileConfig)
 import Summoner.Decision (Decision (..))
 import Summoner.Default (defaultConfigFile, endLine)
+import Summoner.GhcVer (showGhcVer)
+import Summoner.License (License (..), LicenseName (..), githubLicenseQueryNames, parseLicenseName)
 import Summoner.Project (generateProject)
 import Summoner.ProjectData (CustomPrelude (..))
 import Summoner.Validation (Validation (..))
@@ -41,6 +47,35 @@ summon = execParser prsr >>= runCommand
 runCommand :: Command -> IO ()
 runCommand = \case
     New opts -> runNew opts
+    ShowInfo opts -> runShow opts
+
+runShow :: ShowOpts -> IO ()
+runShow opts =
+    case opts of
+        -- show list of all available GHC versions
+        ShowGhc          -> putText $ unlines $ map showGhcVer universe
+        ShowLicense name -> case name of
+            -- show a list of all available licenses
+            LicenseList Nothing  -> putText $ unlines $ map (\x -> show (x :: LicenseName)) universe
+            -- show a specific license
+            LicenseList (Just n) -> do
+                -- check a user`s input
+                license <- whenNothing (parseLicenseName (toText n))
+                    (fail "This wasn't a valid choice.")
+                -- get a link to github
+                let licenseLink = "https://api.github.com/licenses/" <> githubLicenseQueryNames license
+                -- get a JSON of specific license from github
+                licenseJson <-
+                    readProcess "curl"
+                                [ toString licenseLink
+                                , "-H"
+                                , "Accept: application/vnd.github.drax-preview+json"
+                                ]
+                                ""
+                -- get a license`s text and show
+                case (decodeStrict $ pack licenseJson) :: Maybe License of
+                    Just t  -> putStr $ unLicense t
+                    Nothing -> error "Broken predefined license list"
 
 runNew :: NewOpts -> IO ()
 runNew NewOpts{..} = do
@@ -90,6 +125,8 @@ readFileConfig ignoreFile maybeFile = if ignoreFile then pure mempty else do
 data Command
     -- | @new@ command creates a new project
     = New NewOpts
+    -- | @show@ command shows available licenses or GHC versions
+    | ShowInfo ShowOpts
 
 -- | Options parsed with @new@ command
 data NewOpts = NewOpts
@@ -98,6 +135,10 @@ data NewOpts = NewOpts
     , maybeFile   :: Maybe FilePath -- ^ file with custom configuration
     , cliConfig   :: PartialConfig  -- ^ config gathered during CLI
     }
+
+data ShowOpts = ShowGhc | ShowLicense LicenseList
+
+newtype LicenseList = LicenseList (Maybe String)
 
 ----------------------------------------------------------------------------
 -- Parsers
@@ -128,13 +169,30 @@ summonerVersion = toString $ intercalate "\n" $ [sVersion, sHash, sDate] ++ [sDi
 -- All possible commands.
 summonerP :: Parser Command
 summonerP = subparser
-    ( command "new"
-      (info (helper <*> newP) $ progDesc "Create a new Haskell project")
-    )
+    $ command "new" (info (helper <*> newP) $ progDesc "Create a new Haskell project")
+   <> command "show" (info (helper <*> showP) $ progDesc "Show available licenses or ghc versions")
 
 ----------------------------------------------------------------------------
 -- New command parsers
 ----------------------------------------------------------------------------
+
+-- | Parses options of the @show@ command.
+showP :: Parser Command
+showP = ShowInfo <$> (ghcP <|> ShowLicense <$> licenseP)
+
+ghcP :: Parser ShowOpts
+ghcP = flag' ShowGhc $ long "ghc" <> short 'g' <> help "Show available ghc versions"
+
+licenseP :: Parser LicenseList
+licenseP = subparser $
+    command "licenses" (info (helper <*> licenseList) $ progDesc "Show available licenses")
+
+licenseList :: Parser LicenseList
+licenseList =  LicenseList <$> optional licenseText
+
+licenseText :: Parser String
+licenseText = strOption $
+    long "name" <> short 'n' <> metavar "LICENSE_NAME" <> help "Show license text"
 
 -- | Parses options of the @new@ command.
 newP :: Parser Command
@@ -276,6 +334,9 @@ stackP :: Parser Decision
 stackP = flag Idk Yes
        $ long "stack"
       <> help "Stack support for the project"
+
+-- showGhc :: Parser Command
+-- showGhc = subparser Info $
 
 ----------------------------------------------------------------------------
 -- Beauty util
