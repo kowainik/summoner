@@ -68,13 +68,14 @@ githubLicenseQueryNames = \case
 parseLicenseName :: Text -> Maybe LicenseName
 parseLicenseName = inverseMap show
 
-customizeLicense :: LicenseName -> Text -> Text -> Text -> Text
+customizeLicense :: LicenseName -> License -> Text -> Text -> License
 customizeLicense l t nm year
-    | l `elem` [MIT, BSD2, BSD3] = updateLicenseText
+    | l `elem` [MIT, BSD2, BSD3] = License updateLicenseText
     | otherwise                  = t
   where
+    licenseText = unLicense t
     updateLicenseText =
-        let (beforeY, withY) = T.span (/= '[') t
+        let (beforeY, withY) = T.span (/= '[') licenseText
             afterY           = T.tail $ T.dropWhile (/= ']') withY
             (beforeN, withN) = T.span (/= '[') afterY
             afterN           = T.tail $ T.dropWhile (/= ']') withN

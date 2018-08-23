@@ -18,7 +18,7 @@ import Summoner.Config (Config, ConfigP (..))
 import Summoner.Decision (Decision (..), decisionToBool)
 import Summoner.Default (currentYear, defaultGHC)
 import Summoner.GhcVer (parseGhcVer, showGhcVer)
-import Summoner.License (License (..), customizeLicense, fetchLicense, parseLicenseName)
+import Summoner.License (customizeLicense, fetchLicense, parseLicenseName)
 import Summoner.Process ()
 import Summoner.ProjectData (CustomPrelude (..), ProjectData (..))
 import Summoner.Question (checkUniqueName, choose, chooseYesNo, falseMessage, query, queryDef,
@@ -40,12 +40,12 @@ generateProject projectName Config{..} = do
     email       <- queryDef "Maintainer e-mail: " cEmail
     putText categoryText
     category <- query "Category: "
-    license  <- choose parseLicenseName "License: " $ ordNub (cLicense : universe)
+    licenseName  <- choose parseLicenseName "License: " $ ordNub (cLicense : universe)
 
     -- License creation
-    fetchedLicense <- fetchLicense license
+    fetchedLicense <- fetchLicense licenseName
     year <- currentYear
-    let licenseText = customizeLicense license (unLicense fetchedLicense) nm year
+    let licenseText = customizeLicense licenseName fetchedLicense nm year
 
     -- Library/Executable/Tests/Benchmarks flags
     github <- decisionToBool cGitHub "GitHub integration"

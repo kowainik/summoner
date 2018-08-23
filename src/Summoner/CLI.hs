@@ -1,7 +1,8 @@
-{-# LANGUAGE ApplicativeDo   #-}
-{-# LANGUAGE QuasiQuotes     #-}
-{-# LANGUAGE TemplateHaskell #-}
-{-# LANGUAGE TupleSections   #-}
+{-# LANGUAGE ApplicativeDo       #-}
+{-# LANGUAGE QuasiQuotes         #-}
+{-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE TemplateHaskell     #-}
+{-# LANGUAGE TupleSections       #-}
 
 -- | This module contains functions and data types to parse CLI inputs.
 
@@ -66,10 +67,8 @@ runShow = \case
                     fetchedLicense <- fetchLicense licenseName
                     putTextLn $ unLicense fetchedLicense
   where
-    showGhcVers :: IO ()
-    showGhcVers = mapM_ (infoMessage . T.append "➤ " . showGhcVer) (reverse universe)
-    showLicenses :: IO ()
-    showLicenses = mapM_ (infoMessage . (\ x -> T.append "➤ " $ show (x :: LicenseName))) universe
+    showGhcVers :: IO () = mapM_ (infoMessage . T.append "➤ " . showGhcVer) (reverse universe)
+    showLicenses :: IO () = mapM_ (infoMessage . (\ x -> T.append "➤ " $ show (x :: LicenseName))) universe
 
 runNew :: NewOpts -> IO ()
 runNew NewOpts{..} = do
