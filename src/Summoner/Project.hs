@@ -9,19 +9,16 @@ module Summoner.Project
 import Relude
 import Relude.Extra.Enum (universe)
 
-import Data.Aeson (decodeStrict)
-import Data.ByteString.Char8 (pack)
 import NeatInterpolation (text)
 import System.Directory (setCurrentDirectory)
 import System.Info (os)
-import System.Process (readProcess)
 
 import Summoner.Ansi (errorMessage, infoMessage, successMessage)
 import Summoner.Config (Config, ConfigP (..))
 import Summoner.Decision (Decision (..), decisionToBool)
 import Summoner.Default (currentYear, defaultGHC)
 import Summoner.GhcVer (parseGhcVer, showGhcVer)
-import Summoner.License (License (..), customizeLicense, githubLicenseQueryNames, parseLicenseName)
+import Summoner.License (License (..), customizeLicense, getLicense, parseLicenseName)
 import Summoner.Process ()
 import Summoner.ProjectData (CustomPrelude (..), ProjectData (..))
 import Summoner.Question (checkUniqueName, choose, chooseYesNo, falseMessage, query, queryDef,
@@ -46,16 +43,9 @@ generateProject projectName Config{..} = do
     license  <- choose parseLicenseName "License: " $ ordNub (cLicense : universe)
 
     -- License creation
-    let licenseLink = "https://api.github.com/licenses/" <> githubLicenseQueryNames license
-    licenseJson <-
-      readProcess "curl"
-                  [ toString licenseLink
-                  , "-H"
-                  , "Accept: application/vnd.github.drax-preview+json"
-                  ]
-                  ""
+    mLicense <- getLicense license
     year <- currentYear
-    let licenseText = case (decodeStrict $ pack licenseJson) :: Maybe License of
+    let licenseText = case mLicense of
             Just t  -> customizeLicense license (unLicense t) nm year
             Nothing -> error "Broken predefined license list"
 

@@ -30,7 +30,7 @@
 * [#130](https://github.com/kowainik/summoner/issues/130):
   Show git revision version under `--version` command.
 * [#63](https://github.com/kowainik/summoner/issues/63):
-  Add `show --ghc` and `show --license` commands.
+  Add `show ghc`, `show licenses` and `show license <LICENSE_NAME>` commands.
 
 1.0.6
 =====

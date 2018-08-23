@@ -148,9 +148,13 @@ Available global options:
 Available commands:
   with                     Specify options to enable
   without                  Specify options to disable
+  show                     Show command. (Support licenses, license and ghcs)
+  licenses                 Show available licenses
+  license LICENSE_NAME     Show specific license text
+  ghcs                     Show available ghc versions
 
 Available command options:
-  -h,--help                Show this help text
+  -h, --help               Show this help text
   -g, --github             Github integration
   -p, --private            Create private GitHub repository
   -c, --travis             Travis CI integration

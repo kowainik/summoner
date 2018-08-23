@@ -4,12 +4,15 @@ module Summoner.License
        , customizeLicense
        , githubLicenseQueryNames
        , parseLicenseName
+       , getLicense
        ) where
 
 import Relude
 import Relude.Extra.Enum (inverseMap)
 
-import Data.Aeson (FromJSON (..), withObject, (.:))
+import Data.Aeson (FromJSON (..), decodeStrict, withObject, (.:))
+import Data.ByteString.Char8 (pack)
+import System.Process (readProcess)
 
 import qualified Data.Text as T
 import qualified Text.Show as TS
@@ -76,3 +79,10 @@ customizeLicense l t nm year
             (beforeN, withN) = T.span (/= '[') afterY
             afterN           = T.tail $ T.dropWhile (/= ']') withN
         in  beforeY <> year <> beforeN <> nm <> afterN
+
+getLicense :: LicenseName -> IO (Maybe License)
+getLicense name = do
+    let licenseLink = "https://api.github.com/licenses/" <> githubLicenseQueryNames name
+    licenseJson <- readProcess
+        "curl" [ toString licenseLink, "-H", "Accept: application/vnd.github.drax-preview+json"] ""
+    pure $ decodeStrict $ pack licenseJson

@@ -12,29 +12,28 @@ module Summoner.CLI
 import Relude
 import Relude.Extra.Enum (universe)
 
-import Data.Aeson (decodeStrict)
-import Data.ByteString.Char8 (pack)
 import Data.Version (showVersion)
 import Development.GitRev (gitCommitDate, gitDirty, gitHash)
 import NeatInterpolation (text)
-import Options.Applicative (Parser, ParserInfo, command, execParser, flag, flag', fullDesc, help,
-                            helper, info, infoFooter, infoHeader, infoOption, long, metavar,
-                            optional, progDesc, short, strArgument, strOption, subparser, switch)
+import Options.Applicative (Parser, ParserInfo, command, execParser, flag, fullDesc, help, helper,
+                            info, infoFooter, infoHeader, infoOption, long, metavar, optional,
+                            progDesc, short, strArgument, strOption, subparser, switch)
 import Options.Applicative.Help.Chunk (stringChunk)
 import System.Directory (doesFileExist)
-import System.Process (readProcess)
 
 import Paths_summoner (version)
 import Summoner.Ansi (Color (Green), beautyPrint, blueCode, bold, boldCode, errorMessage,
-                      infoMessage, redCode, resetCode, setColor, warningMessage)
+                      infoMessage, redCode, resetCode, setColor, successMessage, warningMessage)
 import Summoner.Config (ConfigP (..), PartialConfig, defaultConfig, finalise, loadFileConfig)
 import Summoner.Decision (Decision (..))
 import Summoner.Default (defaultConfigFile, endLine)
 import Summoner.GhcVer (showGhcVer)
-import Summoner.License (License (..), LicenseName (..), githubLicenseQueryNames, parseLicenseName)
+import Summoner.License (License (..), LicenseName (..), getLicense, parseLicenseName)
 import Summoner.Project (generateProject)
 import Summoner.ProjectData (CustomPrelude (..))
 import Summoner.Validation (Validation (..))
+
+import qualified Data.Text as T
 
 ---------------------------------------------------------------------------
 -- CLI
@@ -53,29 +52,25 @@ runShow :: ShowOpts -> IO ()
 runShow opts =
     case opts of
         -- show list of all available GHC versions
-        ShowGhc          -> putText $ unlines $ map showGhcVer universe
-        ShowLicense name -> case name of
-            -- show a list of all available licenses
-            LicenseList Nothing  -> putText $ unlines $ map (\x -> show (x :: LicenseName)) universe
+        GhcList -> ghcVers
+        -- show a list of all available licenses
+        LicenseList -> licenses
             -- show a specific license
-            LicenseList (Just n) -> do
-                -- check a user`s input
-                license <- whenNothing (parseLicenseName (toText n))
-                    (fail "This wasn't a valid choice.")
-                -- get a link to github
-                let licenseLink = "https://api.github.com/licenses/" <> githubLicenseQueryNames license
-                -- get a JSON of specific license from github
-                licenseJson <-
-                    readProcess "curl"
-                                [ toString licenseLink
-                                , "-H"
-                                , "Accept: application/vnd.github.drax-preview+json"
-                                ]
-                                ""
-                -- get a license`s text and show
-                case (decodeStrict $ pack licenseJson) :: Maybe License of
-                    Just t  -> putStr $ unLicense t
-                    Nothing -> error "Broken predefined license list"
+        LicenseText name ->
+            case parseLicenseName (toText name) of
+                Nothing -> do
+                    errorMessage "This wasn't a valid choice."
+                    infoMessage "Here is the list of supported licenses"
+                    licenses
+                Just licenseName -> do
+                    -- get and show a license`s text
+                    mLicenseText <- getLicense licenseName
+                    case mLicenseText :: Maybe License of
+                        Just t  -> putStr $ unLicense t
+                        Nothing -> error "Broken predefined license list"
+  where
+    ghcVers = mapM_ (successMessage . T.append "\10148 " . showGhcVer) (reverse universe)
+    licenses = mapM_ (successMessage . (\ x -> T.append "\10148 " $ show (x :: LicenseName))) universe
 
 runNew :: NewOpts -> IO ()
 runNew NewOpts{..} = do
@@ -136,9 +131,8 @@ data NewOpts = NewOpts
     , cliConfig   :: PartialConfig  -- ^ config gathered during CLI
     }
 
-data ShowOpts = ShowGhc | ShowLicense LicenseList
-
-newtype LicenseList = LicenseList (Maybe String)
+-- | Commands parsed with @show@ command
+data ShowOpts = GhcList | LicenseList | LicenseText String
 
 ----------------------------------------------------------------------------
 -- Parsers
@@ -178,21 +172,14 @@ summonerP = subparser
 
 -- | Parses options of the @show@ command.
 showP :: Parser Command
-showP = ShowInfo <$> (ghcP <|> ShowLicense <$> licenseP)
+showP = ShowInfo <$> subparser
+    ( command "ghcs" (info (helper <*> pure GhcList) $ progDesc "Show available ghc versions")
+   <> command "licenses" (info (helper <*> pure LicenseList) $ progDesc "Show available licenses")
+   <> command "license" (info (helper <*> licenseText) $ progDesc "Show specific license text")
+    )
 
-ghcP :: Parser ShowOpts
-ghcP = flag' ShowGhc $ long "ghc" <> short 'g' <> help "Show available ghc versions"
-
-licenseP :: Parser LicenseList
-licenseP = subparser $
-    command "licenses" (info (helper <*> licenseList) $ progDesc "Show available licenses")
-
-licenseList :: Parser LicenseList
-licenseList =  LicenseList <$> optional licenseText
-
-licenseText :: Parser String
-licenseText = strOption $
-    long "name" <> short 'n' <> metavar "LICENSE_NAME" <> help "Show license text"
+licenseText :: Parser ShowOpts
+licenseText = LicenseText <$> strArgument (metavar "LICENSE_NAME")
 
 -- | Parses options of the @new@ command.
 newP :: Parser Command
@@ -334,9 +321,6 @@ stackP :: Parser Decision
 stackP = flag Idk Yes
        $ long "stack"
       <> help "Stack support for the project"
-
--- showGhc :: Parser Command
--- showGhc = subparser Info $
 
 ----------------------------------------------------------------------------
 -- Beauty util
