@@ -18,7 +18,7 @@ import Summoner.Config (Config, ConfigP (..))
 import Summoner.Decision (Decision (..), decisionToBool)
 import Summoner.Default (currentYear, defaultGHC)
 import Summoner.GhcVer (parseGhcVer, showGhcVer)
-import Summoner.License (License (..), customizeLicense, fetchLicense, parseLicenseName)
+import Summoner.License (customizeLicense, fetchLicense, parseLicenseName)
 import Summoner.Process ()
 import Summoner.ProjectData (CustomPrelude (..), ProjectData (..))
 import Summoner.Question (checkUniqueName, choose, chooseYesNo, falseMessage, query, queryDef,
@@ -43,11 +43,9 @@ generateProject projectName Config{..} = do
     license  <- choose parseLicenseName "License: " $ ordNub (cLicense : universe)
 
     -- License creation
-    mLicense <- fetchLicense license
+    fetchedLicense <- fetchLicense license
     year <- currentYear
-    let licenseText = case mLicense of
-            Just t  -> customizeLicense license (unLicense t) nm year
-            Nothing -> error "Broken predefined license list"
+    let licenseText = customizeLicense license fetchedLicense nm year
 
     -- Library/Executable/Tests/Benchmarks flags
     github <- decisionToBool cGitHub "GitHub integration"

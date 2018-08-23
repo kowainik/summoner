@@ -28,7 +28,7 @@ import Summoner.Config (ConfigP (..), PartialConfig, defaultConfig, finalise, lo
 import Summoner.Decision (Decision (..))
 import Summoner.Default (defaultConfigFile, endLine)
 import Summoner.GhcVer (showGhcVer)
-import Summoner.License (License (..), LicenseName (..), fetchLicense, parseLicenseName)
+import Summoner.License (LicenseName (..), fetchLicense, parseLicenseName)
 import Summoner.Project (generateProject)
 import Summoner.ProjectData (CustomPrelude (..))
 import Summoner.Validation (Validation (..))
@@ -61,12 +61,10 @@ runShow = \case
                     errorMessage "This wasn't a valid choice."
                     infoMessage "Here is the list of supported licenses:"
                     showLicenses
-                Just licenseName -> do
                     -- get and show a license`s text
-                    mLicenseText <- fetchLicense licenseName
-                    case mLicenseText of
-                        Just t  -> putStr $ unLicense t
-                        Nothing -> error "Broken predefined license list."
+                Just licenseName -> do
+                    fetchedLicense <- fetchLicense licenseName
+                    putTextLn fetchedLicense
   where
     showGhcVers = mapM_ (infoMessage . T.append "➤ " . showGhcVer) (reverse universe)
     showLicenses = mapM_ (infoMessage . (\ x -> T.append "➤ " $ show (x :: LicenseName))) universe
