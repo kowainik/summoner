@@ -23,12 +23,12 @@ import System.Directory (doesFileExist)
 
 import Paths_summoner (version)
 import Summoner.Ansi (Color (Green), beautyPrint, blueCode, bold, boldCode, errorMessage,
-                      infoMessage, redCode, resetCode, setColor, successMessage, warningMessage)
+                      infoMessage, redCode, resetCode, setColor, warningMessage)
 import Summoner.Config (ConfigP (..), PartialConfig, defaultConfig, finalise, loadFileConfig)
 import Summoner.Decision (Decision (..))
 import Summoner.Default (defaultConfigFile, endLine)
 import Summoner.GhcVer (showGhcVer)
-import Summoner.License (License (..), LicenseName (..), getLicense, parseLicenseName)
+import Summoner.License (License (..), LicenseName (..), fetchLicense, parseLicenseName)
 import Summoner.Project (generateProject)
 import Summoner.ProjectData (CustomPrelude (..))
 import Summoner.Validation (Validation (..))
@@ -49,28 +49,27 @@ runCommand = \case
     ShowInfo opts -> runShow opts
 
 runShow :: ShowOpts -> IO ()
-runShow opts =
-    case opts of
+runShow = \case
         -- show list of all available GHC versions
-        GhcList -> ghcVers
+        GhcList -> showGhcVers
         -- show a list of all available licenses
-        LicenseList -> licenses
-            -- show a specific license
-        LicenseText name ->
+        LicenseList Nothing -> showLicenses
+        -- show a specific license
+        LicenseList (Just name) ->
             case parseLicenseName (toText name) of
                 Nothing -> do
                     errorMessage "This wasn't a valid choice."
-                    infoMessage "Here is the list of supported licenses"
-                    licenses
+                    infoMessage "Here is the list of supported licenses:"
+                    showLicenses
                 Just licenseName -> do
                     -- get and show a license`s text
-                    mLicenseText <- getLicense licenseName
-                    case mLicenseText :: Maybe License of
+                    mLicenseText <- fetchLicense licenseName
+                    case mLicenseText of
                         Just t  -> putStr $ unLicense t
-                        Nothing -> error "Broken predefined license list"
+                        Nothing -> error "Broken predefined license list."
   where
-    ghcVers = mapM_ (successMessage . T.append "\10148 " . showGhcVer) (reverse universe)
-    licenses = mapM_ (successMessage . (\ x -> T.append "\10148 " $ show (x :: LicenseName))) universe
+    showGhcVers = mapM_ (infoMessage . T.append "➤ " . showGhcVer) (reverse universe)
+    showLicenses = mapM_ (infoMessage . (\ x -> T.append "➤ " $ show (x :: LicenseName))) universe
 
 runNew :: NewOpts -> IO ()
 runNew NewOpts{..} = do
@@ -132,7 +131,7 @@ data NewOpts = NewOpts
     }
 
 -- | Commands parsed with @show@ command
-data ShowOpts = GhcList | LicenseList | LicenseText String
+data ShowOpts = GhcList | LicenseList (Maybe String)
 
 ----------------------------------------------------------------------------
 -- Parsers
@@ -173,13 +172,12 @@ summonerP = subparser
 -- | Parses options of the @show@ command.
 showP :: Parser Command
 showP = ShowInfo <$> subparser
-    ( command "ghcs" (info (helper <*> pure GhcList) $ progDesc "Show available ghc versions")
-   <> command "licenses" (info (helper <*> pure LicenseList) $ progDesc "Show available licenses")
+    ( command "ghc" (info (helper <*> pure GhcList) $ progDesc "Show available ghc versions")
    <> command "license" (info (helper <*> licenseText) $ progDesc "Show specific license text")
     )
 
 licenseText :: Parser ShowOpts
-licenseText = LicenseText <$> strArgument (metavar "LICENSE_NAME")
+licenseText = LicenseList <$> optional (strArgument (metavar "LICENSE_NAME"))
 
 -- | Parses options of the @new@ command.
 newP :: Parser Command

@@ -4,7 +4,7 @@ module Summoner.License
        , customizeLicense
        , githubLicenseQueryNames
        , parseLicenseName
-       , getLicense
+       , fetchLicense
        ) where
 
 import Relude
@@ -80,8 +80,8 @@ customizeLicense l t nm year
             afterN           = T.tail $ T.dropWhile (/= ']') withN
         in  beforeY <> year <> beforeN <> nm <> afterN
 
-getLicense :: LicenseName -> IO (Maybe License)
-getLicense name = do
+fetchLicense :: LicenseName -> IO (Maybe License)
+fetchLicense name = do
     let licenseLink = "https://api.github.com/licenses/" <> githubLicenseQueryNames name
     licenseJson <- readProcess
         "curl" [ toString licenseLink, "-H", "Accept: application/vnd.github.drax-preview+json"] ""
