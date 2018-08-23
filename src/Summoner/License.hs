@@ -80,12 +80,9 @@ customizeLicense l t nm year
             afterN           = T.tail $ T.dropWhile (/= ']') withN
         in  beforeY <> year <> beforeN <> nm <> afterN
 
-fetchLicense :: LicenseName -> IO Text
+fetchLicense :: LicenseName -> IO License
 fetchLicense name = do
     let licenseLink = "https://api.github.com/licenses/" <> githubLicenseQueryNames name
     licenseJson <- readProcess
         "curl" [ toString licenseLink, "-H", "Accept: application/vnd.github.drax-preview+json"] ""
-    let licenseText = case decodeStrict $ pack licenseJson of
-            Just t  -> unLicense t
-            Nothing -> error "Broken predefined license list"
-    pure licenseText
+    pure $ fromMaybe (error "Broken predefined license list") (decodeStrict $ pack licenseJson)

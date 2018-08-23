@@ -28,7 +28,7 @@ import Summoner.Config (ConfigP (..), PartialConfig, defaultConfig, finalise, lo
 import Summoner.Decision (Decision (..))
 import Summoner.Default (defaultConfigFile, endLine)
 import Summoner.GhcVer (showGhcVer)
-import Summoner.License (LicenseName (..), fetchLicense, parseLicenseName)
+import Summoner.License (License (..), LicenseName (..), fetchLicense, parseLicenseName)
 import Summoner.Project (generateProject)
 import Summoner.ProjectData (CustomPrelude (..))
 import Summoner.Validation (Validation (..))
@@ -64,9 +64,11 @@ runShow = \case
                     -- get and show a license`s text
                 Just licenseName -> do
                     fetchedLicense <- fetchLicense licenseName
-                    putTextLn fetchedLicense
+                    putTextLn $ unLicense fetchedLicense
   where
+    showGhcVers :: IO ()
     showGhcVers = mapM_ (infoMessage . T.append "➤ " . showGhcVer) (reverse universe)
+    showLicenses :: IO ()
     showLicenses = mapM_ (infoMessage . (\ x -> T.append "➤ " $ show (x :: LicenseName))) universe
 
 runNew :: NewOpts -> IO ()

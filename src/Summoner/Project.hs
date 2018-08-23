@@ -18,7 +18,7 @@ import Summoner.Config (Config, ConfigP (..))
 import Summoner.Decision (Decision (..), decisionToBool)
 import Summoner.Default (currentYear, defaultGHC)
 import Summoner.GhcVer (parseGhcVer, showGhcVer)
-import Summoner.License (customizeLicense, fetchLicense, parseLicenseName)
+import Summoner.License (License (..), customizeLicense, fetchLicense, parseLicenseName)
 import Summoner.Process ()
 import Summoner.ProjectData (CustomPrelude (..), ProjectData (..))
 import Summoner.Question (checkUniqueName, choose, chooseYesNo, falseMessage, query, queryDef,
@@ -45,7 +45,7 @@ generateProject projectName Config{..} = do
     -- License creation
     fetchedLicense <- fetchLicense license
     year <- currentYear
-    let licenseText = customizeLicense license fetchedLicense nm year
+    let licenseText = customizeLicense license (unLicense fetchedLicense) nm year
 
     -- Library/Executable/Tests/Benchmarks flags
     github <- decisionToBool cGitHub "GitHub integration"
