@@ -298,24 +298,33 @@ createProjectTemplate ProjectData{..} = Dir (toString repo) $
 
     -- create README template
     readme :: Text
-    readme =
+    readme = 
         [text|
         # $repo
 
-        [![Hackage]($hackageShield)]($hackageLink)
-        $stackBadges
-        $travisBadge
-        $appVeyorBadge
+        $hackage
         $licenseBadge
-
+        $maybeSomeBadges
+        
         $description
         $endLine
         |]
       where
         hackageShield :: Text =
-          "https://img.shields.io/hackage/v/" <> repo <> ".svg"
+            "https://img.shields.io/hackage/v/" <> repo <> ".svg"
         hackageLink :: Text =
-          "https://hackage.haskell.org/package/" <> repo
+            "https://hackage.haskell.org/package/" <> repo
+        hackage :: Text = 
+            "[![Hackage](" <> hackageShield <> ")](" <> hackageLink <> ")"
+
+        licenseShield :: Text =
+            "https://img.shields.io/badge/license-" <> T.replace "-" "--" license <> "-blue.svg"
+        licenseLink :: Text = memptyIfFalse github $ 
+            "https://github.com/" <> owner <> "/" <> repo <> "/blob/master/LICENSE"
+        licenseUnLink :: Text = memptyIfFalse (not github) $ "LICENSE"
+
+        licenseBadge :: Text = 
+            "[![" <> license <> " license](" <> licenseShield <> ")](" <> licenseLink <> licenseUnLink <> ")"
 
         stackShieldLts :: Text =
             "http://stackage.org/package/" <> repo <> "/badge/lts"
@@ -326,33 +335,28 @@ createProjectTemplate ProjectData{..} = Dir (toString repo) $
             "http://stackage.org/package/" <> repo <> "/badge/nightly"
         stackLinkNightly :: Text =
             "http://stackage.org/nightly/package/" <> repo
-
-        stackBadges :: Text = memptyIfFalse stack
+        stackBadges :: Text =
             [text|
             [![Stackage Lts](${stackShieldLts})](${stackLinkLts})
             [![Stackage Nightly](${stackShieldNightly})](${stackLinkNightly})
             |]
 
         travisShield :: Text =
-          "https://secure.travis-ci.org/" <> owner <> "/" <> repo <> ".svg"
+            "https://secure.travis-ci.org/" <> owner <> "/" <> repo <> ".svg"
         travisLink :: Text =
-          "https://travis-ci.org/" <> owner <> "/" <> repo
-        travisBadge :: Text = memptyIfFalse travis
+            "https://travis-ci.org/" <> owner <> "/" <> repo
+        travisBadge :: Text = 
             [text|[![Build status](${travisShield})](${travisLink})|]
 
         appVeyorShield :: Text =
-          "https://ci.appveyor.com/api/projects/status/github/" <> owner <> "/" <> repo <> "?branch=master&svg=true"
+            "https://ci.appveyor.com/api/projects/status/github/" <> owner <> "/" <> repo <> "?branch=master&svg=true"
         appVeyorLink :: Text =
-          "https://ci.appveyor.com/project/" <> owner <> "/" <> repo
-        appVeyorBadge :: Text = memptyIfFalse appVey
+            "https://ci.appveyor.com/project/" <> owner <> "/" <> repo
+        appVeyorBadge :: Text = 
             [text|[![Windows build status](${appVeyorShield})](${appVeyorLink})|]
 
-        licenseShield :: Text =
-          "https://img.shields.io/badge/license-" <> T.replace "-" "--" license <> "-blue.svg"
-        licenseLink :: Text =
-          "https://github.com/" <> owner <> "/" <> repo <> "/blob/master/LICENSE"
-        licenseBadge :: Text = memptyIfFalse github $ 
-            "[![" <> license <> " license](" <> licenseShield <> "](" <> licenseLink <>")"
+        maybeSomeBadges :: Text = 
+            T.concat $ [stackBadges | stack] <> [travisBadge | travis] <> [appVeyorBadge | appVey]
 
     -- create .gitignore template
     gitignore :: Text
@@ -421,7 +425,7 @@ createProjectTemplate ProjectData{..} = Dir (toString repo) $
         Change log
         ==========
 
-        $repo uses [PVP Versioning][1].
+        `$repo` uses [PVP Versioning][1].
         $githubLine
 
         0.0.0
