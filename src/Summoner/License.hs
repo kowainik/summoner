@@ -69,11 +69,10 @@ parseLicenseName :: Text -> Maybe LicenseName
 parseLicenseName = inverseMap show
 
 customizeLicense :: LicenseName -> License -> Text -> Text -> License
-customizeLicense l t nm year
+customizeLicense l license@(License licenseText) nm year
     | l `elem` [MIT, BSD2, BSD3] = License updateLicenseText
-    | otherwise                  = t
+    | otherwise                  = license
   where
-    licenseText = unLicense t
     updateLicenseText =
         let (beforeY, withY) = T.span (/= '[') licenseText
             afterY           = T.tail $ T.dropWhile (/= ']') withY

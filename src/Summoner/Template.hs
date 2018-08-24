@@ -1,5 +1,4 @@
 {-# LANGUAGE QuasiQuotes         #-}
-{-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE ViewPatterns        #-}
 
 -- | This module contains functions for stack template creation.
@@ -57,9 +56,9 @@ createProjectTemplate ProjectData{..} = Dir (toString repo) $
  ++ [File "appveyor.yml" appVeyorYml | appVey]
  ++ [File "b" scriptSh | script]
   where
-    -- Creates module name from the name of the project
     license = show licenseName
 
+    -- Creates module name from the name of the project
     libModuleName :: Text
     libModuleName = packageToModule repo
 

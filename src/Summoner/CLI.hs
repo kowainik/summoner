@@ -1,8 +1,8 @@
-{-# LANGUAGE ApplicativeDo       #-}
-{-# LANGUAGE QuasiQuotes         #-}
-{-# LANGUAGE ScopedTypeVariables #-}
-{-# LANGUAGE TemplateHaskell     #-}
-{-# LANGUAGE TupleSections       #-}
+{-# LANGUAGE ApplicativeDo    #-}
+{-# LANGUAGE QuasiQuotes      #-}
+{-# LANGUAGE TemplateHaskell  #-}
+{-# LANGUAGE TupleSections    #-}
+{-# LANGUAGE TypeApplications #-}
 
 -- | This module contains functions and data types to parse CLI inputs.
 
@@ -28,7 +28,7 @@ import Summoner.Ansi (Color (Green), beautyPrint, blueCode, bold, boldCode, erro
 import Summoner.Config (ConfigP (..), PartialConfig, defaultConfig, finalise, loadFileConfig)
 import Summoner.Decision (Decision (..))
 import Summoner.Default (defaultConfigFile, endLine)
-import Summoner.GhcVer (showGhcVer)
+import Summoner.GhcVer (GhcVer, showGhcVer)
 import Summoner.License (License (..), LicenseName (..), fetchLicense, parseLicenseName)
 import Summoner.Project (generateProject)
 import Summoner.ProjectData (CustomPrelude (..))
@@ -52,23 +52,23 @@ runCommand = \case
 runShow :: ShowOpts -> IO ()
 runShow = \case
         -- show list of all available GHC versions
-        GhcList -> showGhcVers
+        GhcList -> showBulletList @GhcVer showGhcVer (reverse universe)
         -- show a list of all available licenses
-        LicenseList Nothing -> showLicenses
+        LicenseList Nothing -> showBulletList @LicenseName show universe
         -- show a specific license
         LicenseList (Just name) ->
             case parseLicenseName (toText name) of
                 Nothing -> do
                     errorMessage "This wasn't a valid choice."
                     infoMessage "Here is the list of supported licenses:"
-                    showLicenses
+                    showBulletList @LicenseName show universe
                     -- get and show a license`s text
                 Just licenseName -> do
                     fetchedLicense <- fetchLicense licenseName
                     putTextLn $ unLicense fetchedLicense
   where
-    showGhcVers :: IO () = mapM_ (infoMessage . T.append "➤ " . showGhcVer) (reverse universe)
-    showLicenses :: IO () = mapM_ (infoMessage . (\ x -> T.append "➤ " $ show (x :: LicenseName))) universe
+    showBulletList :: (a -> Text) -> [a] -> IO ()
+    showBulletList showT = mapM_ (infoMessage . T.append "➤ " . showT)
 
 runNew :: NewOpts -> IO ()
 runNew NewOpts{..} = do
@@ -118,7 +118,7 @@ readFileConfig ignoreFile maybeFile = if ignoreFile then pure mempty else do
 data Command
     -- | @new@ command creates a new project
     = New NewOpts
-    -- | @show@ command shows available licenses or GHC versions
+    -- | @show@ command shows supported licenses or GHC versions
     | ShowInfo ShowOpts
 
 -- | Options parsed with @new@ command
@@ -162,7 +162,7 @@ summonerVersion = toString $ intercalate "\n" $ [sVersion, sHash, sDate] ++ [sDi
 summonerP :: Parser Command
 summonerP = subparser
     $ command "new" (info (helper <*> newP) $ progDesc "Create a new Haskell project")
-   <> command "show" (info (helper <*> showP) $ progDesc "Show available licenses or ghc versions")
+   <> command "show" (info (helper <*> showP) $ progDesc "Show supported licenses or ghc versions")
 
 ----------------------------------------------------------------------------
 -- New command parsers
@@ -171,12 +171,13 @@ summonerP = subparser
 -- | Parses options of the @show@ command.
 showP :: Parser Command
 showP = ShowInfo <$> subparser
-    ( command "ghc" (info (helper <*> pure GhcList) $ progDesc "Show available ghc versions")
-   <> command "license" (info (helper <*> licenseText) $ progDesc "Show specific license text")
+    ( command "ghc" (info (helper <*> pure GhcList) $ progDesc "Show supported ghc versions")
+   <> command "license" (info (helper <*> licenseText) $ progDesc "Show supported licenses")
     )
 
 licenseText :: Parser ShowOpts
-licenseText = LicenseList <$> optional (strArgument (metavar "LICENSE_NAME"))
+licenseText = LicenseList <$> optional
+    (strArgument (metavar "LICENSE_NAME" <> help "Show specific license text"))
 
 -- | Parses options of the @new@ command.
 newP :: Parser Command
