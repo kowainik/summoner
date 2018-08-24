@@ -1,5 +1,5 @@
-{-# LANGUAGE QuasiQuotes         #-}
-{-# LANGUAGE ViewPatterns        #-}
+{-# LANGUAGE QuasiQuotes  #-}
+{-# LANGUAGE ViewPatterns #-}
 
 -- | This module contains functions for stack template creation.
 
@@ -303,10 +303,10 @@ createProjectTemplate ProjectData{..} = Dir (toString repo) $
         # $repo
 
         [![Hackage]($hackageShield)]($hackageLink)
-        [![$license license](${licenseShield})](${licenseLink})
         $stackBadges
         $travisBadge
         $appVeyorBadge
+        $licenseBadge
 
         $description
         $endLine
@@ -351,6 +351,8 @@ createProjectTemplate ProjectData{..} = Dir (toString repo) $
           "https://img.shields.io/badge/license-" <> T.replace "-" "--" license <> "-blue.svg"
         licenseLink :: Text =
           "https://github.com/" <> owner <> "/" <> repo <> "/blob/master/LICENSE"
+        licenseBadge :: Text = memptyIfFalse github $ 
+            "[![" <> license <> " license](" <> licenseShield <> "](" <> licenseLink <>")"
 
     -- create .gitignore template
     gitignore :: Text
@@ -420,16 +422,20 @@ createProjectTemplate ProjectData{..} = Dir (toString repo) $
         ==========
 
         $repo uses [PVP Versioning][1].
-        The change log is available [on GitHub][2].
+        $githubLine
 
         0.0.0
         =====
         * Initially created.
 
         [1]: https://pvp.haskell.org
-        [2]: https://github.com/${owner}/${repo}/releases
+        $githubFootNote
         $endLine
         |]
+      where
+        githubLine :: Text = memptyIfFalse github $ "The change log is available [on GitHub][2]."
+        githubFootNote :: Text = memptyIfFalse github $ 
+            "[2]: https://github.com/" <> owner <> "/" <> repo <> "/releases"
 
     -- create travis.yml template
     travisYml :: Text
