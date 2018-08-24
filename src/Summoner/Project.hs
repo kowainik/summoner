@@ -9,19 +9,16 @@ module Summoner.Project
 import Relude
 import Relude.Extra.Enum (universe)
 
-import Data.Aeson (decodeStrict)
-import Data.ByteString.Char8 (pack)
 import NeatInterpolation (text)
 import System.Directory (setCurrentDirectory)
 import System.Info (os)
-import System.Process (readProcess)
 
 import Summoner.Ansi (errorMessage, infoMessage, successMessage)
 import Summoner.Config (Config, ConfigP (..))
 import Summoner.Decision (Decision (..), decisionToBool)
 import Summoner.Default (currentYear, defaultGHC)
 import Summoner.GhcVer (parseGhcVer, showGhcVer)
-import Summoner.License (License (..), customizeLicense, githubLicenseQueryNames, parseLicenseName)
+import Summoner.License (customizeLicense, fetchLicense, parseLicenseName)
 import Summoner.Process ()
 import Summoner.ProjectData (CustomPrelude (..), ProjectData (..))
 import Summoner.Question (checkUniqueName, choose, chooseYesNo, falseMessage, query, queryDef,
@@ -43,21 +40,12 @@ generateProject projectName Config{..} = do
     email       <- queryDef "Maintainer e-mail: " cEmail
     putText categoryText
     category <- query "Category: "
-    license  <- choose parseLicenseName "License: " $ ordNub (cLicense : universe)
+    licenseName  <- choose parseLicenseName "License: " $ ordNub (cLicense : universe)
 
     -- License creation
-    let licenseLink = "https://api.github.com/licenses/" <> githubLicenseQueryNames license
-    licenseJson <-
-      readProcess "curl"
-                  [ toString licenseLink
-                  , "-H"
-                  , "Accept: application/vnd.github.drax-preview+json"
-                  ]
-                  ""
+    fetchedLicense <- fetchLicense licenseName
     year <- currentYear
-    let licenseText = case (decodeStrict $ pack licenseJson) :: Maybe License of
-            Just t  -> customizeLicense license (unLicense t) nm year
-            Nothing -> error "Broken predefined license list"
+    let licenseText = customizeLicense licenseName fetchedLicense nm year
 
     -- Library/Executable/Tests/Benchmarks flags
     github <- decisionToBool cGitHub "GitHub integration"

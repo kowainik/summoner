@@ -122,9 +122,15 @@ The other way to specify some particular `.toml` file is `summon new PROJECTNAME
 
 ##### CLI
 
-See the basic usage syntax below (you can check it out with `summon --help` command):
-
 ```
+Available commands:
+  new                      Create a new Haskell project
+  show                     Show available licenses or ghc versions
+
+---------------
+----- new -----
+---------------
+
 summon new PROJECT_NAME [--cabal] [--stack] [--ignore-config]
        [with [OPTIONS]] [without [OPTIONS]]
        [-f|--file FILENAME]  [--prelude-package PACKAGE_NAME]
@@ -150,7 +156,7 @@ Available commands:
   without                  Specify options to disable
 
 Available command options:
-  -h,--help                Show this help text
+  -h, --help               Show this help text
   -g, --github             Github integration
   -p, --private            Create private GitHub repository
   -c, --travis             Travis CI integration
@@ -161,6 +167,20 @@ Available command options:
   -t, --test               Tests
   -b, --benchmark          Benchmarks
 
+----------------
+----- show -----
+----------------
+
+summon show COMMAND [LICENSE_NAME]    
+  Show command. (Support licenses, license and ghcs)
+
+Available commands:
+  ghc                      Show available ghc versions
+  license                  Show available licenses
+  license [LICENSE_NAME]   Show specific license text
+
+Available global options:
+  -h, --help               Show this help text
 ```
 
 The options to be enabled/disabled can be specified while running the command.

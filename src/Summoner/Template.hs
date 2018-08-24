@@ -1,5 +1,4 @@
 {-# LANGUAGE QuasiQuotes         #-}
-{-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE ViewPatterns        #-}
 
 -- | This module contains functions for stack template creation.
@@ -15,6 +14,7 @@ import NeatInterpolation (text)
 
 import Summoner.Default (defaultGHC, endLine)
 import Summoner.GhcVer (GhcVer (..), baseVer, latestLts, showGhcVer)
+import Summoner.License (License (..))
 import Summoner.ProjectData (CustomPrelude (..), ProjectData (..))
 import Summoner.Text (intercalateMap, packageToModule)
 import Summoner.Tree (TreeFs (..))
@@ -47,7 +47,7 @@ createProjectTemplate ProjectData{..} = Dir (toString repo) $
            )
     , File "README.md" readme
     , File "CHANGELOG.md" changelog
-    , File "LICENSE" licenseText
+    , File "LICENSE" $ unLicense licenseText
     ]
  ++ createCabalFiles
  ++ memptyIfFalse stack (createStackYamls testedVersions)
@@ -56,9 +56,9 @@ createProjectTemplate ProjectData{..} = Dir (toString repo) $
  ++ [File "appveyor.yml" appVeyorYml | appVey]
  ++ [File "b" scriptSh | script]
   where
-    -- Creates module name from the name of the project
-    licenseName = show license
+    license = show licenseName
 
+    -- Creates module name from the name of the project
     libModuleName :: Text
     libModuleName = packageToModule repo
 
@@ -83,7 +83,7 @@ createProjectTemplate ProjectData{..} = Dir (toString repo) $
         synopsis:            $description
         homepage:            https://github.com/${owner}/${repo}
         bug-reports:         https://github.com/${owner}/${repo}/issues
-        license:             $licenseName
+        license:             $license
         license-file:        LICENSE
         author:              $nm
         maintainer:          $email
@@ -303,7 +303,7 @@ createProjectTemplate ProjectData{..} = Dir (toString repo) $
         # $repo
 
         [![Hackage]($hackageShield)]($hackageLink)
-        [![$licenseName license](${licenseShield})](${licenseLink})
+        [![$license license](${licenseShield})](${licenseLink})
         $stackBadges
         $travisBadge
         $appVeyorBadge
@@ -348,7 +348,7 @@ createProjectTemplate ProjectData{..} = Dir (toString repo) $
             [text|[![Windows build status](${appVeyorShield})](${appVeyorLink})|]
 
         licenseShield :: Text =
-          "https://img.shields.io/badge/license-" <> T.replace "-" "--" licenseName <> "-blue.svg"
+          "https://img.shields.io/badge/license-" <> T.replace "-" "--" license <> "-blue.svg"
         licenseLink :: Text =
           "https://github.com/" <> owner <> "/" <> repo <> "/blob/master/LICENSE"
 

@@ -10,6 +10,7 @@ module Summoner.CLI
        ) where
 
 import Relude
+import Relude.Extra.Enum (universe)
 
 import Data.Version (showVersion)
 import Development.GitRev (gitCommitDate, gitDirty, gitHash)
@@ -26,9 +27,13 @@ import Summoner.Ansi (Color (Green), beautyPrint, blueCode, bold, boldCode, erro
 import Summoner.Config (ConfigP (..), PartialConfig, defaultConfig, finalise, loadFileConfig)
 import Summoner.Decision (Decision (..))
 import Summoner.Default (defaultConfigFile, endLine)
+import Summoner.GhcVer (GhcVer, showGhcVer)
+import Summoner.License (License (..), LicenseName (..), fetchLicense, parseLicenseName)
 import Summoner.Project (generateProject)
 import Summoner.ProjectData (CustomPrelude (..))
 import Summoner.Validation (Validation (..))
+
+import qualified Data.Text as T
 
 ---------------------------------------------------------------------------
 -- CLI
@@ -41,6 +46,28 @@ summon = execParser prsr >>= runCommand
 runCommand :: Command -> IO ()
 runCommand = \case
     New opts -> runNew opts
+    ShowInfo opts -> runShow opts
+
+runShow :: ShowOpts -> IO ()
+runShow = \case
+        -- show list of all available GHC versions
+        GhcList -> showBulletList @GhcVer showGhcVer (reverse universe)
+        -- show a list of all available licenses
+        LicenseList Nothing -> showBulletList @LicenseName show universe
+        -- show a specific license
+        LicenseList (Just name) ->
+            case parseLicenseName (toText name) of
+                Nothing -> do
+                    errorMessage "This wasn't a valid choice."
+                    infoMessage "Here is the list of supported licenses:"
+                    showBulletList @LicenseName show universe
+                    -- get and show a license`s text
+                Just licenseName -> do
+                    fetchedLicense <- fetchLicense licenseName
+                    putTextLn $ unLicense fetchedLicense
+  where
+    showBulletList :: (a -> Text) -> [a] -> IO ()
+    showBulletList showT = mapM_ (infoMessage . T.append "➤ " . showT)
 
 runNew :: NewOpts -> IO ()
 runNew NewOpts{..} = do
@@ -90,6 +117,8 @@ readFileConfig ignoreFile maybeFile = if ignoreFile then pure mempty else do
 data Command
     -- | @new@ command creates a new project
     = New NewOpts
+    -- | @show@ command shows supported licenses or GHC versions
+    | ShowInfo ShowOpts
 
 -- | Options parsed with @new@ command
 data NewOpts = NewOpts
@@ -98,6 +127,9 @@ data NewOpts = NewOpts
     , maybeFile   :: Maybe FilePath -- ^ file with custom configuration
     , cliConfig   :: PartialConfig  -- ^ config gathered during CLI
     }
+
+-- | Commands parsed with @show@ command
+data ShowOpts = GhcList | LicenseList (Maybe String)
 
 ----------------------------------------------------------------------------
 -- Parsers
@@ -128,13 +160,23 @@ summonerVersion = toString $ intercalate "\n" $ [sVersion, sHash, sDate] ++ [sDi
 -- All possible commands.
 summonerP :: Parser Command
 summonerP = subparser
-    ( command "new"
-      (info (helper <*> newP) $ progDesc "Create a new Haskell project")
-    )
+    $ command "new" (info (helper <*> newP) $ progDesc "Create a new Haskell project")
+   <> command "show" (info (helper <*> showP) $ progDesc "Show supported licenses or ghc versions")
 
 ----------------------------------------------------------------------------
 -- New command parsers
 ----------------------------------------------------------------------------
+
+-- | Parses options of the @show@ command.
+showP :: Parser Command
+showP = ShowInfo <$> subparser
+    ( command "ghc" (info (helper <*> pure GhcList) $ progDesc "Show supported ghc versions")
+   <> command "license" (info (helper <*> licenseText) $ progDesc "Show supported licenses")
+    )
+
+licenseText :: Parser ShowOpts
+licenseText = LicenseList <$> optional
+    (strArgument (metavar "LICENSE_NAME" <> help "Show specific license text"))
 
 -- | Parses options of the @new@ command.
 newP :: Parser Command

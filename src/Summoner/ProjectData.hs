@@ -8,7 +8,7 @@ module Summoner.ProjectData
 import Relude
 
 import Summoner.GhcVer (GhcVer)
-import Summoner.License (LicenseName)
+import Summoner.License (License, LicenseName)
 
 
 data CustomPrelude = Prelude
@@ -25,8 +25,8 @@ data ProjectData = ProjectData
     , email          :: Text   -- ^ e-mail
     , year           :: Text   -- ^ year
     , category       :: Text   -- ^ project category
-    , license        :: LicenseName   -- ^ type of license
-    , licenseText    :: Text   -- ^ license text
+    , licenseName    :: LicenseName -- ^ type of license
+    , licenseText    :: License -- ^ license text
     , github         :: Bool   -- ^ github repository
     , travis         :: Bool   -- ^ Travis CI integration
     , appVey         :: Bool   -- ^ AppVeyor CI integration
