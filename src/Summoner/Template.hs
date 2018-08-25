@@ -298,24 +298,21 @@ createProjectTemplate ProjectData{..} = Dir (toString repo) $
 
     -- create README template
     readme :: Text
-    readme = 
-        [text|
-        # $repo
-
-        $hackage
-        $licenseBadge
-        $maybeSomeBadges
-        
-        $description
-        $endLine
-        |]
+    readme = T.intercalate "\n" $ filter (/="") 
+        [ ("# " <> repo <> "\n")
+        , hackage
+        , licenseBadge
+        , stackBadges
+        , travisBadge
+        , appVeyorBadge
+        , ("\n" <> description)
+        ]
       where
         hackageShield :: Text =
             "https://img.shields.io/hackage/v/" <> repo <> ".svg"
         hackageLink :: Text =
             "https://hackage.haskell.org/package/" <> repo
-        hackage :: Text = 
-            "[![Hackage](" <> hackageShield <> ")](" <> hackageLink <> ")"
+        hackage :: Text = makeBadge "Hackage" hackageShield hackageLink
 
         licenseShield :: Text =
             "https://img.shields.io/badge/license-" <> T.replace "-" "--" license <> "-blue.svg"
@@ -324,7 +321,7 @@ createProjectTemplate ProjectData{..} = Dir (toString repo) $
         licenseUnLink :: Text = memptyIfFalse (not github) $ "LICENSE"
 
         licenseBadge :: Text = 
-            "[![" <> license <> " license](" <> licenseShield <> ")](" <> licenseLink <> licenseUnLink <> ")"
+            makeBadge (license <> " license") licenseShield (licenseLink <> licenseUnLink)
 
         stackShieldLts :: Text =
             "http://stackage.org/package/" <> repo <> "/badge/lts"
@@ -335,28 +332,26 @@ createProjectTemplate ProjectData{..} = Dir (toString repo) $
             "http://stackage.org/package/" <> repo <> "/badge/nightly"
         stackLinkNightly :: Text =
             "http://stackage.org/nightly/package/" <> repo
-        stackBadges :: Text =
-            [text|
-            [![Stackage Lts](${stackShieldLts})](${stackLinkLts})
-            [![Stackage Nightly](${stackShieldNightly})](${stackLinkNightly})
-            |]
-
+        stackBadges :: Text = T.intercalate "\n" 
+            $ [makeBadge "Stackage Lts" stackShieldLts stackLinkLts | stack]
+           ++ [makeBadge "Stackage Nightly" stackShieldNightly stackLinkNightly | stack]
+            
         travisShield :: Text =
             "https://secure.travis-ci.org/" <> owner <> "/" <> repo <> ".svg"
         travisLink :: Text =
             "https://travis-ci.org/" <> owner <> "/" <> repo
-        travisBadge :: Text = 
-            [text|[![Build status](${travisShield})](${travisLink})|]
+        travisBadge :: Text = T.concat 
+            [makeBadge "Build status" travisShield travisLink | travis]
 
         appVeyorShield :: Text =
             "https://ci.appveyor.com/api/projects/status/github/" <> owner <> "/" <> repo <> "?branch=master&svg=true"
         appVeyorLink :: Text =
             "https://ci.appveyor.com/project/" <> owner <> "/" <> repo
-        appVeyorBadge :: Text = 
-            [text|[![Windows build status](${appVeyorShield})](${appVeyorLink})|]
+        appVeyorBadge :: Text = T.concat 
+            [makeBadge "Windows build status" appVeyorShield appVeyorLink | appVey]
 
-        maybeSomeBadges :: Text = 
-            T.concat $ [stackBadges | stack] <> [travisBadge | travis] <> [appVeyorBadge | appVey]
+        makeBadge :: Text -> Text -> Text -> Text
+        makeBadge title shield link = "[![" <> title <> "](" <> shield <> ")](" <> link <> ")"
 
     -- create .gitignore template
     gitignore :: Text
