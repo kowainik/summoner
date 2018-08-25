@@ -304,7 +304,8 @@ createProjectTemplate ProjectData{..} = Dir (toString repo) $
         , hackage
         , licenseBadge
         ]
-     ++ [stackBadges | stack]
+     ++ [stackLtsBadge | stack]
+     ++ [stackNightlyBadge | stack]
      ++ [travisBadge | travis]
      ++ [appVeyorBadge | appVey]
      ++ [""
@@ -331,9 +332,10 @@ createProjectTemplate ProjectData{..} = Dir (toString repo) $
             "http://stackage.org/package/" <> repo <> "/badge/nightly"
         stackLinkNightly :: Text =
             "http://stackage.org/nightly/package/" <> repo
-        stackBadges :: Text 
-            = makeBadge "Stackage Lts" stackShieldLts stackLinkLts
-           <> makeBadge "Stackage Nightly" stackShieldNightly stackLinkNightly
+        stackLtsBadge :: Text =
+            makeBadge "Stackage Lts" stackShieldLts stackLinkLts
+        stackNightlyBadge :: Text =
+            makeBadge "Stackage Nightly" stackShieldNightly stackLinkNightly
             
         travisShield :: Text =
             "https://secure.travis-ci.org/" <> owner <> "/" <> repo <> ".svg"
@@ -350,7 +352,7 @@ createProjectTemplate ProjectData{..} = Dir (toString repo) $
             makeBadge "Windows build status" appVeyorShield appVeyorLink
 
         makeBadge :: Text -> Text -> Text -> Text
-        makeBadge title shield link = "[![" <> title <> "](" <> shield <> ")](" <> link <> ")"
+        makeBadge title shield link = [text|[![$title]($shield)]($link)|]
 
     -- create .gitignore template
     gitignore :: Text
