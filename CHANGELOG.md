@@ -31,6 +31,8 @@
   Show git revision version under `--version` command.
 * [#63](https://github.com/kowainik/summoner/issues/63):
   Add `show ghc`, `show license` and `show license <LICENSE_NAME>` commands.
+* [#122](https://github.com/kowainik/summoner/issues/122):
+  Remove github link from CHANGELOG when github is not chosen.
 
 1.0.6
 =====
