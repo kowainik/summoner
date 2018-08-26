@@ -352,7 +352,7 @@ createProjectTemplate ProjectData{..} = Dir (toString repo) $
             makeBadge "Windows build status" appVeyorShield appVeyorLink
 
         makeBadge :: Text -> Text -> Text -> Text
-        makeBadge title shield link = [text|[![$title]($shield)]($link)|]
+        makeBadge title shield link = "[![" <> title <> "](" <> shield <> ")](" <> link <> ")"
 
     -- create .gitignore template
     gitignore :: Text
