@@ -29,7 +29,7 @@ memptyIfFalse :: Monoid m => Bool -> m -> m
 memptyIfFalse p val = if p then val else mempty
 
 -- | Creating tree structure of the project.
-createProjectTemplate :: ProjectData ->  TreeFs
+createProjectTemplate :: ProjectData -> TreeFs
 createProjectTemplate ProjectData{..} = Dir (toString repo) $
     [ File (toString repo <> ".cabal")
            ( createCabalTop
@@ -55,6 +55,7 @@ createProjectTemplate ProjectData{..} = Dir (toString repo) $
  ++ [File ".travis.yml" travisYml | travis]
  ++ [File "appveyor.yml" appVeyorYml | appVey]
  ++ [File "b" scriptSh | script]
+ ++ maybe [] (\x -> [File ".stylish-haskell.yaml" x]) stylish
   where
     license = show licenseName
 
@@ -320,7 +321,7 @@ createProjectTemplate ProjectData{..} = Dir (toString repo) $
 
         licenseShield :: Text =
             "https://img.shields.io/badge/license-" <> T.replace "-" "--" license <> "-blue.svg"
-        licenseBadge :: Text = 
+        licenseBadge :: Text =
             makeBadge (license <> " license") licenseShield "LICENSE"
 
         stackShieldLts :: Text =
@@ -336,19 +337,19 @@ createProjectTemplate ProjectData{..} = Dir (toString repo) $
             makeBadge "Stackage Lts" stackShieldLts stackLinkLts
         stackNightlyBadge :: Text =
             makeBadge "Stackage Nightly" stackShieldNightly stackLinkNightly
-            
+
         travisShield :: Text =
             "https://secure.travis-ci.org/" <> owner <> "/" <> repo <> ".svg"
         travisLink :: Text =
             "https://travis-ci.org/" <> owner <> "/" <> repo
-        travisBadge :: Text = 
+        travisBadge :: Text =
             makeBadge "Build status" travisShield travisLink
 
         appVeyorShield :: Text =
             "https://ci.appveyor.com/api/projects/status/github/" <> owner <> "/" <> repo <> "?branch=master&svg=true"
         appVeyorLink :: Text =
             "https://ci.appveyor.com/project/" <> owner <> "/" <> repo
-        appVeyorBadge :: Text = 
+        appVeyorBadge :: Text =
             makeBadge "Windows build status" appVeyorShield appVeyorLink
 
         makeBadge :: Text -> Text -> Text -> Text
@@ -433,7 +434,7 @@ createProjectTemplate ProjectData{..} = Dir (toString repo) $
         |]
       where
         githubLine :: Text = memptyIfFalse github $ "The change log is available [on GitHub][2]."
-        githubFootNote :: Text = memptyIfFalse github $ 
+        githubFootNote :: Text = memptyIfFalse github $
             "[2]: https://github.com/" <> owner <> "/" <> repo <> "/releases"
 
     -- create travis.yml template

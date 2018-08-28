@@ -23,6 +23,7 @@ import Summoner.Process ()
 import Summoner.ProjectData (CustomPrelude (..), ProjectData (..))
 import Summoner.Question (checkUniqueName, choose, chooseYesNo, falseMessage, query, queryDef,
                           queryManyRepeatOnFail, targetMessageWithText, trueMessage)
+import Summoner.Source (fetchSource)
 import Summoner.Template (createProjectTemplate)
 import Summoner.Text (intercalateMap, packageToModule)
 import Summoner.Tree (showTree, traverseTree)
@@ -78,6 +79,10 @@ generateProject projectName Config{..} = do
         vers -> do
             putTextLn $ "Also these GHC versions will be added: " <> intercalateMap " " showGhcVer vers
             pure vers
+
+    stylish <- case getLast cStylish of
+        Nothing -> pure Nothing
+        Just s  -> fetchSource s
 
     -- Create project data from all variables in scope
     let projectData = ProjectData{..}

@@ -36,6 +36,7 @@ import Summoner.Decision (Decision (..))
 import Summoner.GhcVer (GhcVer (..), parseGhcVer, showGhcVer)
 import Summoner.License (LicenseName (..), parseLicenseName)
 import Summoner.ProjectData (CustomPrelude (..))
+import Summoner.Source (Source, sourceT)
 import Summoner.Validation (Validation (..))
 
 import qualified Text.Show as Show
@@ -64,6 +65,7 @@ data ConfigP (p :: Phase) = Config
     , cPrelude    :: Last CustomPrelude
     , cExtensions :: [Text]
     , cWarnings   :: [Text]
+    , cStylish    :: Last Source
     } deriving (Generic)
 
 deriving instance
@@ -127,6 +129,7 @@ defaultConfig = Config
     , cPrelude  = Last Nothing
     , cExtensions = []
     , cWarnings = []
+    , cStylish  = Last Nothing
     }
 
 -- | Identifies how to read 'Config' data from the @.toml@ file.
@@ -151,6 +154,7 @@ configT = Config
     <*> lastT (Toml.table preludeT) "prelude" .= cPrelude
     <*> textArr         "extensions"  .= cExtensions
     <*> textArr         "warnings"    .= cWarnings
+    <*> lastT sourceT   "stylish"     .= cStylish
   where
     lastT :: (Key -> BiToml a) -> Key -> BiToml (Last a)
     lastT = Toml.wrapper . Toml.maybeT
@@ -212,6 +216,7 @@ finalise Config{..} = Config
     <*> pure cPrelude
     <*> pure cExtensions
     <*> pure cWarnings
+    <*> pure cStylish
   where
     fin name = maybe (Failure ["Missing field: " <> name]) Success . getLast
 
