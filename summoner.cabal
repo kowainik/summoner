@@ -65,7 +65,7 @@ library
                      , process
                      , text
                      , time
-                     , tomland ^>= 0.3.1
+                     , tomland ^>= 0.4.0
                      , relude ^>= 0.1.1
 
   default-extensions:  DeriveGeneric
@@ -94,7 +94,7 @@ executable summon
                        -Wredundant-constraints
                        -fhide-source-paths
   build-depends:       base
-                     , relude ^>= 0.1.1
+                     , relude
                      , summoner
   default-language:    Haskell2010
 
@@ -109,10 +109,10 @@ test-suite summoner-test
   build-tool-depends:  tasty-discover:tasty-discover
   build-depends:       base
                      , hedgehog
-                     , relude ^>= 0.1.1
+                     , relude
                      , tasty
                      , tasty-hedgehog
-                     , tomland ^>= 0.3.1
+                     , tomland
                      , summoner
   default-extensions:  NoImplicitPrelude
 

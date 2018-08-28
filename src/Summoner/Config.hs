@@ -30,7 +30,7 @@ import Data.List (lookup)
 import Data.Monoid (Last (..))
 import Generics.Deriving.Monoid (GMonoid, gmemptydefault)
 import Generics.Deriving.Semigroup (GSemigroup, gsappenddefault)
-import Toml (AnyValue (..), BiToml, Key, Prism (..), dimap, (.=))
+import Toml (AnyValue (..), BiMap (..), BiToml, Key, dimap, (.=))
 
 import Summoner.Decision (Decision (..))
 import Summoner.GhcVer (GhcVer (..), parseGhcVer, showGhcVer)
@@ -155,10 +155,10 @@ configT = Config
     lastT :: (Key -> BiToml a) -> Key -> BiToml (Last a)
     lastT = Toml.wrapper . Toml.maybeT
 
-    _GhcVer :: Prism AnyValue GhcVer
-    _GhcVer = Prism
-        { preview = \(AnyValue t) -> Toml.matchText t >>= parseGhcVer
-        , review = AnyValue . Toml.Text . showGhcVer
+    _GhcVer :: BiMap AnyValue GhcVer
+    _GhcVer = BiMap
+        { forward = \(AnyValue t) -> Toml.matchText t >>= parseGhcVer
+        , backward = Just . AnyValue . Toml.Text . showGhcVer
         }
 
     ghcVerArr :: Key -> BiToml [GhcVer]
