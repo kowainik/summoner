@@ -1,7 +1,7 @@
 resolver: lts-11.17
 
 extra-deps:
-  - tomland-0.3.1
+  - tomland-0.4.0
   - relude-0.1.1
 
 ghc-options:

@@ -33,6 +33,10 @@
   Add `show ghc`, `show license` and `show license <LICENSE_NAME>` commands.
 * [#122](https://github.com/kowainik/summoner/issues/122):
   Remove github link from CHANGELOG when github is not chosen.
+* [#35](https://github.com/kowainik/summoner/issues/35):
+  Add config option to add `.stylish-haskell.yaml` to your project
+  (via URL or file path).
+* Bump up `tomland` version to `0.4.0`.
 
 1.0.6
 =====
