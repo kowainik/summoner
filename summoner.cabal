@@ -37,6 +37,7 @@ library
                          Summoner.Project
                          Summoner.ProjectData
                          Summoner.Question
+                         Summoner.Source
                          Summoner.Template
                          Summoner.Text
                          Summoner.Tree

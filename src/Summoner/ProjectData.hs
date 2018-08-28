@@ -42,4 +42,5 @@ data ProjectData = ProjectData
     , warnings       :: [Text] -- ^ default warnings
     , cabal          :: Bool
     , stack          :: Bool
+    , stylish        :: Maybe Text -- ^ @.stylish-haskell.yaml@ file
     } deriving (Show)
