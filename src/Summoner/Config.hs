@@ -30,7 +30,7 @@ import Data.List (lookup)
 import Data.Monoid (Last (..))
 import Generics.Deriving.Monoid (GMonoid, gmemptydefault)
 import Generics.Deriving.Semigroup (GSemigroup, gsappenddefault)
-import Toml (AnyValue (..), BiMap (..), BiToml, Key, dimap, (.=))
+import Toml (AnyValue (..), BiMap (..), BiToml, Bijection (..), Key, dimap, (.=))
 
 import Summoner.Decision (Decision (..))
 import Summoner.GhcVer (GhcVer (..), parseGhcVer, showGhcVer)
@@ -154,8 +154,22 @@ configT = Config
     <*> lastT (Toml.table preludeT) "prelude" .= cPrelude
     <*> textArr         "extensions"  .= cExtensions
     <*> textArr         "warnings"    .= cWarnings
-    <*> lastT sourceT   "stylish"     .= cStylish
+    <*> wrapLastT (maybeSourceT "stylish") .= cStylish
   where
+    wrapLastT :: BiToml (Maybe a) -> BiToml (Last a)
+    wrapLastT = Toml.dimap getLast Last
+
+    maybeSourceT :: Key -> BiToml (Maybe Source)
+    maybeSourceT key = dimaybeT (sourceT key)
+
+    dimaybeT :: BiToml a -> BiToml (Maybe a)
+    dimaybeT bi = Bijection
+        { biRead  = optional (biRead bi)
+        , biWrite = \case
+            Nothing -> pure Nothing
+            Just v  -> Just v <$ biWrite bi v
+        }
+
     lastT :: (Key -> BiToml a) -> Key -> BiToml (Last a)
     lastT = Toml.wrapper . Toml.maybeT
 
