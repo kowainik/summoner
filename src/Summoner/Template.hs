@@ -81,8 +81,8 @@ createProjectTemplate ProjectData{..} = Dir (toString repo) $
         version:             0.0.0
         description:         $description
         synopsis:            $description
-        homepage:            https://github.com/${owner}/${repo}
-        bug-reports:         https://github.com/${owner}/${repo}/issues
+        $githubHomepage
+        $githubBugReports
         license:             $license
         license-file:        LICENSE
         author:              $nm
@@ -95,6 +95,10 @@ createProjectTemplate ProjectData{..} = Dir (toString repo) $
         tested-with:         $testedGhcs
         $endLine
         |]
+      where
+        githubHomepage :: Text  =  memptyIfFalse github $ "homepage:            https://github.com/" <> owner <> "/" <> repo
+        githubBugReports :: Text = memptyIfFalse github $ "bug-reports:         https://github.com/" <> owner <> "/" <> repo <> "/issues"
+
 
     testedGhcs :: Text
     testedGhcs = intercalateMap ", " (mappend "GHC == " . showGhcVer) testedVersions
