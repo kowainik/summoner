@@ -1,5 +1,3 @@
-{-# LANGUAGE ViewPatterns #-}
-
 module Summoner.Source
        ( Source (..)
        , sourceT

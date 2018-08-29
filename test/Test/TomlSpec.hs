@@ -14,6 +14,7 @@ import Summoner.Config (ConfigP (..), PartialConfig, configT)
 import Summoner.GhcVer (GhcVer)
 import Summoner.License (LicenseName)
 import Summoner.ProjectData (CustomPrelude (..))
+import Summoner.Source (Source (..))
 import Test.DecisionSpec (genDecision)
 
 import qualified Hedgehog.Gen as Gen
@@ -36,6 +37,12 @@ genCustomPrelude = Prelude <$> genText <*> genText
 genLicense :: MonadGen m => m LicenseName
 genLicense = Gen.element universe
 
+genSource :: MonadGen m => m Source
+genSource = do
+    txt <- genText
+    s   <- Gen.element [File . toString, Url]
+    pure $ s txt
+
 genPartialConfig :: MonadGen m => m PartialConfig
 genPartialConfig = do
     cOwner      <- Last . Just <$> genText
@@ -57,6 +64,7 @@ genPartialConfig = do
     cPrelude    <- Last . Just <$> genCustomPrelude
     cExtensions <- genTextArr
     cWarnings   <- genTextArr
+    cStylish    <- Last <$> Gen.maybe genSource
     pure Config{..}
 
 test_Toml :: [TestTree]
