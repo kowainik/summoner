@@ -57,7 +57,6 @@ data ConfigP (p :: Phase) = Config
     , cTravis       :: Decision
     , cAppVey       :: Decision
     , cPrivate      :: Decision
-    , cScript       :: Decision
     , cLib          :: Decision
     , cExe          :: Decision
     , cTest         :: Decision
@@ -122,7 +121,6 @@ defaultConfig = Config
     , cTravis   = Idk
     , cAppVey   = Idk
     , cPrivate  = Idk
-    , cScript   = Idk
     , cLib      = Idk
     , cExe      = Idk
     , cTest     = Idk
@@ -148,7 +146,6 @@ configT = Config
     <*> decision        "travis"      .= cTravis
     <*> decision        "appveyor"    .= cAppVey
     <*> decision        "private"     .= cPrivate
-    <*> decision        "bscript"     .= cScript
     <*> decision        "lib"         .= cLib
     <*> decision        "exe"         .= cExe
     <*> decision        "test"        .= cTest
@@ -223,7 +220,6 @@ finalise Config{..} = Config
     <*> pure cTravis
     <*> pure cAppVey
     <*> pure cPrivate
-    <*> pure cScript
     <*> pure cLib
     <*> pure cExe
     <*> pure cTest

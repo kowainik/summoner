@@ -12,7 +12,7 @@
 >
 > Christopher Reeve
 
-Summoner is the tool for creating completely configured production Haskell projects.
+Summoner is the tool for creating fully configured production Haskell projects.
 
 ## Demo
 
@@ -22,15 +22,16 @@ Summoner is the tool for creating completely configured production Haskell proje
 
 ### Prerequisites
 
-To start using it make sure you have next tools installed on your machine:
+To start using it make sure you have the next tools installed on your machine:
 
 * [`Stack`](http://haskellstack.org) or [`cabal`](https://www.haskell.org/cabal/)
 * [`git`](https://git-scm.com)
 * [`hub`](https://github.com/github/hub)
+* [`curl`](https://curl.haxx.se)
 
 ### Installation
 
-Installation process can be done with one simple command:
+The installation process can be done with the one simple command:
 
     $ cabal new-install summoner
 
@@ -44,21 +45,24 @@ You can turn on the bash auto-completion by running the following command:
 $ source <(summon --bash-completion-script `which summon`)
 ```
 
-After that you can call `summon new` with required command line options, follow
-the instructions that will appear, and a new project would be created in a subfolder
-as well as a repository under your github account (if requested).
+After that, you can call `summon` with the required command. To create a
+project, use `summon new` command specifying the prefered CLI options, follow
+the instructions during the interactive process of the project creation, and a
+new project would be created in a subfolder as well as a repository under your
+GitHub account (if requested).
 
 ### Usage
 
-There are several options how to set particular configurations:
+There are several options how to set particular configurations for the new projects:
 
 1. Default configuration file (`~/.summoner.toml`).
-2. Explicitly specified configuration file by `--file FILENAME` option (used instead of default one if specified).
+2. Explicitly specified configuration file by `--file FILENAME` option (used
+   instead of the default one if specified).
 3. Options that are stated by CLI arguments.
 4. Interactively inputed answers during work of the `summon` command
   (for the options that were not specified on previous steps).
 
-So the configuration uses [`Partial Options Monoid Pattern`](https://medium.com/@jonathangfischoff/the-partial-options-monoid-pattern-31914a71fc67).
+So, the configuration uses [`Partial Options Monoid Pattern`](https://medium.com/@jonathangfischoff/the-partial-options-monoid-pattern-31914a71fc67).
 
 If none of the mentioned above cases used then the configuration will be built interactively.
 
@@ -92,15 +96,14 @@ Here is the list of the options that could be configured for your needs:
 * `private` – `true` if you want to create private repositories by default,
               `false` if you don't. Ignored if `github = false`.
               If not specified it would be asked during each run of the `summoner`.
-* `bscript` – `true` if you want to include [build script](#build-script) by default,
-              `false` if you don't. If not specified it would be asked during each run of the `summoner`.
 * `lib` – `true` if you want to create `src` folder with dummy `Lib.hs` file and library target by default,
           `false` if you don't. If not specified it would be asked during each run of the `summoner`.
 * `exe` – `true` if you want to create `app` folder with dummy `Main.hs` file and executable target by default,
           `false` if you don't. If not specified it would be asked during each run of the `summoner`.
 * `test` – `true` if you want to create `test` folder with dummy `Spec.hs` file and test target by default,
           `false` if you don't. If not specified it would be asked during each run of the `summoner`.
-* `bench` – `true` if you want to create `benchmark` folder  with `Main.hs` file with [`gauge`](https://hackage.haskell.org/package/gauge) library usage example by default,
+* `bench` – `true` if you want to create `benchmark` folder  with `Main.hs` file with [`gauge`](https://hackage.haskell.org/package/gauge)
+            library usage example by default,
           `false` if you don't. If not specified it would be asked during each run of the `summoner`.
 * `extensions` – List of the default extensions to add into `default-extensions` section in the `.cabal`.
 * `warnings` – List of the default checks and warnings to add into `ghc-options` section in the `.cabal`.
@@ -122,31 +125,42 @@ Should be specified inside `[prelude]` table.
 
 ###### Examples
 
-See example of [configuration for projects of `Kowainik` organization](https://github.com/kowainik/org/blob/master/.summoner.toml).
+See an example of [the configuration for projects of the `Kowainik` organization](https://github.com/kowainik/org/blob/master/.summoner.toml).
 
-By default the `summoner` will look for the configuration file (`.summoner.toml`) in home directory.
+By default, the `summoner` looks for the configuration file (`.summoner.toml`) in home directory.
 
 The other way to specify some particular `.toml` file is `summon new PROJECTNAME --file FILEPATH` command.
 
 ##### CLI
 
+Available commands:
+
 ```
+Usage:
+  summon COMMAND
+      Set up your own Haskell project
+
 Available commands:
   new                      Create a new Haskell project
   show                     Show available licenses or ghc versions
 
----------------
------ new -----
----------------
-
-summon new PROJECT_NAME [--cabal] [--stack] [--ignore-config]
-       [with [OPTIONS]] [without [OPTIONS]]
-       [-f|--file FILENAME]  [--prelude-package PACKAGE_NAME]
-       [--prelude-module MODULE_NAME]
-
 Available global options:
   -h, --help               Show this help text
   -v, --version            Show summoner's version
+```
+
+**`summon new`** command:
+
+```
+Usage:
+  summon new PROJECT_NAME [--cabal] [--stack] [--ignore-config]
+             [with [OPTIONS]] [without [OPTIONS]]
+             [-f|--file FILENAME]
+             [--prelude-package PACKAGE_NAME]
+             [--prelude-module MODULE_NAME]
+
+Available options:
+  -h, --help               Show this help text
   --ignore-config          Ignore configuration file
   --cabal                  Cabal support for the project
   --stack                  Stack support for the project
@@ -169,40 +183,40 @@ Available command options:
   -p, --private            Create private GitHub repository
   -c, --travis             Travis CI integration
   -w, --app-veyor          AppVeyor CI integration
-  -s, --script             Build script
   -l, --library            Library target
   -e, --exec               Executable target
   -t, --test               Tests
   -b, --benchmark          Benchmarks
+```
 
-----------------
------ show -----
-----------------
+**`summon show`** command:
 
-summon show COMMAND [LICENSE_NAME]
-  Show command. (Support licenses, license and ghcs)
+```
+Usage:
+  summon show COMMAND
+      Show supported licenses or ghc versions
 
 Available commands:
   ghc                      Show available ghc versions
   license                  Show available licenses
   license [LICENSE_NAME]   Show specific license text
 
-Available global options:
+Available options:
   -h, --help               Show this help text
 ```
 
 The options to be enabled/disabled can be specified while running the command.
-If any of applicable command options wasn't tagged as enabled/disabled then
-the question will be asked during the work of the script.
+If any of the applicable command options wasn't tagged as enabled/disabled, then
+the question is asked during the work of the tool.
 
 For example,
 
 ```
-  summon new my-project with -letgcspw without -b --prelude-package relude --prelude-module Relude
+  summon new my-project with -letgcpw without -b --prelude-package relude --prelude-module Relude
 ```
-will create fully functional project which uses custom prelude `relude`, contains
-library, executable file, tests, [build script](#build-script)
-and create private repository on [github](https://github.com)
+
+creates the fully functional project which uses custom prelude `relude`, contains
+library, executable file, tests and create private repository on [github](https://github.com)
 integrated with `Travis-CI`, `AppVeyor-CI`, but benchmarks won't be attached to this one.
 
 But when calling this command
@@ -211,21 +225,13 @@ But when calling this command
   summon new my-project
 ```
 
-the tool will ask about every particular option, rather you'd like to have it
+the tool asks about every particular option, rather you'd like to have it
 or not in your project.
-
-### Note
-
-This tool was tested with next settings:
-
-    stack version 1.6.1
-    git   version 2.11.0
-    hub   version 2.2.9
 
 ## Features
 
 If you're running the `summoner` with all options enabled a project with the following
-hierarchy will be created:
+hierarchy is created:
 
 ```
 project-name
@@ -249,20 +255,21 @@ project-name
 ├── .gitignore
 └── .travis.yml
 ```
-and also repository with one commit at master will be added with enabled `Travis-CI` for that.
+
+Moreover, a repository with one commit at master is added with enabled Travis CI for that.
 
 ## GHC options
 
-The following warning checks are added by default to every stanza:
+The `-Wall` option is added to every stanza.
 
-    -Wall
+The following warning checks are added by default to executable, tests and benchmark stanzas:
+
     -threaded
     -rtsopts
     -with-rtsopts=-N
 
-If `--file` option is not used, then
-
-the following ghc-options are added to executable, test-suite and benchmark stanza.
+If warnings are not explicitly stated in the configuration file, then the
+following ghc-options are added to all stanzas.
 
     -Wincomplete-uni-patterns
     -Wincomplete-record-updates
@@ -273,35 +280,14 @@ the following ghc-options are added to executable, test-suite and benchmark stan
     -Wmissing-export-lists       (ghc >= 8.4.1)
     -Wpartial-fields             (ghc >= 8.4.1)
 
-and the following ghc-options are added to benchmark stanza.
-
-    -02
-
-### Build script
-
-The `b` script builds the project in a way that is convenient for developers.
-It passes the right flags into right places, builds the project with --fast,
-tidies up and highlights error messages in GHC output.
-
-#### Usage
-
-```
-  ./b                 build whole project with all targets
-  ./b -c              do stack clean
-  ./b -t              build and run tests
-  ./b -b              build and run benchmarks
-  ./b --nix           use nix to build package
-```
-
 ## Change log
 
-[List of changes](https://github.com/kowainik/summoner/blob/master/CHANGELOG.md).
+[List of changes](CHANGELOG.md).
 
 ## Acknowledgments
 
 This project was inspired by [Aelve/new-hs](https://github.com/aelve/new-hs#readme),
-which is the tool with the same goal but it's using
-[`cabal`](https://www.haskell.org/cabal/) for creating projects.
+which is the tool with the same goal but it's only for creating cabal projects.
 
 Icons made by [Nikita Golubev](https://www.flaticon.com/authors/nikita-golubev)
 from [Flaticon](https://www.flaticon.com/) is licensed by
