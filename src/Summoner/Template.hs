@@ -56,6 +56,7 @@ createProjectTemplate ProjectData{..} = Dir (toString repo) $
  ++ [File "appveyor.yml" appVeyorYml | appVey]
  ++ [File "b" scriptSh | script]
  ++ maybe [] (\x -> [File ".stylish-haskell.yaml" x]) stylish
+ ++ maybe [] (\x -> [File "CONTRIBUTING.md" x]) contributing
   where
     license = show licenseName
 

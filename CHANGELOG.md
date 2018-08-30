@@ -37,6 +37,11 @@
   Add config option to add `.stylish-haskell.yaml` to your project
   (via URL or file path).
 * Bump up `tomland` version to `0.4.0`.
+* [#138](https://github.com/kowainik/summoner/issues/138):
+  Remove traces of GitHub from `.cabal` file when GitHub integration is disabled.
+* [#31](https://github.com/kowainik/summoner/issues/31):
+  Add config option to add `CONTRIBUTING.md` to your project
+  (via URL or file path).
 
 1.0.6
 =====

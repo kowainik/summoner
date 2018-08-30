@@ -46,26 +46,27 @@ data Phase = Partial | Final
 
 -- | Potentially incomplete configuration.
 data ConfigP (p :: Phase) = Config
-    { cOwner      :: p :- Text
-    , cFullName   :: p :- Text
-    , cEmail      :: p :- Text
-    , cLicense    :: p :- LicenseName
-    , cGhcVer     :: p :- [GhcVer]
-    , cCabal      :: Decision
-    , cStack      :: Decision
-    , cGitHub     :: Decision
-    , cTravis     :: Decision
-    , cAppVey     :: Decision
-    , cPrivate    :: Decision
-    , cScript     :: Decision
-    , cLib        :: Decision
-    , cExe        :: Decision
-    , cTest       :: Decision
-    , cBench      :: Decision
-    , cPrelude    :: Last CustomPrelude
-    , cExtensions :: [Text]
-    , cWarnings   :: [Text]
-    , cStylish    :: Last Source
+    { cOwner        :: p :- Text
+    , cFullName     :: p :- Text
+    , cEmail        :: p :- Text
+    , cLicense      :: p :- LicenseName
+    , cGhcVer       :: p :- [GhcVer]
+    , cCabal        :: Decision
+    , cStack        :: Decision
+    , cGitHub       :: Decision
+    , cTravis       :: Decision
+    , cAppVey       :: Decision
+    , cPrivate      :: Decision
+    , cScript       :: Decision
+    , cLib          :: Decision
+    , cExe          :: Decision
+    , cTest         :: Decision
+    , cBench        :: Decision
+    , cPrelude      :: Last CustomPrelude
+    , cExtensions   :: [Text]
+    , cWarnings     :: [Text]
+    , cStylish      :: Last Source
+    , cContributing :: Last Source
     } deriving (Generic)
 
 deriving instance
@@ -130,6 +131,7 @@ defaultConfig = Config
     , cExtensions = []
     , cWarnings = []
     , cStylish  = Last Nothing
+    , cContributing = Last Nothing
     }
 
 -- | Identifies how to read 'Config' data from the @.toml@ file.
@@ -155,6 +157,7 @@ configT = Config
     <*> textArr         "extensions"  .= cExtensions
     <*> textArr         "warnings"    .= cWarnings
     <*> wrapLastT (maybeSourceT "stylish") .= cStylish
+    <*> wrapLastT (maybeSourceT "contributing") .= cContributing
   where
     wrapLastT :: BiToml (Maybe a) -> BiToml (Last a)
     wrapLastT = Toml.dimap getLast Last
@@ -229,6 +232,7 @@ finalise Config{..} = Config
     <*> pure cExtensions
     <*> pure cWarnings
     <*> pure cStylish
+    <*> pure cContributing
   where
     fin name = maybe (Failure ["Missing field: " <> name]) Success . getLast
 

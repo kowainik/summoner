@@ -61,10 +61,11 @@ genPartialConfig = do
     cExe        <- genDecision
     cTest       <- genDecision
     cBench      <- genDecision
-    cPrelude    <- Last . Just <$> genCustomPrelude
+    cPrelude    <- Last <$> Gen.maybe genCustomPrelude
     cExtensions <- genTextArr
     cWarnings   <- genTextArr
     cStylish    <- Last <$> Gen.maybe genSource
+    cContributing <- Last <$> Gen.maybe genSource
     pure Config{..}
 
 test_Toml :: [TestTree]

@@ -43,4 +43,5 @@ data ProjectData = ProjectData
     , cabal          :: Bool
     , stack          :: Bool
     , stylish        :: Maybe Text -- ^ @.stylish-haskell.yaml@ file
+    , contributing   :: Maybe Text -- ^ @CONTRIBUTING.md@ file
     } deriving (Show)
