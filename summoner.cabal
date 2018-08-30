@@ -53,7 +53,7 @@ library
                        -Widentities
                        -Wredundant-constraints
                        -fhide-source-paths
-  build-depends:       base >= 4.9 && < 5
+  build-depends:       base >= 4.10 && < 5
                      , aeson
                      , ansi-terminal
                      , bytestring
@@ -67,7 +67,7 @@ library
                      , text
                      , time
                      , tomland ^>= 0.4.0
-                     , relude ^>= 0.1.1
+                     , relude ^>= 0.2.0
 
   default-extensions:  DeriveGeneric
                        GeneralizedNewtypeDeriving

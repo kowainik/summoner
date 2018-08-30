@@ -42,6 +42,8 @@
 * [#31](https://github.com/kowainik/summoner/issues/31):
   Add config option to add `CONTRIBUTING.md` to your project
   (via URL or file path).
+* [#27](https://github.com/kowainik/summoner/issues/27):
+  Remove `b` script.
 
 1.0.6
 =====
