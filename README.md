@@ -16,7 +16,7 @@ Summoner is the tool for creating fully configured production Haskell projects.
 
 ## Demo
 
-[![asciicast](https://asciinema.org/a/PCt492vIY7ccuNw3qBJFM9q9G.png)](https://asciinema.org/a/PCt492vIY7ccuNw3qBJFM9q9G)
+[![asciicast](https://asciinema.org/a/198918.png)](https://asciinema.org/a/198918)
 
 ## Getting started
 
@@ -38,6 +38,8 @@ The installation process can be done with the one simple command:
 or
 
     $ stack install summoner
+
+or directly from GitHub.
 
 You can turn on the bash auto-completion by running the following command:
 
