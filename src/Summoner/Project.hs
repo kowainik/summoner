@@ -11,7 +11,6 @@ import Relude.Extra.Enum (universe)
 
 import NeatInterpolation (text)
 import System.Directory (setCurrentDirectory)
-import System.Info (os)
 
 import Summoner.Ansi (errorMessage, infoMessage, successMessage)
 import Summoner.Config (Config, ConfigP (..))
@@ -53,7 +52,6 @@ generateProject projectName Config{..} = do
     travis <- ifGithub github "Travis CI integration" cTravis
     appVey <- ifGithub (stack && github) "AppVeyor CI integration" cAppVey
     privat <- ifGithub github "private repository" cPrivate
-    script <- decisionToBool cScript "build script"
     isLib  <- decisionToBool cLib "library target"
     isExe  <- let target = "executable target" in
               if isLib
@@ -93,8 +91,6 @@ generateProject projectName Config{..} = do
 
     -- create stack project
     createProjectDirectory projectData
-    -- make b executable
-    when script doScriptCommand
     -- create github repository and commit
     when github $ doGithubCommands projectData privat
 
@@ -111,9 +107,6 @@ generateProject projectName Config{..} = do
         successMessage "\nThe project with the following structure has been created:"
         putTextLn $ showTree tree
         setCurrentDirectory (toString repo)
-
-    doScriptCommand :: IO ()
-    doScriptCommand = when (os /= "mingw32") ("chmod" ["+x", "b"])
 
     doGithubCommands :: ProjectData -> Bool -> IO ()
     doGithubCommands ProjectData{..} private = do

@@ -30,7 +30,6 @@ data ProjectData = ProjectData
     , github         :: Bool   -- ^ github repository
     , travis         :: Bool   -- ^ Travis CI integration
     , appVey         :: Bool   -- ^ AppVeyor CI integration
-    , script         :: Bool   -- ^ build script
     , isLib          :: Bool   -- ^ is library
     , isExe          :: Bool   -- ^ is executable
     , test           :: Bool   -- ^ add tests

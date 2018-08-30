@@ -164,7 +164,7 @@ summonerP = subparser
    <> command "show" (info (helper <*> showP) $ progDesc "Show supported licenses or ghc versions")
 
 ----------------------------------------------------------------------------
--- New command parsers
+-- Show command parsers
 ----------------------------------------------------------------------------
 
 -- | Parses options of the @show@ command.
@@ -177,6 +177,10 @@ showP = ShowInfo <$> subparser
 licenseText :: Parser ShowOpts
 licenseText = LicenseList <$> optional
     (strArgument (metavar "LICENSE_NAME" <> help "Show specific license text"))
+
+----------------------------------------------------------------------------
+-- New command parsers
+----------------------------------------------------------------------------
 
 -- | Parses options of the @new@ command.
 newP :: Parser Command
@@ -204,7 +208,6 @@ targetsP d = do
     cTravis  <- travisP    d
     cAppVey  <- appVeyorP  d
     cPrivate <- privateP   d
-    cScript  <- scriptP    d
     cLib     <- libraryP   d
     cExe     <- execP      d
     cTest    <- testP      d
@@ -214,7 +217,6 @@ targetsP d = do
         , cTravis = cTravis
         , cAppVey = cAppVey
         , cPrivate= cPrivate
-        , cScript = cScript
         , cLib    = cLib
         , cExe    = cExe
         , cTest   = cTest
@@ -244,12 +246,6 @@ privateP d = flag Idk d
            $ long "private"
           <> short 'p'
           <> help "Private repository"
-
-scriptP :: Decision -> Parser Decision
-scriptP d = flag Idk d
-          $ long "script"
-         <> short 's'
-         <> help "Build script for convenience"
 
 libraryP :: Decision -> Parser Decision
 libraryP d = flag Idk d

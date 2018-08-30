@@ -56,7 +56,6 @@ genPartialConfig = do
     cTravis     <- genDecision
     cAppVey     <- genDecision
     cPrivate    <- genDecision
-    cScript     <- genDecision
     cLib        <- genDecision
     cExe        <- genDecision
     cTest       <- genDecision
