@@ -84,6 +84,10 @@ generateProject projectName Config{..} = do
         Nothing -> pure Nothing
         Just s  -> fetchSource s
 
+    contributing <- case getLast cContributing of
+        Nothing -> pure Nothing
+        Just s  -> fetchSource s
+
     -- Create project data from all variables in scope
     let projectData = ProjectData{..}
 

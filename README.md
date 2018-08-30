@@ -108,6 +108,10 @@ Here is the list of the options that could be configured for your needs:
   `.stylish-haskell.yaml` file to use in the project. `stylish.url` to provide
   the link to the `.stylish-haskell.yaml` file to use in the project. In case of
   the absense or wrong path/link no `.stylish-haskell.yaml` file is created.
+* `contributing.*` — `contributing.file` to provide the absolute file path to the
+  `CONTRIBUTING.md` file to use in the project. `contributing.url` to provide
+  the link to the `CONTRIBUTING.md` file to use in the project. In case of
+  the absense or wrong path/link no `CONTRIBUTING` file is created.
 
 ###### Custom prelude options
 
