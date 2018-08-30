@@ -165,9 +165,7 @@ configT = Config
     dimaybeT :: BiToml a -> BiToml (Maybe a)
     dimaybeT bi = Bijection
         { biRead  = optional (biRead bi)
-        , biWrite = \case
-            Nothing -> pure Nothing
-            Just v  -> Just v <$ biWrite bi v
+        , biWrite = traverse (biWrite bi)
         }
 
     lastT :: (Key -> BiToml a) -> Key -> BiToml (Last a)
