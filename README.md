@@ -104,7 +104,7 @@ Here is the list of the options that could be configured for your needs:
           `false` if you don't. If not specified it would be asked during each run of the `summoner`.
 * `extensions` – List of the default extensions to add into `default-extensions` section in the `.cabal`.
 * `warnings` – List of the default checks and warnings to add into `ghc-options` section in the `.cabal`.
-* `stylish.*` — `stylish.file` to provide the file path to the
+* `stylish.*` — `stylish.file` to provide the absolute file path to the
   `.stylish-haskell.yaml` file to use in the project. `stylish.url` to provide
   the link to the `.stylish-haskell.yaml` file to use in the project. In case of
   the absense or wrong path/link no `.stylish-haskell.yaml` file is created.
