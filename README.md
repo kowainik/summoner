@@ -6,6 +6,7 @@
 [![Hackage](https://img.shields.io/hackage/v/summoner.svg)](https://hackage.haskell.org/package/summoner)
 [![Stackage LTS](http://stackage.org/package/summoner/badge/lts)](http://stackage.org/lts/package/summoner)
 [![Stackage Nightly](http://stackage.org/package/summoner/badge/nightly)](http://stackage.org/nightly/package/summoner)
+[![Hackage-Deps](https://img.shields.io/hackage-deps/v/summoner.svg)](http://packdeps.haskellers.com/reverse/summoner)
 
 > _So many of our dreams at first seem impossible, then they seem improbable, and
 > then, when we summon the will, they soon become inevitable._
