@@ -1,9 +1,4 @@
-{-# LANGUAGE RecordWildCards #-}
-
 module Test.TomlSpec where
-
-import Relude
-import Relude.Extra.Enum (universe)
 
 import Hedgehog (MonadGen, forAll, property, tripping)
 import Test.Tasty (TestTree)

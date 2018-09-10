@@ -1,5 +1,6 @@
+cabal-version:       2.0
 name:                summoner
-version:             1.1.0
+version:             1.1.0.1
 synopsis:            Tool for creating completely configured production Haskell projects.
 description:         Tool for creating completely configured production Haskell projects.
                      See README.md for details.
@@ -15,7 +16,6 @@ build-type:          Simple
 stability:           stable
 extra-doc-files:     README.md
                    , CHANGELOG.md
-cabal-version:       2.0
 tested-with:         GHC == 8.2.2
                    , GHC == 8.4.3
 
@@ -25,7 +25,8 @@ source-repository head
 
 library
   hs-source-dirs:      src
-  exposed-modules:     Summoner
+  exposed-modules:     Prelude
+                       Summoner
                          Summoner.Ansi
                          Summoner.CLI
                          Summoner.Config
@@ -46,14 +47,7 @@ library
   other-modules:       Paths_summoner
   autogen-modules:     Paths_summoner
 
-  ghc-options:         -Wall
-                       -Wincomplete-uni-patterns
-                       -Wincomplete-record-updates
-                       -Wcompat
-                       -Widentities
-                       -Wredundant-constraints
-                       -fhide-source-paths
-  build-depends:       base >= 4.10 && < 5
+  build-depends:       base-noprelude >= 4.10 && < 5
                      , aeson
                      , ansi-terminal
                      , bytestring
@@ -61,19 +55,26 @@ library
                      , filepath
                      , generic-deriving
                      , gitrev
-                     , neat-interpolation
+                     , neat-interpolation ^>= 0.3.2.2
                      , optparse-applicative
                      , process
                      , text
                      , time
                      , tomland ^>= 0.4.0
-                     , relude ^>= 0.2.0
+                     , relude ^>= 0.3.0
+
+  ghc-options:         -Wall
+                       -Wincomplete-uni-patterns
+                       -Wincomplete-record-updates
+                       -Wcompat
+                       -Widentities
+                       -Wredundant-constraints
+                       -fhide-source-paths
 
   default-extensions:  DeriveGeneric
                        GeneralizedNewtypeDeriving
                        InstanceSigs
                        LambdaCase
-                       NoImplicitPrelude
                        OverloadedStrings
                        RecordWildCards
                        ScopedTypeVariables
@@ -94,7 +95,7 @@ executable summon
                        -Widentities
                        -Wredundant-constraints
                        -fhide-source-paths
-  build-depends:       base
+  build-depends:       base-noprelude
                      , relude
                      , summoner
   default-language:    Haskell2010
@@ -108,14 +109,13 @@ test-suite summoner-test
                        Test.TomlSpec
 
   build-tool-depends:  tasty-discover:tasty-discover
-  build-depends:       base
+  build-depends:       base-noprelude
                      , hedgehog
                      , relude
                      , tasty
                      , tasty-hedgehog
                      , tomland
                      , summoner
-  default-extensions:  NoImplicitPrelude
 
   ghc-options:         -Wall
                        -threaded
@@ -127,4 +127,6 @@ test-suite summoner-test
                        -Widentities
                        -Wredundant-constraints
                        -fhide-source-paths
+
+  default-extensions:  RecordWildCards
   default-language:    Haskell2010

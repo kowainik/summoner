@@ -8,8 +8,6 @@ module Summoner.Default
        , endLine
        ) where
 
-import Relude
-
 import Data.Time (getCurrentTime, toGregorian, utctDay)
 import System.Directory (getHomeDirectory)
 import System.FilePath ((</>))

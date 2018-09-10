@@ -6,9 +6,6 @@ module Summoner.GhcVer
        , baseVer
        ) where
 
-import Relude
-import Relude.Extra.Enum (inverseMap)
-
 -- | Represents some selected set of GHC versions.
 data GhcVer
     = Ghc7103
@@ -37,7 +34,7 @@ latestLts = \case
     Ghc801  -> "7.24"
     Ghc802  -> "9.21"
     Ghc822  -> "11.22"
-    Ghc843  -> "12.7"
+    Ghc843  -> "12.9"
 
 -- | Returns base version by 'GhcVer'.
 baseVer :: GhcVer -> Text

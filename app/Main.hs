@@ -1,7 +1,5 @@
 module Main where
 
-import Relude
-
 import System.IO (hSetEncoding, utf8)
 
 import Summoner (summon)

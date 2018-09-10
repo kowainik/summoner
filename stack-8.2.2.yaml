@@ -1,5 +1,8 @@
-resolver: lts-11.17
+resolver: lts-11.22
 
 extra-deps:
-  - relude-0.2.0
+  - base-noprelude-4.10.1.0
+  - megaparsec-6.5.0
+  - neat-interpolation-0.3.2.2
+  - relude-0.3.0
   - tomland-0.4.0
