@@ -62,7 +62,7 @@ install:
       export PATH="$HOME/.local/bin:$PATH"
       travis_retry curl -L 'https://www.stackage.org/stack/linux-x86_64' | tar xz --wildcards --strip-components=1 -C ~/.local/bin '*/stack'
       stack --version
-      stack setup --no-terminal --install-cabal 2.0.1.0
+      stack setup --no-terminal --install-cabal 2.2.0.1
       stack ghc -- --version
       stack build --only-dependencies --no-terminal
     fi
