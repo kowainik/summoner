@@ -23,11 +23,7 @@ module Summoner.Config
        , loadFileConfig
        ) where
 
-import Relude
-
-import Control.Exception (throwIO)
 import Data.List (lookup)
-import Data.Monoid (Last (..))
 import Generics.Deriving.Monoid (GMonoid, gmemptydefault)
 import Generics.Deriving.Semigroup (GSemigroup, gsappenddefault)
 import Toml (AnyValue (..), BiMap (..), BiToml, Bijection (..), Key, dimap, (.=))
@@ -39,7 +35,6 @@ import Summoner.ProjectData (CustomPrelude (..))
 import Summoner.Source (Source, sourceT)
 import Summoner.Validation (Validation (..))
 
-import qualified Text.Show as Show
 import qualified Toml
 
 data Phase = Partial | Final
@@ -234,15 +229,4 @@ finalise Config{..} = Config
 
 -- | Read configuration from the given file and return it in data type.
 loadFileConfig :: MonadIO m => FilePath -> m PartialConfig
-loadFileConfig filePath = (Toml.decode configT <$> readFile filePath) >>= liftIO . errorWhenLeft
-  where
-    errorWhenLeft :: Either Toml.DecodeException PartialConfig -> IO PartialConfig
-    errorWhenLeft (Left e)   = throwIO $ LoadTomlException filePath $ Toml.prettyException e
-    errorWhenLeft (Right pc) = pure pc
-
-data LoadTomlException = LoadTomlException FilePath Text
-
-instance Show.Show LoadTomlException where
-    show (LoadTomlException filePath msg) = "Couldnt parse file " ++ filePath ++ ": " ++ show msg
-
-instance Exception LoadTomlException
+loadFileConfig = Toml.decodeFile configT

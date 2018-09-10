@@ -6,8 +6,6 @@ module Summoner.Tree
        , showTree
        ) where
 
-import Relude
-
 import System.Directory (createDirectoryIfMissing, withCurrentDirectory)
 
 import Summoner.Ansi (boldCode, resetCode)
@@ -25,7 +23,7 @@ traverseTree :: TreeFs -> IO ()
 traverseTree (Dir name children) = do
     createDirectoryIfMissing False name
     withCurrentDirectory name $ for_ children traverseTree
-traverseTree (File name content) = writeFile name content
+traverseTree (File name content) = writeFileText name content
 
 -- | Pretty shows the directory tree content.
 showTree :: TreeFs -> Text

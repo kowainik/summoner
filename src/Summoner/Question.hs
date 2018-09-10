@@ -20,8 +20,6 @@ module Summoner.Question
        , falseMessage
        ) where
 
-import Relude
-
 import System.Directory (doesPathExist, getCurrentDirectory)
 import System.FilePath ((</>))
 
@@ -30,7 +28,6 @@ import Summoner.Ansi (Color (..), beautyPrint, bold, boldDefault, errorMessage, 
 import Summoner.Text (headToUpper, intercalateMap)
 
 import qualified Data.Text as T
-import qualified Data.Text.IO as T
 import qualified Relude.Unsafe as Unsafe
 
 ----------------------------------------------------------------------------
@@ -56,7 +53,7 @@ printQuestion question (def:rest) = do
     putStrFlush question
     boldDefault def
     putTextLn $ "/" <> restSlash
-printQuestion question [] = T.putStrLn question
+printQuestion question [] = putTextLn question
 
 choose :: Show a => (Text -> Maybe a) -> Text -> [a] -> IO a
 choose parser question choices = do
@@ -106,7 +103,7 @@ falseMessage = targetMessage False
 
 query :: Text -> IO Text
 query question = do
-    T.putStrLn question
+    putTextLn question
     answer <- prompt
     if | T.null answer -> do
            errorMessage "An answer is required."

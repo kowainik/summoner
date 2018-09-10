@@ -5,8 +5,6 @@ module Summoner.Decision
        , decisionToBool
        ) where
 
-import Relude
-
 import Generics.Deriving.Monoid (GMonoid (..))
 import Generics.Deriving.Semigroup (GSemigroup (..))
 

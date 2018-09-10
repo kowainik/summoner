@@ -1,11 +1,7 @@
-{-# LANGUAGE ViewPatterns #-}
-
 module Summoner.ProjectData
        ( ProjectData (..)
        , CustomPrelude (..)
        ) where
-
-import Relude
 
 import Summoner.GhcVer (GhcVer)
 import Summoner.License (License, LicenseName)

@@ -9,9 +9,6 @@ module Summoner.CLI
        ( summon
        ) where
 
-import Relude
-import Relude.Extra.Enum (universe)
-
 import Data.Version (showVersion)
 import Development.GitRev (gitCommitDate, gitDirty, gitHash)
 import NeatInterpolation (text)
