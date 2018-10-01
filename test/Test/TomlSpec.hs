@@ -38,12 +38,6 @@ genSource = do
     s   <- Gen.element [File . toString, Url]
     pure $ s txt
 
-genSourceContrib :: MonadGen m => m Source
-genSourceContrib = do
-    txt <- genText
-    s   <- Gen.element [File . toString, Url, Link]
-    pure $ s txt
-
 genPartialConfig :: MonadGen m => m PartialConfig
 genPartialConfig = do
     cOwner      <- Last . Just <$> genText
@@ -65,7 +59,7 @@ genPartialConfig = do
     cExtensions <- genTextArr
     cWarnings   <- genTextArr
     cStylish    <- Last <$> Gen.maybe genSource
-    cContributing <- Last <$> Gen.maybe genSourceContrib
+    cContributing <- Last <$> Gen.maybe genSource
     pure Config{..}
 
 test_Toml :: [TestTree]

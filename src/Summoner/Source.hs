@@ -28,24 +28,24 @@ sourceT nm = Toml.match (Toml._Text   >>> _Url)  (nm <> "url")
          <|> Toml.match (Toml._Text >>> _Link) (nm <> "link")
   where
     _Url :: BiMap Text Source
-    _Url = Toml.invert $ Toml.prism (source Just (const Nothing)) Url
+    _Url = Toml.invert $ Toml.prism (source Just (const Nothing) (const Nothing)) Url
 
     _File :: BiMap FilePath Source
-    _File = Toml.invert $ Toml.prism (source (const Nothing) Just) File
+    _File = Toml.invert $ Toml.prism (source (const Nothing) Just (const Nothing)) File
 
     _Link :: BiMap Text Source
-    _Link = Toml.invert $ Toml.prism (source Just (const Nothing)) Link
+    _Link = Toml.invert $ Toml.prism (source (const Nothing) (const Nothing) Just) Link
 
-    source :: (Text -> c) -> (FilePath -> c) -> Source -> c
-    source f _ (Url x)  = f x
-    source _ f (File x) = f x
-    source f _ (Link x) = f x
+    source :: (Text -> c) -> (FilePath -> c) -> (Text -> c) -> Source -> c
+    source f _ _ (Url x)  = f x
+    source _ f _ (File x) = f x
+    source _ _ f (Link x) = f x
 
 fetchSource :: Source -> IO (Maybe Text)
 fetchSource = \case
     File path -> catch (Just <$> readFileText path) (fileError path)
     Url url -> catch (fetchUrl url) (urlError url)
-    Link link -> catch (fetchUrl link) (urlError link)
+    Link link -> catch putLink (urlError link)
   where
     fileError :: FilePath -> SomeException -> IO (Maybe Text)
     fileError path _ = errorMessage ("Couldn't read file: " <> toText path)
@@ -57,3 +57,7 @@ fetchSource = \case
 
     fetchUrl :: Text -> IO (Maybe Text)
     fetchUrl url = Just . toText <$> readProcess "curl" [toString url] ""
+
+    putLink :: IO (Maybe Text)
+    putLink = errorMessage "See this document under the [following link](<link goes here>)"
+              >> pure Nothing
