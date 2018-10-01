@@ -47,7 +47,7 @@ library
   other-modules:       Paths_summoner
   autogen-modules:     Paths_summoner
 
-  build-depends:       base-noprelude >= 4.10 && < 5
+  build-depends:       base-noprelude >= 4.12 && < 5
                      , aeson >= 1.2.4.0 && < 1.5
                      , ansi-terminal ^>= 0.8.0.4
                      , bytestring ^>= 0.10.8.2
