@@ -1,15 +1,18 @@
+{-# LANGUAGE QuasiQuotes     #-}
+
 module Summoner.Source
        ( Source (..)
        , sourceT
        , fetchSource
        ) where
 
-import Control.Arrow ((>>>))
-import Control.Exception (catch)
-import System.Process (readProcess)
-import Toml (BiMap, BiToml, Key)
+import           Control.Arrow ((>>>))
+import           Control.Exception (catch)
+import           NeatInterpolation (text)
+import           System.Process (readProcess)
+import           Toml (BiMap, BiToml, Key)
 
-import Summoner.Ansi (errorMessage)
+import           Summoner.Ansi (errorMessage)
 
 import qualified Toml
 
@@ -18,7 +21,7 @@ data Source
     = Url Text
     -- | File path to the local source file.
     | File FilePath
-    -- | Link to source source file.
+    -- | Link to external file.
     | Link Text
     deriving (Show, Eq)
 
@@ -45,7 +48,7 @@ fetchSource :: Source -> IO (Maybe Text)
 fetchSource = \case
     File path -> catch (Just <$> readFileText path) (fileError path)
     Url url -> catch (fetchUrl url) (urlError url)
-    Link link -> catch putLink (urlError link)
+    Link link -> catch (putLink link) (urlError link)
   where
     fileError :: FilePath -> SomeException -> IO (Maybe Text)
     fileError path _ = errorMessage ("Couldn't read file: " <> toText path)
@@ -58,6 +61,5 @@ fetchSource = \case
     fetchUrl :: Text -> IO (Maybe Text)
     fetchUrl url = Just . toText <$> readProcess "curl" [toString url] ""
 
-    putLink :: IO (Maybe Text)
-    putLink = errorMessage "See this document under the [following link](<link goes here>)"
-              >> pure Nothing
+    putLink :: Text -> IO (Maybe Text)
+    putLink link = pure $ Just [text|See full content of the file [here]($link)|]
