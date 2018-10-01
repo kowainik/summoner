@@ -154,7 +154,7 @@ createProjectTemplate ProjectData{..} = Dir (toString repo) $
                                $preludeMod
           ghc-options:         -Wall
                                $ghcOptions
-          build-depends:       $base
+          build-depends:       $base >= 4.10 && < 5
                              $customPreludePack
           default-language:    Haskell2010
           $defaultExtensions
@@ -172,7 +172,7 @@ createProjectTemplate ProjectData{..} = Dir (toString repo) $
                                -rtsopts
                                -with-rtsopts=-N
                                $ghcOptions
-          build-depends:       $base
+          build-depends:       
                              $r
                              $customPreludePack
           default-language:    Haskell2010
@@ -192,7 +192,7 @@ createProjectTemplate ProjectData{..} = Dir (toString repo) $
                                -rtsopts
                                -with-rtsopts=-N
                                $ghcOptions
-          build-depends:       $base
+          build-depends:       $base >= 4.10 && < 5
                              $r
                              $customPreludePack
           default-language:    Haskell2010
@@ -212,7 +212,7 @@ createProjectTemplate ProjectData{..} = Dir (toString repo) $
                                -rtsopts
                                -with-rtsopts=-N
                                $ghcOptions
-          build-depends:       $base
+          build-depends:       $base >= 4.10 && < 5
                              , gauge
                              $r
                              $customPreludePack
