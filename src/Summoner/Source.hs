@@ -18,11 +18,14 @@ data Source
     = Url Text
     -- | File path to the local source file.
     | File FilePath
+    -- | Link to source source file.
+    | Link Text
     deriving (Show, Eq)
 
 sourceT :: Key -> BiToml Source
 sourceT nm = Toml.match (Toml._Text   >>> _Url)  (nm <> "url")
          <|> Toml.match (Toml._String >>> _File) (nm <> "file")
+         <|> Toml.match (Toml._Text >>> _Link) (nm <> "link")
   where
     _Url :: BiMap Text Source
     _Url = Toml.invert $ Toml.prism (source Just (const Nothing)) Url
@@ -30,14 +33,19 @@ sourceT nm = Toml.match (Toml._Text   >>> _Url)  (nm <> "url")
     _File :: BiMap FilePath Source
     _File = Toml.invert $ Toml.prism (source (const Nothing) Just) File
 
+    _Link :: BiMap Text Source
+    _Link = Toml.invert $ Toml.prism (source Just (const Nothing)) Link
+
     source :: (Text -> c) -> (FilePath -> c) -> Source -> c
     source f _ (Url x)  = f x
     source _ f (File x) = f x
+    source f _ (Link x) = f x
 
 fetchSource :: Source -> IO (Maybe Text)
 fetchSource = \case
     File path -> catch (Just <$> readFileText path) (fileError path)
     Url url -> catch (fetchUrl url) (urlError url)
+    Link link -> catch (fetchUrl link) (urlError link)
   where
     fileError :: FilePath -> SomeException -> IO (Maybe Text)
     fileError path _ = errorMessage ("Couldn't read file: " <> toText path)
