@@ -47,7 +47,7 @@ showOne leader tie arm (Dir fp (sortWith treeFp -> trees)) =
 
 showChildren :: [TreeFs] -> Text -> [Text]
 showChildren children leader =
-    let arms = replicate (length children - 1) "│" <> ["└"]
+    let arms = replicate (length children - 1) "├" <> ["└"]
     in  concat (zipWith (showOne leader "── ") arms children)
 
 -- For sorting in alphabetic order.
