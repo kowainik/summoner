@@ -7,8 +7,6 @@ module Summoner.Template
        ( createProjectTemplate
        ) where
 
-import Relude
-
 import Data.List (delete)
 import NeatInterpolation (text)
 
@@ -432,7 +430,7 @@ createProjectTemplate ProjectData{..} = Dir (toString repo) $
         $githubFootNote
         |]
       where
-        githubLine :: Text = memptyIfFalse github $ "The change log is available [on GitHub][2]."
+        githubLine :: Text = memptyIfFalse github "The change log is available [on GitHub][2]."
         githubFootNote :: Text = memptyIfFalse github $
             "[2]: https://github.com/" <> owner <> "/" <> repo <> "/releases"
 

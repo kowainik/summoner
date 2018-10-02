@@ -6,9 +6,6 @@ module Summoner.Project
        ( generateProject
        ) where
 
-import Relude
-import Relude.Extra.Enum (universe)
-
 import NeatInterpolation (text)
 import System.Directory (setCurrentDirectory)
 

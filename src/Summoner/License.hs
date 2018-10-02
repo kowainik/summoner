@@ -7,9 +7,6 @@ module Summoner.License
        , fetchLicense
        ) where
 
-import Relude
-import Relude.Extra.Enum (inverseMap)
-
 import Data.Aeson (FromJSON (..), decodeStrict, withObject, (.:))
 import Data.ByteString.Char8 (pack)
 import System.Process (readProcess)

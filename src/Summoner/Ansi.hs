@@ -22,8 +22,6 @@ module Summoner.Ansi
        , skipMessage
        ) where
 
-import Relude
-
 import System.Console.ANSI (Color (..), ColorIntensity (Vivid), ConsoleIntensity (BoldIntensity),
                             ConsoleLayer (Foreground), SGR (..), setSGR, setSGRCode)
 import System.IO (hFlush)
