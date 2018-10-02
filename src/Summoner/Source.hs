@@ -1,4 +1,4 @@
-{-# LANGUAGE QuasiQuotes     #-}
+{-# LANGUAGE QuasiQuotes #-}
 
 module Summoner.Source
        ( Source (..)
@@ -6,13 +6,13 @@ module Summoner.Source
        , fetchSource
        ) where
 
-import           Control.Arrow ((>>>))
-import           Control.Exception (catch)
-import           NeatInterpolation (text)
-import           System.Process (readProcess)
-import           Toml (BiMap, BiToml, Key)
+import Control.Arrow ((>>>))
+import Control.Exception (catch)
+import NeatInterpolation (text)
+import System.Process (readProcess)
+import Toml (BiMap, BiToml, Key)
 
-import           Summoner.Ansi (errorMessage)
+import Summoner.Ansi (errorMessage)
 
 import qualified Toml
 
@@ -48,7 +48,7 @@ fetchSource :: Source -> IO (Maybe Text)
 fetchSource = \case
     File path -> catch (Just <$> readFileText path) (fileError path)
     Url url -> catch (fetchUrl url) (urlError url)
-    Link link -> catch (putLink link) (urlError link)
+    Link link -> putLink link
   where
     fileError :: FilePath -> SomeException -> IO (Maybe Text)
     fileError path _ = errorMessage ("Couldn't read file: " <> toText path)
