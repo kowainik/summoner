@@ -536,7 +536,7 @@ createProjectTemplate ProjectData{..} = Dir (toString repo) $
               export PATH="/opt/ghc/$$GHCVER/bin:/opt/cabal/$$CABALVER/bin:$$PATH"
               echo $$PATH
               cabal new-update
-              cabal new-build --enable-tests --enable-benchmarks
+              cabal new-build --enable-tests --enable-benchmarks --ghc-options=-Werror
             else
               mkdir -p ~/.local/bin
               export PATH="$$HOME/.local/bin:$$PATH"
@@ -544,7 +544,7 @@ createProjectTemplate ProjectData{..} = Dir (toString repo) $
               stack --version
               stack setup --no-terminal --install-cabal 2.0.1.0
               stack ghc -- --version
-              stack build --only-dependencies --no-terminal
+              stack build --only-dependencies --no-terminal --ghc-options=-Werror
             fi
         script:
           - |
@@ -563,7 +563,7 @@ createProjectTemplate ProjectData{..} = Dir (toString repo) $
           - export PATH="/opt/ghc/$$GHCVER/bin:/opt/cabal/$$CABALVER/bin:$$PATH"
           - echo $$PATH
           - cabal new-update
-          - cabal new-build --enable-tests --enable-benchmarks
+          - cabal new-build --enable-tests --enable-benchmarks --ghc-options=-Werror
         script:
           - ${cabalTest}
         $endLine
@@ -579,7 +579,7 @@ createProjectTemplate ProjectData{..} = Dir (toString repo) $
           - stack --version
           - stack setup --no-terminal --install-cabal 2.0.1.0
           - stack ghc -- --version
-          - stack build --only-dependencies --no-terminal
+          - stack build --only-dependencies --no-terminal --ghc-options=-Werror
         script:
           - stack build --test --bench --no-run-benchmarks --no-terminal
         $endLine
