@@ -1,6 +1,6 @@
 cabal-version:       2.0
 name:                summoner
-version:             1.1.0.1
+version:             1.2.0
 synopsis:            Tool for creating completely configured production Haskell projects.
 description:         Tool for creating completely configured production Haskell projects.
                      See README.md for details.

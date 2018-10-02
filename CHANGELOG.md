@@ -1,5 +1,11 @@
 # Summoner
 
+1.2.0
+=======
+
+* [#154](https://github.com/kowainik/summoner/issues/154):
+* Add `Link` constructor to `Source` data type.
+
 1.1.0.1
 =======
 
