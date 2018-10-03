@@ -6,6 +6,7 @@
 * Bump up `relude` version to `0.3.0`.
 * [#146](https://github.com/kowainik/summoner/issues/146):
   Migrate to `base-noprelude`.
+* Add -Werror to build option in generated .travis.yml
 
 1.1.0
 =====
