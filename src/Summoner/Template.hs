@@ -533,7 +533,8 @@ createProjectTemplate ProjectData{..} = Dir (toString repo) $
             if [ -z "$$STACK_YAML" ]; then
               export PATH="/opt/ghc/$$GHCVER/bin:/opt/cabal/$$CABALVER/bin:$$PATH"
               echo $$PATH
-              echo "package $PKGNAME" >> cabal.project
+              echo "" >> cabal.project
+              echo "package $$repo" >> cabal.project
               echo "  ghc options: -Werror" >> cabal.project
               cabal new-update
               cabal new-build --enable-tests --enable-benchmarks
@@ -562,7 +563,8 @@ createProjectTemplate ProjectData{..} = Dir (toString repo) $
         install:
           - export PATH="/opt/ghc/$$GHCVER/bin:/opt/cabal/$$CABALVER/bin:$$PATH"
           - echo $$PATH
-          - echo "package $PKGNAME" >> cabal.project
+          - echo "" >> cabal.project
+          - echo "package $$repo" >> cabal.project
           - echo "  ghc-options: -Werror" >> cabal.project
           - cabal new-update
           - cabal new-build --enable-tests --enable-benchmarks
