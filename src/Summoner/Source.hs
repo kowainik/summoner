@@ -4,8 +4,6 @@ module Summoner.Source
        , fetchSource
        ) where
 
-import Relude
-
 import Control.Arrow ((>>>))
 import Control.Exception (catch)
 import System.Process (readProcess)
@@ -38,7 +36,7 @@ sourceT nm = Toml.match (Toml._Text   >>> _Url)  (nm <> "url")
 
 fetchSource :: Source -> IO (Maybe Text)
 fetchSource = \case
-    File path -> catch (Just <$> readFile path) (fileError path)
+    File path -> catch (Just <$> readFileText path) (fileError path)
     Url url -> catch (fetchUrl url) (urlError url)
   where
     fileError :: FilePath -> SomeException -> IO (Maybe Text)

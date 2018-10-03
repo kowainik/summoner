@@ -34,6 +34,17 @@ matrix:
         - ghc-8.4.3
         - cabal-install-head
 
+  - ghc: 8.6.1
+    env: GHCVER='8.6.1' CABALVER='head'
+    os: linux
+    addons:
+      apt:
+        sources:
+        - hvr-ghc
+        packages:
+        - ghc-8.6.1
+        - cabal-install-head
+
   - ghc: 8.2.2
     env: GHCVER='8.2.2' STACK_YAML="$TRAVIS_BUILD_DIR/stack-$GHCVER.yaml"
     os: linux
@@ -44,6 +55,14 @@ matrix:
 
   - ghc: 8.4.3
     env: GHCVER='8.4.3' STACK_YAML="$TRAVIS_BUILD_DIR/stack.yaml"
+    os: linux
+    addons:
+      apt:
+        packages:
+        - libgmp-dev
+
+  - ghc: 8.6.1
+    env: GHCVER='8.6.1' STACK_YAML="$TRAVIS_BUILD_DIR/stack-$GHCVER.yaml"
     os: linux
     addons:
       apt:
@@ -62,7 +81,7 @@ install:
       export PATH="$HOME/.local/bin:$PATH"
       travis_retry curl -L 'https://www.stackage.org/stack/linux-x86_64' | tar xz --wildcards --strip-components=1 -C ~/.local/bin '*/stack'
       stack --version
-      stack setup --no-terminal --install-cabal 2.0.1.0
+      stack setup --no-terminal --install-cabal 2.2.0.1
       stack ghc -- --version
       stack build --only-dependencies --no-terminal
     fi

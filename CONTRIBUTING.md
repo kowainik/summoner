@@ -1,43 +1,53 @@
-# Contributing to `Summoner`
+# Contributing to the Kowainik repositories
 
 ## :wave: Greetings Traveler!
 
-I'm really glad you're reading this, I really appreciate the effort you're taking.
-Thanks for your help in making this tool awesome!:sparkles:
+We are delighted you're reading this, and we appreciate the effort you're
+taking to make our projects awesome! :sparkles:
 
-### How to contribute
-#### Report bugs or feature request
-If you found any bugs or have any proposals how to make this project better
-don't hesitate to create issues [here][issues] in a free format.
+## How to contribute
 
-#### Create a PR
-We love pull requests from everyone :heart:. But, please, tell about your intention to work on something under corresponding issue. And if there's no such issue — just create one!
+### :bug: Report bugs or feature request :bulb:
 
-To get started with Pull Request implementation you should first fork, then clone the repo:
+If you discover a bug or have any proposals on how to make this project better
+don't hesitate to create an issue [here](../../issues/new) in a free format.
 
-    git clone git@github.com:your-username/summoner.git
+### Create a PR
 
-Make your changes and consider the following check list to go through before submitting your pull request.
+We love to receive pull requests from everyone! It's usually a good idea
+to tell about your intention to work on something under the corresponding
+issue, so everyone is aware that you're on it. If there's no such issue — simply
+create a new one!
 
-#### :white_check_mark: Check list
-- [ ] `summoner` compiles.
-- [ ] New/fixed features work as expected.
-- [ ] Old features do not break after the change.
+To get started with the Pull Request implementation you should first 
+[fork](../../fork), then clone the repo:
+
+    git clone git@github.com:your-username/project-name.git
+
+Make your changes and consider the following checklist to go through 
+before submitting your pull request.
+
+### :white_check_mark: Check list
+- [ ] New/fixed features work as expected (Bonus points for the new tests).
 - [ ] There are no warnings during compilation.
-- [ ] `hlint .` output is: _No Hints_
-- [ ] Code is stylish :lipstick:
-    **_Note:_** Use [stylish-haskell.yaml][stylish] file in the repository.
+- [ ] `hlint .` output is: _No Hints_ (see [`hlint`][hlint] tool docs).
+- [ ] The code is formatted with the [`stylish-haskell`][stylish-tool] tool 
+      using [stylish-haskell.yaml][stylish] file in the repository.
+- [ ] The code style of the files you changed is preserved (for more specific 
+      details on our style guide check [this document][style-guide]).
 - [ ] Commit messages are in the proper format.
       Start the first line of the commit with the issue number in square parentheses.
-    **_Example:_** `[#42] Short commit description`
+      
+    **_Example:_** `[#42] Upgrade upper bounds of 'base'`
 
 After all above is done commit and push to your fork.
-Now you are ready to [submit a pull request][pr].
+Now you are ready to [submit a pull request](../../compare).
 
 
 ----------
-Thanks for spending time on reading this contributing guide! :sparkling_heart:
+Thanks for spending your time on reading this contributing guide! :sparkling_heart:
 
-[pr]: https://github.com/kowainik/summoner/compare/
-[issues]: https://github.com/kowainik/summoner/issues/new
-[stylish]: https://github.com/kowainik/summoner/blob/master/.stylish-haskell.yaml
+[stylish]: .stylish-haskell.yaml
+[stylish-tool]: http://hackage.haskell.org/package/stylish-haskell
+[hlint]: http://hackage.haskell.org/package/hlint
+[style-guide]: https://github.com/kowainik/org/blob/master/style-guide.md#haskell-style-guide

@@ -6,8 +6,6 @@ module Summoner.Tree
        , showTree
        ) where
 
-import Relude
-
 import System.Directory (createDirectoryIfMissing, withCurrentDirectory)
 
 import Summoner.Ansi (boldCode, resetCode)
@@ -25,7 +23,7 @@ traverseTree :: TreeFs -> IO ()
 traverseTree (Dir name children) = do
     createDirectoryIfMissing False name
     withCurrentDirectory name $ for_ children traverseTree
-traverseTree (File name content) = writeFile name content
+traverseTree (File name content) = writeFileText name content
 
 -- | Pretty shows the directory tree content.
 showTree :: TreeFs -> Text
@@ -49,7 +47,7 @@ showOne leader tie arm (Dir fp (sortWith treeFp -> trees)) =
 
 showChildren :: [TreeFs] -> Text -> [Text]
 showChildren children leader =
-    let arms = replicate (length children - 1) "│" <> ["└"]
+    let arms = replicate (length children - 1) "├" <> ["└"]
     in  concat (zipWith (showOne leader "── ") arms children)
 
 -- For sorting in alphabetic order.

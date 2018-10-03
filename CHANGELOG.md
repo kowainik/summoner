@@ -1,5 +1,12 @@
 # Summoner
 
+1.1.0.1
+=======
+
+* Bump up `relude` version to `0.3.0`.
+* [#146](https://github.com/kowainik/summoner/issues/146):
+  Migrate to `base-noprelude`.
+
 1.1.0
 =====
 
