@@ -35,7 +35,7 @@ genLicense = Gen.element universe
 genSource :: MonadGen m => m Source
 genSource = do
     txt <- genText
-    s   <- Gen.element [File . toString, Url]
+    s   <- Gen.element [File . toString, Url, Link]
     pure $ s txt
 
 genPartialConfig :: MonadGen m => m PartialConfig
