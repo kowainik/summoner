@@ -47,6 +47,7 @@ genPartialConfig = do
     cGhcVer     <- Last . Just <$> genGhcVerArr
     cCabal      <- genDecision
     cStack      <- genDecision
+    cNix        <- genDecision
     cGitHub     <- genDecision
     cTravis     <- genDecision
     cAppVey     <- genDecision

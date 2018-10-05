@@ -186,6 +186,7 @@ newP = do
     ignoreFile  <- ignoreFileP
     cabal   <- cabalP
     stack   <- stackP
+    nix     <- nixP
     with    <- optional withP
     without <- optional withoutP
     file    <- optional fileP
@@ -197,6 +198,7 @@ newP = do
             { cPrelude = Last $ Prelude <$> preludePack <*> preludeMod
             , cCabal = cabal
             , cStack = stack
+            , cNix = nix
             }
 
 targetsP ::  Decision -> Parser PartialConfig
@@ -311,6 +313,11 @@ stackP :: Parser Decision
 stackP = flag Idk Yes
        $ long "stack"
       <> help "Stack support for the project"
+
+nixP :: Parser Decision
+nixP = flag Idk Yes
+     $ long "nix"
+     <> help "Nix support for the project"
 
 ----------------------------------------------------------------------------
 -- Beauty util

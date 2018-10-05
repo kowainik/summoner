@@ -48,6 +48,7 @@ data ConfigP (p :: Phase) = Config
     , cGhcVer       :: p :- [GhcVer]
     , cCabal        :: Decision
     , cStack        :: Decision
+    , cNix          :: Decision
     , cGitHub       :: Decision
     , cTravis       :: Decision
     , cAppVey       :: Decision
@@ -112,6 +113,7 @@ defaultConfig = Config
     , cGhcVer   = Last (Just [])
     , cCabal    = Idk
     , cStack    = Idk
+    , cNix      = Idk
     , cGitHub   = Idk
     , cTravis   = Idk
     , cAppVey   = Idk
@@ -137,6 +139,7 @@ configT = Config
     <*> lastT ghcVerArr "ghcVersions" .= cGhcVer
     <*> decision        "cabal"       .= cCabal
     <*> decision        "stack"       .= cStack
+    <*> decision        "nix"         .= cNix
     <*> decision        "github"      .= cGitHub
     <*> decision        "travis"      .= cTravis
     <*> decision        "appveyor"    .= cAppVey
@@ -211,6 +214,7 @@ finalise Config{..} = Config
     <*> fin  "ghcVersions" cGhcVer
     <*> pure cCabal
     <*> pure cStack
+    <*> pure cNix
     <*> pure cGitHub
     <*> pure cTravis
     <*> pure cAppVey
