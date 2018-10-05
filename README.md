@@ -284,7 +284,7 @@ following ghc-options are added to all stanzas.
     -Wpartial-fields             (ghc >= 8.4.1)
 
 **Note**: -Werror is enabled in Travis CI when building with stack but **not** 
-when building with cabal ([Why?] (https://github.com/haskell/cabal/issues/3883))
+when building with cabal ([Why?](https://github.com/haskell/cabal/issues/3883))
 
 ## Change log
 
