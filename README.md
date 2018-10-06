@@ -283,6 +283,9 @@ following ghc-options are added to all stanzas.
     -Wmissing-export-lists       (ghc >= 8.4.1)
     -Wpartial-fields             (ghc >= 8.4.1)
 
+**Note**: -Werror is enabled in Travis CI when building with stack but **not** 
+when building with cabal ([Why?](https://github.com/haskell/cabal/issues/3883))
+
 ## Change log
 
 [List of changes](CHANGELOG.md).

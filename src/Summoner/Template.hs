@@ -549,7 +549,7 @@ createProjectTemplate ProjectData{..} = Dir (toString repo) $
             if [ -z "$$STACK_YAML" ]; then
                ${cabalTest}
             else
-              stack build --test --bench --no-run-benchmarks --no-terminal
+              stack build --test --bench --no-run-benchmarks --no-terminal --ghc-options=-Werror
             fi
         $endLine
         |]
@@ -579,7 +579,7 @@ createProjectTemplate ProjectData{..} = Dir (toString repo) $
           - stack ghc -- --version
           - stack build --only-dependencies --no-terminal
         script:
-          - stack build --test --bench --no-run-benchmarks --no-terminal
+          - stack build --test --bench --no-run-benchmarks --no-terminal --ghc-options=-Werror
         $endLine
         |]
 
