@@ -3,6 +3,7 @@ module Summoner.License
        , License(..)
        , customizeLicense
        , githubLicenseQueryNames
+       , nixLicenseNames
        , parseLicenseName
        , fetchLicense
        ) where
@@ -61,6 +62,19 @@ githubLicenseQueryNames = \case
     AGPL3    -> "agpl-3.0"
     Apache20 -> "apache-2.0"
     MPL20    -> "mpl-2.0"
+
+nixLicenseNames :: LicenseName -> Text
+nixLicenseNames = \case
+    MIT      -> "mit"
+    BSD2     -> "bsd2"
+    BSD3     -> "bsd3"
+    GPL2     -> "gpl2"
+    GPL3     -> "gpl3"
+    LGPL21   -> "lgpl21"
+    LGPL3    -> "lgpl3"
+    AGPL3    -> "agpl3"
+    Apache20 -> "asl20"
+    MPL20    -> "mpl20"
 
 parseLicenseName :: Text -> Maybe LicenseName
 parseLicenseName = inverseMap show

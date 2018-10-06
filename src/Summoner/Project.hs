@@ -30,6 +30,7 @@ generateProject projectName Config{..} = do
     repo        <- checkUniqueName projectName
     -- decide cabal stack or both
     (cabal, stack) <- getCabalStack (cCabal, cStack)
+    nix <- decisionToBool cNix "Nix support"
 
     owner       <- queryDef "Repository owner: " cOwner
     description <- query "Short project description: "

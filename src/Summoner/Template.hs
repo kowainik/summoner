@@ -12,7 +12,7 @@ import NeatInterpolation (text)
 
 import Summoner.Default (defaultGHC, endLine)
 import Summoner.GhcVer (GhcVer (..), baseVer, latestLts, showGhcVer)
-import Summoner.License (License (..))
+import Summoner.License (License (..), nixLicenseNames)
 import Summoner.ProjectData (CustomPrelude (..), ProjectData (..))
 import Summoner.Text (intercalateMap, packageToModule)
 import Summoner.Tree (TreeFs (..))
@@ -49,6 +49,8 @@ createProjectTemplate ProjectData{..} = Dir (toString repo) $
     ]
  ++ createCabalFiles
  ++ memptyIfFalse stack (createStackYamls testedVersions)
+ ++ [File (toString repo <> ".nix") dotNix | nix]
+ ++ [File "default.nix" defaultNix | nix]
  ++ [File ".gitignore" gitignore | github]
  ++ [File ".travis.yml" travisYml | travis]
  ++ [File "appveyor.yml" appVeyorYml | appVey]
@@ -642,3 +644,49 @@ createProjectTemplate ProjectData{..} = Dir (toString repo) $
         # descriptor
         - echo "" | stack --no-terminal build --bench --no-run-benchmarks --test
         |]
+
+    -- create Nix template
+    dotNix :: Text
+    dotNix =
+        [text|
+        { mkDerivation, base, stdenv }:
+        mkDerivation {
+          pname = "$repo";
+          version = "0.0.0";
+          src = ./.;
+          isLibrary = $nixIsLibrary;
+          isExecutable = $nixIsExe;
+        |]
+        <> memptyIfFalse isLib createNixLib
+        <> memptyIfFalse isExe createNixExe
+        <> memptyIfFalse test createNixTest
+        <> memptyIfFalse bench createNixBench
+        <> [text|
+          homepage = "$homepage";
+          description = "$description";
+          license = stdenv.lib.licenses.$nixLicense;
+        }
+        |]
+
+      where
+        homepage :: Text  =  memptyIfFalse github $ "https://github.com/" <> owner <> "/" <> repo
+        nixLicense :: Text = nixLicenseNames licenseName
+        nixIsLibrary :: Text = if isLib then "true" else "false"
+        nixIsExe :: Text = if isExe then "true" else "false"
+        -- TODO: Use base-noprelude, prelude choice etc from config
+        createNixLib :: Text = "    libraryHaskellDepends = [ base ];\n"
+        createNixExe :: Text = "    executableHaskellDepends = [ base ];\n"
+        createNixTest :: Text = "    testHaskellDepends = [ base ];\n"
+        createNixBench :: Text = "    benchmarkHaskellDepends = [ base gauge ];\n"
+
+    defaultNix :: Text
+    defaultNix =
+        [text|
+        { nixpkgs ? import <nixpkgs> {}, compiler ? "$nixGhcVer" }:
+        nixpkgs.pkgs.haskell.packages.$${compiler}.callPackage ./$repo.nix { }
+        |]
+      where
+        nixGhcVer :: Text
+          = T.toLower
+          . T.pack
+          $ show defaultGHC
