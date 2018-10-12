@@ -628,7 +628,7 @@ createProjectTemplate ProjectData{..} = Dir (toString repo) $
         # http://help.appveyor.com/discussions/problems/6312-curl-command-not-found
         - set PATH=C:\Program Files\Git\mingw64\bin;%PATH%
 
-        - curl -sS -ostack.zip -L --insecure http://www.stackage.org/stack/windows-i386
+        - curl -sS -ostack.zip -L --insecure http://www.stackage.org/stack/windows-x86_64
         - 7z x stack.zip stack.exe
 
         clone_folder: "c:\\stack"
@@ -640,5 +640,5 @@ createProjectTemplate ProjectData{..} = Dir (toString repo) $
         - stack setup > nul
         # The ugly echo "" hack is to avoid complaints about 0 being an invalid file
         # descriptor
-        - echo "" | stack --no-terminal build --bench --no-run-benchmarks --test
+        - echo "" | stack --arch x86_64 --no-terminal build --bench --no-run-benchmarks --test
         |]
