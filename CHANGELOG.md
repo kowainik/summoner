@@ -7,7 +7,8 @@
   Make AppVeyor use the 64bits version of stack and build for 64 bits.
 * [#154](https://github.com/kowainik/summoner/issues/154):
 * Add `Link` constructor to `Source` data type.
-* [#172](https://github.com/kowainik/summoner/issues/172): Introduce pull request template
+* [#172](https://github.com/kowainik/summoner/issues/172):
+  Introduce pull request template.
 
 1.1.0.1
 =======
