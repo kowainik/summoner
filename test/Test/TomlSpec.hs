@@ -8,7 +8,7 @@ import Toml.Bi.Code (decode, encode)
 import Summoner.Config (ConfigP (..), PartialConfig, configT)
 import Summoner.GhcVer (GhcVer)
 import Summoner.License (LicenseName)
-import Summoner.ProjectData (CustomPrelude (..))
+import Summoner.Settings (CustomPrelude (..))
 import Summoner.Source (Source (..))
 import Test.DecisionSpec (genDecision)
 
@@ -27,7 +27,7 @@ genGhcVerArr :: MonadGen m => m [GhcVer]
 genGhcVerArr = Gen.list (Range.constant 0 10) Gen.enumBounded
 
 genCustomPrelude :: MonadGen m => m CustomPrelude
-genCustomPrelude = Prelude <$> genText <*> genText
+genCustomPrelude = CustomPrelude <$> genText <*> genText
 
 genLicense :: MonadGen m => m LicenseName
 genLicense = Gen.element universe

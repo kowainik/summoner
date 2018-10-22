@@ -31,7 +31,7 @@ import Toml (AnyValue (..), BiMap (..), BiToml, Bijection (..), Key, dimap, (.=)
 import Summoner.Decision (Decision (..))
 import Summoner.GhcVer (GhcVer (..), parseGhcVer, showGhcVer)
 import Summoner.License (LicenseName (..), parseLicenseName)
-import Summoner.ProjectData (CustomPrelude (..))
+import Summoner.Settings (CustomPrelude (..))
 import Summoner.Source (Source, sourceT)
 import Summoner.Validation (Validation (..))
 
@@ -197,7 +197,7 @@ configT = Config
     toDecision m = fromMaybe (error "Impossible") $ lookup m $ map swap decisionMaybe
 
     preludeT :: BiToml CustomPrelude
-    preludeT = Prelude
+    preludeT = CustomPrelude
         <$> Toml.text "package" .= cpPackage
         <*> Toml.text "module"  .= cpModule
 

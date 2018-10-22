@@ -5,7 +5,6 @@ module Summoner.Default
        , defaultTomlFile
        , defaultConfigFile
        , currentYear
-       , endLine
        ) where
 
 import Data.Time (getCurrentTime, toGregorian, utctDay)
@@ -33,6 +32,3 @@ currentYear = do
     now <- getCurrentTime
     let (year, _, _) = toGregorian $ utctDay now
     pure $ show year
-
-endLine :: Text
-endLine = "\n"

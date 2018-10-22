@@ -23,11 +23,11 @@ import Summoner.Ansi (Color (Green), beautyPrint, blueCode, bold, boldCode, erro
                       infoMessage, redCode, resetCode, setColor, warningMessage)
 import Summoner.Config (ConfigP (..), PartialConfig, defaultConfig, finalise, loadFileConfig)
 import Summoner.Decision (Decision (..))
-import Summoner.Default (defaultConfigFile, endLine)
+import Summoner.Default (defaultConfigFile)
 import Summoner.GhcVer (GhcVer, showGhcVer)
 import Summoner.License (License (..), LicenseName (..), fetchLicense, parseLicenseName)
 import Summoner.Project (generateProject)
-import Summoner.ProjectData (CustomPrelude (..))
+import Summoner.Settings (CustomPrelude (..))
 import Summoner.Validation (Validation (..))
 
 import qualified Data.Text as T
@@ -194,7 +194,7 @@ newP = do
 
     pure $ New $ NewOpts projectName ignoreFile file
         $ (maybeToMonoid $ with <> without)
-            { cPrelude = Last $ Prelude <$> preludePack <*> preludeMod
+            { cPrelude = Last $ CustomPrelude <$> preludePack <*> preludeMod
             , cCabal = cabal
             , cStack = stack
             }
