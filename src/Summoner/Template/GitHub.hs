@@ -9,36 +9,21 @@ module Summoner.Template.GitHub
        ) where
 
 import Data.List (delete)
-import Named ((:!), arg)
 import NeatInterpolation (text)
 
 import Summoner.Default (defaultGHC)
 import Summoner.GhcVer (GhcVer (..), showGhcVer)
+import Summoner.Settings (Settings (..))
 import Summoner.Tree (TreeFs (..))
 
 import qualified Data.Text as T
 
 
-gitHubFiles
-    :: "cabal"          :! Bool
-    -> "stack"          :! Bool
-    -> "test"           :! Bool
-    -> "github"         :! Bool
-    -> "travis"         :! Bool
-    -> "appVey"         :! Bool
-    -> "testedVersions" :! [GhcVer]
-    -> [TreeFs]
-gitHubFiles
-    (arg #cabal          -> cabal)
-    (arg #stack          -> stack)
-    (arg #test           -> test)
-    (arg #github         -> github)
-    (arg #travis         -> travis)
-    (arg #appVey         -> appVey)
-    (arg #testedVersions -> testedVersions)
-    = [File ".gitignore" gitignore | github]
-   ++ [File ".travis.yml" travisYml | travis]
-   ++ [File "appveyor.yml" appVeyorYml | appVey]
+gitHubFiles :: Settings -> [TreeFs]
+gitHubFiles Settings{..} =
+    [File ".gitignore" gitignore     | settingsGithub]
+ ++ [File ".travis.yml" travisYml    | settingsTravis]
+ ++ [File "appveyor.yml" appVeyorYml | settingsAppVey]
   where
     -- create .gitignore template
     gitignore :: Text
@@ -104,19 +89,19 @@ gitHubFiles
     -- create travis.yml template
     travisYml :: Text
     travisYml =
-        let travisStackMtr = memptyIfFalse stack $
-                T.concat (map travisStackMatrixItem $ delete defaultGHC testedVersions)
+        let travisStackMtr = memptyIfFalse settingsStack $
+                T.concat (map travisStackMatrixItem $ delete defaultGHC settingsTestedVersions)
                     <> travisStackMatrixDefaultItem
-            travisCabalMtr = memptyIfFalse cabal $
-                T.concat $ map travisCabalMatrixItem testedVersions
+            travisCabalMtr = memptyIfFalse settingsCabal $
+                T.concat $ map travisCabalMatrixItem settingsTestedVersions
             installAndScript =
-                if cabal
-                then if stack
+                if settingsCabal
+                then if settingsStack
                      then installScriptBoth
                      else installScriptCabal
                 else installScriptStack
-            travisCabalCache = memptyIfFalse cabal "- \"$HOME/.cabal\""
-            travisStackCache = memptyIfFalse stack
+            travisCabalCache = memptyIfFalse settingsCabal "- \"$HOME/.cabal\""
+            travisStackCache = memptyIfFalse settingsStack
                 [text|
                 - "$$HOME/.stack"
                 - "$$TRAVIS_BUILD_DIR/.stack-work"
@@ -148,7 +133,7 @@ gitHubFiles
         |]
 
     cabalTest :: Text
-    cabalTest = if test then "cabal new-test" else "echo 'No tests'"
+    cabalTest = if settingsTest then "cabal new-test" else "echo 'No tests'"
 
     travisCabalMatrixItem :: GhcVer -> Text
     travisCabalMatrixItem (showGhcVer -> ghcV) =

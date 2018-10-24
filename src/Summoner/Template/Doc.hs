@@ -2,100 +2,81 @@
 {-# LANGUAGE OverloadedLabels #-}
 {-# LANGUAGE QuasiQuotes      #-}
 {-# LANGUAGE TypeOperators    #-}
-{-# LANGUAGE ViewPatterns     #-}
 
 module Summoner.Template.Doc
        ( docFiles
        ) where
 
-import Named ((:!), arg)
 import NeatInterpolation (text)
 
 import Summoner.License (License (..))
+import Summoner.Settings (Settings (..))
 import Summoner.Tree (TreeFs (..))
 
 import qualified Data.Text as T
 
 
-docFiles
-    :: "repo"           :! Text
-    -> "owner"          :! Text
-    -> "description"    :! Text
-    -> "license"        :! Text
-    -> "licenseText"    :! License
-    -> "contributing"   :! Maybe Text
-    -> "stack"          :! Bool
-    -> "github"         :! Bool
-    -> "travis"         :! Bool
-    -> "appVey"         :! Bool
-    -> [TreeFs]
-docFiles
-    (arg #repo         -> repo)
-    (arg #owner        -> owner)
-    (arg #description  -> description)
-    (arg #license      -> license)
-    (arg #licenseText  -> licenseText)
-    (arg #contributing -> contributing)
-    (arg #stack        -> stack)
-    (arg #github       -> github)
-    (arg #travis       -> travis)
-    (arg #appVey       -> appVey)
-    = [ File "README.md" readme
-      , File "CHANGELOG.md" changelog
-      , File "LICENSE" $ unLicense licenseText
-      ] ++ maybe [] (\x -> [File "CONTRIBUTING.md" x]) contributing
+docFiles :: Settings -> [TreeFs]
+docFiles Settings{..} =
+    [ File "README.md" readme
+    , File "CHANGELOG.md" changelog
+    , File "LICENSE" $ unLicense settingsLicenseText
+    ] ++ maybe [] (\x -> [File "CONTRIBUTING.md" x]) settingsContributing
   where
+    licenseName:: Text
+    licenseName   = show settingsLicenseName
+
     readme :: Text
     readme = T.intercalate "\n" $
-        [ "# " <> repo
+        [ "# " <> settingsRepo
         , ""
         , hackage
         , licenseBadge
         ]
-     ++ [stackLtsBadge | stack]
-     ++ [stackNightlyBadge | stack]
-     ++ [travisBadge | travis]
-     ++ [appVeyorBadge | appVey]
+     ++ [stackLtsBadge     | settingsStack]
+     ++ [stackNightlyBadge | settingsStack]
+     ++ [travisBadge       | settingsTravis]
+     ++ [appVeyorBadge     | settingsAppVey]
      ++ [""
-        , description
+        , settingsDescription
         ]
       where
         hackageShield :: Text =
-            "https://img.shields.io/hackage/v/" <> repo <> ".svg"
+            "https://img.shields.io/hackage/v/" <> settingsRepo <> ".svg"
         hackageLink :: Text =
-            "https://hackage.haskell.org/package/" <> repo
+            "https://hackage.haskell.org/package/" <> settingsRepo
         hackage :: Text = makeBadge "Hackage" hackageShield hackageLink
 
         licenseShield :: Text =
-            "https://img.shields.io/badge/license-" <> T.replace "-" "--" license <> "-blue.svg"
+            "https://img.shields.io/badge/license-" <> T.replace "-" "--" licenseName <> "-blue.svg"
         licenseBadge :: Text =
-            makeBadge (license <> " license") licenseShield "LICENSE"
+            makeBadge (licenseName <> " license") licenseShield "LICENSE"
 
         stackShieldLts :: Text =
-            "http://stackage.org/package/" <> repo <> "/badge/lts"
+            "http://stackage.org/package/" <> settingsRepo <> "/badge/lts"
         stackLinkLts :: Text =
-            "http://stackage.org/lts/package/" <> repo
+            "http://stackage.org/lts/package/" <> settingsRepo
 
         stackShieldNightly :: Text =
-            "http://stackage.org/package/" <> repo <> "/badge/nightly"
+            "http://stackage.org/package/" <> settingsRepo <> "/badge/nightly"
         stackLinkNightly :: Text =
-            "http://stackage.org/nightly/package/" <> repo
+            "http://stackage.org/nightly/package/" <> settingsRepo
         stackLtsBadge :: Text =
             makeBadge "Stackage Lts" stackShieldLts stackLinkLts
         stackNightlyBadge :: Text =
             makeBadge "Stackage Nightly" stackShieldNightly stackLinkNightly
 
         travisShield :: Text =
-            "https://secure.travis-ci.org/" <> owner <> "/" <> repo <> ".svg"
+            "https://secure.travis-ci.org/" <> settingsOwner <> "/" <> settingsRepo <> ".svg"
         travisLink :: Text =
-            "https://travis-ci.org/" <> owner <> "/" <> repo
+            "https://travis-ci.org/" <> settingsOwner <> "/" <> settingsRepo
         travisBadge :: Text =
             makeBadge "Build status" travisShield travisLink
 
         appVeyorShield :: Text =
-            "https://ci.appveyor.com/api/projects/status/github/" <> owner <> "/" <> repo <> "?branch=master&svg=true"
+            "https://ci.appveyor.com/api/projects/status/github/" <> settingsOwner <> "/" <> settingsRepo <> "?branch=master&svg=true"
         appVeyorLink :: Text =
-            "https://ci.appveyor.com/project/" <> owner <> "/" <> repo
+            "https://ci.appveyor.com/project/" <> settingsOwner <> "/" <> settingsRepo
         appVeyorBadge :: Text =
             makeBadge "Windows build status" appVeyorShield appVeyorLink
 
@@ -107,7 +88,7 @@ docFiles
         [text|
         # Change log
 
-        `$repo` uses [PVP Versioning][1].
+        `$settingsRepo` uses [PVP Versioning][1].
         $githubLine
 
         0.0.0
@@ -119,6 +100,6 @@ docFiles
         $githubFootNote
         |]
       where
-        githubLine :: Text = memptyIfFalse github "The change log is available [on GitHub][2]."
-        githubFootNote :: Text = memptyIfFalse github $
-            "[2]: https://github.com/" <> owner <> "/" <> repo <> "/releases"
+        githubLine :: Text = memptyIfFalse settingsGithub "The change log is available [on GitHub][2]."
+        githubFootNote :: Text = memptyIfFalse settingsGithub $
+            "[2]: https://github.com/" <> settingsOwner <> "/" <> settingsRepo <> "/releases"

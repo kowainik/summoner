@@ -2,28 +2,20 @@
 {-# LANGUAGE OverloadedLabels #-}
 {-# LANGUAGE QuasiQuotes      #-}
 {-# LANGUAGE TypeOperators    #-}
-{-# LANGUAGE ViewPatterns     #-}
 
 module Summoner.Template.Stack
        ( stackFiles
        ) where
 
-import Named ((:!), arg)
 import NeatInterpolation (text)
 
 import Summoner.GhcVer (GhcVer (..), baseVer, latestLts, showGhcVer)
-import Summoner.Settings (CustomPrelude (..))
+import Summoner.Settings (Settings (..))
 import Summoner.Tree (TreeFs (..))
 
 
-stackFiles
-    :: "prelude"        :! Maybe CustomPrelude
-    -> "testedVersions" :! [GhcVer]
-    -> [TreeFs]
-stackFiles
-    (arg #prelude        -> prelude)
-    (arg #testedVersions -> testedVersions)
-    = map createStackYaml testedVersions
+stackFiles :: Settings -> [TreeFs]
+stackFiles Settings{..} = map createStackYaml settingsTestedVersions
  where
     -- create @stack.yaml@ file with LTS corresponding to specified ghc version
     createStackYaml :: GhcVer -> TreeFs
@@ -44,7 +36,7 @@ stackFiles
             |]
           where
             extraDeps :: Text
-            extraDeps = case prelude of
+            extraDeps = case settingsPrelude of
                 Nothing -> ""
                 Just _  -> "extra-deps: [base-noprelude-" <> baseV <> "]"
             ghcOpts :: Text

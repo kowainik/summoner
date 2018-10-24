@@ -2,44 +2,26 @@
 {-# LANGUAGE OverloadedLabels #-}
 {-# LANGUAGE QuasiQuotes      #-}
 {-# LANGUAGE TypeOperators    #-}
-{-# LANGUAGE ViewPatterns     #-}
 
 module Summoner.Template.Haskell
        ( haskellFiles
        ) where
 
-import Named ((:!), arg)
 import NeatInterpolation (text)
 
-import Summoner.Settings (CustomPrelude (..))
+import Summoner.Settings (CustomPrelude (..), Settings (..))
+import Summoner.Text (packageToModule)
 import Summoner.Tree (TreeFs (..))
 
 
-haskellFiles
-    :: "libModuleName" :! Text
-    -> "isLib"         :! Bool
-    -> "isExe"         :! Bool
-    -> "test"          :! Bool
-    -> "bench"         :! Bool
-    -> "stylish"       :! Maybe Text
-    -> "prelude"       :! Maybe CustomPrelude
-    -> [TreeFs]
-haskellFiles
-    (arg #libModuleName -> libModuleName)
-    (arg #isLib         -> isLib)
-    (arg #isExe         -> isExe)
-    (arg #test          -> test)
-    (arg #bench         -> bench)
-    (arg #stylish       -> stylish)
-    (arg #prelude       -> prelude)
-    = concat
-    [ [ Dir "src"     $ libFile : preludeFile   | isLib ]
-    , [ Dir "app"       [exeFile]               | isExe ]
-    , [ Dir "test"      [testFile]              | test  ]
-    , [ Dir "benchmark" [benchmarkFile]         | bench ]
-    ] ++ maybe [] (\x -> [File ".stylish-haskell.yaml" x]) stylish
+haskellFiles :: Settings -> [TreeFs]
+haskellFiles Settings{..} = concat
+    [ [ Dir "src"     $ libFile : preludeFile   | settingsIsLib ]
+    , [ Dir "app"       [exeFile]               | settingsIsExe ]
+    , [ Dir "test"      [testFile]              | settingsTest  ]
+    , [ Dir "benchmark" [benchmarkFile]         | settingsBench ]
+    ] ++ maybe [] (\x -> [File ".stylish-haskell.yaml" x]) settingsStylish
   where
-
     libFile :: TreeFs
     libFile = File (toString libModuleName <> ".hs")
         [text|
@@ -52,8 +34,11 @@ haskellFiles
         $endLine
         |]
 
+    libModuleName :: Text
+    libModuleName = packageToModule settingsRepo
+
     preludeFile :: [TreeFs]
-    preludeFile = case prelude of
+    preludeFile = case settingsPrelude of
         Nothing -> []
         Just CustomPrelude{..} -> one $ File "Prelude.hs"
             [text|
@@ -68,7 +53,7 @@ haskellFiles
             |]
 
     exeFile :: TreeFs
-    exeFile = File "Main.hs" $ if isLib then createExe else createOnlyExe
+    exeFile = File "Main.hs" $ if settingsIsLib then createExe else createOnlyExe
 
     createOnlyExe :: Text
     createOnlyExe =

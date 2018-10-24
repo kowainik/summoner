@@ -2,74 +2,32 @@
 {-# LANGUAGE OverloadedLabels #-}
 {-# LANGUAGE QuasiQuotes      #-}
 {-# LANGUAGE TypeOperators    #-}
-{-# LANGUAGE ViewPatterns     #-}
 
 module Summoner.Template.Cabal
        ( cabalFile
        ) where
 
-import Named ((:!), arg)
 import NeatInterpolation (text)
 
 import Summoner.GhcVer (GhcVer (..), showGhcVer)
-import Summoner.Settings (CustomPrelude (..))
-import Summoner.Text (intercalateMap)
+import Summoner.Settings (CustomPrelude (..), Settings (..))
+import Summoner.Text (intercalateMap, packageToModule)
 import Summoner.Tree (TreeFs (..))
 
 import qualified Data.Text as T
 
 
-cabalFile
-    :: "repo"           :! Text
-    -> "owner"          :! Text
-    -> "description"    :! Text
-    -> "license"        :! Text
-    -> "fullName"       :! Text
-    -> "email"          :! Text
-    -> "year"           :! Text
-    -> "categories"     :! Text
-    -> "base"           :! Text
-    -> "libModuleName"  :! Text
-    -> "github"         :! Bool
-    -> "isLib"          :! Bool
-    -> "isExe"          :! Bool
-    -> "test"           :! Bool
-    -> "bench"          :! Bool
-    -> "warnings"       :! [Text]
-    -> "extensions"     :! [Text]
-    -> "testedVersions" :! [GhcVer]
-    -> "prelude"        :! Maybe CustomPrelude
-    -> TreeFs
-cabalFile
-    (arg #repo           -> repo)
-    (arg #owner          -> owner)
-    (arg #description    -> description)
-    (arg #license        -> license)
-    (arg #fullName       -> fullName)
-    (arg #email          -> email)
-    (arg #year           -> year)
-    (arg #categories     -> categories)
-    (arg #base           -> base)
-    (arg #libModuleName  -> libModuleName)
-    (arg #github         -> github)
-    (arg #isLib          -> isLib)
-    (arg #isExe          -> isExe)
-    (arg #test           -> test)
-    (arg #bench          -> bench)
-    (arg #warnings       -> warnings)
-    (arg #extensions     -> extensions)
-    (arg #testedVersions -> testedVersions)
-    (arg #prelude        -> prelude)
-    = File (toString repo ++ ".cabal") cabalFileContent
+cabalFile :: Settings -> TreeFs
+cabalFile Settings{..} = File (toString settingsRepo ++ ".cabal") cabalFileContent
   where
     cabalFileContent :: Text
     cabalFileContent = mconcat
         [ cabalHeader
-        , memptyIfFalse github sourceRepository
-        , memptyIfFalse isLib   libraryStanza
-        , memptyIfFalse isExe $ executableStanza $ memptyIfFalse isLib $ ", " <> repo
-        , memptyIfFalse test  $ testSuiteStanza  $ memptyIfFalse isLib $ ", " <> repo
-        , memptyIfFalse bench $ benchmarkStanza  $ memptyIfFalse isLib $ ", " <> repo
+        , memptyIfFalse settingsGithub sourceRepository
+        , memptyIfFalse settingsIsLib   libraryStanza
+        , memptyIfFalse settingsIsExe $ executableStanza $ memptyIfFalse settingsIsLib $ ", " <> settingsRepo
+        , memptyIfFalse settingsTest  $ testSuiteStanza  $ memptyIfFalse settingsIsLib $ ", " <> settingsRepo
+        , memptyIfFalse settingsBench $ benchmarkStanza  $ memptyIfFalse settingsIsLib $ ", " <> settingsRepo
         ]
 
     -- TODO: do something to not have empty lines
@@ -77,18 +35,18 @@ cabalFile
     cabalHeader =
         [text|
         cabal-version:       2.0
-        name:                $repo
+        name:                $settingsRepo
         version:             0.0.0
-        synopsis:            $description
-        description:         $description
+        synopsis:            $settingsDescription
+        description:         $settingsDescription
         $githubHomepage
         $githubBugReports
-        license:             $license
+        license:             $licenseName
         license-file:        LICENSE
-        author:              $fullName
-        maintainer:          $email
-        copyright:           $year $fullName
-        category:            $categories
+        author:              $settingsFullName
+        maintainer:          $settingsEmail
+        copyright:           $settingsYear $settingsFullName
+        category:            $settingsCategories
         build-type:          Simple
         extra-doc-files:     README.md
                            , CHANGELOG.md
@@ -97,18 +55,22 @@ cabalFile
         |]
 
     githubHomepage, githubBugReports :: Text
-    githubHomepage   = memptyIfFalse github $ "homepage:            https://github.com/" <> owner <> "/" <> repo
-    githubBugReports = memptyIfFalse github $ "bug-reports:         https://github.com/" <> owner <> "/" <> repo <> "/issues"
+    githubHomepage   = memptyIfFalse settingsGithub $ "homepage:            https://github.com/" <> settingsOwner <> "/" <> settingsRepo
+    githubBugReports = memptyIfFalse settingsGithub $ "bug-reports:         https://github.com/" <> settingsOwner <> "/" <> settingsRepo <> "/issues"
+
+    licenseName, libModuleName :: Text
+    licenseName   = show settingsLicenseName
+    libModuleName = packageToModule settingsRepo
 
     testedGhcs :: Text
-    testedGhcs = intercalateMap ", " (mappend "GHC == " . showGhcVer) testedVersions
+    testedGhcs = intercalateMap ", " (mappend "GHC == " . showGhcVer) settingsTestedVersions
 
     sourceRepository :: Text
     sourceRepository =
         [text|
         source-repository head
           type:                git
-          location:            https://github.com/${owner}/${repo}.git
+          location:            https://github.com/${settingsOwner}/${settingsRepo}.git
         $endLine
         |]
 
@@ -120,7 +82,7 @@ cabalFile
           exposed-modules:     $libModuleName
                                $preludeMod
 
-          build-depends:       $base
+          build-depends:       $settingsBase
                              $commaPreludeLibrary
 
           ghc-options:         -Wall
@@ -134,11 +96,11 @@ cabalFile
     executableStanza :: Text -> Text
     executableStanza commaRepo =
         [text|
-        executable $repo
+        executable $settingsRepo
           hs-source-dirs:      app
           main-is:             Main.hs
 
-          build-depends:       $base
+          build-depends:       $settingsBase
                              $commaRepo
                              $commaPreludeLibrary
 
@@ -156,12 +118,12 @@ cabalFile
     testSuiteStanza :: Text -> Text
     testSuiteStanza commaRepo =
         [text|
-        test-suite ${repo}-test
+        test-suite ${settingsRepo}-test
           type:                exitcode-stdio-1.0
           hs-source-dirs:      test
           main-is:             Spec.hs
 
-          build-depends:       $base
+          build-depends:       $settingsBase
                              $commaRepo
                              $commaPreludeLibrary
 
@@ -179,12 +141,12 @@ cabalFile
     benchmarkStanza :: Text -> Text
     benchmarkStanza commaRepo =
         [text|
-        benchmark ${repo}-benchmark
+        benchmark ${settingsRepo}-benchmark
           type:                exitcode-stdio-1.0
           hs-source-dirs:      benchmark
           main-is:             Main.hs
 
-          build-depends:       $base
+          build-depends:       $settingsBase
                              , gauge
                              $commaRepo
                              $commaPreludeLibrary
@@ -202,17 +164,17 @@ cabalFile
 
 
     preludeMod, commaPreludeLibrary :: Text
-    (preludeMod, commaPreludeLibrary) = case prelude of
+    (preludeMod, commaPreludeLibrary) = case settingsPrelude of
         Nothing                -> ("", "")
         Just CustomPrelude{..} -> ("Prelude", ", " <> cpPackage)
 
     defaultExtensions :: Text
-    defaultExtensions = case extensions of
+    defaultExtensions = case settingsExtensions of
         [] -> ""
         xs -> "default-extensions:  " <> T.intercalate "\n                     " xs
 
     ghcOptions :: Text
-    ghcOptions = case warnings of
+    ghcOptions = case settingsWarnings of
         [] -> defaultWarnings
         xs -> T.intercalate "\n" xs
 
@@ -228,11 +190,11 @@ cabalFile
 
     versionWarnings :: Text
     versionWarnings
-        =  memptyIfFalse (testedVersions `hasLeast` Ghc801)
+        =  memptyIfFalse (settingsTestedVersions `hasLeast` Ghc801)
             "-Wredundant-constraints\n"
-        <> memptyIfFalse (testedVersions `hasLeast` Ghc822)
+        <> memptyIfFalse (settingsTestedVersions `hasLeast` Ghc822)
             "-fhide-source-paths\n"
-        <> memptyIfFalse (testedVersions `hasLeast` Ghc843)
+        <> memptyIfFalse (settingsTestedVersions `hasLeast` Ghc843)
             [text|
             -Wmissing-export-lists
             -Wpartial-fields
