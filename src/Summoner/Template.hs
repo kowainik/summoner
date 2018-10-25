@@ -1,5 +1,3 @@
-{-# LANGUAGE OverloadedLabels #-}
-
 -- | This module contains functions for stack template creation.
 
 module Summoner.Template

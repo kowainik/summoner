@@ -1,7 +1,4 @@
-{-# LANGUAGE DataKinds        #-}
-{-# LANGUAGE OverloadedLabels #-}
-{-# LANGUAGE QuasiQuotes      #-}
-{-# LANGUAGE TypeOperators    #-}
+{-# LANGUAGE QuasiQuotes #-}
 
 module Summoner.Template.Doc
        ( docFiles

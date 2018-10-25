@@ -1,8 +1,5 @@
-{-# LANGUAGE DataKinds        #-}
-{-# LANGUAGE OverloadedLabels #-}
-{-# LANGUAGE QuasiQuotes      #-}
-{-# LANGUAGE TypeOperators    #-}
-{-# LANGUAGE ViewPatterns     #-}
+{-# LANGUAGE QuasiQuotes  #-}
+{-# LANGUAGE ViewPatterns #-}
 
 module Summoner.Template.GitHub
        ( gitHubFiles
