@@ -33,7 +33,7 @@ docFiles Settings{..} =
      ++ [stackLtsBadge     | settingsStack]
      ++ [stackNightlyBadge | settingsStack]
      ++ [travisBadge       | settingsTravis]
-     ++ [appVeyorBadge     | settingsAppVey]
+     ++ [appVeyorBadge     | settingsAppVeyor]
      ++ [""
         , settingsDescription
         ]
