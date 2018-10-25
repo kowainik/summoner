@@ -2,7 +2,7 @@ module Summoner.License
        ( LicenseName(..)
        , License(..)
        , customizeLicense
-       , githubLicenseQueryNames
+       , gitHubLicenseQueryNames
        , parseLicenseName
        , fetchLicense
        ) where
@@ -49,8 +49,8 @@ newtype License = License { unLicense :: Text }
 instance FromJSON License where
     parseJSON = withObject "License" $ \o -> License <$> o .: "body"
 
-githubLicenseQueryNames :: LicenseName -> Text
-githubLicenseQueryNames = \case
+gitHubLicenseQueryNames :: LicenseName -> Text
+gitHubLicenseQueryNames = \case
     MIT      -> "mit"
     BSD2     -> "bsd-2-clause"
     BSD3     -> "bsd-3-clause"
@@ -79,7 +79,7 @@ customizeLicense l license@(License licenseText) nm year
 
 fetchLicense :: LicenseName -> IO License
 fetchLicense name = do
-    let licenseLink = "https://api.github.com/licenses/" <> githubLicenseQueryNames name
+    let licenseLink = "https://api.gitHub.com/licenses/" <> gitHubLicenseQueryNames name
     licenseJson <- readProcess
         "curl" [ toString licenseLink, "-H", "Accept: application/vnd.github.drax-preview+json"] ""
     pure $ fromMaybe (error "Broken predefined license list") (decodeStrict $ pack licenseJson)
