@@ -93,7 +93,7 @@ script:
       stack build --test --no-terminal
     fi
   - curl https://raw.githubusercontent.com/kowainik/relude/bc23b0fe2c3699f5c202ed04222766dc0d789fd1/.hlint.yaml -o .hlint-relude.yaml
-  - curl -sSL https://raw.github.com/ndmitchell/neil/master/misc/travis.sh | sh -s -- hlint -h .hlint-relude.yaml .
+  - curl -sSL https://raw.github.com/ndmitchell/neil/master/misc/travis.sh | sh -s -- hlint -h .hlint-relude.yaml src/ test/
 
 notifications:
   email: false
