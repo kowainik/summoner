@@ -51,10 +51,10 @@ generateProject projectName Config{..} = do
             settingsYear
 
     -- Library/Executable/Tests/Benchmarks flags
-    settingsGithub <- decisionToBool cGitHub "GitHub integration"
-    settingsTravis <- ifGithub settingsGithub "Travis CI integration" cTravis
-    settingsAppVey <- ifGithub (settingsStack && settingsGithub) "AppVeyor CI integration" cAppVey
-    settingsPrivat <- ifGithub settingsGithub "private repository" cPrivate
+    settingsGitHub <- decisionToBool cGitHub "GitHub integration"
+    settingsTravis <- ifGitHub settingsGitHub "Travis CI integration" cTravis
+    settingsAppVeyor <- ifGitHub (settingsStack && settingsGitHub) "AppVeyor CI integration" cAppVeyor
+    settingsPrivat <- ifGitHub settingsGitHub "private repository" cPrivate
     settingsIsLib  <- decisionToBool cLib "library target"
     settingsIsExe  <- let target = "executable target" in
               if settingsIsLib
@@ -63,7 +63,7 @@ generateProject projectName Config{..} = do
     settingsTest   <- decisionToBool cTest "tests"
     settingsBench  <- decisionToBool cBench "benchmarks"
     settingsPrelude <- if settingsIsLib then getPrelude else pure Nothing
-    let settingsBase = case settingsPrelude of
+    let settingsBaseType = case settingsPrelude of
             Nothing -> "base"
             Just _  -> "base-noprelude"
 
@@ -93,12 +93,12 @@ generateProject projectName Config{..} = do
 
     -- create stack project
     createProjectDirectory settings
-    -- create github repository and commit
-    when settingsGithub $ doGithubCommands settings settingsPrivat
+    -- create gitHub repository and commit
+    when settingsGitHub $ doGitHubCommands settings settingsPrivat
 
  where
-    ifGithub :: Bool -> Text -> Decision -> IO Bool
-    ifGithub github target decision = if github
+    ifGitHub :: Bool -> Text -> Decision -> IO Bool
+    ifGitHub gitHub target decision = if gitHub
         then decisionToBool decision target
         else falseMessage target
 
@@ -112,7 +112,7 @@ generateProject projectName Config{..} = do
 
     doGithubCommands :: Settings -> Bool -> IO ()
     doGithubCommands Settings{..} private = do
-        -- Create the repository on Github.
+        -- Create the repository on GitHub.
         "git" ["init"]
         "hub" $ ["create", "-d", settingsDescription, settingsOwner <> "/" <> settingsRepo]
              ++ ["-p" | private] -- creates private repository if asked so.
