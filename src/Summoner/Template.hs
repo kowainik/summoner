@@ -1,5 +1,4 @@
 {-# LANGUAGE OverloadedLabels #-}
-{-# LANGUAGE QuasiQuotes      #-}
 
 -- | This module contains functions for stack template creation.
 
