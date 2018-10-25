@@ -201,9 +201,9 @@ newP = do
 
 targetsP ::  Decision -> Parser PartialConfig
 targetsP d = do
-    cGitHub  <- githubP    d
+    cGitHub  <- gitHubP    d
     cTravis  <- travisP    d
-    cAppVey  <- appVeyorP  d
+    cAppVeyor  <- appVeyorP  d
     cPrivate <- privateP   d
     cLib     <- libraryP   d
     cExe     <- execP      d
@@ -212,7 +212,7 @@ targetsP d = do
     pure mempty
         { cGitHub = cGitHub
         , cTravis = cTravis
-        , cAppVey = cAppVey
+        , cAppVeyor = cAppVeyor
         , cPrivate= cPrivate
         , cLib    = cLib
         , cExe    = cExe
@@ -220,9 +220,9 @@ targetsP d = do
         , cBench  = cBench
         }
 
-githubP :: Decision -> Parser Decision
-githubP d = flag Idk d
-          $ long "github"
+gitHubP :: Decision -> Parser Decision
+gitHubP d = flag Idk d
+          $ long "gitHub"
          <> short 'g'
          <> help "GitHub integration"
 
