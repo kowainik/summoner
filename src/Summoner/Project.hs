@@ -16,9 +16,9 @@ import Summoner.Default (currentYear, defaultGHC)
 import Summoner.GhcVer (parseGhcVer, showGhcVer)
 import Summoner.License (customizeLicense, fetchLicense, parseLicenseName)
 import Summoner.Process ()
-import Summoner.ProjectData (CustomPrelude (..), ProjectData (..))
 import Summoner.Question (checkUniqueName, choose, chooseYesNo, falseMessage, query, queryDef,
                           queryManyRepeatOnFail, targetMessageWithText, trueMessage)
+import Summoner.Settings (CustomPrelude (..), Settings (..))
 import Summoner.Source (fetchSource)
 import Summoner.Template (createProjectTemplate)
 import Summoner.Text (intercalateMap, packageToModule)
@@ -27,46 +27,51 @@ import Summoner.Tree (showTree, traverseTree)
 -- | Generate the project.
 generateProject :: Text -> Config -> IO ()
 generateProject projectName Config{..} = do
-    repo        <- checkUniqueName projectName
+    settingsRepo   <- checkUniqueName projectName
     -- decide cabal stack or both
-    (cabal, stack) <- getCabalStack (cCabal, cStack)
+    (settingsCabal, settingsStack) <- getCabalStack (cCabal, cStack)
 
-    owner       <- queryDef "Repository owner: " cOwner
-    description <- query "Short project description: "
-    nm          <- queryDef "Author: " cFullName
-    email       <- queryDef "Maintainer e-mail: " cEmail
+    settingsOwner       <- queryDef "Repository owner: " cOwner
+    settingsDescription <- query "Short project description: "
+    settingsFullName    <- queryDef "Author: " cFullName
+    settingsEmail       <- queryDef "Maintainer e-mail: " cEmail
+
     putText categoryText
-    category <- query "Category: "
-    licenseName  <- choose parseLicenseName "License: " $ ordNub (cLicense : universe)
+    settingsCategories <- query "Category: "
+
+    settingsLicenseName  <- choose parseLicenseName "License: " $ ordNub (cLicense : universe)
 
     -- License creation
-    fetchedLicense <- fetchLicense licenseName
-    year <- currentYear
-    let licenseText = customizeLicense licenseName fetchedLicense nm year
+    fetchedLicense <- fetchLicense settingsLicenseName
+    settingsYear <- currentYear
+    let settingsLicenseText = customizeLicense  -- TODO: use named here as well
+            settingsLicenseName
+            fetchedLicense
+            settingsFullName
+            settingsYear
 
     -- Library/Executable/Tests/Benchmarks flags
-    github <- decisionToBool cGitHub "GitHub integration"
-    travis <- ifGithub github "Travis CI integration" cTravis
-    appVey <- ifGithub (stack && github) "AppVeyor CI integration" cAppVey
-    privat <- ifGithub github "private repository" cPrivate
-    isLib  <- decisionToBool cLib "library target"
-    isExe  <- let target = "executable target" in
-              if isLib
+    settingsGithub <- decisionToBool cGitHub "GitHub integration"
+    settingsTravis <- ifGithub settingsGithub "Travis CI integration" cTravis
+    settingsAppVey <- ifGithub (settingsStack && settingsGithub) "AppVeyor CI integration" cAppVey
+    settingsPrivat <- ifGithub settingsGithub "private repository" cPrivate
+    settingsIsLib  <- decisionToBool cLib "library target"
+    settingsIsExe  <- let target = "executable target" in
+              if settingsIsLib
               then decisionToBool cExe target
               else trueMessage target
-    test   <- decisionToBool cTest "tests"
-    bench  <- decisionToBool cBench "benchmarks"
-    prelude <- if isLib then getPrelude else pure Nothing
-    let base = case prelude of
+    settingsTest   <- decisionToBool cTest "tests"
+    settingsBench  <- decisionToBool cBench "benchmarks"
+    settingsPrelude <- if settingsIsLib then getPrelude else pure Nothing
+    let settingsBase = case settingsPrelude of
             Nothing -> "base"
             Just _  -> "base-noprelude"
 
-    let extensions = cExtensions
-
-    let warnings = cWarnings
+    let settingsExtensions = cExtensions
+    let settingsWarnings = cWarnings
 
     putTextLn $ "The project will be created with the latest resolver for default GHC-" <> showGhcVer defaultGHC
-    testedVersions <- sortNub . (defaultGHC :) <$> case cGhcVer of
+    settingsTestedVersions <- sortNub . (defaultGHC :) <$> case cGhcVer of
         [] -> do
             putTextLn "Additionally you can specify versions of GHC to test with (space-separated): "
             infoMessage $ "Supported by 'summoner' GHCs: " <> intercalateMap " " showGhcVer universe
@@ -75,21 +80,21 @@ generateProject projectName Config{..} = do
             putTextLn $ "Also these GHC versions will be added: " <> intercalateMap " " showGhcVer vers
             pure vers
 
-    stylish <- case getLast cStylish of
+    settingsStylish <- case getLast cStylish of
         Nothing -> pure Nothing
         Just s  -> fetchSource s
 
-    contributing <- case getLast cContributing of
+    settingsContributing <- case getLast cContributing of
         Nothing -> pure Nothing
         Just s  -> fetchSource s
 
     -- Create project data from all variables in scope
-    let projectData = ProjectData{..}
+    let settings = Settings{..}
 
     -- create stack project
-    createProjectDirectory projectData
+    createProjectDirectory settings
     -- create github repository and commit
-    when github $ doGithubCommands projectData privat
+    when settingsGithub $ doGithubCommands settings settingsPrivat
 
  where
     ifGithub :: Bool -> Text -> Decision -> IO Bool
@@ -97,19 +102,19 @@ generateProject projectName Config{..} = do
         then decisionToBool decision target
         else falseMessage target
 
-    createProjectDirectory :: ProjectData -> IO ()
-    createProjectDirectory projectData@ProjectData{..} = do
-        let tree = createProjectTemplate projectData
+    createProjectDirectory :: Settings -> IO ()
+    createProjectDirectory settings@Settings{..} = do
+        let tree = createProjectTemplate settings
         traverseTree tree
         successMessage "\nThe project with the following structure has been created:"
         putTextLn $ showTree tree
-        setCurrentDirectory (toString repo)
+        setCurrentDirectory (toString settingsRepo)
 
-    doGithubCommands :: ProjectData -> Bool -> IO ()
-    doGithubCommands ProjectData{..} private = do
+    doGithubCommands :: Settings -> Bool -> IO ()
+    doGithubCommands Settings{..} private = do
         -- Create the repository on Github.
         "git" ["init"]
-        "hub" $ ["create", "-d", description, owner <> "/" <> repo]
+        "hub" $ ["create", "-d", settingsDescription, settingsOwner <> "/" <> settingsRepo]
              ++ ["-p" | private] -- creates private repository if asked so.
         -- Make a commit and push it.
         "git" ["add", "."]
@@ -144,10 +149,10 @@ generateProject projectName Config{..} = do
                     p <- query "Custom prelude package: "
                     m <- queryDef "Custom prelude module: " (packageToModule p)
                     successMessage $ "Custom prelude " <> p <> " will be used in the project"
-                    pure $ Just $ Prelude p m
+                    pure $ Just $ CustomPrelude p m
                 noDo = pure Nothing
             chooseYesNo "custom prelude" yesDo noDo
-        Last prelude@(Just (Prelude p _)) ->
+        Last prelude@(Just (CustomPrelude p _)) ->
             prelude <$ successMessage ("Custom prelude " <> p <> " will be used in the project")
 
     -- get what build tool to use in the project

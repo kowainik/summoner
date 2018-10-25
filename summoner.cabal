@@ -18,6 +18,7 @@ extra-doc-files:     README.md
                    , CHANGELOG.md
 tested-with:         GHC == 8.2.2
                    , GHC == 8.4.3
+                   , GHC == 8.6.1
 
 source-repository head
   type:     git
@@ -25,8 +26,7 @@ source-repository head
 
 library
   hs-source-dirs:      src
-  exposed-modules:     Prelude
-                       Summoner
+  exposed-modules:     Summoner
                          Summoner.Ansi
                          Summoner.CLI
                          Summoner.Config
@@ -36,18 +36,24 @@ library
                          Summoner.License
                          Summoner.Process
                          Summoner.Project
-                         Summoner.ProjectData
                          Summoner.Question
+                         Summoner.Settings
                          Summoner.Source
                          Summoner.Template
+                           Summoner.Template.Cabal
+                           Summoner.Template.Doc
+                           Summoner.Template.GitHub
+                           Summoner.Template.Haskell
+                           Summoner.Template.Stack
                          Summoner.Text
                          Summoner.Tree
                          Summoner.Validation
 
-  other-modules:       Paths_summoner
   autogen-modules:     Paths_summoner
+  other-modules:       Paths_summoner
+                       Prelude
 
-  build-depends:       base-noprelude >= 4.10 && < 5
+  build-depends:       base-noprelude >= 4.10 && < 4.13
                      , aeson >= 1.2.4.0 && < 1.5
                      , ansi-terminal ^>= 0.8.0.4
                      , bytestring ^>= 0.10.8.2
@@ -58,10 +64,10 @@ library
                      , neat-interpolation ^>= 0.3.2.2
                      , optparse-applicative ^>= 0.14.2.0
                      , process ^>= 1.6.1.0
+                     , relude ^>= 0.3.0
                      , text ^>= 1.2.3.0
                      , time ^>= 1.8
                      , tomland ^>= 0.4.0
-                     , relude ^>= 0.3.0
 
   ghc-options:         -Wall
                        -Wincomplete-uni-patterns
@@ -85,6 +91,8 @@ library
 executable summon
   hs-source-dirs:      app
   main-is:             Main.hs
+  build-depends:       base >= 4.10 && < 4.13, summoner
+
   ghc-options:         -Wall
                        -threaded
                        -rtsopts
@@ -95,9 +103,7 @@ executable summon
                        -Widentities
                        -Wredundant-constraints
                        -fhide-source-paths
-  build-depends:       base-noprelude
-                     , relude
-                     , summoner
+
   default-language:    Haskell2010
 
 test-suite summoner-test
@@ -107,15 +113,17 @@ test-suite summoner-test
   main-is:             Spec.hs
   other-modules:       Test.DecisionSpec
                        Test.TomlSpec
+                       Prelude
 
   build-tool-depends:  tasty-discover:tasty-discover
-  build-depends:       base-noprelude
+  build-depends:       base-noprelude >= 4.10 && < 4.13
                      , hedgehog
                      , relude
                      , tasty
                      , tasty-hedgehog
                      , tomland
                      , summoner
+
 
   ghc-options:         -Wall
                        -threaded

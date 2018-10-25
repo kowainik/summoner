@@ -6,8 +6,8 @@ module Summoner
        , module Summoner.License
        , module Summoner.Process
        , module Summoner.Project
-       , module Summoner.ProjectData
        , module Summoner.Question
+       , module Summoner.Settings
        , module Summoner.Template
        , module Summoner.Text
        , module Summoner.Validation
@@ -20,8 +20,8 @@ import Summoner.Default
 import Summoner.License
 import Summoner.Process
 import Summoner.Project
-import Summoner.ProjectData
 import Summoner.Question
+import Summoner.Settings
 import Summoner.Template
 import Summoner.Text
 import Summoner.Validation

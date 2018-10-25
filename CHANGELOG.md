@@ -9,6 +9,8 @@
 * Add `Link` constructor to `Source` data type.
 * [#172](https://github.com/kowainik/summoner/issues/172):
   Introduce pull request template.
+* [#125](https://github.com/kowainik/summoner/issues/125):
+  Split `Summoner.Template` into multiple modules.
 
 1.1.0.1
 =======
