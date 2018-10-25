@@ -30,4 +30,4 @@ createProjectTemplate settings@Settings{..} = Dir (toString settingsRepo) $ conc
     stack   = memptyIfFalse settingsStack $ stackFiles settings  -- TODO: write more elegant
     haskell = haskellFiles settings
     docs    = docFiles settings
-    gitHub = gitHubFiles settings
+    gitHub  = gitHubFiles settings
