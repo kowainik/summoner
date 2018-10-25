@@ -97,6 +97,6 @@ docFiles Settings{..} =
         $githubFootNote
         |]
       where
-        githubLine :: Text = memptyIfFalse settingsGithub "The change log is available [on GitHub][2]."
-        githubFootNote :: Text = memptyIfFalse settingsGithub $
+        gitHubLine :: Text = memptyIfFalse settingsGitHub "The change log is available [on GitHub][2]."
+        gitHubFootNote :: Text = memptyIfFalse settingsGitHub $
             "[2]: https://github.com/" <> settingsOwner <> "/" <> settingsRepo <> "/releases"
