@@ -18,9 +18,9 @@ import qualified Data.Text as T
 
 gitHubFiles :: Settings -> [TreeFs]
 gitHubFiles Settings{..} =
-    [File ".gitignore" gitignore     | settingsGithub]
+    [File ".gitignore" gitignore     | settingsGitHub]
  ++ [File ".travis.yml" travisYml    | settingsTravis]
- ++ [File "appveyor.yml" appVeyorYml | settingsAppVey]
+ ++ [File "appveyor.yml" appVeyorYml | settingsAppVeyor]
   where
     -- create .gitignore template
     gitignore :: Text
