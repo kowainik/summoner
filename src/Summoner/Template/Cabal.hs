@@ -20,7 +20,7 @@ cabalFile Settings{..} = File (toString settingsRepo ++ ".cabal") cabalFileConte
     cabalFileContent :: Text
     cabalFileContent = mconcat
         [ cabalHeader
-        , memptyIfFalse settingsGithub sourceRepository
+        , memptyIfFalse settingsGitHub sourceRepository
         , memptyIfFalse settingsIsLib   libraryStanza
         , memptyIfFalse settingsIsExe $ executableStanza $ memptyIfFalse settingsIsLib $ ", " <> settingsRepo
         , memptyIfFalse settingsTest  $ testSuiteStanza  $ memptyIfFalse settingsIsLib $ ", " <> settingsRepo
@@ -36,8 +36,8 @@ cabalFile Settings{..} = File (toString settingsRepo ++ ".cabal") cabalFileConte
         version:             0.0.0
         synopsis:            $settingsDescription
         description:         $settingsDescription
-        $githubHomepage
-        $githubBugReports
+        $gitHubHomepage
+        $gitHubBugReports
         license:             $licenseName
         license-file:        LICENSE
         author:              $settingsFullName
@@ -51,8 +51,8 @@ cabalFile Settings{..} = File (toString settingsRepo ++ ".cabal") cabalFileConte
         $endLine
         |]
 
-    githubHomepage, githubBugReports :: Text
-    githubHomepage   = memptyIfFalse settingsGithub $ "homepage:            https://github.com/" <> settingsOwner <> "/" <> settingsRepo
+    gitHubHomepage, gitHubBugReports :: Text
+    gitHubHomepage   = memptyIfFalse settingsGithub $ "homepage:            https://github.com/" <> settingsOwner <> "/" <> settingsRepo
     githubBugReports = memptyIfFalse settingsGithub $ "bug-reports:         https://github.com/" <> settingsOwner <> "/" <> settingsRepo <> "/issues"
 
     licenseName, libModuleName :: Text
@@ -67,7 +67,7 @@ cabalFile Settings{..} = File (toString settingsRepo ++ ".cabal") cabalFileConte
         [text|
         source-repository head
           type:                git
-          location:            https://github.com/${settingsOwner}/${settingsRepo}.git
+          location:            https://gitHub.com/${settingsOwner}/${settingsRepo}.git
         $endLine
         |]
 
@@ -97,7 +97,7 @@ cabalFile Settings{..} = File (toString settingsRepo ++ ".cabal") cabalFileConte
           hs-source-dirs:      app
           main-is:             Main.hs
 
-          build-depends:       $settingsBase
+          build-depends:       $settingsBaseType
                              $commaRepo
                              $commaPreludeLibrary
 
@@ -120,7 +120,7 @@ cabalFile Settings{..} = File (toString settingsRepo ++ ".cabal") cabalFileConte
           hs-source-dirs:      test
           main-is:             Spec.hs
 
-          build-depends:       $settingsBase
+          build-depends:       $settingsBaseType
                              $commaRepo
                              $commaPreludeLibrary
 
@@ -143,7 +143,7 @@ cabalFile Settings{..} = File (toString settingsRepo ++ ".cabal") cabalFileConte
           hs-source-dirs:      benchmark
           main-is:             Main.hs
 
-          build-depends:       $settingsBase
+          build-depends:       $settingsBaseType
                              , gauge
                              $commaRepo
                              $commaPreludeLibrary
