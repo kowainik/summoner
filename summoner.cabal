@@ -18,6 +18,7 @@ extra-doc-files:     README.md
                    , CHANGELOG.md
 tested-with:         GHC == 8.2.2
                    , GHC == 8.4.3
+                   , GHC == 8.6.1
 
 source-repository head
   type:     git
@@ -52,7 +53,7 @@ library
   other-modules:       Paths_summoner
                        Prelude
 
-  build-depends:       base-noprelude >= 4.10 && < 5
+  build-depends:       base-noprelude >= 4.10 && < 4.13
                      , aeson >= 1.2.4.0 && < 1.5
                      , ansi-terminal ^>= 0.8.0.4
                      , bytestring ^>= 0.10.8.2
@@ -90,7 +91,7 @@ library
 executable summon
   hs-source-dirs:      app
   main-is:             Main.hs
-  build-depends:       base, summoner
+  build-depends:       base >= 4.10 && < 4.13, summoner
 
   ghc-options:         -Wall
                        -threaded
@@ -115,7 +116,7 @@ test-suite summoner-test
                        Prelude
 
   build-tool-depends:  tasty-discover:tasty-discover
-  build-depends:       base-noprelude >= 4.11
+  build-depends:       base-noprelude >= 4.10 && < 4.13
                      , hedgehog
                      , relude
                      , tasty
