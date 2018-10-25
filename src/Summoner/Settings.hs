@@ -15,7 +15,7 @@ data CustomPrelude = CustomPrelude
 -- | Data needed for project creation.
 data Settings = Settings
     { settingsRepo           :: !Text   -- ^ repository name
-    , settingsOwner          :: !Text   -- ^ github username
+    , settingsOwner          :: !Text   -- ^ gitHub username
     , settingsDescription    :: !Text   -- ^ project description
     , settingsFullName       :: !Text   -- ^ full name
     , settingsEmail          :: !Text   -- ^ e-mail
@@ -23,15 +23,15 @@ data Settings = Settings
     , settingsCategories     :: !Text   -- ^ project category
     , settingsLicenseName    :: !LicenseName -- ^ type of license
     , settingsLicenseText    :: !License -- ^ license text
-    , settingsGithub         :: !Bool   -- ^ github repository
+    , settingsGitHub         :: !Bool   -- ^ gitHub repository
     , settingsTravis         :: !Bool   -- ^ Travis CI integration
-    , settingsAppVey         :: !Bool   -- ^ AppVeyor CI integration
+    , settingsAppVeyor       :: !Bool   -- ^ AppVeyor CI integration
     , settingsIsLib          :: !Bool   -- ^ is library
     , settingsIsExe          :: !Bool   -- ^ is executable
     , settingsTest           :: !Bool   -- ^ add tests
     , settingsBench          :: !Bool   -- ^ add benchmarks
     , settingsTestedVersions :: ![GhcVer]  -- ^ ghc versions
-    , settingsBase           :: !Text -- ^ Base library to use
+    , settingsBaseType       :: !Text -- ^ Base library to use
     , settingsPrelude        :: !(Maybe CustomPrelude)  -- ^ custom prelude to be used
     , settingsExtensions     :: ![Text] -- ^ default extensions
     , settingsWarnings       :: ![Text] -- ^ default warnings
