@@ -12,7 +12,7 @@ import Summoner.Tree (TreeFs (..))
 
 
 stackFiles :: Settings -> [TreeFs]
-stackFiles Settings{..} = map createStackYaml settingsTestedVersions
+stackFiles Settings{..} = memptyIfFalse settingsStack $ toListMap createStackYaml settingsTestedVersions
  where
     -- create @stack.yaml@ file with LTS corresponding to specified ghc version
     createStackYaml :: GhcVer -> TreeFs

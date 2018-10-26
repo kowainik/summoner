@@ -3,6 +3,8 @@
 1.2.0
 =======
 
+* [#179](https://github.com/kowainik/summoner/issues/179):
+  Make list of GHC versions `NonEmpty`.
 * [#169](https://github.com/kowainik/summoner/issues/169):
   Make AppVeyor use the 64bits version of stack and build for 64 bits.
 * [#154](https://github.com/kowainik/summoner/issues/154):

@@ -6,6 +6,7 @@ module Prelude
 
        , endLine
        , memptyIfFalse
+       , toListMap
        ) where
 
 import Relude
@@ -16,3 +17,6 @@ endLine = "\n"
 
 memptyIfFalse :: Monoid m => Bool -> m -> m
 memptyIfFalse p val = if p then val else mempty
+
+toListMap :: Foldable f => (a -> b) -> f a -> [b]
+toListMap f = map f . toList

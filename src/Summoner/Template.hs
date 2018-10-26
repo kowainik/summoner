@@ -25,7 +25,7 @@ createProjectTemplate settings@Settings{..} = Dir (toString settingsRepo) $ conc
   where
     cabal, stack :: [TreeFs]
     cabal   = [cabalFile settings]
-    stack   = memptyIfFalse settingsStack $ stackFiles settings  -- TODO: write more elegant
+    stack   = stackFiles settings
     haskell = haskellFiles settings
     docs    = docFiles settings
     gitHub  = gitHubFiles settings

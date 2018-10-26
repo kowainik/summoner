@@ -15,8 +15,8 @@ packageToModule = tconcatMap headToUpper . T.splitOn "-"
 
 -- | Converts every element of list into 'Text' and then joins every element
 -- into single 'Text' like 'T.intercalate'.
-intercalateMap :: Text -> (a -> Text) -> [a] -> Text
-intercalateMap between showT = T.intercalate between . map showT
+intercalateMap :: Foldable t => Text -> (a -> Text) -> t a -> Text
+intercalateMap between showT = T.intercalate between . toListMap showT
 
 headToUpper :: Text -> Text
 headToUpper t = case T.uncons t of

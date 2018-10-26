@@ -23,6 +23,7 @@ import Summoner.Source (fetchSource)
 import Summoner.Template (createProjectTemplate)
 import Summoner.Text (intercalateMap, packageToModule)
 import Summoner.Tree (showTree, traverseTree)
+import qualified Data.List.NonEmpty as NE
 
 -- | Generate the project.
 generateProject :: Text -> Config -> IO ()
@@ -71,7 +72,7 @@ generateProject projectName Config{..} = do
     let settingsWarnings = cWarnings
 
     putTextLn $ "The project will be created with the latest resolver for default GHC-" <> showGhcVer defaultGHC
-    settingsTestedVersions <- sortNub . (defaultGHC :) <$> case cGhcVer of
+    settingsTestedVersions <- NE.sort . NE.nub . (defaultGHC :|) <$> case cGhcVer of
         [] -> do
             putTextLn "Additionally you can specify versions of GHC to test with (space-separated): "
             infoMessage $ "Supported by 'summoner' GHCs: " <> intercalateMap " " showGhcVer universe

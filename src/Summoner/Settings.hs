@@ -30,7 +30,7 @@ data Settings = Settings
     , settingsIsExe          :: !Bool   -- ^ is executable
     , settingsTest           :: !Bool   -- ^ add tests
     , settingsBench          :: !Bool   -- ^ add benchmarks
-    , settingsTestedVersions :: ![GhcVer]  -- ^ ghc versions
+    , settingsTestedVersions :: !(NonEmpty GhcVer)  -- ^ ghc versions
     , settingsBase           :: !Text -- ^ Base library to use
     , settingsPrelude        :: !(Maybe CustomPrelude)  -- ^ custom prelude to be used
     , settingsExtensions     :: ![Text] -- ^ default extensions

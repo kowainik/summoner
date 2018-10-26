@@ -86,10 +86,10 @@ gitHubFiles Settings{..} =
     travisYml :: Text
     travisYml =
         let travisStackMtr = memptyIfFalse settingsStack $
-                tconcatMap travisStackMatrixItem (delete defaultGHC settingsTestedVersions)
+                tconcatMap travisStackMatrixItem (delete defaultGHC (toList settingsTestedVersions))
                     <> travisStackMatrixDefaultItem
             travisCabalMtr = memptyIfFalse settingsCabal $
-                tconcatMap travisCabalMatrixItem settingsTestedVersions
+                tconcatMap travisCabalMatrixItem (toList settingsTestedVersions)
             installAndScript =
                 if settingsCabal
                 then if settingsStack
