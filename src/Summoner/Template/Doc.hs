@@ -18,10 +18,10 @@ docFiles Settings{..} =
     [ File "README.md" readme
     , File "CHANGELOG.md" changelog
     , File "LICENSE" $ unLicense settingsLicenseText
-    ] ++ maybe [] (\x -> [File "CONTRIBUTING.md" x]) settingsContributing
+    ] ++ maybeToList (File "CONTRIBUTING.md" <$> settingsContributing)
   where
-    licenseName:: Text
-    licenseName   = show settingsLicenseName
+    licenseName :: Text
+    licenseName = show settingsLicenseName
 
     readme :: Text
     readme = T.intercalate "\n" $
