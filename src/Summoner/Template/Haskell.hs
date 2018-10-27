@@ -28,7 +28,6 @@ haskellFiles Settings{..} = concat
 
         someFunc :: IO ()
         someFunc = putStrLn ("someFunc" :: String)
-        $endLine
         |]
 
     libModuleName :: Text
@@ -45,7 +44,6 @@ haskellFiles Settings{..} = concat
                    ) where
 
             import $cpModule
-            $endLine
             |]
 
     exeFile :: TreeFs
@@ -54,35 +52,41 @@ haskellFiles Settings{..} = concat
     createOnlyExe :: Text
     createOnlyExe =
         [text|
+        module Main (main) where
+
         main :: IO ()
         main = putStrLn ("Hello, world!" :: String)
-        $endLine
         |]
 
     createExe :: Text
     createExe =
         [text|
+        module Main (main) where
+
         import $libModuleName (someFunc)
+
 
         main :: IO ()
         main = someFunc
-        $endLine
         |]
 
     testFile :: TreeFs
     testFile = File "Spec.hs"
         [text|
+        module Main (main) where
+
         main :: IO ()
         main = putStrLn ("Test suite not yet implemented" :: String)
-        $endLine
         |]
 
     benchmarkFile :: TreeFs
     benchmarkFile = File "Main.hs"
-      [text|
-      import Gauge.Main
+        [text|
+        module Main (main) where
 
-      main :: IO ()
-      main = defaultMain [bench "const" (whnf const ())]
-      $endLine
-      |]
+        import Gauge.Main
+
+
+        main :: IO ()
+        main = defaultMain [bench "const" (whnf const ())]
+        |]
