@@ -17,7 +17,7 @@ haskellFiles Settings{..} = concat
     , [ Dir "app"       [exeFile]               | settingsIsExe ]
     , [ Dir "test"      [testFile]              | settingsTest  ]
     , [ Dir "benchmark" [benchmarkFile]         | settingsBench ]
-    ] ++ maybe [] (\x -> [File ".stylish-haskell.yaml" x]) settingsStylish
+    ] ++ maybeToList (File ".stylish-haskell.yaml" <$> settingsStylish)
   where
     libFile :: TreeFs
     libFile = File (toString libModuleName <> ".hs")
@@ -35,9 +35,8 @@ haskellFiles Settings{..} = concat
     libModuleName = packageToModule settingsRepo
 
     preludeFile :: [TreeFs]
-    preludeFile = case settingsPrelude of
-        Nothing -> []
-        Just CustomPrelude{..} -> one $ File "Prelude.hs"
+    preludeFile = maybeToList $
+        settingsPrelude <&> \CustomPrelude{..} -> File "Prelude.hs"
             [text|
             -- | Uses [$cpPackage](https://hackage.haskell.org/package/${cpPackage}) as default Prelude.
 

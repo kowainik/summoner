@@ -80,13 +80,9 @@ generateProject projectName Config{..} = do
             putTextLn $ "Also these GHC versions will be added: " <> intercalateMap " " showGhcVer vers
             pure vers
 
-    settingsStylish <- case getLast cStylish of
-        Nothing -> pure Nothing
-        Just s  -> fetchSource s
-
-    settingsContributing <- case getLast cContributing of
-        Nothing -> pure Nothing
-        Just s  -> fetchSource s
+    let fetchLast = maybe (pure Nothing) fetchSource . getLast
+    settingsStylish      <- fetchLast cStylish
+    settingsContributing <- fetchLast cContributing
 
     -- Create project data from all variables in scope
     let settings = Settings{..}
