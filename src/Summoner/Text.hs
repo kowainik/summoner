@@ -2,6 +2,7 @@ module Summoner.Text
        ( packageToModule
        , intercalateMap
        , headToUpper
+       , tconcatMap
        ) where
 
 import qualified Data.Char as C
@@ -21,3 +22,7 @@ headToUpper :: Text -> Text
 headToUpper t = case T.uncons t of
     Nothing      -> ""
     Just (x, xs) -> T.cons (C.toUpper x) xs
+
+-- | Convert every element of a list into text, and squash the results
+tconcatMap :: (a -> Text) -> [a] -> Text
+tconcatMap f = T.concat . map f
