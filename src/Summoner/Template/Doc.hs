@@ -33,7 +33,7 @@ docFiles Settings{..} =
      ++ [stackLtsBadge     | settingsStack]
      ++ [stackNightlyBadge | settingsStack]
      ++ [travisBadge       | settingsTravis]
-     ++ [appVeyorBadge     | settingsAppVey]
+     ++ [appVeyorBadge     | settingsAppVeyor]
      ++ [""
         , settingsDescription
         ]
@@ -97,6 +97,6 @@ docFiles Settings{..} =
         $githubFootNote
         |]
       where
-        githubLine :: Text = memptyIfFalse settingsGithub "The changelog is available [on GitHub][2]."
-        githubFootNote :: Text = memptyIfFalse settingsGithub $
+        githubLine :: Text = memptyIfFalse settingsGitHub "The changelog is available [on GitHub][2]."
+        githubFootNote :: Text = memptyIfFalse settingsGitHub $
             "[2]: https://github.com/" <> settingsOwner <> "/" <> settingsRepo <> "/releases"
