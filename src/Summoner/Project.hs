@@ -25,8 +25,8 @@ import Summoner.Text (intercalateMap, packageToModule)
 import Summoner.Tree (showTree, traverseTree)
 
 -- | Generate the project.
-generateProject :: Text -> Config -> IO ()
-generateProject projectName Config{..} = do
+generateProject :: Bool -> Text -> Config -> IO ()
+generateProject noUpload projectName Config{..} = do
     settingsRepo   <- checkUniqueName projectName
     -- decide cabal stack or both
     (settingsCabal, settingsStack) <- getCabalStack (cCabal, cStack)
@@ -115,8 +115,11 @@ generateProject projectName Config{..} = do
         -- Make a commit and push it.
         "git" ["add", "."]
         "git" ["commit", "-m", "Create the project"]
-        "git" ["push", "-u", "origin", "master"]
-
+        unless noUpload ( do
+            "hub" $ ["create", "-d", settingsDescription, settingsOwner <> "/" <> settingsRepo]
+                    ++ ["-p" | private] -- creates private repository if asked so.
+             -- Make a commit and push it.
+            "git" ["push", "-u", "origin", "master"])
     categoryText :: Text
     categoryText =
         [text|

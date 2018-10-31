@@ -82,7 +82,7 @@ runNew NewOpts{..} = do
                  exitFailure
 
     -- Generate the project.
-    generateProject projectName finalConfig
+    generateProject noUpload projectName finalConfig
 
     -- print result
     beautyPrint [bold, setColor Green] "\nJob's done\n"
@@ -121,6 +121,7 @@ data Command
 data NewOpts = NewOpts
     { projectName :: Text           -- ^ project name
     , ignoreFile  :: Bool           -- ^ ignore all config files if 'True'
+    , noUpload    :: Bool           -- ^ don't upload to github
     , maybeFile   :: Maybe FilePath -- ^ file with custom configuration
     , cliConfig   :: PartialConfig  -- ^ config gathered during CLI
     }
@@ -184,6 +185,7 @@ newP :: Parser Command
 newP = do
     projectName <- strArgument (metavar "PROJECT_NAME")
     ignoreFile  <- ignoreFileP
+    noUpload    <- noUploadP
     cabal   <- cabalP
     stack   <- stackP
     with    <- optional withP
@@ -192,7 +194,7 @@ newP = do
     preludePack <- optional preludePackP
     preludeMod  <- optional preludeModP
 
-    pure $ New $ NewOpts projectName ignoreFile file
+    pure $ New $ NewOpts projectName ignoreFile noUpload file
         $ (maybeToMonoid $ with <> without)
             { cPrelude = Last $ CustomPrelude <$> preludePack <*> preludeMod
             , cCabal = cabal
@@ -282,6 +284,9 @@ withoutP = subparser $ mconcat
 
 ignoreFileP :: Parser Bool
 ignoreFileP = switch $ long "ignore-config" <> help "Ignore configuration file"
+
+noUploadP :: Parser Bool
+noUploadP = switch $ long "no-upload" <> help "Don't upload to github"
 
 fileP :: Parser FilePath
 fileP = strOption
