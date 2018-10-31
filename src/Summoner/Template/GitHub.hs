@@ -11,9 +11,8 @@ import NeatInterpolation (text)
 import Summoner.Default (defaultGHC)
 import Summoner.GhcVer (GhcVer (..), showGhcVer)
 import Summoner.Settings (Settings (..))
+import Summoner.Text (tconcatMap)
 import Summoner.Tree (TreeFs (..))
-
-import qualified Data.Text as T
 
 
 gitHubFiles :: Settings -> [TreeFs]
@@ -87,10 +86,10 @@ gitHubFiles Settings{..} =
     travisYml :: Text
     travisYml =
         let travisStackMtr = memptyIfFalse settingsStack $
-                T.concat (map travisStackMatrixItem $ delete defaultGHC settingsTestedVersions)
+                tconcatMap travisStackMatrixItem (delete defaultGHC settingsTestedVersions)
                     <> travisStackMatrixDefaultItem
             travisCabalMtr = memptyIfFalse settingsCabal $
-                T.concat $ map travisCabalMatrixItem settingsTestedVersions
+                tconcatMap travisCabalMatrixItem settingsTestedVersions
             installAndScript =
                 if settingsCabal
                 then if settingsStack

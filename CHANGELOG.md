@@ -11,6 +11,8 @@
   Introduce pull request template.
 * [#125](https://github.com/kowainik/summoner/issues/125):
   Split `Summoner.Template` into multiple modules.
+* [#189](https://github.com/kowainik/summoner/issues/189):
+  Add a `tconcatMap` function to `Summoner.Text`
 
 1.1.0.1
 =======
