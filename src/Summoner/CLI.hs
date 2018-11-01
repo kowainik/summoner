@@ -286,7 +286,7 @@ ignoreFileP :: Parser Bool
 ignoreFileP = switch $ long "ignore-config" <> help "Ignore configuration file"
 
 noUploadP :: Parser Bool
-noUploadP = switch $ long "no-upload" <> help "Don't upload to github"
+noUploadP = switch $ long "no-upload" <> help "Don not upload to GitHub"
 
 fileP :: Parser FilePath
 fileP = strOption

@@ -54,7 +54,7 @@ generateProject noUpload projectName Config{..} = do
     settingsGithub <- decisionToBool cGitHub "GitHub integration"
     settingsTravis <- ifGithub settingsGithub "Travis CI integration" cTravis
     settingsAppVey <- ifGithub (settingsStack && settingsGithub) "AppVeyor CI integration" cAppVey
-    settingsPrivat <- ifGithub settingsGithub "private repository" cPrivate
+    settingsPrivat <- ifGithub settingsGithub "private repository" $ if noUpload then Nop else cPrivate
     settingsIsLib  <- decisionToBool cLib "library target"
     settingsIsExe  <- let target = "executable target" in
               if settingsIsLib
@@ -87,9 +87,8 @@ generateProject noUpload projectName Config{..} = do
     -- Create project data from all variables in scope
     let settings = Settings{..}
 
-    -- create stack project
     createProjectDirectory settings
-    -- create github repository and commit
+    -- Create github repository, commit, optionally push and make it private 
     when settingsGithub $ doGithubCommands settings settingsPrivat
 
  where
@@ -108,17 +107,15 @@ generateProject noUpload projectName Config{..} = do
 
     doGithubCommands :: Settings -> Bool -> IO ()
     doGithubCommands Settings{..} private = do
-        -- Create the repository on Github.
+        -- Create git repostitory and do a commit.
         "git" ["init"]
-        "hub" $ ["create", "-d", settingsDescription, settingsOwner <> "/" <> settingsRepo]
-             ++ ["-p" | private] -- creates private repository if asked so.
-        -- Make a commit and push it.
         "git" ["add", "."]
         "git" ["commit", "-m", "Create the project"]
         unless noUpload ( do
+             -- Create private repository
             "hub" $ ["create", "-d", settingsDescription, settingsOwner <> "/" <> settingsRepo]
-                    ++ ["-p" | private] -- creates private repository if asked so.
-             -- Make a commit and push it.
+                    ++ ["-p" | private] 
+             -- Upload repository to GitHub.
             "git" ["push", "-u", "origin", "master"])
     categoryText :: Text
     categoryText =
