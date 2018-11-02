@@ -71,7 +71,7 @@ generateProject projectName Config{..} = do
     let settingsWarnings = cWarnings
 
     putTextLn $ "The project will be created with the latest resolver for default GHC-" <> showGhcVer defaultGHC
-    settingsTestedVersions <- sortNub . (defaultGHC :) <$> case cGhcVer of
+    settingsTestedVersions <- sortNub <$> case cGhcVer of
         [] -> do
             putTextLn "Additionally you can specify versions of GHC to test with (space-separated): "
             infoMessage $ "Supported by 'summoner' GHCs: " <> intercalateMap " " showGhcVer universe

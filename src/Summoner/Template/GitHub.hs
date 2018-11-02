@@ -5,7 +5,6 @@ module Summoner.Template.GitHub
        ( gitHubFiles
        ) where
 
-import Data.List (delete)
 import NeatInterpolation (text)
 
 import Summoner.Default (defaultGHC)
@@ -119,9 +118,12 @@ gitHubFiles Settings{..} =
     cabalTest :: Text
     cabalTest = if settingsTest then "cabal new-test" else "echo 'No tests'"
 
+    ghcVersions :: [GhcVer]
+    ghcVersions = sortNub (defaultGHC : settingsTestedVersions)
+
     travisCabalMtr :: Text
     travisCabalMtr = memptyIfFalse settingsCabal $
-        tconcatMap travisCabalMatrixItem settingsTestedVersions
+        tconcatMap travisCabalMatrixItem ghcVersions
 
     travisCabalMatrixItem :: GhcVer -> Text
     travisCabalMatrixItem (showGhcVer -> ghcV) =
@@ -141,7 +143,7 @@ gitHubFiles Settings{..} =
 
     travisStackMtr :: Text
     travisStackMtr = memptyIfFalse settingsStack $
-        tconcatMap travisStackMatrixItem (delete defaultGHC settingsTestedVersions)
+        tconcatMap travisStackMatrixItem ghcVersions
             <> travisStackMatrixDefaultItem
 
     travisStackMatrixItem :: GhcVer -> Text

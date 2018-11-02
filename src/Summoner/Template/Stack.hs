@@ -9,11 +9,13 @@ import NeatInterpolation (text)
 import Summoner.GhcVer (GhcVer (..), baseVer, latestLts, showGhcVer)
 import Summoner.Settings (Settings (..))
 import Summoner.Tree (TreeFs (..))
+import Summoner.Default (defaultGHC)
 
 
 stackFiles :: Settings -> [TreeFs]
-stackFiles Settings{..} = map createStackYaml settingsTestedVersions
+stackFiles Settings{..} = map createStackYaml ghcVersions
  where
+    ghcVersions = sortNub (defaultGHC : settingsTestedVersions)
     -- create @stack.yaml@ file with LTS corresponding to specified ghc version
     createStackYaml :: GhcVer -> TreeFs
     createStackYaml ghcV = File (toString $ "stack" <> ver <> ".yaml")
