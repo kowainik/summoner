@@ -54,7 +54,7 @@ generateProject noUpload projectName Config{..} = do
     settingsGithub <- decisionToBool cGitHub "GitHub integration"
     settingsTravis <- ifGithub settingsGithub "Travis CI integration" cTravis
     settingsAppVey <- ifGithub (settingsStack && settingsGithub) "AppVeyor CI integration" cAppVey
-    settingsPrivat <- ifGithub settingsGithub "private repository" $ if noUpload then Nop else cPrivate
+    settingsPrivat <- ifGithub (settingsGithub && noupload)"private repository" cPrivate
     settingsIsLib  <- decisionToBool cLib "library target"
     settingsIsExe  <- let target = "executable target" in
               if settingsIsLib
@@ -111,12 +111,11 @@ generateProject noUpload projectName Config{..} = do
         "git" ["init"]
         "git" ["add", "."]
         "git" ["commit", "-m", "Create the project"]
-        unless noUpload ( do
-             -- Create private repository
+        unless noUpload $ do
             "hub" $ ["create", "-d", settingsDescription, settingsOwner <> "/" <> settingsRepo]
-                    ++ ["-p" | private] 
+                    ++ ["-p" | private]  -- Create private repository if asked so
              -- Upload repository to GitHub.
-            "git" ["push", "-u", "origin", "master"])
+            "git" ["push", "-u", "origin", "master"]
     categoryText :: Text
     categoryText =
         [text|
