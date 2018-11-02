@@ -6,13 +6,18 @@
 * [#169](https://github.com/kowainik/summoner/issues/169):
   Make AppVeyor use the 64bits version of stack and build for 64 bits.
 * [#154](https://github.com/kowainik/summoner/issues/154):
-* Add `Link` constructor to `Source` data type.
+  Add `Link` constructor to `Source` data type.
 * [#172](https://github.com/kowainik/summoner/issues/172):
   Introduce pull request template.
 * [#125](https://github.com/kowainik/summoner/issues/125):
   Split `Summoner.Template` into multiple modules.
 * [#189](https://github.com/kowainik/summoner/issues/189):
   Add a `tconcatMap` function to `Summoner.Text`
+* [#178](https://github.com/kowainik/summoner/issues/178):
+  Remove unnecessary new lines and trailing spaces in most places.
+* [#168](https://github.com/kowainik/summoner/issues/168):
+  Upgrade `stack` `intall-cabal` option's version to `2.2.0.1` in
+  the generated Travis file.
 * [#184](https://github.com/kowainik/summoner/issues/184)
   Add `--no-upload` option.
 
