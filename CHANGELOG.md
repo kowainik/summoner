@@ -14,7 +14,7 @@
 * [#189](https://github.com/kowainik/summoner/issues/189):
   Add a `tconcatMap` function to `Summoner.Text`
 * [#184](https://github.com/kowainik/summoner/issues/184)
-  Add --no-upload option
+  Add `--no-upload` option.
 
 1.1.0.1
 =======
