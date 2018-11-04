@@ -33,7 +33,7 @@ docFiles Settings{..} =
      ++ [stackLtsBadge     | settingsStack]
      ++ [stackNightlyBadge | settingsStack]
      ++ [travisBadge       | settingsTravis]
-     ++ [appVeyorBadge     | settingsAppVey]
+     ++ [appVeyorBadge     | settingsAppVeyor]
      ++ [""
         , settingsDescription
         ]
@@ -81,9 +81,9 @@ docFiles Settings{..} =
         makeBadge title shield link = "[![" <> title <> "](" <> shield <> ")](" <> link <> ")"
 
     changelog :: Text
-    changelog =
+    changelog = T.stripEnd
         [text|
-        # Change log
+        # Changelog
 
         `$settingsRepo` uses [PVP Versioning][1].
         $githubLine
@@ -97,6 +97,6 @@ docFiles Settings{..} =
         $githubFootNote
         |]
       where
-        githubLine :: Text = memptyIfFalse settingsGithub "The change log is available [on GitHub][2]."
-        githubFootNote :: Text = memptyIfFalse settingsGithub $
+        githubLine :: Text = memptyIfFalse settingsGitHub "The changelog is available [on GitHub][2]."
+        githubFootNote :: Text = memptyIfFalse settingsGitHub $
             "[2]: https://github.com/" <> settingsOwner <> "/" <> settingsRepo <> "/releases"

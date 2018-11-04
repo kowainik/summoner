@@ -17,9 +17,9 @@ import Summoner.Tree (TreeFs (..))
 
 gitHubFiles :: Settings -> [TreeFs]
 gitHubFiles Settings{..} =
-    [File ".gitignore" gitignore     | settingsGithub]
+    [File ".gitignore" gitignore     | settingsGitHub]
  ++ [File ".travis.yml" travisYml    | settingsTravis]
- ++ [File "appveyor.yml" appVeyorYml | settingsAppVey]
+ ++ [File "appveyor.yml" appVeyorYml | settingsAppVeyor]
   where
     -- create .gitignore template
     gitignore :: Text
@@ -78,31 +78,12 @@ gitHubFiles Settings{..} =
 
         # other
         .DS_Store
-        $endLine
         |]
 
 
     -- create travis.yml template
     travisYml :: Text
     travisYml =
-        let travisStackMtr = memptyIfFalse settingsStack $
-                tconcatMap travisStackMatrixItem (delete defaultGHC settingsTestedVersions)
-                    <> travisStackMatrixDefaultItem
-            travisCabalMtr = memptyIfFalse settingsCabal $
-                tconcatMap travisCabalMatrixItem settingsTestedVersions
-            installAndScript =
-                if settingsCabal
-                then if settingsStack
-                     then installScriptBoth
-                     else installScriptCabal
-                else installScriptStack
-            travisCabalCache = memptyIfFalse settingsCabal "- \"$HOME/.cabal\""
-            travisStackCache = memptyIfFalse settingsStack
-                [text|
-                - "$$HOME/.stack"
-                - "$$TRAVIS_BUILD_DIR/.stack-work"
-                |]
-        in
         [text|
         sudo: true
         language: haskell
@@ -117,7 +98,6 @@ gitHubFiles Settings{..} =
 
         matrix:
           include:
-
           $travisCabalMtr
           $travisStackMtr
 
@@ -125,15 +105,28 @@ gitHubFiles Settings{..} =
 
         notifications:
           email: false
-        $endLine
         |]
+
+    travisCabalCache, travisStackCache :: Text
+    travisCabalCache = memptyIfFalse settingsCabal "- \"$HOME/.cabal\""
+    travisStackCache = memptyIfFalse settingsStack
+        [text|
+        - "$$HOME/.stack"
+        - "$$TRAVIS_BUILD_DIR/.stack-work"
+        |]
+
 
     cabalTest :: Text
     cabalTest = if settingsTest then "cabal new-test" else "echo 'No tests'"
 
+    travisCabalMtr :: Text
+    travisCabalMtr = memptyIfFalse settingsCabal $
+        tconcatMap travisCabalMatrixItem settingsTestedVersions
+
     travisCabalMatrixItem :: GhcVer -> Text
     travisCabalMatrixItem (showGhcVer -> ghcV) =
         [text|
+        $endLine
         - ghc: ${ghcV}
           env: GHCVER='${ghcV}' CABALVER='head'
           os: linux
@@ -144,12 +137,17 @@ gitHubFiles Settings{..} =
               packages:
               - ghc-${ghcV}
               - cabal-install-head
-        $endLine
         |]
+
+    travisStackMtr :: Text
+    travisStackMtr = memptyIfFalse settingsStack $
+        tconcatMap travisStackMatrixItem (delete defaultGHC settingsTestedVersions)
+            <> travisStackMatrixDefaultItem
 
     travisStackMatrixItem :: GhcVer -> Text
     travisStackMatrixItem (showGhcVer -> ghcV) =
         [text|
+        $endLine
         - ghc: ${ghcV}
           env: GHCVER='${ghcV}' STACK_YAML="$$TRAVIS_BUILD_DIR/stack-$$GHCVER.yaml"
           os: linux
@@ -157,12 +155,12 @@ gitHubFiles Settings{..} =
             apt:
               packages:
               - libgmp-dev
-          $endLine
         |]
 
     travisStackMatrixDefaultItem :: Text
     travisStackMatrixDefaultItem = let defGhc = showGhcVer defaultGHC in
         [text|
+        $endLine
         - ghc: ${defGhc}
           env: GHCVER='${defGhc}' STACK_YAML="$$TRAVIS_BUILD_DIR/stack.yaml"
           os: linux
@@ -170,8 +168,15 @@ gitHubFiles Settings{..} =
             apt:
               packages:
               - libgmp-dev
-        $endLine
         |]
+
+    installAndScript :: Text
+    installAndScript =
+        if settingsCabal
+        then if settingsStack
+             then installScriptBoth
+             else installScriptCabal
+        else installScriptStack
 
     installScriptBoth :: Text
     installScriptBoth =
@@ -188,10 +193,11 @@ gitHubFiles Settings{..} =
               export PATH="$$HOME/.local/bin:$$PATH"
               travis_retry curl -L 'https://www.stackage.org/stack/linux-x86_64' | tar xz --wildcards --strip-components=1 -C ~/.local/bin '*/stack'
               stack --version
-              stack setup --no-terminal --install-cabal 2.0.1.0
+              stack setup --no-terminal --install-cabal 2.2.0.1
               stack ghc -- --version
               stack build --only-dependencies --no-terminal
             fi
+
         script:
           - |
             if [ -z "$$STACK_YAML" ]; then
@@ -199,7 +205,6 @@ gitHubFiles Settings{..} =
             else
               stack build --test --bench --no-run-benchmarks --no-terminal --ghc-options=-Werror
             fi
-        $endLine
         |]
 
     installScriptCabal :: Text
@@ -210,9 +215,9 @@ gitHubFiles Settings{..} =
           - echo $$PATH
           - cabal new-update
           - cabal new-build --enable-tests --enable-benchmarks
+
         script:
           - ${cabalTest}
-        $endLine
         |]
 
     installScriptStack :: Text
@@ -223,12 +228,12 @@ gitHubFiles Settings{..} =
           - export PATH="$$HOME/.local/bin:$$PATH"
           - travis_retry curl -L 'https://www.stackage.org/stack/linux-x86_64' | tar xz --wildcards --strip-components=1 -C ~/.local/bin '*/stack'
           - stack --version
-          - stack setup --no-terminal --install-cabal 2.0.1.0
+          - stack setup --no-terminal --install-cabal 2.2.0.1
           - stack ghc -- --version
           - stack build --only-dependencies --no-terminal
+
         script:
           - stack build --test --bench --no-run-benchmarks --no-terminal --ghc-options=-Werror
-        $endLine
         |]
 
 

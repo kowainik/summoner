@@ -16,31 +16,24 @@ stackFiles Settings{..} = map createStackYaml settingsTestedVersions
  where
     -- create @stack.yaml@ file with LTS corresponding to specified ghc version
     createStackYaml :: GhcVer -> TreeFs
-    createStackYaml ghcV = let ver = case ghcV of
-                                  Ghc843 -> ""
-                                  _      -> "-" <> showGhcVer ghcV
-        in stackYaml ver (latestLts ghcV) (baseVer ghcV)
+    createStackYaml ghcV = File (toString $ "stack" <> ver <> ".yaml")
+        $ "resolver: lts-" <> latestLts ghcV <> extraDeps <> ghcOpts
       where
-        stackYaml :: Text -> Text -> Text -> TreeFs
-        stackYaml ghc lts baseV = File (toString $ "stack" <> ghc <> ".yaml")
+        ver :: Text
+        ver = case ghcV of
+            Ghc843 -> ""
+            _      -> "-" <> showGhcVer ghcV
+
+        extraDeps :: Text
+        extraDeps = case settingsPrelude of
+            Nothing -> ""
+            Just _  -> "\n\nextra-deps: [base-noprelude-" <> baseVer ghcV <> "]"
+
+        ghcOpts :: Text
+        ghcOpts = memptyIfFalse (ghcV > Ghc802)
             [text|
-            resolver: lts-${lts}
-
-            $extraDeps
-
-            $ghcOpts
             $endLine
+
+            ghc-options:
+              "$$locals": -fhide-source-paths
             |]
-          where
-            extraDeps :: Text
-            extraDeps = case settingsPrelude of
-                Nothing -> ""
-                Just _  -> "extra-deps: [base-noprelude-" <> baseV <> "]"
-            ghcOpts :: Text
-            ghcOpts = if ghcV <= Ghc802 then
-                        ""
-                      else
-                        [text|
-                        ghc-options:
-                          "$$locals": -fhide-source-paths
-                        |]

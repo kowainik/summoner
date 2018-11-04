@@ -34,7 +34,7 @@ latestLts = \case
     Ghc801  -> "7.24"
     Ghc802  -> "9.21"
     Ghc822  -> "11.22"
-    Ghc843  -> "12.9"
+    Ghc843  -> "12.14"
 
 -- | Returns base version by 'GhcVer'.
 baseVer :: GhcVer -> Text

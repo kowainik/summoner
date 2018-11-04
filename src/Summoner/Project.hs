@@ -51,19 +51,19 @@ generateProject noUpload projectName Config{..} = do
             settingsYear
 
     -- Library/Executable/Tests/Benchmarks flags
-    settingsGithub <- decisionToBool cGitHub "GitHub integration"
-    settingsTravis <- ifGithub settingsGithub "Travis CI integration" cTravis
-    settingsAppVey <- ifGithub (settingsStack && settingsGithub) "AppVeyor CI integration" cAppVey
-    settingsPrivat <- ifGithub (settingsGithub && noupload)"private repository" cPrivate
-    settingsIsLib  <- decisionToBool cLib "library target"
-    settingsIsExe  <- let target = "executable target" in
+    settingsGitHub   <- decisionToBool cGitHub "GitHub integration"
+    settingsTravis   <- ifGithub settingsGitHub "Travis CI integration" cTravis
+    settingsAppVeyor <- ifGithub (settingsStack && settingsGitHub) "AppVeyor CI integration" cAppVey
+    settingsPrivat   <- ifGithub (settingsGitHub && noUpload) "private repository" cPrivate
+    settingsIsLib    <- decisionToBool cLib "library target"
+    settingsIsExe    <- let target = "executable target" in
               if settingsIsLib
               then decisionToBool cExe target
               else trueMessage target
     settingsTest   <- decisionToBool cTest "tests"
     settingsBench  <- decisionToBool cBench "benchmarks"
     settingsPrelude <- if settingsIsLib then getPrelude else pure Nothing
-    let settingsBase = case settingsPrelude of
+    let settingsBaseType = case settingsPrelude of
             Nothing -> "base"
             Just _  -> "base-noprelude"
 
@@ -89,7 +89,7 @@ generateProject noUpload projectName Config{..} = do
 
     createProjectDirectory settings
     -- Create github repository, commit, optionally push and make it private 
-    when settingsGithub $ doGithubCommands settings settingsPrivat
+    when settingsGitHub $ doGithubCommands settings settingsPrivat
 
  where
     ifGithub :: Bool -> Text -> Decision -> IO Bool
