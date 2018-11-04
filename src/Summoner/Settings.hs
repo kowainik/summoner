@@ -23,15 +23,15 @@ data Settings = Settings
     , settingsCategories     :: !Text   -- ^ project category
     , settingsLicenseName    :: !LicenseName -- ^ type of license
     , settingsLicenseText    :: !License -- ^ license text
-    , settingsGithub         :: !Bool   -- ^ github repository
+    , settingsGitHub         :: !Bool   -- ^ github repository
     , settingsTravis         :: !Bool   -- ^ Travis CI integration
-    , settingsAppVey         :: !Bool   -- ^ AppVeyor CI integration
+    , settingsAppVeyor       :: !Bool   -- ^ AppVeyor CI integration
     , settingsIsLib          :: !Bool   -- ^ is library
     , settingsIsExe          :: !Bool   -- ^ is executable
     , settingsTest           :: !Bool   -- ^ add tests
     , settingsBench          :: !Bool   -- ^ add benchmarks
     , settingsTestedVersions :: ![GhcVer]  -- ^ ghc versions
-    , settingsBase           :: !Text -- ^ Base library to use
+    , settingsBaseType       :: !Text -- ^ Base library to use
     , settingsPrelude        :: !(Maybe CustomPrelude)  -- ^ custom prelude to be used
     , settingsExtensions     :: ![Text] -- ^ default extensions
     , settingsWarnings       :: ![Text] -- ^ default warnings

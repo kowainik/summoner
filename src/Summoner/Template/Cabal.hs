@@ -20,7 +20,7 @@ cabalFile Settings{..} = File (toString settingsRepo ++ ".cabal") cabalFileConte
     cabalFileContent :: Text
     cabalFileContent = T.concat
         [ cabalHeader
-        , memptyIfFalse settingsGithub sourceRepository
+        , memptyIfFalse settingsGitHub sourceRepository
         , memptyIfFalse settingsIsLib   libraryStanza
         , memptyIfFalse settingsIsExe $ executableStanza $ memptyIfFalse settingsIsLib $ ", " <> settingsRepo
         , memptyIfFalse settingsTest  $ testSuiteStanza  $ memptyIfFalse settingsIsLib $ ", " <> settingsRepo
@@ -52,8 +52,8 @@ cabalFile Settings{..} = File (toString settingsRepo ++ ".cabal") cabalFileConte
 
     githubUrl, githubHomepage, githubBugReports :: Text
     githubUrl        = "https://github.com/" <> settingsOwner <> "/" <> settingsRepo
-    githubHomepage   = memptyIfFalse settingsGithub $ "homepage:            " <> githubUrl
-    githubBugReports = memptyIfFalse settingsGithub $ "bug-reports:         " <> githubUrl <> "/issues"
+    githubHomepage   = memptyIfFalse settingsGitHub $ "homepage:            " <> githubUrl
+    githubBugReports = memptyIfFalse settingsGitHub $ "bug-reports:         " <> githubUrl <> "/issues"
 
     licenseName, libModuleName :: Text
     licenseName   = show settingsLicenseName
@@ -80,7 +80,7 @@ cabalFile Settings{..} = File (toString settingsRepo ++ ".cabal") cabalFileConte
           exposed-modules:     $libModuleName
                                $preludeMod
 
-          build-depends:       $settingsBase
+          build-depends:       $settingsBaseType
                              $commaPreludeLibrary
 
           ghc-options:         -Wall
@@ -97,7 +97,7 @@ cabalFile Settings{..} = File (toString settingsRepo ++ ".cabal") cabalFileConte
           hs-source-dirs:      app
           main-is:             Main.hs
 
-          build-depends:       $settingsBase
+          build-depends:       $settingsBaseType
                              $commaRepo
                              $commaPreludeLibrary
 
@@ -119,7 +119,7 @@ cabalFile Settings{..} = File (toString settingsRepo ++ ".cabal") cabalFileConte
           hs-source-dirs:      test
           main-is:             Spec.hs
 
-          build-depends:       $settingsBase
+          build-depends:       $settingsBaseType
                              $commaRepo
                              $commaPreludeLibrary
 
@@ -141,7 +141,7 @@ cabalFile Settings{..} = File (toString settingsRepo ++ ".cabal") cabalFileConte
           hs-source-dirs:      benchmark
           main-is:             Main.hs
 
-          build-depends:       $settingsBase
+          build-depends:       $settingsBaseType
                              , gauge
                              $commaRepo
                              $commaPreludeLibrary
