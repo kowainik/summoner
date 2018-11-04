@@ -51,12 +51,21 @@ generateProject noUpload projectName Config{..} = do
             settingsYear
 
     -- Library/Executable/Tests/Benchmarks flags
+<<<<<<< HEAD
     settingsGitHub   <- decisionToBool cGitHub "GitHub integration"
     settingsTravis   <- ifGithub settingsGitHub "Travis CI integration" cTravis
     settingsAppVeyor <- ifGithub (settingsStack && settingsGitHub) "AppVeyor CI integration" cAppVey
     settingsPrivat   <- ifGithub (settingsGitHub && noUpload) "private repository" cPrivate
     settingsIsLib    <- decisionToBool cLib "library target"
     settingsIsExe    <- let target = "executable target" in
+=======
+    settingsGithub <- decisionToBool cGitHub "GitHub integration"
+    settingsTravis <- ifGithub settingsGithub "Travis CI integration" cTravis
+    settingsAppVey <- ifGithub (settingsStack && settingsGithub) "AppVeyor CI integration" cAppVey
+    settingsPrivat <- ifGithub (settingsGithub && not noUpload)"private repository" cPrivate
+    settingsIsLib  <- decisionToBool cLib "library target"
+    settingsIsExe  <- let target = "executable target" in
+>>>>>>> 3426f45bf8b88ba07804df22c7cae4f444135411
               if settingsIsLib
               then decisionToBool cExe target
               else trueMessage target
