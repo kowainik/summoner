@@ -20,6 +20,9 @@
 * [#168](https://github.com/kowainik/summoner/issues/168):
   Upgrade `stack` `intall-cabal` option's version to `2.2.0.1` in
   the generated Travis file.
+* [#197](https://github.com/kowainik/summoner/issues/197)
+  Build with `stack` lts 12.17, and support `GHC` 8.4.4 in
+  project generation.
 
 1.1.0.1
 =======
