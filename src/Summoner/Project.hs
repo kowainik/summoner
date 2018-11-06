@@ -54,7 +54,7 @@ generateProject noUpload projectName Config{..} = do
     settingsGitHub   <- decisionToBool cGitHub "GitHub integration"
     settingsTravis   <- ifGithub settingsGitHub "Travis CI integration" cTravis
     settingsAppVeyor <- ifGithub (settingsStack && settingsGitHub) "AppVeyor CI integration" cAppVey
-    settingsPrivat   <- ifGithub (settingsGitHub && noUpload) "private repository" cPrivate
+    settingsPrivat   <- ifGithub (settingsGitHub && not noUpload) "private repository" cPrivate
     settingsIsLib    <- decisionToBool cLib "library target"
     settingsIsExe    <- let target = "executable target" in
               if settingsIsLib
