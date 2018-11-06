@@ -49,7 +49,7 @@ $ source <(summon --bash-completion-script `which summon`)
 ```
 
 After that, you can call `summon` with the required command. To create a
-project, use `summon new` command specifying the prefered CLI options, follow
+project, use `summon new` command specifying the preferred CLI options, follow
 the instructions during the interactive process of the project creation, and a
 new project would be created in a subfolder as well as a repository under your
 GitHub account (if requested).
@@ -113,11 +113,11 @@ Here is the list of the options that could be configured for your needs:
 * `stylish.*` — `stylish.file` to provide the absolute file path to the
   `.stylish-haskell.yaml` file to use in the project. `stylish.url` to provide
   the link to the `.stylish-haskell.yaml` file to use in the project. In case of
-  the absense or wrong path/link no `.stylish-haskell.yaml` file is created.
+  the absence or wrong path/link no `.stylish-haskell.yaml` file is created.
 * `contributing.*` — `contributing.file` to provide the absolute file path to the
   `CONTRIBUTING.md` file to use in the project. `contributing.url` to provide
   the link to the `CONTRIBUTING.md` file to use in the project. In case of
-  the absense or wrong path/link no `CONTRIBUTING` file is created.
+  the absence or wrong path/link no `CONTRIBUTING` file is created.
 
 ###### Custom prelude options
 
