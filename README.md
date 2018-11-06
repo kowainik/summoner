@@ -51,7 +51,7 @@ $ source <(summon --bash-completion-script `which summon`)
 After that, you can call `summon` with the required command. To create a
 project, use `summon new` command specifying the preferred CLI options, follow
 the instructions during the interactive process of the project creation, and a
-new project would be created in a sub folder as well as a repository under your
+new project would be created in a subfolder as well as a repository under your
 GitHub account (if requested).
 
 ### Usage
