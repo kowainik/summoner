@@ -25,8 +25,8 @@ import Summoner.Text (intercalateMap, packageToModule)
 import Summoner.Tree (showTree, traverseTree)
 
 -- | Generate the project.
-generateProject :: Text -> Config -> IO ()
-generateProject projectName Config{..} = do
+generateProject :: Bool -> Text -> Config -> IO ()
+generateProject noUpload projectName Config{..} = do
     settingsRepo   <- checkUniqueName projectName
     -- decide cabal stack or both
     (settingsCabal, settingsStack) <- getCabalStack (cCabal, cStack)
@@ -54,7 +54,7 @@ generateProject projectName Config{..} = do
     settingsGitHub   <- decisionToBool cGitHub "GitHub integration"
     settingsTravis   <- ifGithub settingsGitHub "Travis CI integration" cTravis
     settingsAppVeyor <- ifGithub (settingsStack && settingsGitHub) "AppVeyor CI integration" cAppVey
-    settingsPrivat   <- ifGithub settingsGitHub "private repository" cPrivate
+    settingsPrivat   <- ifGithub (settingsGitHub && not noUpload) "private repository" cPrivate
     settingsIsLib    <- decisionToBool cLib "library target"
     settingsIsExe    <- let target = "executable target" in
               if settingsIsLib
@@ -87,9 +87,8 @@ generateProject projectName Config{..} = do
     -- Create project data from all variables in scope
     let settings = Settings{..}
 
-    -- create stack project
     createProjectDirectory settings
-    -- create github repository and commit
+    -- Create github repository, commit, optionally push and make it private 
     when settingsGitHub $ doGithubCommands settings settingsPrivat
 
  where
@@ -108,15 +107,15 @@ generateProject projectName Config{..} = do
 
     doGithubCommands :: Settings -> Bool -> IO ()
     doGithubCommands Settings{..} private = do
-        -- Create the repository on Github.
+        -- Create git repostitory and do a commit.
         "git" ["init"]
-        "hub" $ ["create", "-d", settingsDescription, settingsOwner <> "/" <> settingsRepo]
-             ++ ["-p" | private] -- creates private repository if asked so.
-        -- Make a commit and push it.
         "git" ["add", "."]
         "git" ["commit", "-m", "Create the project"]
-        "git" ["push", "-u", "origin", "master"]
-
+        unless noUpload $ do
+            "hub" $ ["create", "-d", settingsDescription, settingsOwner <> "/" <> settingsRepo]
+                    ++ ["-p" | private]  -- Create private repository if asked so
+             -- Upload repository to GitHub.
+            "git" ["push", "-u", "origin", "master"]
     categoryText :: Text
     categoryText =
         [text|
