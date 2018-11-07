@@ -42,7 +42,7 @@ matrix:
         sources:
         - hvr-ghc
         packages:
-        - ghc-8.4.3
+        - ghc-8.4.4
         - cabal-install-head
 
   - ghc: 8.6.1
