@@ -35,7 +35,7 @@ matrix:
         - cabal-install-head
 
   - ghc: 8.4.4
-    env: GHCVER='8.4.3' CABALVER='head'
+    env: GHCVER='8.4.4' CABALVER='head'
     os: linux
     addons:
       apt:
