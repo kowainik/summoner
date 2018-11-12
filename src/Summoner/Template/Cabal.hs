@@ -30,15 +30,14 @@ cabalFile Settings{..} = File (toString settingsRepo ++ ".cabal") cabalFileConte
 
     -- TODO: do something to not have empty lines
     cabalHeader :: Text
-    cabalHeader = T.unlines $
+    cabalHeader = unlines $
         [ "cabal-version:       2.0"
         , "name:                " <> settingsRepo
         , "version:             0.0.0"
         , "synopsis:            " <> settingsDescription
-        , "description:         " <> settingsDescription
-        ] ++
-        [ githubHomepage   | settingsGitHub ] ++
-        [ githubBugReports | settingsGitHub ] ++
+        , "description:         " <> settingsDescription ] ++
+        [ "homepage:            " <> githubUrl        | settingsGitHub ] ++
+        [ "bug-reports:         " <> githubBugReports | settingsGitHub ] ++
         ( "license:             " <> licenseName) :
         [ "license-file:        LICENSE" | settingsGitHub] ++
         [ "author:              " <> settingsFullName
@@ -51,10 +50,9 @@ cabalFile Settings{..} = File (toString settingsRepo ++ ".cabal") cabalFileConte
         , "tested-with:         " <> testedGhcs
         ]
 
-    githubUrl, githubHomepage, githubBugReports :: Text
+    githubUrl, githubBugReports :: Text
     githubUrl        = "https://github.com/" <> settingsOwner <> "/" <> settingsRepo
-    githubHomepage   = "homepage:            " <> githubUrl
-    githubBugReports = "bug-reports:         " <> githubUrl <> "/issues"
+    githubBugReports = githubUrl <> "/issues"
 
     licenseName, libModuleName :: Text
     licenseName   = cabalLicense settingsLicenseName

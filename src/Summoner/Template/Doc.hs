@@ -16,12 +16,12 @@ import qualified Data.Text as T
 docFiles :: Settings -> [TreeFs]
 docFiles Settings{..} =
     [ File "README.md" readme
-    , File "CHANGELOG.md" changelog
-    ] ++ [File "LICENSE" (unLicense settingsLicenseText) | isNotNoneLicense]
-      ++ maybeToList (File "CONTRIBUTING.md" <$> settingsContributing)
+    , File "CHANGELOG.md" changelog ] ++
+    [ File "LICENSE" (unLicense settingsLicenseText) | hasLicense ] ++
+    maybeToList (File "CONTRIBUTING.md" <$> settingsContributing)
   where
-    isNotNoneLicense :: Bool
-    isNotNoneLicense = settingsLicenseName /= None
+    hasLicense :: Bool
+    hasLicense = settingsLicenseName /= None
 
     licenseName :: Text
     licenseName = show settingsLicenseName
@@ -32,7 +32,7 @@ docFiles Settings{..} =
         , ""
         , hackage
         ]
-     ++ [licenseBadge      | isNotNoneLicense]
+     ++ [licenseBadge      | hasLicense]
      ++ [stackLtsBadge     | settingsStack]
      ++ [stackNightlyBadge | settingsStack]
      ++ [travisBadge       | settingsTravis]

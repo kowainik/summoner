@@ -6,7 +6,6 @@ module Summoner.Project
        ( generateProject
        ) where
 
-import Data.Text (unlines)
 import NeatInterpolation (text)
 import System.Directory (setCurrentDirectory)
 
