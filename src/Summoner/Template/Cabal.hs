@@ -7,6 +7,7 @@ module Summoner.Template.Cabal
 import NeatInterpolation (text)
 
 import Summoner.GhcVer (GhcVer (..), cabalBaseVersions, showGhcVer)
+import Summoner.License (cabalLicense)
 import Summoner.Settings (CustomPrelude (..), Settings (..))
 import Summoner.Text (intercalateMap, packageToModule)
 import Summoner.Tree (TreeFs (..))
@@ -29,34 +30,34 @@ cabalFile Settings{..} = File (toString settingsRepo ++ ".cabal") cabalFileConte
 
     -- TODO: do something to not have empty lines
     cabalHeader :: Text
-    cabalHeader =
-        [text|
-        cabal-version:       2.0
-        name:                $settingsRepo
-        version:             0.0.0
-        synopsis:            $settingsDescription
-        description:         $settingsDescription
-        $githubHomepage
-        $githubBugReports
-        license:             $licenseName
-        license-file:        LICENSE
-        author:              $settingsFullName
-        maintainer:          $settingsEmail
-        copyright:           $settingsYear $settingsFullName
-        category:            $settingsCategories
-        build-type:          Simple
-        extra-doc-files:     README.md
-                           , CHANGELOG.md
-        tested-with:         $testedGhcs
-        |]
+    cabalHeader = T.unlines $
+        [ "cabal-version:       2.0"
+        , "name:                " <> settingsRepo
+        , "version:             0.0.0"
+        , "synopsis:            " <> settingsDescription
+        , "description:         " <> settingsDescription
+        ] ++
+        [ githubHomepage   | settingsGitHub ] ++
+        [ githubBugReports | settingsGitHub ] ++
+        ( "license:             " <> licenseName) :
+        [ "license-file:        LICENSE" | settingsGitHub] ++
+        [ "author:              " <> settingsFullName
+        , "maintainer:          " <> settingsEmail
+        , "copyright:           " <> settingsYear <> " " <> settingsFullName
+        , "category:            " <> settingsCategories
+        , "build-type:          Simple"
+        , "extra-doc-files:     README.md"
+        , "                   , CHANGELOG.md"
+        , "tested-with:         " <> testedGhcs
+        ]
 
     githubUrl, githubHomepage, githubBugReports :: Text
     githubUrl        = "https://github.com/" <> settingsOwner <> "/" <> settingsRepo
-    githubHomepage   = memptyIfFalse settingsGitHub $ "homepage:            " <> githubUrl
-    githubBugReports = memptyIfFalse settingsGitHub $ "bug-reports:         " <> githubUrl <> "/issues"
+    githubHomepage   = "homepage:            " <> githubUrl
+    githubBugReports = "bug-reports:         " <> githubUrl <> "/issues"
 
     licenseName, libModuleName :: Text
-    licenseName   = show settingsLicenseName
+    licenseName   = cabalLicense settingsLicenseName
     libModuleName = packageToModule settingsRepo
 
     testedGhcs :: Text

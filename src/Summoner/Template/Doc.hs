@@ -6,7 +6,7 @@ module Summoner.Template.Doc
 
 import NeatInterpolation (text)
 
-import Summoner.License (License (..))
+import Summoner.License (License (..), LicenseName (None))
 import Summoner.Settings (Settings (..))
 import Summoner.Tree (TreeFs (..))
 
@@ -17,9 +17,12 @@ docFiles :: Settings -> [TreeFs]
 docFiles Settings{..} =
     [ File "README.md" readme
     , File "CHANGELOG.md" changelog
-    , File "LICENSE" $ unLicense settingsLicenseText
-    ] ++ maybeToList (File "CONTRIBUTING.md" <$> settingsContributing)
+    ] ++ [File "LICENSE" (unLicense settingsLicenseText) | isNotNoneLicense]
+      ++ maybeToList (File "CONTRIBUTING.md" <$> settingsContributing)
   where
+    isNotNoneLicense :: Bool
+    isNotNoneLicense = settingsLicenseName /= None
+
     licenseName :: Text
     licenseName = show settingsLicenseName
 
@@ -28,8 +31,8 @@ docFiles Settings{..} =
         [ "# " <> settingsRepo
         , ""
         , hackage
-        , licenseBadge
         ]
+     ++ [licenseBadge      | isNotNoneLicense]
      ++ [stackLtsBadge     | settingsStack]
      ++ [stackNightlyBadge | settingsStack]
      ++ [travisBadge       | settingsTravis]
