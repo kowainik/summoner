@@ -6,7 +6,7 @@ module Summoner.Template.Cabal
 
 import NeatInterpolation (text)
 
-import Summoner.GhcVer (GhcVer (..), showGhcVer)
+import Summoner.GhcVer (GhcVer (..), cabalBaseVersions, showGhcVer)
 import Summoner.Settings (CustomPrelude (..), Settings (..))
 import Summoner.Text (intercalateMap, packageToModule)
 import Summoner.Tree (TreeFs (..))
@@ -71,6 +71,9 @@ cabalFile Settings{..} = File (toString settingsRepo ++ ".cabal") cabalFileConte
           location:            ${githubUrl}.git
         |]
 
+    baseBounds :: Text
+    baseBounds = cabalBaseVersions settingsTestedVersions
+
     libraryStanza :: Text
     libraryStanza =
         [text|
@@ -80,7 +83,7 @@ cabalFile Settings{..} = File (toString settingsRepo ++ ".cabal") cabalFileConte
           exposed-modules:     $libModuleName
                                $preludeMod
 
-          build-depends:       $settingsBaseType
+          build-depends:       $settingsBaseType $baseBounds
                              $commaPreludeLibrary
 
           ghc-options:         -Wall
@@ -97,7 +100,7 @@ cabalFile Settings{..} = File (toString settingsRepo ++ ".cabal") cabalFileConte
           hs-source-dirs:      app
           main-is:             Main.hs
 
-          build-depends:       $settingsBaseType
+          build-depends:       $settingsBaseType $baseBounds
                              $commaRepo
                              $commaPreludeLibrary
 
@@ -119,7 +122,7 @@ cabalFile Settings{..} = File (toString settingsRepo ++ ".cabal") cabalFileConte
           hs-source-dirs:      test
           main-is:             Spec.hs
 
-          build-depends:       $settingsBaseType
+          build-depends:       $settingsBaseType $baseBounds
                              $commaRepo
                              $commaPreludeLibrary
 
@@ -141,7 +144,7 @@ cabalFile Settings{..} = File (toString settingsRepo ++ ".cabal") cabalFileConte
           hs-source-dirs:      benchmark
           main-is:             Main.hs
 
-          build-depends:       $settingsBaseType
+          build-depends:       $settingsBaseType $baseBounds
                              , gauge
                              $commaRepo
                              $commaPreludeLibrary

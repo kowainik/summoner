@@ -20,6 +20,8 @@
 * [#168](https://github.com/kowainik/summoner/issues/168):
   Upgrade `stack` `intall-cabal` option's version to `2.2.0.1` in
   the generated Travis file.
+* [#142](https://github.com/kowainik/summoner/issues/142):
+  Add version bounds to `base` in the generated `.cabal` file.
 
 1.1.0.1
 =======
