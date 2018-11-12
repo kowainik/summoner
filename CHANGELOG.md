@@ -32,6 +32,8 @@
   each license.
 * [#195](https://github.com/kowainik/summoner/issues/195):
   Update prompt questions for CLI
+* [#155](https://github.com/kowainik/summoner/issues/155):
+  Bump up to `tomland-0.5.0`.
 
 1.1.0.1
 =======

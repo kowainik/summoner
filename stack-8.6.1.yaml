@@ -1,5 +1,0 @@
-resolver: nightly-2018-10-01
-
-extra-deps:
-  - base-noprelude-4.12.0.0
-  - tomland-0.4.0

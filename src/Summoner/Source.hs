@@ -10,7 +10,7 @@ import Control.Arrow ((>>>))
 import Control.Exception (catch)
 import NeatInterpolation (text)
 import System.Process (readProcess)
-import Toml (BiMap, BiToml, Key)
+import Toml (BiMap, Key, TomlCodec)
 
 import Summoner.Ansi (errorMessage)
 
@@ -25,29 +25,36 @@ data Source
     | Link Text
     deriving (Show, Eq)
 
-sourceT :: Key -> BiToml Source
-sourceT nm = Toml.match (Toml._Text   >>> _Url)  (nm <> "url")
-         <|> Toml.match (Toml._String >>> _File) (nm <> "file")
-         <|> Toml.match (Toml._Text >>> _Link) (nm <> "link")
+matchUrl :: Source -> Maybe Text
+matchUrl (Url url) = Just url
+matchUrl _         = Nothing
+
+matchFile :: Source -> Maybe FilePath
+matchFile (File file) = Just file
+matchFile _           = Nothing
+
+matchLink :: Source -> Maybe Text
+matchLink (Link link) = Just link
+matchLink _           = Nothing
+
+sourceT :: Key -> TomlCodec Source
+sourceT nm = Toml.match (_Url  >>> Toml._Text)   (nm <> "url")
+         <|> Toml.match (_File >>> Toml._String) (nm <> "file")
+         <|> Toml.match (_Link >>> Toml._Text)   (nm <> "link")
   where
-    _Url :: BiMap Text Source
-    _Url = Toml.invert $ Toml.prism (source Just (const Nothing) (const Nothing)) Url
+    _Url :: BiMap Source Text
+    _Url = Toml.prism Url matchUrl
 
-    _File :: BiMap FilePath Source
-    _File = Toml.invert $ Toml.prism (source (const Nothing) Just (const Nothing)) File
+    _File :: BiMap Source FilePath
+    _File = Toml.prism File matchFile
 
-    _Link :: BiMap Text Source
-    _Link = Toml.invert $ Toml.prism (source (const Nothing) (const Nothing) Just) Link
-
-    source :: (Text -> c) -> (FilePath -> c) -> (Text -> c) -> Source -> c
-    source f _ _ (Url x)  = f x
-    source _ f _ (File x) = f x
-    source _ _ f (Link x) = f x
+    _Link :: BiMap Source Text
+    _Link = Toml.prism Link matchLink
 
 fetchSource :: Source -> IO (Maybe Text)
 fetchSource = \case
     File path -> catch (Just <$> readFileText path) (fileError path)
-    Url url -> catch (fetchUrl url) (urlError url)
+    Url url   -> catch (fetchUrl url) (urlError url)
     Link link -> putLink link
   where
     fileError :: FilePath -> SomeException -> IO (Maybe Text)

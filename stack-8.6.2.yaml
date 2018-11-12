@@ -1,0 +1,5 @@
+resolver:  nightly-2018-11-15
+
+extra-deps:
+  - base-noprelude-4.12.0.0
+  - relude-0.3.0
