@@ -14,7 +14,8 @@ import Summoner.Config (Config, ConfigP (..))
 import Summoner.Decision (Decision (..), decisionToBool)
 import Summoner.Default (currentYear, defaultGHC)
 import Summoner.GhcVer (parseGhcVer, showGhcVer)
-import Summoner.License (customizeLicense, fetchLicense, parseLicenseName)
+import Summoner.License (LicenseName, customizeLicense, fetchLicense, licenseShortDesc,
+                         parseLicenseName)
 import Summoner.Process ()
 import Summoner.Question (checkUniqueName, choose, chooseYesNo, falseMessage, query, queryDef,
                           queryManyRepeatOnFail, targetMessageWithText, trueMessage)
@@ -39,6 +40,7 @@ generateProject noUpload projectName Config{..} = do
     putText categoryText
     settingsCategories <- query "Category: "
 
+    putText licenseText
     settingsLicenseName  <- choose parseLicenseName "License: " $ ordNub (cLicense : universe)
 
     -- License creation
@@ -88,7 +90,7 @@ generateProject noUpload projectName Config{..} = do
     let settings = Settings{..}
 
     createProjectDirectory settings
-    -- Create github repository, commit, optionally push and make it private 
+    -- Create github repository, commit, optionally push and make it private
     when settingsGitHub $ doGithubCommands settings settingsPrivat
 
  where
@@ -116,6 +118,7 @@ generateProject noUpload projectName Config{..} = do
                     ++ ["-p" | private]  -- Create private repository if asked so
              -- Upload repository to GitHub.
             "git" ["push", "-u", "origin", "master"]
+
     categoryText :: Text
     categoryText =
         [text|
@@ -135,6 +138,14 @@ generateProject noUpload projectName Config{..} = do
           * Utility
 
         |]
+
+    licenseText :: Text
+    licenseText = "List of licenses to choose from:\n\n"
+        <> unlines (map showShort $ universe @LicenseName)
+        <> "\n"
+      where
+        showShort :: LicenseName -> Text
+        showShort l = "  * " <> show l <> ": " <> licenseShortDesc l
 
     getPrelude :: IO (Maybe CustomPrelude)
     getPrelude = case cPrelude of

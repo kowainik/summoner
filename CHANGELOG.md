@@ -22,6 +22,11 @@
   the generated Travis file.
 * [#142](https://github.com/kowainik/summoner/issues/142):
   Add version bounds to `base` in the generated `.cabal` file.
+* [#199](https://github.com/kowainik/summoner/issues/199):
+  Add `None` license with no `LICENSE` file generation.
+  Add licenses short descriptions text during the interactive mode.
+  Patch `summon show license` command to show short description about
+  each license.
 
 1.1.0.1
 =======
