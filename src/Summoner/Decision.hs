@@ -9,6 +9,7 @@ import Generics.Deriving.Monoid (GMonoid (..))
 import Generics.Deriving.Semigroup (GSemigroup (..))
 
 import Summoner.Question (chooseYesNoBool, falseMessage, trueMessage)
+import Summoner.Question.Data (YesNoPrompt (..))
 
 
 -- | Used for detecting the user decision during CLI input.
@@ -32,8 +33,8 @@ instance GMonoid Decision where
     gmempty = mempty
     gmappend = (<>)
 
-decisionToBool :: Decision -> Text -> IO Bool
-decisionToBool decision target = case decision of
-    Yes -> trueMessage  target
-    Nop -> falseMessage target
+decisionToBool :: Decision -> YesNoPrompt -> IO Bool
+decisionToBool decision target@YesNoPrompt {..} = case decision of
+    Yes -> trueMessage  yesno_target
+    Nop -> falseMessage yesno_target
     Idk -> chooseYesNoBool target

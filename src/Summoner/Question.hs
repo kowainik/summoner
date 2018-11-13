@@ -25,6 +25,7 @@ import System.FilePath ((</>))
 
 import Summoner.Ansi (Color (..), beautyPrint, bold, boldDefault, errorMessage, italic, prompt,
                       putStrFlush, setColor, warningMessage)
+import Summoner.Question.Data (YesNoPrompt (..))
 import Summoner.Text (headToUpper, intercalateMap)
 
 import qualified Data.Text as T
@@ -65,22 +66,22 @@ choose parser question choices = do
         else whenNothing (parser answer)
                 (errorMessage "This wasn't a valid choice." >> choose parser question choices)
 
-chooseYesNo :: Text -- ^ target
+chooseYesNo :: YesNoPrompt -- ^ Target and Prompt
             -> IO a -- ^ action for 'Y' answer
             -> IO a -- ^ action for 'N' answer
             -> IO a
-chooseYesNo target yesDo noDo = do
-    printQuestion ("Add " <> target <> "?") ["y", "n"]
+chooseYesNo yesNoPrompt@YesNoPrompt {..} yesDo noDo = do
+    printQuestion yesno_prompt ["y", "n"]
     answer <- yesOrNo <$> prompt
     case answer of
         Nothing -> do
            errorMessage "This wasn't a valid choice."
-           chooseYesNo target yesDo noDo
-        Just Y -> trueMessage target >> yesDo
-        Just N -> falseMessage target >> noDo
+           chooseYesNo yesNoPrompt yesDo noDo
+        Just Y -> trueMessage yesno_target >> yesDo
+        Just N -> falseMessage yesno_target >> noDo
 
-chooseYesNoBool :: Text -> IO Bool
-chooseYesNoBool target = chooseYesNo target (pure True) (pure False)
+chooseYesNoBool :: YesNoPrompt -> IO Bool
+chooseYesNoBool ynPrompt = chooseYesNo ynPrompt (pure True) (pure False)
 
 targetMessage :: Bool -> Text -> IO Bool
 targetMessage result target = targetMessageWithText result target "added to the project"

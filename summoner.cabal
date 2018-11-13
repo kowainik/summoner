@@ -37,6 +37,7 @@ library
                          Summoner.Process
                          Summoner.Project
                          Summoner.Question
+                           Summoner.Question.Data
                          Summoner.Settings
                          Summoner.Source
                          Summoner.Template
