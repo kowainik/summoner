@@ -27,6 +27,8 @@
   Add licenses short descriptions text during the interactive mode.
   Patch `summon show license` command to show short description about
   each license.
+* [#195](https://github.com/kowainik/summoner/issues/195):
+  Update prompt questions for CLI
 
 1.1.0.1
 =======
