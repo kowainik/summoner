@@ -9,6 +9,8 @@ module Summoner.Question
        , choose
        , chooseYesNo
        , chooseYesNoBool
+       , YesNoPrompt(..)
+       , mkDefaultYesNoPrompt
        , query
        , queryDef
        , queryManyRepeatOnFail
@@ -34,8 +36,44 @@ import qualified Relude.Unsafe as Unsafe
 -- Yes/No
 ----------------------------------------------------------------------------
 
+-- | Build a prompt
+--
+-- For example,
+--
+-- @
+-- YesNoPrompt
+--   { yesNoTarget = "Cabal"
+--   , yesNoPrompt = "Do you want to add a cabal integration?"}
+-- @
+-- will generate a following prompt message to the user
+--
+-- @
+-- Do you want to add a cabal integration? [y]/n
+--  -> y
+-- [Cabal] will be added to the project
+-- @
+data YesNoPrompt = YesNoPrompt
+  { yesNoTarget :: Text -- ^ target (e.g., __TARGET will be added to the project__)
+  , yesNoPrompt :: Text -- ^ prompt (e.g., __PROMPT [y]/n__)
+  }
+
+-- | Build a prompt with the TARGET name only
+--
+-- It will generate a simple default prompt such that
+--
+-- @
+-- Add TARGET? [y]/n
+-- @
+--
+mkDefaultYesNoPrompt ::
+     Text -- ^ target name
+  -> YesNoPrompt
+mkDefaultYesNoPrompt target = YesNoPrompt target ("Add " <> target <> "?")
+
+-- | Represents a user's answer
 data Answer = Y | N
 
+-- | Parse an answer to 'Answer'
 yesOrNo :: Text -> Maybe Answer
 yesOrNo (T.toLower -> answer )
     | T.null answer = Just Y
@@ -65,22 +103,22 @@ choose parser question choices = do
         else whenNothing (parser answer)
                 (errorMessage "This wasn't a valid choice." >> choose parser question choices)
 
-chooseYesNo :: Text -- ^ target
+chooseYesNo :: YesNoPrompt -- ^ Target and Prompt
             -> IO a -- ^ action for 'Y' answer
             -> IO a -- ^ action for 'N' answer
             -> IO a
-chooseYesNo target yesDo noDo = do
-    printQuestion ("Add " <> target <> "?") ["y", "n"]
+chooseYesNo p@YesNoPrompt {..} yesDo noDo = do
+    printQuestion yesNoPrompt ["y", "n"]
     answer <- yesOrNo <$> prompt
     case answer of
         Nothing -> do
            errorMessage "This wasn't a valid choice."
-           chooseYesNo target yesDo noDo
-        Just Y -> trueMessage target >> yesDo
-        Just N -> falseMessage target >> noDo
+           chooseYesNo p yesDo noDo
+        Just Y -> trueMessage yesNoTarget >> yesDo
+        Just N -> falseMessage yesNoTarget >> noDo
 
-chooseYesNoBool :: Text -> IO Bool
-chooseYesNoBool target = chooseYesNo target (pure True) (pure False)
+chooseYesNoBool :: YesNoPrompt -> IO Bool
+chooseYesNoBool ynPrompt = chooseYesNo ynPrompt (pure True) (pure False)
 
 targetMessage :: Bool -> Text -> IO Bool
 targetMessage result target = targetMessageWithText result target "added to the project"

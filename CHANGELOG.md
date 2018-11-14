@@ -23,6 +23,15 @@
 * [#197](https://github.com/kowainik/summoner/issues/197)
   Build with `stack` lts 12.17, and support `GHC` 8.4.4 in
   project generation.
+* [#142](https://github.com/kowainik/summoner/issues/142):
+  Add version bounds to `base` in the generated `.cabal` file.
+* [#199](https://github.com/kowainik/summoner/issues/199):
+  Add `None` license with no `LICENSE` file generation.
+  Add licenses short descriptions text during the interactive mode.
+  Patch `summon show license` command to show short description about
+  each license.
+* [#195](https://github.com/kowainik/summoner/issues/195):
+  Update prompt questions for CLI
 
 1.1.0.1
 =======

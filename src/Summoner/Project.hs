@@ -14,9 +14,11 @@ import Summoner.Config (Config, ConfigP (..))
 import Summoner.Decision (Decision (..), decisionToBool)
 import Summoner.Default (currentYear, defaultGHC)
 import Summoner.GhcVer (parseGhcVer, showGhcVer)
-import Summoner.License (customizeLicense, fetchLicense, parseLicenseName)
+import Summoner.License (LicenseName, customizeLicense, fetchLicense, licenseShortDesc,
+                         parseLicenseName)
 import Summoner.Process ()
-import Summoner.Question (checkUniqueName, choose, chooseYesNo, falseMessage, query, queryDef,
+import Summoner.Question (YesNoPrompt (..), checkUniqueName, choose, chooseYesNo, falseMessage,
+                          mkDefaultYesNoPrompt, query, queryDef,
                           queryManyRepeatOnFail, targetMessageWithText, trueMessage)
 import Summoner.Settings (CustomPrelude (..), Settings (..))
 import Summoner.Source (fetchSource)
@@ -39,6 +41,7 @@ generateProject noUpload projectName Config{..} = do
     putText categoryText
     settingsCategories <- query "Category: "
 
+    putText licenseText
     settingsLicenseName  <- choose parseLicenseName "License: " $ ordNub (cLicense : universe)
 
     -- License creation
@@ -51,17 +54,17 @@ generateProject noUpload projectName Config{..} = do
             settingsYear
 
     -- Library/Executable/Tests/Benchmarks flags
-    settingsGitHub   <- decisionToBool cGitHub "GitHub integration"
-    settingsTravis   <- ifGithub settingsGitHub "Travis CI integration" cTravis
-    settingsAppVeyor <- ifGithub (settingsStack && settingsGitHub) "AppVeyor CI integration" cAppVey
-    settingsPrivat   <- ifGithub (settingsGitHub && not noUpload) "private repository" cPrivate
-    settingsIsLib    <- decisionToBool cLib "library target"
+    settingsGitHub   <- decisionToBool cGitHub (YesNoPrompt "GitHub integration" "Do you want to create a GitHub repository?")
+    settingsPrivat   <- ifGithub (settingsGitHub && not noUpload) (YesNoPrompt "private repository" "Create as a private repository (Requires a GitHub private repo plan)?") cPrivate
+    settingsTravis   <- ifGithub settingsGitHub (mkDefaultYesNoPrompt "Travis CI integration") cTravis
+    settingsAppVeyor <- ifGithub (settingsStack && settingsGitHub) (mkDefaultYesNoPrompt "AppVeyor CI integration") cAppVey
+    settingsIsLib    <- decisionToBool cLib (mkDefaultYesNoPrompt "library target")
     settingsIsExe    <- let target = "executable target" in
               if settingsIsLib
-              then decisionToBool cExe target
+              then decisionToBool cExe (mkDefaultYesNoPrompt target)
               else trueMessage target
-    settingsTest   <- decisionToBool cTest "tests"
-    settingsBench  <- decisionToBool cBench "benchmarks"
+    settingsTest   <- decisionToBool cTest (mkDefaultYesNoPrompt "tests")
+    settingsBench  <- decisionToBool cBench (mkDefaultYesNoPrompt "benchmarks")
     settingsPrelude <- if settingsIsLib then getPrelude else pure Nothing
     let settingsBaseType = case settingsPrelude of
             Nothing -> "base"
@@ -88,14 +91,14 @@ generateProject noUpload projectName Config{..} = do
     let settings = Settings{..}
 
     createProjectDirectory settings
-    -- Create github repository, commit, optionally push and make it private 
+    -- Create github repository, commit, optionally push and make it private
     when settingsGitHub $ doGithubCommands settings settingsPrivat
 
  where
-    ifGithub :: Bool -> Text -> Decision -> IO Bool
-    ifGithub github target decision = if github
-        then decisionToBool decision target
-        else falseMessage target
+    ifGithub :: Bool -> YesNoPrompt -> Decision -> IO Bool
+    ifGithub github ynPrompt decision = if github
+        then decisionToBool decision ynPrompt
+        else falseMessage (yesNoTarget ynPrompt)
 
     createProjectDirectory :: Settings -> IO ()
     createProjectDirectory settings@Settings{..} = do
@@ -116,6 +119,7 @@ generateProject noUpload projectName Config{..} = do
                     ++ ["-p" | private]  -- Create private repository if asked so
              -- Upload repository to GitHub.
             "git" ["push", "-u", "origin", "master"]
+
     categoryText :: Text
     categoryText =
         [text|
@@ -136,6 +140,14 @@ generateProject noUpload projectName Config{..} = do
 
         |]
 
+    licenseText :: Text
+    licenseText = "List of licenses to choose from:\n\n"
+        <> unlines (map showShort $ universe @LicenseName)
+        <> "\n"
+      where
+        showShort :: LicenseName -> Text
+        showShort l = "  * " <> show l <> ": " <> licenseShortDesc l
+
     getPrelude :: IO (Maybe CustomPrelude)
     getPrelude = case cPrelude of
         Last Nothing -> do
@@ -146,7 +158,7 @@ generateProject noUpload projectName Config{..} = do
                     successMessage $ "Custom prelude " <> p <> " will be used in the project"
                     pure $ Just $ CustomPrelude p m
                 noDo = pure Nothing
-            chooseYesNo "custom prelude" yesDo noDo
+            chooseYesNo (mkDefaultYesNoPrompt "custom prelude") yesDo noDo
         Last prelude@(Just (CustomPrelude p _)) ->
             prelude <$ successMessage ("Custom prelude " <> p <> " will be used in the project")
 
@@ -154,8 +166,8 @@ generateProject noUpload projectName Config{..} = do
     -- If user chose only one during CLI, we assume to use only that one.
     getCabalStack :: (Decision, Decision) -> IO (Bool, Bool)
     getCabalStack = \case
-        (Idk, Idk) -> decisionToBool cCabal "cabal" >>= \c ->
-            if c then decisionToBool cStack "stack" >>= \s -> pure (c, s)
+        (Idk, Idk) -> decisionToBool cCabal (mkDefaultYesNoPrompt "cabal") >>= \c ->
+            if c then decisionToBool cStack (mkDefaultYesNoPrompt "stack") >>= \s -> pure (c, s)
             else stackMsg True >> pure (False, True)
         (Nop, Nop) -> errorMessage "Neither cabal nor stack was chosen" >> exitFailure
         (Yes, Yes) -> output (True, True)

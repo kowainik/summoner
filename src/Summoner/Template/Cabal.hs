@@ -6,7 +6,8 @@ module Summoner.Template.Cabal
 
 import NeatInterpolation (text)
 
-import Summoner.GhcVer (GhcVer (..), showGhcVer)
+import Summoner.GhcVer (GhcVer (..), cabalBaseVersions, showGhcVer)
+import Summoner.License (cabalLicense)
 import Summoner.Settings (CustomPrelude (..), Settings (..))
 import Summoner.Text (intercalateMap, packageToModule)
 import Summoner.Tree (TreeFs (..))
@@ -29,34 +30,32 @@ cabalFile Settings{..} = File (toString settingsRepo ++ ".cabal") cabalFileConte
 
     -- TODO: do something to not have empty lines
     cabalHeader :: Text
-    cabalHeader =
-        [text|
-        cabal-version:       2.0
-        name:                $settingsRepo
-        version:             0.0.0
-        synopsis:            $settingsDescription
-        description:         $settingsDescription
-        $githubHomepage
-        $githubBugReports
-        license:             $licenseName
-        license-file:        LICENSE
-        author:              $settingsFullName
-        maintainer:          $settingsEmail
-        copyright:           $settingsYear $settingsFullName
-        category:            $settingsCategories
-        build-type:          Simple
-        extra-doc-files:     README.md
-                           , CHANGELOG.md
-        tested-with:         $testedGhcs
-        |]
+    cabalHeader = unlines $
+        [ "cabal-version:       2.0"
+        , "name:                " <> settingsRepo
+        , "version:             0.0.0"
+        , "synopsis:            " <> settingsDescription
+        , "description:         " <> settingsDescription ] ++
+        [ "homepage:            " <> githubUrl        | settingsGitHub ] ++
+        [ "bug-reports:         " <> githubBugReports | settingsGitHub ] ++
+        ( "license:             " <> licenseName) :
+        [ "license-file:        LICENSE" | settingsGitHub] ++
+        [ "author:              " <> settingsFullName
+        , "maintainer:          " <> settingsEmail
+        , "copyright:           " <> settingsYear <> " " <> settingsFullName
+        , "category:            " <> settingsCategories
+        , "build-type:          Simple"
+        , "extra-doc-files:     README.md"
+        , "                   , CHANGELOG.md"
+        , "tested-with:         " <> testedGhcs
+        ]
 
-    githubUrl, githubHomepage, githubBugReports :: Text
+    githubUrl, githubBugReports :: Text
     githubUrl        = "https://github.com/" <> settingsOwner <> "/" <> settingsRepo
-    githubHomepage   = memptyIfFalse settingsGitHub $ "homepage:            " <> githubUrl
-    githubBugReports = memptyIfFalse settingsGitHub $ "bug-reports:         " <> githubUrl <> "/issues"
+    githubBugReports = githubUrl <> "/issues"
 
     licenseName, libModuleName :: Text
-    licenseName   = show settingsLicenseName
+    licenseName   = cabalLicense settingsLicenseName
     libModuleName = packageToModule settingsRepo
 
     testedGhcs :: Text
@@ -71,6 +70,9 @@ cabalFile Settings{..} = File (toString settingsRepo ++ ".cabal") cabalFileConte
           location:            ${githubUrl}.git
         |]
 
+    baseBounds :: Text
+    baseBounds = cabalBaseVersions settingsTestedVersions
+
     libraryStanza :: Text
     libraryStanza =
         [text|
@@ -80,7 +82,7 @@ cabalFile Settings{..} = File (toString settingsRepo ++ ".cabal") cabalFileConte
           exposed-modules:     $libModuleName
                                $preludeMod
 
-          build-depends:       $settingsBaseType
+          build-depends:       $settingsBaseType $baseBounds
                              $commaPreludeLibrary
 
           ghc-options:         -Wall
@@ -97,7 +99,7 @@ cabalFile Settings{..} = File (toString settingsRepo ++ ".cabal") cabalFileConte
           hs-source-dirs:      app
           main-is:             Main.hs
 
-          build-depends:       $settingsBaseType
+          build-depends:       $settingsBaseType $baseBounds
                              $commaRepo
                              $commaPreludeLibrary
 
@@ -119,7 +121,7 @@ cabalFile Settings{..} = File (toString settingsRepo ++ ".cabal") cabalFileConte
           hs-source-dirs:      test
           main-is:             Spec.hs
 
-          build-depends:       $settingsBaseType
+          build-depends:       $settingsBaseType $baseBounds
                              $commaRepo
                              $commaPreludeLibrary
 
@@ -141,7 +143,7 @@ cabalFile Settings{..} = File (toString settingsRepo ++ ".cabal") cabalFileConte
           hs-source-dirs:      benchmark
           main-is:             Main.hs
 
-          build-depends:       $settingsBaseType
+          build-depends:       $settingsBaseType $baseBounds
                              , gauge
                              $commaRepo
                              $commaPreludeLibrary

@@ -113,6 +113,7 @@ test-suite summoner-test
   main-is:             Spec.hs
   other-modules:       Test.DecisionSpec
                        Test.TomlSpec
+                       Test.QuestionSpec
                        Prelude
 
   build-tool-depends:  tasty-discover:tasty-discover
@@ -120,6 +121,7 @@ test-suite summoner-test
                      , hedgehog
                      , relude
                      , tasty
+                     , tasty-hunit
                      , tasty-hedgehog
                      , tomland
                      , summoner
