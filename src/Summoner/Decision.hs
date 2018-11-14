@@ -8,8 +8,7 @@ module Summoner.Decision
 import Generics.Deriving.Monoid (GMonoid (..))
 import Generics.Deriving.Semigroup (GSemigroup (..))
 
-import Summoner.Question (chooseYesNoBool, falseMessage, trueMessage)
-import Summoner.Question.Data (YesNoPrompt (..))
+import Summoner.Question (YesNoPrompt (..), chooseYesNoBool, falseMessage, trueMessage)
 
 
 -- | Used for detecting the user decision during CLI input.
@@ -35,6 +34,6 @@ instance GMonoid Decision where
 
 decisionToBool :: Decision -> YesNoPrompt -> IO Bool
 decisionToBool decision target@YesNoPrompt {..} = case decision of
-    Yes -> trueMessage  yesno_target
-    Nop -> falseMessage yesno_target
+    Yes -> trueMessage  yesNoTarget
+    Nop -> falseMessage yesNoTarget
     Idk -> chooseYesNoBool target

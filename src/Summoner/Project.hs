@@ -17,9 +17,9 @@ import Summoner.GhcVer (parseGhcVer, showGhcVer)
 import Summoner.License (LicenseName, customizeLicense, fetchLicense, licenseShortDesc,
                          parseLicenseName)
 import Summoner.Process ()
-import Summoner.Question (checkUniqueName, choose, chooseYesNo, falseMessage, query, queryDef,
+import Summoner.Question (YesNoPrompt (..), checkUniqueName, choose, chooseYesNo, falseMessage,
+                          mkDefaultYesNoPrompt, query, queryDef,
                           queryManyRepeatOnFail, targetMessageWithText, trueMessage)
-import Summoner.Question.Data (YesNoPrompt (..), mkDefaultYesNoPrompt, mkYesNoPrompt)
 import Summoner.Settings (CustomPrelude (..), Settings (..))
 import Summoner.Source (fetchSource)
 import Summoner.Template (createProjectTemplate)
@@ -54,8 +54,8 @@ generateProject noUpload projectName Config{..} = do
             settingsYear
 
     -- Library/Executable/Tests/Benchmarks flags
-    settingsGitHub   <- decisionToBool cGitHub (mkYesNoPrompt "GitHub integration" "Do you want to create a GitHub repository?")
-    settingsPrivat   <- ifGithub (settingsGitHub && not noUpload) (mkYesNoPrompt "private repository" "Create as a private repository (Requires a GitHub private repo plan)?") cPrivate
+    settingsGitHub   <- decisionToBool cGitHub (YesNoPrompt "GitHub integration" "Do you want to create a GitHub repository?")
+    settingsPrivat   <- ifGithub (settingsGitHub && not noUpload) (YesNoPrompt "private repository" "Create as a private repository (Requires a GitHub private repo plan)?") cPrivate
     settingsTravis   <- ifGithub settingsGitHub (mkDefaultYesNoPrompt "Travis CI integration") cTravis
     settingsAppVeyor <- ifGithub (settingsStack && settingsGitHub) (mkDefaultYesNoPrompt "AppVeyor CI integration") cAppVey
     settingsIsLib    <- decisionToBool cLib (mkDefaultYesNoPrompt "library target")
@@ -98,7 +98,7 @@ generateProject noUpload projectName Config{..} = do
     ifGithub :: Bool -> YesNoPrompt -> Decision -> IO Bool
     ifGithub github ynPrompt decision = if github
         then decisionToBool decision ynPrompt
-        else falseMessage (yesno_target ynPrompt)
+        else falseMessage (yesNoTarget ynPrompt)
 
     createProjectDirectory :: Settings -> IO ()
     createProjectDirectory settings@Settings{..} = do

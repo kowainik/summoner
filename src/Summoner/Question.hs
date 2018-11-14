@@ -9,6 +9,8 @@ module Summoner.Question
        , choose
        , chooseYesNo
        , chooseYesNoBool
+       , YesNoPrompt(..)
+       , mkDefaultYesNoPrompt
        , query
        , queryDef
        , queryManyRepeatOnFail
@@ -25,7 +27,6 @@ import System.FilePath ((</>))
 
 import Summoner.Ansi (Color (..), beautyPrint, bold, boldDefault, errorMessage, italic, prompt,
                       putStrFlush, setColor, warningMessage)
-import Summoner.Question.Data (YesNoPrompt (..))
 import Summoner.Text (headToUpper, intercalateMap)
 
 import qualified Data.Text as T
@@ -35,8 +36,44 @@ import qualified Relude.Unsafe as Unsafe
 -- Yes/No
 ----------------------------------------------------------------------------
 
+-- | Build a prompt
+--
+-- For example,
+--
+-- @
+-- YesNoPrompt
+--   { yesNoTarget = "Cabal"
+--   , yesNoPrompt = "Do you want to add a cabal integration?"}
+-- @
+-- will generate a following prompt message to the user
+--
+-- @
+-- Do you want to add a cabal integration? [y]/n
+--  -> y
+-- [Cabal] will be added to the project
+-- @
+data YesNoPrompt = YesNoPrompt
+  { yesNoTarget :: Text -- ^ target (e.g., __TARGET will be added to the project__)
+  , yesNoPrompt :: Text -- ^ prompt (e.g., __PROMPT [y]/n__)
+  }
+
+-- | Build a prompt with the TARGET name only
+--
+-- It will generate a simple default prompt such that
+--
+-- @
+-- Add TARGET? [y]/n
+-- @
+--
+mkDefaultYesNoPrompt ::
+     Text -- ^ target name
+  -> YesNoPrompt
+mkDefaultYesNoPrompt target = YesNoPrompt target ("Add " <> target <> "?")
+
+-- | Represents a user's answer
 data Answer = Y | N
 
+-- | Parse an answer to 'Answer'
 yesOrNo :: Text -> Maybe Answer
 yesOrNo (T.toLower -> answer )
     | T.null answer = Just Y
@@ -70,15 +107,15 @@ chooseYesNo :: YesNoPrompt -- ^ Target and Prompt
             -> IO a -- ^ action for 'Y' answer
             -> IO a -- ^ action for 'N' answer
             -> IO a
-chooseYesNo yesNoPrompt@YesNoPrompt {..} yesDo noDo = do
-    printQuestion yesno_prompt ["y", "n"]
+chooseYesNo p@YesNoPrompt {..} yesDo noDo = do
+    printQuestion yesNoPrompt ["y", "n"]
     answer <- yesOrNo <$> prompt
     case answer of
         Nothing -> do
            errorMessage "This wasn't a valid choice."
-           chooseYesNo yesNoPrompt yesDo noDo
-        Just Y -> trueMessage yesno_target >> yesDo
-        Just N -> falseMessage yesno_target >> noDo
+           chooseYesNo p yesDo noDo
+        Just Y -> trueMessage yesNoTarget >> yesDo
+        Just N -> falseMessage yesNoTarget >> noDo
 
 chooseYesNoBool :: YesNoPrompt -> IO Bool
 chooseYesNoBool ynPrompt = chooseYesNo ynPrompt (pure True) (pure False)
