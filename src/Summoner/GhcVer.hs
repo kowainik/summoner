@@ -20,6 +20,7 @@ data GhcVer
     | Ghc802
     | Ghc822
     | Ghc843
+    | Ghc844
     deriving (Eq, Ord, Show, Enum, Bounded)
 
 -- | Converts 'GhcVer' into dot-separated string.
@@ -30,6 +31,7 @@ showGhcVer = \case
     Ghc802  -> "8.0.2"
     Ghc822  -> "8.2.2"
     Ghc843  -> "8.4.3"
+    Ghc844  -> "8.4.4"
 
 parseGhcVer :: Text -> Maybe GhcVer
 parseGhcVer = inverseMap showGhcVer
@@ -42,6 +44,7 @@ latestLts = \case
     Ghc802  -> "9.21"
     Ghc822  -> "11.22"
     Ghc843  -> "12.14"
+    Ghc844  -> "12.17"
 
 -- | Represents PVP versioning (4 numbers).
 data Pvp = Pvp
@@ -63,6 +66,7 @@ baseVerPvp = \case
     Ghc802  -> Pvp 4 9 1 0
     Ghc822  -> Pvp 4 10 1 0
     Ghc843  -> Pvp 4 11 1 0
+    Ghc844  -> Pvp 4 11 1 0
 
 baseVer :: GhcVer -> Text
 baseVer = show . baseVerPvp

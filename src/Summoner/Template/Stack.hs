@@ -21,7 +21,7 @@ stackFiles Settings{..} = map createStackYaml settingsTestedVersions
       where
         ver :: Text
         ver = case ghcV of
-            Ghc843 -> ""
+            Ghc844 -> ""
             _      -> "-" <> showGhcVer ghcV
 
         extraDeps :: Text

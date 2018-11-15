@@ -1,4 +1,4 @@
-resolver: lts-12.9
+resolver: lts-12.17
 
 extra-deps:
   - base-noprelude-4.11.1.0
