@@ -26,12 +26,12 @@ module Summoner.Config
 import Data.List (lookup)
 import Generics.Deriving.Monoid (GMonoid, gmemptydefault)
 import Generics.Deriving.Semigroup (GSemigroup, gsappenddefault)
-import Toml (AnyValue (..), BiMap (..), BiToml, Bijection (..), Key, dimap, (.=))
+import Toml (BiMap (..), Key, TomlCodec, (.=))
 
 import Summoner.Decision (Decision (..))
 import Summoner.GhcVer (GhcVer (..), parseGhcVer, showGhcVer)
 import Summoner.License (LicenseName (..), parseLicenseName)
-import Summoner.Settings (CustomPrelude (..))
+import Summoner.Settings (CustomPrelude (..), customPreludeT)
 import Summoner.Source (Source, sourceT)
 import Summoner.Validation (Validation (..))
 
@@ -128,7 +128,7 @@ defaultConfig = Config
     }
 
 -- | Identifies how to read 'Config' data from the @.toml@ file.
-configT :: BiToml PartialConfig
+configT :: TomlCodec PartialConfig
 configT = Config
     <$> lastT Toml.text "owner"       .= cOwner
     <*> lastT Toml.text "fullName"    .= cFullName
@@ -145,44 +145,29 @@ configT = Config
     <*> decision        "exe"         .= cExe
     <*> decision        "test"        .= cTest
     <*> decision        "bench"       .= cBench
-    <*> lastT (Toml.table preludeT) "prelude" .= cPrelude
-    <*> textArr         "extensions"  .= cExtensions
-    <*> textArr         "warnings"    .= cWarnings
-    <*> wrapLastT (maybeSourceT "stylish") .= cStylish
-    <*> wrapLastT (maybeSourceT "contributing") .= cContributing
+    <*> lastT preludeT "prelude"      .= cPrelude
+    <*> textArr        "extensions"   .= cExtensions
+    <*> textArr        "warnings"     .= cWarnings
+    <*> lastT sourceT  "stylish"      .= cStylish
+    <*> lastT sourceT  "contributing" .= cContributing
   where
-    wrapLastT :: BiToml (Maybe a) -> BiToml (Last a)
-    wrapLastT = Toml.dimap getLast Last
+    lastT :: (Key -> TomlCodec a) -> Key -> TomlCodec (Last a)
+    lastT codec = Toml.dimap getLast Last . Toml.dioptional . codec
 
-    maybeSourceT :: Key -> BiToml (Maybe Source)
-    maybeSourceT key = dimaybeT (sourceT key)
+    _GhcVer :: BiMap GhcVer Toml.AnyValue
+    _GhcVer = Toml._TextBy showGhcVer parseGhcVer
 
-    dimaybeT :: BiToml a -> BiToml (Maybe a)
-    dimaybeT bi = Bijection
-        { biRead  = optional (biRead bi)
-        , biWrite = traverse (biWrite bi)
-        }
-
-    lastT :: (Key -> BiToml a) -> Key -> BiToml (Last a)
-    lastT = Toml.wrapper . Toml.maybeT
-
-    _GhcVer :: BiMap AnyValue GhcVer
-    _GhcVer = BiMap
-        { forward = \(AnyValue t) -> Toml.matchText t >>= parseGhcVer
-        , backward = Just . AnyValue . Toml.Text . showGhcVer
-        }
-
-    ghcVerArr :: Key -> BiToml [GhcVer]
+    ghcVerArr :: Key -> TomlCodec [GhcVer]
     ghcVerArr = Toml.arrayOf _GhcVer
 
-    license :: Key -> BiToml LicenseName
+    license :: Key -> TomlCodec LicenseName
     license = Toml.mdimap show parseLicenseName . Toml.text
 
-    textArr :: Key -> BiToml [Text]
-    textArr = dimap Just maybeToMonoid . Toml.maybeT (Toml.arrayOf Toml._Text)
+    textArr :: Key -> TomlCodec [Text]
+    textArr = Toml.dimap Just maybeToMonoid . Toml.dioptional . Toml.arrayOf Toml._Text
 
-    decision :: Key -> BiToml Decision
-    decision = dimap fromDecision toDecision . Toml.maybeT Toml.bool
+    decision :: Key -> TomlCodec Decision
+    decision = Toml.dimap fromDecision toDecision . Toml.dioptional . Toml.bool
 
     decisionMaybe :: [(Decision, Maybe Bool)]
     decisionMaybe = [ (Idk, Nothing)
@@ -196,10 +181,9 @@ configT = Config
     toDecision :: Maybe Bool -> Decision
     toDecision m = fromMaybe (error "Impossible") $ lookup m $ map swap decisionMaybe
 
-    preludeT :: BiToml CustomPrelude
-    preludeT = CustomPrelude
-        <$> Toml.text "package" .= cpPackage
-        <*> Toml.text "module"  .= cpModule
+    preludeT :: Key -> TomlCodec CustomPrelude
+    preludeT = Toml.table customPreludeT
+
 
 -- | Make sure that all the required configurations options were specified.
 finalise :: PartialConfig -> Validation [Text] Config

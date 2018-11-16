@@ -21,8 +21,9 @@
   Upgrade `stack` `intall-cabal` option's version to `2.2.0.1` in
   the generated Travis file.
 * [#197](https://github.com/kowainik/summoner/issues/197)
-  Build with `stack` lts 12.17, and support `GHC` 8.4.4 in
-  project generation.
+  Build with `stack` lts-12.18, and support `GHC` 8.4.4 in
+  project generation. Make GHC-8.4.4 the default one for generated project.
+  Drop support for GHC-8.4.3 on CI. Build with GHC-8.4.4 on CI.
 * [#142](https://github.com/kowainik/summoner/issues/142):
   Add version bounds to `base` in the generated `.cabal` file.
 * [#199](https://github.com/kowainik/summoner/issues/199):
@@ -32,6 +33,9 @@
   each license.
 * [#195](https://github.com/kowainik/summoner/issues/195):
   Update prompt questions for CLI
+* [#155](https://github.com/kowainik/summoner/issues/155):
+  Bump up to `tomland-0.5.0`.
+* Drop support for GHC-8.6.1 on CI. Support GHC-8.6.2 on CI.
 
 1.1.0.1
 =======
