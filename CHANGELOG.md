@@ -39,6 +39,9 @@
 * [#202](https://github.com/kowainik/summoner/issues/202):
   Bump up to `relude-0.4.0`.
 * Add more documentation to the functions.
+* [#185](https://github.com/kowainik/summoner/issues/185):
+  Add golden tests.
+* Remove `tasty` dependencies from tests.
 
 1.1.0.1
 =======

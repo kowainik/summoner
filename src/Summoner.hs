@@ -1,25 +1,16 @@
 module Summoner
-       ( module Summoner.Ansi
-       , module Summoner.CLI
-       , module Summoner.Config
-       , module Summoner.Default
-       , module Summoner.License
-       , module Summoner.Process
-       , module Summoner.Project
-       , module Summoner.Question
-       , module Summoner.Settings
-       , module Summoner.Template
-       , module Summoner.Text
+       ( module Summoner
        ) where
 
-import Summoner.Ansi
-import Summoner.CLI
-import Summoner.Config
-import Summoner.Default
-import Summoner.License
-import Summoner.Process
-import Summoner.Project
-import Summoner.Question
-import Summoner.Settings
-import Summoner.Template
-import Summoner.Text
+import Summoner.Ansi as Summoner
+import Summoner.CLI as Summoner
+import Summoner.Config as Summoner
+import Summoner.Default as Summoner
+import Summoner.GhcVer as Summoner
+import Summoner.License as Summoner
+import Summoner.Process as Summoner
+import Summoner.Project as Summoner
+import Summoner.Question as Summoner
+import Summoner.Settings as Summoner
+import Summoner.Template as Summoner
+import Summoner.Text as Summoner
