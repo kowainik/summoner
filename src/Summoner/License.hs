@@ -16,10 +16,8 @@ import System.Process (readProcess)
 import qualified Data.Text as T
 import qualified Text.Show as TS
 
-----------------------------------------------------------------------------
--- License
-----------------------------------------------------------------------------
 
+-- | Licenses supported by @summoner@.
 data LicenseName
     = MIT
     | BSD2
@@ -53,11 +51,12 @@ newtype License = License { unLicense :: Text }
 instance FromJSON License where
     parseJSON = withObject "License" $ \o -> License <$> o .: "body"
 
--- | As it will be shown in @cabal@ file.
+-- | As it will be shown in the @cabal@ file.
 cabalLicense :: LicenseName -> Text
 cabalLicense None = "AllRightsReserved"
 cabalLicense l    = show l
 
+-- | Used for downloading the license text form @Github@.
 githubLicenseQueryNames :: LicenseName -> Text
 githubLicenseQueryNames = \case
     MIT      -> "mit"
@@ -75,6 +74,7 @@ githubLicenseQueryNames = \case
 parseLicenseName :: Text -> Maybe LicenseName
 parseLicenseName = inverseMap show
 
+-- | Replaces name/year placeholders with the actual data.
 customizeLicense :: LicenseName -> License -> Text -> Text -> License
 customizeLicense l license@(License licenseText) nm year
     | l `elem` [MIT, BSD2, BSD3] = License updateLicenseText

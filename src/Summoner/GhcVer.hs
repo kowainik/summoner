@@ -68,9 +68,19 @@ baseVerPvp = \case
     Ghc843  -> Pvp 4 11 1 0
     Ghc844  -> Pvp 4 11 1 0
 
+-- | Returns corresponding @base@ version of the given GHC version.
 baseVer :: GhcVer -> Text
 baseVer = show . baseVerPvp
 
+{- | Returns the @base@ bounds for the list of the given GHC versions.
+
+>>> cabalBaseVersions [Ghc844]
+"^>= 4.11.1.0"
+
+>>> cabalBaseVersions [Ghc802, Ghc822, Ghc844]
+">= 4.9.0.0 && < 4.12"
+
+-}
 cabalBaseVersions :: [GhcVer] -> Text
 cabalBaseVersions []   = ""
 cabalBaseVersions [v]  = "^>= " <> baseVer v

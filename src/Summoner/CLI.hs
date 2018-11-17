@@ -29,23 +29,34 @@ import Summoner.License (License (..), LicenseName (..), fetchLicense, licenseSh
                          parseLicenseName)
 import Summoner.Project (generateProject)
 import Summoner.Settings (CustomPrelude (..))
-import Summoner.Validation (Validation (..))
 
 import qualified Data.Text as T
 
----------------------------------------------------------------------------
--- CLI
-----------------------------------------------------------------------------
 
+-- | Main function that parses @CLI@ commands and runs them.
 summon :: IO ()
 summon = execParser prsr >>= runCommand
 
--- | Run 'summoner' with cli command
+-- | Run 'summoner' with @CLI@ command
 runCommand :: Command -> IO ()
 runCommand = \case
     New opts -> runNew opts
     ShowInfo opts -> runShow opts
 
+{- | Runs @show@ command.
+
+@
+Usage:
+  summon show COMMAND
+      Show supported licenses or ghc versions
+
+Available commands:
+  ghc                      Show available ghc versions
+  license                  Show available licenses
+  license [LICENSE_NAME]   Show specific license text
+@
+
+-}
 runShow :: ShowOpts -> IO ()
 runShow = \case
         -- show list of all available GHC versions
@@ -70,6 +81,18 @@ runShow = \case
     showDesc :: LicenseName -> Text
     showDesc l = show l <> ": " <> licenseShortDesc l
 
+{- | Runs @new@ command.
+
+@
+Usage:
+  summon new PROJECT_NAME [--cabal] [--stack] [--ignore-config]
+             [with [OPTIONS]] [without [OPTIONS]]
+             [-f|--file FILENAME]
+             [--prelude-package PACKAGE_NAME]
+             [--prelude-module MODULE_NAME]
+@
+
+-}
 runNew :: NewOpts -> IO ()
 runNew NewOpts{..} = do
     -- read config from file
@@ -91,6 +114,8 @@ runNew NewOpts{..} = do
     -- print result
     beautyPrint [bold, setColor Green] "\nJob's done\n"
 
+-- | Reads and parses the given config file. If no file is provided the default
+-- configuration returned.
 readFileConfig :: Bool -> Maybe FilePath -> IO PartialConfig
 readFileConfig ignoreFile maybeFile = if ignoreFile then pure mempty else do
     (isDefault, file) <- case maybeFile of

@@ -2,7 +2,7 @@ resolver: lts-12.18
 
 extra-deps:
   - base-noprelude-4.11.1.0
-  - relude-0.3.0
+  - relude-0.4.0
   - tomland-0.5.0
   - megaparsec-7.0.4            # needed for tomland-0.5.0
   - neat-interpolation-0.3.2.4  # needed because of megaparsec >= 7

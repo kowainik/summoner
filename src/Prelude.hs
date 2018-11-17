@@ -10,6 +10,7 @@ module Prelude
 
 import Relude
 import Relude.Extra.Enum as Relude.Extra (inverseMap, universe)
+import Relude.Extra.Validation as Relude.Extra
 
 endLine :: Text
 endLine = "\n"
