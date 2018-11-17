@@ -26,11 +26,8 @@ import System.Console.ANSI (Color (..), ColorIntensity (Vivid), ConsoleIntensity
                             ConsoleLayer (Foreground), SGR (..), setSGR, setSGRCode)
 import System.IO (hFlush)
 
-----------------------------------------------------------------------------
--- Ansi-terminal
-----------------------------------------------------------------------------
 
--- Explicit flush ensures prompt messages are in the correct order on all systems.
+-- | Explicit flush ensures prompt messages are in the correct order on all systems.
 putStrFlush :: Text -> IO ()
 putStrFlush msg = do
     putText msg
@@ -86,7 +83,7 @@ infoMessage    = colorMessage Blue
 skipMessage    = colorMessage Cyan
 
 blueCode, boldCode, redCode, resetCode :: String
-redCode = setSGRCode [SetColor Foreground Vivid Red]
-blueCode = setSGRCode [SetColor Foreground Vivid Blue]
-boldCode = setSGRCode [SetConsoleIntensity BoldIntensity]
+redCode   = setSGRCode [SetColor Foreground Vivid Red]
+blueCode  = setSGRCode [SetColor Foreground Vivid Blue]
+boldCode  = setSGRCode [SetConsoleIntensity BoldIntensity]
 resetCode = setSGRCode [Reset]

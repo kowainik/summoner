@@ -10,7 +10,6 @@ module Summoner
        , module Summoner.Settings
        , module Summoner.Template
        , module Summoner.Text
-       , module Summoner.Validation
        ) where
 
 import Summoner.Ansi
@@ -24,4 +23,3 @@ import Summoner.Question
 import Summoner.Settings
 import Summoner.Template
 import Summoner.Text
-import Summoner.Validation

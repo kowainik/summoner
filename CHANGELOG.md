@@ -36,6 +36,9 @@
 * [#155](https://github.com/kowainik/summoner/issues/155):
   Bump up to `tomland-0.5.0`.
 * Drop support for GHC-8.6.1 on CI. Support GHC-8.6.2 on CI.
+* [#202](https://github.com/kowainik/summoner/issues/202):
+  Bump up to `relude-0.4.0`.
+* Add more documentation to the functions.
 
 1.1.0.1
 =======

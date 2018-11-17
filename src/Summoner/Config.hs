@@ -33,10 +33,11 @@ import Summoner.GhcVer (GhcVer (..), parseGhcVer, showGhcVer)
 import Summoner.License (LicenseName (..), parseLicenseName)
 import Summoner.Settings (CustomPrelude (..), customPreludeT)
 import Summoner.Source (Source, sourceT)
-import Summoner.Validation (Validation (..))
 
 import qualified Toml
 
+
+-- | The phase of the configurations.
 data Phase = Partial | Final
 
 -- | Potentially incomplete configuration.

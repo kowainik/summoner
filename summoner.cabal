@@ -47,7 +47,6 @@ library
                            Summoner.Template.Stack
                          Summoner.Text
                          Summoner.Tree
-                         Summoner.Validation
 
   autogen-modules:     Paths_summoner
   other-modules:       Paths_summoner
@@ -64,7 +63,7 @@ library
                      , neat-interpolation ^>= 0.3.2.2
                      , optparse-applicative ^>= 0.14.2.0
                      , process ^>= 1.6.1.0
-                     , relude ^>= 0.3.0
+                     , relude ^>= 0.4.0
                      , text ^>= 1.2.3.0
                      , time ^>= 1.8
                      , tomland ^>= 0.5.0

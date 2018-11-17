@@ -5,19 +5,24 @@
 -- | This module contains function to proper questioning in terminal.
 
 module Summoner.Question
-       ( printQuestion
-       , choose
+       ( -- * Choose functions.
+         choose
        , chooseYesNo
        , chooseYesNoBool
+
+         -- * YesNoPrompt
        , YesNoPrompt(..)
        , mkDefaultYesNoPrompt
+
+         -- * Queries
        , query
        , queryDef
        , queryManyRepeatOnFail
        , checkUniqueName
 
+         -- * Customize target message
        , targetMessageWithText
-
+       , targetMessage
        , trueMessage
        , falseMessage
        ) where
@@ -32,42 +37,43 @@ import Summoner.Text (headToUpper, intercalateMap)
 import qualified Data.Text as T
 import qualified Relude.Unsafe as Unsafe
 
-----------------------------------------------------------------------------
--- Yes/No
-----------------------------------------------------------------------------
 
--- | Build a prompt
---
--- For example,
---
--- @
--- YesNoPrompt
---   { yesNoTarget = "Cabal"
---   , yesNoPrompt = "Do you want to add a cabal integration?"}
--- @
--- will generate a following prompt message to the user
---
--- @
--- Do you want to add a cabal integration? [y]/n
---  -> y
--- [Cabal] will be added to the project
--- @
+{- | Build a prompt
+
+For example,
+
+@
+YesNoPrompt
+  { yesNoTarget = "Cabal"
+  , yesNoPrompt = "Do you want to add a cabal integration?"}
+@
+
+will generate a following prompt message to the user
+
+@
+Do you want to add a cabal integration? [y]/n
+ -> y
+[Cabal] will be added to the project
+@
+
+-}
 data YesNoPrompt = YesNoPrompt
-  { yesNoTarget :: Text -- ^ target (e.g., __TARGET will be added to the project__)
-  , yesNoPrompt :: Text -- ^ prompt (e.g., __PROMPT [y]/n__)
-  }
+    { yesNoTarget :: Text -- ^ target (e.g., __TARGET will be added to the project__)
+    , yesNoPrompt :: Text -- ^ prompt (e.g., __PROMPT [y]/n__)
+    }
 
--- | Build a prompt with the TARGET name only
---
--- It will generate a simple default prompt such that
---
--- @
--- Add TARGET? [y]/n
--- @
---
-mkDefaultYesNoPrompt ::
-     Text -- ^ target name
-  -> YesNoPrompt
+{- | Build a prompt with the TARGET name only
+
+It will generate a simple default prompt such that
+
+@
+Add TARGET? [y]/n
+@
+
+-}
+mkDefaultYesNoPrompt
+    :: Text -- ^ target name
+    -> YesNoPrompt
 mkDefaultYesNoPrompt target = YesNoPrompt target ("Add " <> target <> "?")
 
 -- | Represents a user's answer
@@ -85,15 +91,32 @@ yesOrNo (T.toLower -> answer )
 -- IO Questioning
 ----------------------------------------------------------------------------
 
-printQuestion :: Text -> [Text] -> IO ()
+{- | Prints the given question in the following way:
+
+>>> printQuestion "Which option?" [A, B, C]
+"Which option? [A]/B/C"
+
+__ Note__ that the first element in the given list is considered as
+the default one.
+-}
+printQuestion
+    :: Text    -- ^ Question text.
+    -> [Text]  -- ^ List of available answers.
+    -> IO ()
+printQuestion question [] = putTextLn question
 printQuestion question (def:rest) = do
     let restSlash = T.intercalate "/" rest
     putStrFlush question
     boldDefault def
     putTextLn $ "/" <> restSlash
-printQuestion question [] = putTextLn question
 
-choose :: Show a => (Text -> Maybe a) -> Text -> [a] -> IO a
+-- | Allows users to choose one of the given options.
+-- It asks the question until the appropriate answer is received.
+choose :: Show a
+    => (Text -> Maybe a)  -- ^ Parse function
+    -> Text  -- ^ Question text.
+    -> [a]   -- ^ List of available options.
+    -> IO a  -- ^ The chosen option.
 choose parser question choices = do
     let showChoices = map show choices
     printQuestion question showChoices
@@ -103,6 +126,7 @@ choose parser question choices = do
         else whenNothing (parser answer)
                 (errorMessage "This wasn't a valid choice." >> choose parser question choices)
 
+-- | Like 'choose' but the possible answer are 'Y' or 'N'.
 chooseYesNo :: YesNoPrompt -- ^ Target and Prompt
             -> IO a -- ^ action for 'Y' answer
             -> IO a -- ^ action for 'N' answer
@@ -117,12 +141,16 @@ chooseYesNo p@YesNoPrompt {..} yesDo noDo = do
         Just Y -> trueMessage yesNoTarget >> yesDo
         Just N -> falseMessage yesNoTarget >> noDo
 
+-- | Like 'chooseYesNo' but returns 'Bool'.
 chooseYesNoBool :: YesNoPrompt -> IO Bool
 chooseYesNoBool ynPrompt = chooseYesNo ynPrompt (pure True) (pure False)
 
-targetMessage :: Bool -> Text -> IO Bool
-targetMessage result target = targetMessageWithText result target "added to the project"
+{- | The message after yes/no questions. The output depends on the answer.
 
+@
+  __Benchmarks__ will be added to the project
+@
+-}
 targetMessageWithText :: Bool -> Text -> Text -> IO Bool
 targetMessageWithText result target text = do
     let (color, actionResult) = if result
@@ -135,10 +163,22 @@ targetMessageWithText result target text = do
 
     pure result
 
+-- | Like 'targetMessageWithText' but the text is "added to the project"
+targetMessage :: Bool -> Text -> IO Bool
+targetMessage result target = targetMessageWithText result target "added to the project"
+
 trueMessage, falseMessage :: Text -> IO Bool
 trueMessage  = targetMessage True
 falseMessage = targetMessage False
 
+
+{- | Queries for an non-empty answer.
+
+@
+  Short project description:
+  ->
+@
+-}
 query :: Text -> IO Text
 query question = do
     putTextLn question
@@ -148,6 +188,7 @@ query question = do
            query question
        | otherwise -> pure answer
 
+-- | Like 'query' but has the default answer if no answer is specified.
 queryDef :: Text -> Text -> IO Text
 queryDef question defAnswer = do
     putStrFlush question
@@ -157,6 +198,8 @@ queryDef question defAnswer = do
     if | T.null answer -> pure defAnswer
        | otherwise     -> pure answer
 
+-- | Queries many answers. If answers are not parsable shows the failing part
+-- and queries again
 queryManyRepeatOnFail :: forall a . (Text -> Maybe a) -> IO [a]
 queryManyRepeatOnFail parser = promptLoop
   where

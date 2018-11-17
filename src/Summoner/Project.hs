@@ -1,6 +1,6 @@
 {-# LANGUAGE QuasiQuotes #-}
 
--- | This module introduces functional for project creation.
+-- | This module introduces functions for the project creation.
 
 module Summoner.Project
        ( generateProject
@@ -18,16 +18,21 @@ import Summoner.License (LicenseName, customizeLicense, fetchLicense, licenseSho
                          parseLicenseName)
 import Summoner.Process ()
 import Summoner.Question (YesNoPrompt (..), checkUniqueName, choose, chooseYesNo, falseMessage,
-                          mkDefaultYesNoPrompt, query, queryDef,
-                          queryManyRepeatOnFail, targetMessageWithText, trueMessage)
+                          mkDefaultYesNoPrompt, query, queryDef, queryManyRepeatOnFail,
+                          targetMessageWithText, trueMessage)
 import Summoner.Settings (CustomPrelude (..), Settings (..))
 import Summoner.Source (fetchSource)
 import Summoner.Template (createProjectTemplate)
 import Summoner.Text (intercalateMap, packageToModule)
 import Summoner.Tree (showTree, traverseTree)
 
+
 -- | Generate the project.
-generateProject :: Bool -> Text -> Config -> IO ()
+generateProject
+    :: Bool    -- ^ @noUpload@ option (to not upload to @Github@).
+    -> Text    -- ^ Given project name.
+    -> Config  -- ^ Given configurations.
+    -> IO ()
 generateProject noUpload projectName Config{..} = do
     settingsRepo   <- checkUniqueName projectName
     -- decide cabal stack or both
@@ -53,19 +58,22 @@ generateProject noUpload projectName Config{..} = do
             settingsFullName
             settingsYear
 
-    -- Library/Executable/Tests/Benchmarks flags
-    settingsGitHub   <- decisionToBool cGitHub (YesNoPrompt "GitHub integration" "Do you want to create a GitHub repository?")
-    settingsPrivat   <- ifGithub (settingsGitHub && not noUpload) (YesNoPrompt "private repository" "Create as a private repository (Requires a GitHub private repo plan)?") cPrivate
-    settingsTravis   <- ifGithub settingsGitHub (mkDefaultYesNoPrompt "Travis CI integration") cTravis
-    settingsAppVeyor <- ifGithub (settingsStack && settingsGitHub) (mkDefaultYesNoPrompt "AppVeyor CI integration") cAppVey
+    settingsGitHub   <- decisionToBool cGitHub
+        (YesNoPrompt "GitHub integration" "Do you want to create a GitHub repository?")
+    settingsPrivat   <- decisionIf
+        (settingsGitHub && not noUpload)
+        (YesNoPrompt "private repository" "Create as a private repository (Requires a GitHub private repo plan)?")
+        cPrivate
+    settingsTravis   <- decisionIf settingsGitHub (mkDefaultYesNoPrompt "Travis CI integration") cTravis
+    settingsAppVeyor <- decisionIf (settingsStack && settingsGitHub) (mkDefaultYesNoPrompt "AppVeyor CI integration") cAppVey
     settingsIsLib    <- decisionToBool cLib (mkDefaultYesNoPrompt "library target")
     settingsIsExe    <- let target = "executable target" in
-              if settingsIsLib
-              then decisionToBool cExe (mkDefaultYesNoPrompt target)
-              else trueMessage target
-    settingsTest   <- decisionToBool cTest (mkDefaultYesNoPrompt "tests")
-    settingsBench  <- decisionToBool cBench (mkDefaultYesNoPrompt "benchmarks")
-    settingsPrelude <- if settingsIsLib then getPrelude else pure Nothing
+        if settingsIsLib
+        then decisionToBool cExe (mkDefaultYesNoPrompt target)
+        else trueMessage target
+    settingsTest     <- decisionToBool cTest (mkDefaultYesNoPrompt "tests")
+    settingsBench    <- decisionToBool cBench (mkDefaultYesNoPrompt "benchmarks")
+    settingsPrelude  <- if settingsIsLib then getPrelude else pure Nothing
     let settingsBaseType = case settingsPrelude of
             Nothing -> "base"
             Just _  -> "base-noprelude"
@@ -95,8 +103,8 @@ generateProject noUpload projectName Config{..} = do
     when settingsGitHub $ doGithubCommands settings settingsPrivat
 
  where
-    ifGithub :: Bool -> YesNoPrompt -> Decision -> IO Bool
-    ifGithub github ynPrompt decision = if github
+    decisionIf :: Bool -> YesNoPrompt -> Decision -> IO Bool
+    decisionIf p ynPrompt decision = if p
         then decisionToBool decision ynPrompt
         else falseMessage (yesNoTarget ynPrompt)
 
