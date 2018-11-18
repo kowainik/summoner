@@ -40,7 +40,7 @@ goldenSpec = describe "golden tests" $ do
 -- | Returns the list of the files that don't match the golden ones.
 compareTree :: FilePath -> TreeFs -> IO [FilePath]
 compareTree filePath (Dir name children) =
-    foldlM (\l ch -> ((++) l) <$> compareTree (filePath </> name) ch) [] children
+    foldlM (\l ch -> (l ++) <$> compareTree (filePath </> name) ch) [] children
 compareTree filePath (File name content) = do
     let curFile = filePath </> name
     golden <- readFileText curFile
@@ -76,7 +76,7 @@ fullProject = Settings
     }
   where
     mitLicense :: License
-    mitLicense = License $ [text|
+    mitLicense = License [text|
     MIT License
 
     Copyright (c) 2018 Kowainik

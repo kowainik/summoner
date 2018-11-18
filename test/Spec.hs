@@ -11,8 +11,9 @@ import Test.TomlSpec (tomlProp)
 
 main :: IO ()
 main = do
-    hspec yesNoPromptSpec
-    hspec goldenSpec
+    hspec $ do
+        yesNoPromptSpec
+        goldenSpec
     ifM (checkParallel hedgehogTests) exitSuccess exitFailure
 
 hedgehogTests :: Group
