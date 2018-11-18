@@ -16,7 +16,7 @@ module Summoner.Tui.Kit
          -- * Lenses
        , userL
        , test1L
-       , test2L
+       , tools
        ) where
 
 import Lens.Micro.TH (makeFields)
@@ -27,15 +27,19 @@ import Summoner.Tui.EditField (EditField, toEditFields)
 
 data Test1 = Test1 Text Text
     deriving (Show)
-data Test2 = Test2 Text Int
-    deriving (Show)
 
 -- | Global TUI state.
 data SummonKit = SummonKit
     { summonKitUserL  :: [EditField]
     , summonKitTest1L :: [CheckBox Test1]
-    , summonKitTest2L :: [CheckBox Test2]
+    , summonKitTools  :: [CheckBox Tool]
     } deriving (Show)
+
+-- | Represents the build tool that can be used in the generated project.
+data Tool
+    = Cabal
+    | Stack
+  deriving (Show)
 
 makeFields ''SummonKit
 
@@ -44,5 +48,5 @@ initialSummonKit :: SummonKit
 initialSummonKit = SummonKit
     { summonKitUserL  = toEditFields [ "Owner", "Full name", "Email"]
     , summonKitTest1L = toCheckBoxes [Test1 "a" "a", Test1 "b" "b"]
-    , summonKitTest2L = toCheckBoxes [Test2 "a2" 1, Test2 "b2" 2]
+    , summonKitTools  = toCheckBoxes [Cabal, Stack]
     }

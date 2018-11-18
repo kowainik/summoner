@@ -19,7 +19,7 @@ import Lens.Micro (Lens')
 
 import Summoner.Tui.CheckBox (CheckBox (..), checkBoxL)
 import Summoner.Tui.GroupBorder (groupBorder)
-import Summoner.Tui.Kit (SummonKit (..), initialSummonKit, test1L, test2L)
+import Summoner.Tui.Kit (SummonKit (..), initialSummonKit, test1L, tools)
 
 import qualified Brick (on)
 import qualified Brick.Widgets.Border as B
@@ -37,8 +37,8 @@ summonTui = do
 
 data SummonForm
     = Test1Field Int
-    | Test2Field Int
     | UserField Int
+    | ToolsBox Int
     deriving (Eq, Ord, Show)
 
 type SummonField e = FormFieldState SummonKit e SummonForm
@@ -47,7 +47,7 @@ type SummonField e = FormFieldState SummonKit e SummonForm
 mkForm :: forall e . SummonKit -> Form SummonKit e SummonForm
 mkForm sk@SummonKit{..} = setFormConcat myBox $ newForm
     ( toCheckBoxGroup "Test1" test1L Test1Field summonKitTest1L
-   ++ toCheckBoxGroup "Test2" test2L Test2Field summonKitTest2L
+   ++ toCheckBoxGroup "Tools" tools ToolsBox summonKitTools
     ) sk
   where
     toCheckBoxGroup
