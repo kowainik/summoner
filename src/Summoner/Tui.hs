@@ -10,16 +10,16 @@ module Summoner.Tui
        ) where
 
 import Brick (App (..), AttrMap, BrickEvent (VtyEvent), Padding (Pad), Widget, attrMap, continue,
-              customMain, hBox, halt, padTop, str, vBox, (<=>))
+              customMain, hBox, halt, padTop, str, vBox, (<+>), (<=>))
 import Brick.Focus (focusRingCursor)
-import Brick.Forms (Form, FormFieldState (..), checkboxField, focusedFormInputAttr, formFocus,
-                    formState, handleFormEvent, invalidFormInputAttr, newForm, renderForm,
-                    setFormConcat)
+import Brick.Forms (Form, FormFieldState (..), checkboxField, editTextField, focusedFormInputAttr,
+                    formFocus, formState, handleFormEvent, invalidFormInputAttr, newForm,
+                    renderForm, setFormConcat, (@@=))
 import Lens.Micro (Lens')
 
 import Summoner.Tui.CheckBox (CheckBox (..), checkBoxL)
 import Summoner.Tui.GroupBorder (groupBorder)
-import Summoner.Tui.Kit (SummonKit (..), initialSummonKit, test1L, tools)
+import Summoner.Tui.Kit (SummonKit (..), email, fullName, initialSummonKit, owner, tools, user)
 
 import qualified Brick (on)
 import qualified Brick.Widgets.Border as B
@@ -36,8 +36,9 @@ summonTui = do
 
 
 data SummonForm
-    = Test1Field Int
-    | UserField Int
+    = UserOwner
+    | UserFullName
+    | UserEmail
     | ToolsBox Int
     deriving (Eq, Ord, Show)
 
@@ -46,10 +47,17 @@ type SummonField e = FormFieldState SummonKit e SummonForm
 -- Creates the inout form from the given initial 'TreasureChest'.
 mkForm :: forall e . SummonKit -> Form SummonKit e SummonForm
 mkForm sk@SummonKit{..} = setFormConcat myBox $ newForm
-    ( toCheckBoxGroup "Test1" test1L Test1Field summonKitTest1L
-   ++ toCheckBoxGroup "Tools" tools ToolsBox summonKitTools
+    ( groupBorder "User"
+        [ label "Owner" @@= editTextField (user . owner) UserOwner (Just 1)
+        , label "Full name" @@= editTextField (user . fullName) UserFullName (Just 1)
+        , label "Email" @@= editTextField (user . email) UserEmail (Just 1)
+        ]
+   ++ toCheckBoxGroup  "Tools" tools ToolsBox  summonKitTools
     ) sk
   where
+    label :: String -> Widget n -> Widget n
+    label s w = str s <+>  w
+
     toCheckBoxGroup
         :: forall a . Show a
         => String
@@ -66,24 +74,8 @@ mkForm sk@SummonKit{..} = setFormConcat myBox $ newForm
             (field i)
             (show checkboxData)
 
---    toEditFieldGroup
---        :: forall a . Show a
---        => String
---        -> Lens' SummonKit [EditField]
---        -> (Int -> SummonForm)
---        -> [EditField]
---        -> [SummonKit -> SummonField e]
---    toEditFieldGroup groupName kitL field ef = groupBorder groupName
---        (zipWith makeEditField [0..] ch)
---      where
---        makeEditField :: Int -> CheckBox a -> SummonKit -> SummonField e
---        makeEditField i EditField{..} = editTextField
---            (kitL . checkBoxL i)
---            (field i)
---            (show checkboxData)
-
     myBox :: [Widget SummonForm] -> Widget SummonForm
-    myBox ws = let (a, b) = splitAt (length summonKitTest1L) ws in
+    myBox ws = let (a, b) = splitAt 3 ws in
         hBox [vBox a, vBox b]
 
 theMap :: AttrMap
