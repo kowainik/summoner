@@ -10,21 +10,22 @@ module Summoner.Tui
        ) where
 
 import Brick (App (..), AttrMap, BrickEvent (VtyEvent), Padding (Pad), Widget, attrMap, continue,
-              customMain, hBox, halt, padTop, str, vBox, (<+>), (<=>))
+              customMain, hBox, halt, padTop, str, vBox, vLimit, (<+>), (<=>))
 import Brick.Focus (focusRingCursor)
-import Brick.Forms (Form, FormFieldState (..), checkboxField, editTextField, focusedFormInputAttr,
-                    formFocus, formState, handleFormEvent, invalidFormInputAttr, newForm,
-                    renderForm, setFormConcat, (@@=))
-import Lens.Micro (Lens')
+import Brick.Forms (Form, checkboxField, editTextField, focusedFormInputAttr, formFocus, formState,
+                    handleFormEvent, invalidFormInputAttr, listField, newForm, renderForm,
+                    setFormConcat, (@@=))
 
-import Summoner.Tui.CheckBox (CheckBox (..), checkBoxL)
-import Summoner.Tui.GroupBorder (groupBorder)
-import Summoner.Tui.Kit (SummonKit (..), email, fullName, initialSummonKit, owner, tools, user)
+import Summoner.License (LicenseName)
+import Summoner.Tui.GroupBorder (groupBorder, (|>))
+import Summoner.Tui.Kit (SummonKit (..), cabal, category, desc, email, fullName, initialSummonKit,
+                         maybeLicense, owner, project, repo, stack, user)
 
 import qualified Brick (on)
 import qualified Brick.Widgets.Border as B
 import qualified Brick.Widgets.Center as C
 import qualified Brick.Widgets.Edit as E
+import qualified Brick.Widgets.List as L
 import qualified Graphics.Vty as V
 
 
@@ -39,43 +40,43 @@ data SummonForm
     = UserOwner
     | UserFullName
     | UserEmail
-    | ToolsBox Int
+    | ProjectName
+    | ProjectDesc
+    | ProjectCat
+    | ProjectLicense
+    | CabalField
+    | StackField
     deriving (Eq, Ord, Show)
-
-type SummonField e = FormFieldState SummonKit e SummonForm
 
 -- Creates the inout form from the given initial 'TreasureChest'.
 mkForm :: forall e . SummonKit -> Form SummonKit e SummonForm
 mkForm sk@SummonKit{..} = setFormConcat myBox $ newForm
     ( groupBorder "User"
-        [ label "Owner" @@= editTextField (user . owner) UserOwner (Just 1)
-        , label "Full name" @@= editTextField (user . fullName) UserFullName (Just 1)
-        , label "Email" @@= editTextField (user . email) UserEmail (Just 1)
+        [ 2 |> label "Owner" @@= editTextField (user . owner) UserOwner (Just 1)
+        , 1 |> label "Full name" @@= editTextField (user . fullName) UserFullName (Just 1)
+        , 2 |> label "Email" @@= editTextField (user . email) UserEmail (Just 1)
         ]
-   ++ toCheckBoxGroup  "Tools" tools ToolsBox  summonKitTools
+   ++ groupBorder "Project"
+        [ 2 |> label "Name" @@= editTextField (project . repo) ProjectName (Just 1)
+        , 2 |> label "Description" @@= editTextField (project . desc) ProjectDesc (Just 2)
+        , 1 |> label "Category" @@= editTextField (project . category) ProjectCat (Just 1)
+        , 4 |> vLimit 3 . label "License" @@= listField (const (fromList $ universe @LicenseName))
+              maybeLicense widgetList 1 ProjectLicense
+        ]
+   ++ groupBorder "Tools"
+        [ 2 |> checkboxField cabal CabalField "Cabal"
+        , 2 |> checkboxField stack StackField "Stack"
+        ]
     ) sk
   where
     label :: String -> Widget n -> Widget n
     label s w = str s <+>  w
 
-    toCheckBoxGroup
-        :: forall a . Show a
-        => String
-        -> Lens' SummonKit [CheckBox a]
-        -> (Int -> SummonForm)
-        -> [CheckBox a]
-        -> [SummonKit -> SummonField e]
-    toCheckBoxGroup groupName kitL field ch = groupBorder groupName
-        ( zipWith makeCheckBox [0..] ch)
-      where
-        makeCheckBox :: Int -> CheckBox a -> SummonKit -> SummonField e
-        makeCheckBox i CheckBox{..} = checkboxField
-            (kitL . checkBoxL i)
-            (field i)
-            (show checkboxData)
+    widgetList :: Bool -> LicenseName -> Widget SummonForm
+    widgetList p l = C.hCenter $ if p then str ("[" ++ show l ++ "]") else str $ show l
 
     myBox :: [Widget SummonForm] -> Widget SummonForm
-    myBox ws = let (a, b) = splitAt 3 ws in
+    myBox ws = let (a, b) = splitAt 7 ws in
         hBox [vBox a, vBox b]
 
 theMap :: AttrMap
@@ -84,6 +85,8 @@ theMap = attrMap V.defAttr
     , (E.editFocusedAttr,    V.black `Brick.on` V.yellow)
     , (invalidFormInputAttr, V.white `Brick.on` V.red)
     , (focusedFormInputAttr, V.black `Brick.on` V.yellow)
+    , (L.listAttr,           V.white `Brick.on` V.blue)
+    , (L.listSelectedAttr,   V.blue `Brick.on` V.white)
     ]
 
 draw :: Form SummonKit e SummonForm -> [Widget SummonForm]

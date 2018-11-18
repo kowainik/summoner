@@ -16,23 +16,35 @@ module Summoner.Tui.Kit
          -- * Lenses
          -- ** SummonKit
        , user
-       , tools
+       , project
+       , cabal
+       , stack
 
          -- ** User
        , owner
        , fullName
        , email
+
+         -- ** Project
+       , repo
+       , desc
+       , category
+       , license
+       , maybeLicense
        ) where
 
+import Lens.Micro (Lens', lens, (.~))
 import Lens.Micro.TH (makeFields)
 
-import Summoner.Tui.CheckBox (CheckBox, toCheckBoxes)
+import Summoner.License (LicenseName (..))
 
 
 -- | Global TUI state.
 data SummonKit = SummonKit
-    { summonKitUser  :: User
-    , summonKitTools :: [CheckBox Tool]
+    { summonKitUser    :: User
+    , summonKitProject :: Project
+    , summonKitCabal   :: Bool
+    , summonKitStack   :: Bool
     } deriving (Show)
 
 data User = User
@@ -41,11 +53,12 @@ data User = User
     , userEmail    :: Text
     } deriving (Show)
 
--- | Represents the build tool that can be used in the generated project.
-data Tool
-    = Cabal
-    | Stack
-    deriving (Show)
+data Project = Project
+    { projectRepo     :: Text
+    , projectDesc     :: Text
+    , projectCategory :: Text
+    , projectLicense  :: LicenseName
+    } deriving (Show)
 
 
 -- | Initial global state of the tui.
@@ -56,8 +69,27 @@ initialSummonKit = SummonKit
         , userFullName = ""
         , userEmail = ""
         }
-    , summonKitTools = toCheckBoxes [Cabal, Stack]
+    , summonKitProject = Project
+        { projectRepo = ""
+        , projectDesc = ""
+        , projectCategory = ""
+        , projectLicense = MIT
+        }
+    , summonKitCabal = False
+    , summonKitStack = False
     }
 
 makeFields ''SummonKit
 makeFields ''User
+makeFields ''Project
+
+maybeLicense :: Lens' SummonKit (Maybe LicenseName)
+maybeLicense = lens getL setL
+  where
+    getL :: SummonKit -> Maybe LicenseName
+    getL = Just . projectLicense . summonKitProject
+
+    setL :: SummonKit -> Maybe LicenseName -> SummonKit
+    setL sk mbL = case mbL of
+        Just l  -> sk & project . license .~ l
+        Nothing -> sk
