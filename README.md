@@ -156,15 +156,21 @@ Available global options:
 
 ```
 Usage:
-  summon new PROJECT_NAME [--cabal] [--stack] [--ignore-config]
-             [with [OPTIONS]] [without [OPTIONS]]
+  summon new PROJECT_NAME [--ignore-config] [--no-upload] [--offline]
              [-f|--file FILENAME]
+             [--cabal]
+             [--stack]
              [--prelude-package PACKAGE_NAME]
              [--prelude-module MODULE_NAME]
+             [with    [OPTIONS]]
+             [without [OPTIONS]]
 
 Available options:
   -h, --help               Show this help text
   --ignore-config          Ignore configuration file
+  --no-upload              Don not upload to GitHub. Special case of '--offline' flag.
+  --offline                Offline mode: create project with 'All Rights Reserved' license
+                           and without uploading to GitHub.
   --cabal                  Cabal support for the project
   --stack                  Stack support for the project
   -f, --file FILENAME      Path to the toml file with configurations. If not
@@ -283,7 +289,7 @@ following ghc-options are added to all stanzas.
     -Wmissing-export-lists       (ghc >= 8.4.1)
     -Wpartial-fields             (ghc >= 8.4.1)
 
-**Note**: -Werror is enabled in Travis CI when building with stack but **not** 
+**Note**: -Werror is enabled in Travis CI when building with stack but **not**
 when building with cabal ([Why?](https://github.com/haskell/cabal/issues/3883))
 
 ## Change log

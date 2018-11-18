@@ -38,6 +38,8 @@
 * Drop support for GHC-8.6.1 on CI. Support GHC-8.6.2 on CI.
 * [#202](https://github.com/kowainik/summoner/issues/202):
   Bump up to `relude-0.4.0`.
+* [#11](https://github.com/kowainik/summoner/issues/11):
+  Support offline mode.
 * Add more documentation to the functions.
 
 1.1.0.1
