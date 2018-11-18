@@ -57,10 +57,10 @@ mkForm sk@SummonKit{..} = setFormConcat myBox $ newForm
         -> [CheckBox a]
         -> [SummonKit -> SummonField e]
     toCheckBoxGroup groupName kitL field ch = groupBorder groupName
-        (map makeCheckBox $ zip [0..] ch)
+        ( zipWith makeCheckBox [0..] ch)
       where
-        makeCheckBox :: (Int, CheckBox a) -> SummonKit -> SummonField e
-        makeCheckBox (i, CheckBox{..}) = checkboxField
+        makeCheckBox :: Int -> CheckBox a -> SummonKit -> SummonField e
+        makeCheckBox i CheckBox{..} = checkboxField
             (kitL . checkBoxL i)
             (field i)
             (show checkboxData)
@@ -79,10 +79,10 @@ theMap = attrMap V.defAttr
 
 draw :: Form SummonKit e SummonForm -> [Widget SummonForm]
 draw f = [C.vCenter $ C.hCenter form <=> C.hCenter help]
-    where
-        form = B.borderWithLabel (str "Form") $ padTop (Pad 1) (renderForm f)
-        help = padTop (Pad 1) $ B.borderWithLabel (str "Help") body
-        body = str "- Enter/Esc quit, mouse interacts with fields"
+  where
+    form = B.borderWithLabel (str "Form") $ padTop (Pad 1) (renderForm f)
+    help = padTop (Pad 1) $ B.borderWithLabel (str "Help") body
+    body = str "- Enter/Esc quit, mouse interacts with fields"
 
 app :: App (Form SummonKit e SummonForm) e SummonForm
 app = App
