@@ -38,6 +38,7 @@ summonTui = do
 data SummonForm
     = Test1Field Int
     | Test2Field Int
+    | UserField Int
     deriving (Eq, Ord, Show)
 
 type SummonField e = FormFieldState SummonKit e SummonForm
@@ -64,6 +65,22 @@ mkForm sk@SummonKit{..} = setFormConcat myBox $ newForm
             (kitL . checkBoxL i)
             (field i)
             (show checkboxData)
+
+--    toEditFieldGroup
+--        :: forall a . Show a
+--        => String
+--        -> Lens' SummonKit [EditField]
+--        -> (Int -> SummonForm)
+--        -> [EditField]
+--        -> [SummonKit -> SummonField e]
+--    toEditFieldGroup groupName kitL field ef = groupBorder groupName
+--        (zipWith makeEditField [0..] ch)
+--      where
+--        makeEditField :: Int -> CheckBox a -> SummonKit -> SummonField e
+--        makeEditField i EditField{..} = editTextField
+--            (kitL . checkBoxL i)
+--            (field i)
+--            (show checkboxData)
 
     myBox :: [Widget SummonForm] -> Widget SummonForm
     myBox ws = let (a, b) = splitAt (length summonKitTest1L) ws in

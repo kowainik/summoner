@@ -49,6 +49,7 @@ library
                          Summoner.Tree
                          Summoner.Tui
                            Summoner.Tui.CheckBox
+                           Summoner.Tui.EditField
                            Summoner.Tui.GroupBorder
                            Summoner.Tui.Kit
 
