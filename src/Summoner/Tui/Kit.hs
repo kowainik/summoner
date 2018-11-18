@@ -19,6 +19,7 @@ module Summoner.Tui.Kit
        , project
        , cabal
        , stack
+       , gitHub
 
          -- ** User
        , owner
@@ -31,6 +32,12 @@ module Summoner.Tui.Kit
        , category
        , license
        , maybeLicense
+
+         -- ** GitHub
+       , enabled
+       , private
+       , travis
+       , appVeyor
        ) where
 
 import Lens.Micro (Lens', lens, (.~))
@@ -45,6 +52,7 @@ data SummonKit = SummonKit
     , summonKitProject :: Project
     , summonKitCabal   :: Bool
     , summonKitStack   :: Bool
+    , summonKitGitHub  :: GitHub
     } deriving (Show)
 
 data User = User
@@ -60,6 +68,12 @@ data Project = Project
     , projectLicense  :: LicenseName
     } deriving (Show)
 
+data GitHub = GitHub
+    { gitHubEnabled  :: Bool
+    , gitHubPrivate  :: Bool
+    , gitHubTravis   :: Bool
+    , gitHubAppVeyor :: Bool
+    } deriving (Show)
 
 -- | Initial global state of the tui.
 initialSummonKit :: SummonKit
@@ -77,11 +91,18 @@ initialSummonKit = SummonKit
         }
     , summonKitCabal = False
     , summonKitStack = False
+    , summonKitGitHub = GitHub
+        { gitHubEnabled  = True
+        , gitHubPrivate  = False
+        , gitHubTravis   = False
+        , gitHubAppVeyor = False
+        }
     }
 
 makeFields ''SummonKit
 makeFields ''User
 makeFields ''Project
+makeFields ''GitHub
 
 maybeLicense :: Lens' SummonKit (Maybe LicenseName)
 maybeLicense = lens getL setL
