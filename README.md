@@ -168,7 +168,7 @@ Usage:
 Available options:
   -h, --help               Show this help text
   --ignore-config          Ignore configuration file
-  --no-upload              Don not upload to GitHub. Special case of '--offline' flag.
+  --no-upload              Do not upload to GitHub. Special case of the '--offline' flag.
   --offline                Offline mode: create project with 'All Rights Reserved' license
                            and without uploading to GitHub.
   --cabal                  Cabal support for the project
