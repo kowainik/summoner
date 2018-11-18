@@ -7,6 +7,7 @@ our own libraries. See relevant discussion under the corresponding issue:
 
 module Summoner.Tui.GroupBorder
        ( groupBorder
+       , (|>)
        ) where
 
 import Brick (Edges (..), Padding (Max), Widget, padRight, str, vLimit, (<+>), (<=>))
@@ -15,6 +16,13 @@ import Brick.Forms (FormFieldState, (@@=))
 import qualified Brick.Widgets.Border as B
 import qualified Brick.Widgets.Border.Style as B
 import qualified Brick.Widgets.Core as B
+
+
+-- | Create a pair of elements.
+infix 4 |>
+(|>) :: Int -> a -> (Int, a)
+(|>) = (,)
+{-# INLINE (|>) #-}
 
 
 {- |
@@ -33,7 +41,7 @@ __Example:__
 @
 **Note:** on an empty list it doesn't create any group or border.
 -}
-groupBorder :: String -> [s -> FormFieldState s e n] -> [s -> FormFieldState s e n]
+groupBorder :: String -> [(Int, s -> FormFieldState s e n)] -> [s -> FormFieldState s e n]
 groupBorder groupName  = \case
     []       -> []
     [x]      -> [groupAllBorders groupName x]
@@ -41,36 +49,44 @@ groupBorder groupName  = \case
         groupBorderTop groupName x : map groupBorderMid mid ++ [groupBorderBottom l]
 
 -- | Creates the top border with the group name.
-groupBorderTop :: String -> (s -> FormFieldState s e n) -> (s -> FormFieldState s e n)
-groupBorderTop groupName = (@@=) (vLimit 2
+groupBorderTop :: String -> (Int, s -> FormFieldState s e n) -> (s -> FormFieldState s e n)
+groupBorderTop groupName (i, f) =
+    ( vLimit i
     . B.withBorderStyle B.unicodeBold
     . ((tl <=> B.vBorder) <+>)
     . (<+> (tr <=> B.vBorder))
     . (B.hBorderWithLabel (str groupName) <=>)
-    )
+    ) @@= f
 
 -- | Creates the bottom border of the group.
-groupBorderBottom :: (s -> FormFieldState s e n) -> (s -> FormFieldState s e n)
-groupBorderBottom = (@@=) (vLimit 2
+groupBorderBottom :: (Int, s -> FormFieldState s e n) -> (s -> FormFieldState s e n)
+groupBorderBottom (i, f) =
+    ( vLimit i
     . B.withBorderStyle B.unicodeBold
     . ((B.vBorder <=> bl) <+>)
     . (<+> (B.vBorder <=> br))
     . (<=> B.hBorder)
     . padRight Max
-    )
+    ) @@= f
 
 -- | Creates the left and right borders for the middle elements of the group.
-groupBorderMid :: (s -> FormFieldState s e n) -> (s -> FormFieldState s e n)
-groupBorderMid = (@@=) (vLimit 1
+groupBorderMid :: (Int, s -> FormFieldState s e n) -> (s -> FormFieldState s e n)
+groupBorderMid (i, f) =
+    ( vLimit i
     . B.withBorderStyle B.unicodeBold
     . (B.vBorder <+>)
     . (<+> B.vBorder)
     . padRight Max
-    )
+    ) @@= f
 
 -- | Creates the border around the only one element.
-groupAllBorders :: String -> (s -> FormFieldState s e n) -> (s -> FormFieldState s e n)
-groupAllBorders groupName = (@@=) (B.withBorderStyle B.unicodeBold . B.borderWithLabel (str groupName) . padRight Max)
+groupAllBorders :: String -> (Int, s -> FormFieldState s e n) -> (s -> FormFieldState s e n)
+groupAllBorders groupName (i, f) =
+    ( vLimit i
+    . B.withBorderStyle B.unicodeBold
+    . B.borderWithLabel (str groupName)
+    . padRight Max
+    ) @@= f
 
 
 -- | Helpers for the correct border lines.
