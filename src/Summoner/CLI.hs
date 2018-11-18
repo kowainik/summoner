@@ -35,7 +35,7 @@ import qualified Data.Text as T
 
 -- | Main function that parses @CLI@ commands and runs them.
 summon :: IO ()
-summon = execParser prsr >>= runCommand
+summon = execParser cliParser >>= runCommand
 
 -- | Run 'summoner' with @CLI@ command
 runCommand :: Command -> IO ()
@@ -59,21 +59,21 @@ Available commands:
 -}
 runShow :: ShowOpts -> IO ()
 runShow = \case
-        -- show list of all available GHC versions
-        GhcList -> showBulletList @GhcVer showGhcVer (reverse universe)
-        -- show a list of all available licenses
-        LicenseList Nothing -> showBulletList @LicenseName showDesc universe
-        -- show a specific license
-        LicenseList (Just name) ->
-            case parseLicenseName (toText name) of
-                Nothing -> do
-                    errorMessage "This wasn't a valid choice."
-                    infoMessage "Here is the list of supported licenses:"
-                    showBulletList @LicenseName show universe
-                    -- get and show a license`s text
-                Just licenseName -> do
-                    fetchedLicense <- fetchLicense licenseName
-                    putTextLn $ unLicense fetchedLicense
+    -- show list of all available GHC versions
+    GhcList -> showBulletList @GhcVer showGhcVer (reverse universe)
+    -- show a list of all available licenses
+    LicenseList Nothing -> showBulletList @LicenseName showDesc universe
+    -- show a specific license
+    LicenseList (Just name) ->
+        case parseLicenseName (toText name) of
+            Nothing -> do
+                errorMessage "This wasn't a valid choice."
+                infoMessage "Here is the list of supported licenses:"
+                showBulletList @LicenseName show universe
+                -- get and show a license`s text
+            Just licenseName -> do
+                fetchedLicense <- fetchLicense licenseName
+                putTextLn $ unLicense fetchedLicense
   where
     showBulletList :: (a -> Text) -> [a] -> IO ()
     showBulletList showT = mapM_ (infoMessage . T.append "➤ " . showT)
@@ -85,21 +85,24 @@ runShow = \case
 
 @
 Usage:
-  summon new PROJECT_NAME [--cabal] [--stack] [--ignore-config]
-             [with [OPTIONS]] [without [OPTIONS]]
+  summon new PROJECT_NAME [--ignore-config] [--no-upload] [--offline]
              [-f|--file FILENAME]
+             [--cabal]
+             [--stack]
              [--prelude-package PACKAGE_NAME]
              [--prelude-module MODULE_NAME]
+             [with [OPTIONS]]
+             [without [OPTIONS]]
 @
 
 -}
 runNew :: NewOpts -> IO ()
 runNew NewOpts{..} = do
     -- read config from file
-    fileConfig <- readFileConfig ignoreFile maybeFile
+    fileConfig <- readFileConfig newOptsIgnoreFile newOptsConfigFile
 
     -- union all possible configs
-    let unionConfig = defaultConfig <> fileConfig <> cliConfig
+    let unionConfig = defaultConfig <> fileConfig <> newOptsCliConfig
 
     -- get the final config
     finalConfig <- case finalise unionConfig of
@@ -109,7 +112,7 @@ runNew NewOpts{..} = do
                  exitFailure
 
     -- Generate the project.
-    generateProject noUpload projectName finalConfig
+    generateProject newOptsNoUpload newOptsOffline newOptsProjectName finalConfig
 
     -- print result
     beautyPrint [bold, setColor Green] "\nJob's done\n"
@@ -148,11 +151,12 @@ data Command
 
 -- | Options parsed with @new@ command
 data NewOpts = NewOpts
-    { projectName :: Text           -- ^ project name
-    , ignoreFile  :: Bool           -- ^ ignore all config files if 'True'
-    , noUpload    :: Bool           -- ^ don't upload to github
-    , maybeFile   :: Maybe FilePath -- ^ file with custom configuration
-    , cliConfig   :: PartialConfig  -- ^ config gathered during CLI
+    { newOptsProjectName :: Text           -- ^ project name
+    , newOptsIgnoreFile  :: Bool           -- ^ ignore all config files if 'True'
+    , newOptsNoUpload    :: Bool           -- ^ don't upload to github
+    , newOptsOffline     :: Bool           -- ^ Offline mode
+    , newOptsConfigFile  :: Maybe FilePath -- ^ file with custom configuration
+    , newOptsCliConfig   :: PartialConfig  -- ^ config gathered during CLI
     }
 
 -- | Commands parsed with @show@ command
@@ -163,8 +167,8 @@ data ShowOpts = GhcList | LicenseList (Maybe String)
 ----------------------------------------------------------------------------
 
 -- | Main parser of the app.
-prsr :: ParserInfo Command
-prsr = modifyHeader
+cliParser :: ParserInfo Command
+cliParser = modifyHeader
      $ modifyFooter
      $ info ( helper <*> versionP <*> summonerP )
             $ fullDesc
@@ -212,23 +216,27 @@ licenseText = LicenseList <$> optional
 -- | Parses options of the @new@ command.
 newP :: Parser Command
 newP = do
-    projectName <- strArgument (metavar "PROJECT_NAME")
-    ignoreFile  <- ignoreFileP
-    noUpload    <- noUploadP
-    cabal   <- cabalP
-    stack   <- stackP
-    with    <- optional withP
-    without <- optional withoutP
-    file    <- optional fileP
+    newOptsProjectName <- strArgument (metavar "PROJECT_NAME")
+    newOptsIgnoreFile  <- ignoreFileP
+    newOptsNoUpload    <- noUploadP
+    newOptsOffline     <- offlineP
+    newOptsConfigFile  <- optional fileP
+    cabal <- cabalP
+    stack <- stackP
     preludePack <- optional preludePackP
     preludeMod  <- optional preludeModP
+    with    <- optional withP
+    without <- optional withoutP
 
-    pure $ New $ NewOpts projectName ignoreFile noUpload file
-        $ (maybeToMonoid $ with <> without)
+    pure $ New $ NewOpts
+        { newOptsNoUpload = newOptsNoUpload || newOptsOffline
+        , newOptsCliConfig = (maybeToMonoid $ with <> without)
             { cPrelude = Last $ CustomPrelude <$> preludePack <*> preludeMod
             , cCabal = cabal
             , cStack = stack
             }
+        , ..
+        }
 
 targetsP ::  Decision -> Parser PartialConfig
 targetsP d = do
@@ -315,7 +323,12 @@ ignoreFileP :: Parser Bool
 ignoreFileP = switch $ long "ignore-config" <> help "Ignore configuration file"
 
 noUploadP :: Parser Bool
-noUploadP = switch $ long "no-upload" <> help "Don not upload to GitHub"
+noUploadP = switch $ long "no-upload" <> help "Do not upload to GitHub. Special case of the '--offline' flag."
+
+offlineP :: Parser Bool
+offlineP = switch
+    $ long "offline"
+   <> help "Offline mode: create project with 'All Rights Reserved' license and without uploading to GitHub."
 
 fileP :: Parser FilePath
 fileP = strOption

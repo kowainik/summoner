@@ -14,7 +14,7 @@ import Summoner.Config (Config, ConfigP (..))
 import Summoner.Decision (Decision (..), decisionToBool)
 import Summoner.Default (currentYear, defaultGHC)
 import Summoner.GhcVer (parseGhcVer, showGhcVer)
-import Summoner.License (LicenseName, customizeLicense, fetchLicense, licenseShortDesc,
+import Summoner.License (LicenseName (..), customizeLicense, fetchLicense, licenseShortDesc,
                          parseLicenseName)
 import Summoner.Process ()
 import Summoner.Question (YesNoPrompt (..), checkUniqueName, choose, chooseYesNo, falseMessage,
@@ -30,10 +30,11 @@ import Summoner.Tree (showTree, traverseTree)
 -- | Generate the project.
 generateProject
     :: Bool    -- ^ @noUpload@ option (to not upload to @Github@).
+    -> Bool    -- ^ @offline@ mode option
     -> Text    -- ^ Given project name.
     -> Config  -- ^ Given configurations.
     -> IO ()
-generateProject noUpload projectName Config{..} = do
+generateProject noUpload isOffline projectName Config{..} = do
     settingsRepo   <- checkUniqueName projectName
     -- decide cabal stack or both
     (settingsCabal, settingsStack) <- getCabalStack (cCabal, cStack)
@@ -47,12 +48,14 @@ generateProject noUpload projectName Config{..} = do
     settingsCategories <- query "Category: "
 
     putText licenseText
-    settingsLicenseName  <- choose parseLicenseName "License: " $ ordNub (cLicense : universe)
+    settingsLicenseName  <- if isOffline
+        then None <$ infoMessage "'AllRightsReserved' license is used in offline mode"
+        else choose parseLicenseName "License: " $ ordNub (cLicense : universe)
 
     -- License creation
     fetchedLicense <- fetchLicense settingsLicenseName
     settingsYear <- currentYear
-    let settingsLicenseText = customizeLicense  -- TODO: use named here as well
+    let settingsLicenseText = customizeLicense
             settingsLicenseName
             fetchedLicense
             settingsFullName
@@ -91,7 +94,7 @@ generateProject noUpload projectName Config{..} = do
             putTextLn $ "Also these GHC versions will be added: " <> intercalateMap " " showGhcVer vers
             pure vers
 
-    let fetchLast = maybe (pure Nothing) fetchSource . getLast
+    let fetchLast = maybe (pure Nothing) (fetchSource isOffline) . getLast
     settingsStylish      <- fetchLast cStylish
     settingsContributing <- fetchLast cContributing
 

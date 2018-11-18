@@ -12,7 +12,7 @@ import NeatInterpolation (text)
 import System.Process (readProcess)
 import Toml (BiMap, Key, TomlCodec)
 
-import Summoner.Ansi (errorMessage)
+import Summoner.Ansi (errorMessage, infoMessage)
 
 import qualified Toml
 
@@ -51,10 +51,12 @@ sourceT nm = Toml.match (_Url  >>> Toml._Text)   (nm <> "url")
     _Link :: BiMap Source Text
     _Link = Toml.prism Link matchLink
 
-fetchSource :: Source -> IO (Maybe Text)
-fetchSource = \case
+fetchSource :: Bool -> Source -> IO (Maybe Text)
+fetchSource isOffline = \case
     File path -> catch (Just <$> readFileText path) (fileError path)
-    Url url   -> catch (fetchUrl url) (urlError url)
+    Url url   -> if isOffline
+        then Nothing <$ infoMessage ("Ignoring fetching from URL in offline mode from source: " <> url)
+        else fetchUrl url `catch` urlError url
     Link link -> putLink link
   where
     fileError :: FilePath -> SomeException -> IO (Maybe Text)
