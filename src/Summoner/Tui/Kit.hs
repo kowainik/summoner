@@ -14,6 +14,7 @@ module Summoner.Tui.Kit
        , initialSummonKit
 
          -- * Lenses
+       , userL
        , test1L
        , test2L
        ) where
@@ -21,6 +22,7 @@ module Summoner.Tui.Kit
 import Lens.Micro.TH (makeFields)
 
 import Summoner.Tui.CheckBox (CheckBox, toCheckBoxes)
+import Summoner.Tui.EditField (EditField, toEditFields)
 
 
 data Test1 = Test1 Text Text
@@ -30,7 +32,8 @@ data Test2 = Test2 Text Int
 
 -- | Global TUI state.
 data SummonKit = SummonKit
-    { summonKitTest1L :: [CheckBox Test1]
+    { summonKitUserL  :: [EditField]
+    , summonKitTest1L :: [CheckBox Test1]
     , summonKitTest2L :: [CheckBox Test2]
     } deriving (Show)
 
@@ -39,6 +42,7 @@ makeFields ''SummonKit
 -- | Initial global state of the tui.
 initialSummonKit :: SummonKit
 initialSummonKit = SummonKit
-    { summonKitTest1L = toCheckBoxes [Test1 "a" "a", Test1 "b" "b"]
+    { summonKitUserL  = toEditFields [ "Owner", "Full name", "Email"]
+    , summonKitTest1L = toCheckBoxes [Test1 "a" "a", Test1 "b" "b"]
     , summonKitTest2L = toCheckBoxes [Test2 "a2" 1, Test2 "b2" 2]
     }
