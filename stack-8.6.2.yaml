@@ -1,4 +1,9 @@
-resolver:  nightly-2018-11-15
+resolver: nightly-2018-11-18
 
 extra-deps:
   - base-noprelude-4.12.0.0
+  - brick-0.41.3
+  - config-ini-0.2.4.0
+  - data-clist-0.1.2.1
+  - text-zipper-0.10.1
+  - word-wrap-0.4.1

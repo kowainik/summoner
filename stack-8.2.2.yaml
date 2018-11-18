@@ -2,8 +2,11 @@ resolver: lts-11.22
 
 extra-deps:
   - base-noprelude-4.10.1.0
+  - brick-0.41.3
+  - config-ini-0.2.4.0
   - relude-0.4.0
   - tomland-0.5.0
   - megaparsec-7.0.4            # needed for tomland-0.5.0
   - parser-combinators-1.0.0    # needed for megaparsec >= 7
   - neat-interpolation-0.3.2.4  # needed because of megaparsec >= 7
+  - vty-5.25.1
