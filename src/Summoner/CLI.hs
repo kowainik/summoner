@@ -323,7 +323,7 @@ ignoreFileP :: Parser Bool
 ignoreFileP = switch $ long "ignore-config" <> help "Ignore configuration file"
 
 noUploadP :: Parser Bool
-noUploadP = switch $ long "no-upload" <> help "Don not upload to GitHub. Special case of '--offline' flag."
+noUploadP = switch $ long "no-upload" <> help "Do not upload to GitHub. Special case of the '--offline' flag."
 
 offlineP :: Parser Bool
 offlineP = switch
