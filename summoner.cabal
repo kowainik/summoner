@@ -118,7 +118,7 @@ test-suite summoner-test
 
   build-depends:       base-noprelude >= 4.10 && < 4.13
                      , filepath
-                     , hedgehog ^>= 0.6.1
+                     , hedgehog >= 0.5.3 && < 0.7
                      , hspec >= 2.4.8
                      , neat-interpolation
                      , relude
