@@ -1,0 +1,99 @@
+sudo: true
+language: haskell
+
+git:
+  depth: 5
+
+cache:
+  directories:
+  - "$HOME/.cabal"
+  - "$HOME/.stack"
+  - "$TRAVIS_BUILD_DIR/.stack-work"
+
+matrix:
+  include:
+  
+  - ghc: 8.0.2
+    env: GHCVER='8.0.2' CABALVER='head'
+    os: linux
+    addons:
+      apt:
+        sources:
+        - hvr-ghc
+        packages:
+        - ghc-8.0.2
+        - cabal-install-head
+  
+  - ghc: 8.2.2
+    env: GHCVER='8.2.2' CABALVER='head'
+    os: linux
+    addons:
+      apt:
+        sources:
+        - hvr-ghc
+        packages:
+        - ghc-8.2.2
+        - cabal-install-head
+  
+  - ghc: 8.4.4
+    env: GHCVER='8.4.4' CABALVER='head'
+    os: linux
+    addons:
+      apt:
+        sources:
+        - hvr-ghc
+        packages:
+        - ghc-8.4.4
+        - cabal-install-head
+  
+  - ghc: 8.0.2
+    env: GHCVER='8.0.2' STACK_YAML="$TRAVIS_BUILD_DIR/stack-$GHCVER.yaml"
+    os: linux
+    addons:
+      apt:
+        packages:
+        - libgmp-dev
+  
+  - ghc: 8.2.2
+    env: GHCVER='8.2.2' STACK_YAML="$TRAVIS_BUILD_DIR/stack-$GHCVER.yaml"
+    os: linux
+    addons:
+      apt:
+        packages:
+        - libgmp-dev
+  
+  - ghc: 8.4.4
+    env: GHCVER='8.4.4' STACK_YAML="$TRAVIS_BUILD_DIR/stack.yaml"
+    os: linux
+    addons:
+      apt:
+        packages:
+        - libgmp-dev
+
+install:
+  - |
+    if [ -z "$STACK_YAML" ]; then
+      export PATH="/opt/ghc/$GHCVER/bin:/opt/cabal/$CABALVER/bin:$PATH"
+      echo $PATH
+      cabal new-update
+      cabal new-build --enable-tests --enable-benchmarks
+    else
+      mkdir -p ~/.local/bin
+      export PATH="$HOME/.local/bin:$PATH"
+      travis_retry curl -L 'https://www.stackage.org/stack/linux-x86_64' | tar xz --wildcards --strip-components=1 -C ~/.local/bin '*/stack'
+      stack --version
+      stack setup --no-terminal --install-cabal 2.2.0.1
+      stack ghc -- --version
+      stack build --only-dependencies --no-terminal
+    fi
+
+script:
+  - |
+    if [ -z "$STACK_YAML" ]; then
+       cabal new-test
+    else
+      stack build --test --bench --no-run-benchmarks --no-terminal --ghc-options=-Werror
+    fi
+
+notifications:
+  email: false

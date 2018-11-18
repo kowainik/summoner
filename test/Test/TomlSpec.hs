@@ -1,8 +1,8 @@
-module Test.TomlSpec where
+module Test.TomlSpec
+       ( tomlProp
+       ) where
 
-import Hedgehog (MonadGen, forAll, property, tripping)
-import Test.Tasty (TestTree)
-import Test.Tasty.Hedgehog (testProperty)
+import Hedgehog (MonadGen, Property, forAll, property, tripping)
 import Toml.Bi.Code (decode, encode)
 
 import Summoner.Config (ConfigP (..), PartialConfig, configT)
@@ -14,6 +14,16 @@ import Test.DecisionSpec (genDecision)
 
 import qualified Hedgehog.Gen as Gen
 import qualified Hedgehog.Range as Range
+
+
+tomlProp :: Property
+tomlProp = property $ do
+    configToml <- forAll genPartialConfig
+    tripping configToml (encode configT) (decode configT)
+
+----------------------------------------------------------------------------
+-- Generators
+----------------------------------------------------------------------------
 
 genText :: MonadGen m => m Text
 genText = Gen.text
@@ -61,8 +71,3 @@ genPartialConfig = do
     cStylish    <- Last <$> Gen.maybe genSource
     cContributing <- Last <$> Gen.maybe genSource
     pure Config{..}
-
-test_Toml :: [TestTree]
-test_Toml = pure $ testProperty "decode . encode == id" $ property $ do
-    configToml <- forAll genPartialConfig
-    tripping configToml (encode configT) (decode configT)

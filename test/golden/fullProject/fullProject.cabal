@@ -1,0 +1,101 @@
+cabal-version:       2.0
+name:                fullProject
+version:             0.0.0
+synopsis:            Full test project
+description:         Full test project
+homepage:            https://github.com/kowainik/fullProject
+bug-reports:         https://github.com/kowainik/fullProject/issues
+license:             MIT
+license-file:        LICENSE
+author:              Kowainik
+maintainer:          xrom.xkov@gmail.com
+copyright:           2018 Kowainik
+category:            Testing
+build-type:          Simple
+extra-doc-files:     README.md
+                   , CHANGELOG.md
+tested-with:         GHC == 8.0.2, GHC == 8.2.2, GHC == 8.4.4
+
+source-repository head
+  type:                git
+  location:            https://github.com/kowainik/fullProject.git
+
+library
+  hs-source-dirs:      src
+  exposed-modules:     FullProject
+                       Prelude
+
+  build-depends:       base-noprelude >= 4.9.1.0 && < 4.12
+                     , relude
+
+  ghc-options:         -Wall
+                       -Wcompat
+                       -Widentities
+
+  default-language:    Haskell2010
+  default-extensions:  ConstraintKinds
+                       LambdaCase
+                       OverloadedStrings
+
+executable fullProject
+  hs-source-dirs:      app
+  main-is:             Main.hs
+
+  build-depends:       base-noprelude >= 4.9.1.0 && < 4.12
+                     , fullProject
+                     , relude
+
+  ghc-options:         -Wall
+                       -threaded
+                       -rtsopts
+                       -with-rtsopts=-N
+                       -Wcompat
+                       -Widentities
+
+  default-language:    Haskell2010
+  default-extensions:  ConstraintKinds
+                       LambdaCase
+                       OverloadedStrings
+
+test-suite fullProject-test
+  type:                exitcode-stdio-1.0
+  hs-source-dirs:      test
+  main-is:             Spec.hs
+
+  build-depends:       base-noprelude >= 4.9.1.0 && < 4.12
+                     , fullProject
+                     , relude
+
+  ghc-options:         -Wall
+                       -threaded
+                       -rtsopts
+                       -with-rtsopts=-N
+                       -Wcompat
+                       -Widentities
+
+  default-language:    Haskell2010
+  default-extensions:  ConstraintKinds
+                       LambdaCase
+                       OverloadedStrings
+
+benchmark fullProject-benchmark
+  type:                exitcode-stdio-1.0
+  hs-source-dirs:      benchmark
+  main-is:             Main.hs
+
+  build-depends:       base-noprelude >= 4.9.1.0 && < 4.12
+                     , gauge
+                     , fullProject
+                     , relude
+
+  ghc-options:         -Wall
+                       -threaded
+                       -rtsopts
+                       -with-rtsopts=-N
+                       -Wcompat
+                       -Widentities
+
+  default-language:    Haskell2010
+  default-extensions:  ConstraintKinds
+                       LambdaCase
+                       OverloadedStrings
