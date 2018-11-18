@@ -41,6 +41,9 @@
 * [#11](https://github.com/kowainik/summoner/issues/11):
   Support offline mode.
 * Add more documentation to the functions.
+* [#185](https://github.com/kowainik/summoner/issues/185):
+  Add golden tests.
+* Remove `tasty` dependencies from tests.
 
 1.1.0.1
 =======

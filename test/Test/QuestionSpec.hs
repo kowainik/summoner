@@ -1,11 +1,12 @@
-{-# LANGUAGE OverloadedStrings #-}
+module Test.QuestionSpec
+       ( yesNoPromptSpec
+       ) where
 
-module Test.QuestionSpec where
+import Test.Hspec (Spec, describe, it)
 
-import Test.Tasty.HUnit ((@?=))
+import Summoner.Question (YesNoPrompt (..), mkDefaultYesNoPrompt)
 
-import Summoner.Question
-
-unit_mkDefaultYesNoPrompt :: IO ()
-unit_mkDefaultYesNoPrompt =
-  yesNoPrompt (mkDefaultYesNoPrompt "Cabal") @?= "Add Cabal?"
+yesNoPromptSpec :: Spec
+yesNoPromptSpec = describe "mkDefaultYesNoPrompt works correctly" $
+    it "makes cabal prompt" $
+        yesNoPrompt (mkDefaultYesNoPrompt "Cabal") == "Add Cabal?"
