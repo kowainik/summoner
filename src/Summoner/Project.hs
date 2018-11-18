@@ -30,7 +30,7 @@ import Summoner.Tree (showTree, traverseTree)
 -- | Generate the project.
 generateProject
     :: Bool    -- ^ @noUpload@ option (to not upload to @Github@).
-    -> Bool    -- ^ @offlie@ module option
+    -> Bool    -- ^ @offline@ mode option
     -> Text    -- ^ Given project name.
     -> Config  -- ^ Given configurations.
     -> IO ()
