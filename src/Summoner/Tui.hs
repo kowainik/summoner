@@ -10,7 +10,7 @@ module Summoner.Tui
        ) where
 
 import Brick (App (..), AttrMap, BrickEvent (VtyEvent), Padding (Pad), Widget, attrMap, continue,
-              customMain, hBox, halt, padTop, str, vBox, vLimit, withAttr, (<+>), (<=>))
+              customMain, hBox, halt, padRight, padTop, str, vBox, vLimit, withAttr, (<+>), (<=>))
 import Brick.Focus (focusRingCursor)
 import Brick.Forms (Form, checkboxField, editTextField, focusedFormInputAttr, formFocus, formState,
                     handleFormEvent, invalidFormInputAttr, listField, newForm, radioField,
@@ -84,7 +84,7 @@ mkForm = setFormConcat arrangeColumns . newForm
         , 2 |> checkboxField stack StackField "Stack"
         ]
    ++ groupBorder "GitHub"
-        [ 2 |> setFieldConcat hBox . radioField (gitHub . enabled)
+        [ 2 |> setFieldConcat arrangeRadioHoriz . radioField (gitHub . enabled)
             [ (True, GitHubEnable, "Enable")
             , (False, GitHubDisable, "Disable")
             ]
@@ -108,6 +108,14 @@ mkForm = setFormConcat arrangeColumns . newForm
              , vBox column2
              , vBox column3
              ]
+
+    arrangeRadioHoriz :: [Widget SummonForm] -> Widget SummonForm
+    arrangeRadioHoriz = hBox . updateHead (padRight (Pad 2))
+
+    updateHead :: (a -> a) -> [a] -> [a]
+    updateHead _ []       = []
+    updateHead f (a : as) = f a : as
+
 
 theMap :: AttrMap
 theMap = attrMap V.defAttr
