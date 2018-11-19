@@ -19,6 +19,7 @@ module Summoner.Tui.Kit
        , project
        , cabal
        , stack
+       , projectMeta
        , gitHub
 
          -- ** User
@@ -33,6 +34,15 @@ module Summoner.Tui.Kit
        , license
        , maybeLicense
 
+         -- ** ProjectMeta
+       , lib
+       , exe
+       , test
+       , bench
+       , ghcs
+       , preludeName
+       , preludeModule
+
          -- ** GitHub
        , enabled
        , private
@@ -43,16 +53,19 @@ module Summoner.Tui.Kit
 import Lens.Micro (Lens', lens, (.~))
 import Lens.Micro.TH (makeFields)
 
+import Summoner.Default (defaultGHC)
+import Summoner.GhcVer (GhcVer)
 import Summoner.License (LicenseName (..))
 
 
 -- | Global TUI state.
 data SummonKit = SummonKit
-    { summonKitUser    :: User
-    , summonKitProject :: Project
-    , summonKitCabal   :: Bool
-    , summonKitStack   :: Bool
-    , summonKitGitHub  :: GitHub
+    { summonKitUser        :: User
+    , summonKitProject     :: Project
+    , summonKitCabal       :: Bool
+    , summonKitStack       :: Bool
+    , summonKitProjectMeta :: ProjectMeta
+    , summonKitGitHub      :: GitHub
     } deriving (Show)
 
 data User = User
@@ -66,6 +79,16 @@ data Project = Project
     , projectDesc     :: Text
     , projectCategory :: Text
     , projectLicense  :: LicenseName
+    } deriving (Show)
+
+data ProjectMeta = ProjectMeta
+    { projectMetaLib           :: Bool
+    , projectMetaExe           :: Bool
+    , projectMetaTest          :: Bool
+    , projectMetaBench         :: Bool
+    , projectMetaGhcs          :: [GhcVer]
+    , projectMetaPreludeName   :: Text
+    , projectMetaPreludeModule :: Text
     } deriving (Show)
 
 data GitHub = GitHub
@@ -89,8 +112,17 @@ initialSummonKit = SummonKit
         , projectCategory = ""
         , projectLicense = MIT
         }
-    , summonKitCabal = False
-    , summonKitStack = False
+    , summonKitProjectMeta = ProjectMeta
+        { projectMetaLib = True
+        , projectMetaExe = False
+        , projectMetaTest = True
+        , projectMetaBench = False
+        , projectMetaGhcs = [defaultGHC]
+        , projectMetaPreludeName = ""
+        , projectMetaPreludeModule = ""
+        }
+    , summonKitCabal = True
+    , summonKitStack = True
     , summonKitGitHub = GitHub
         { gitHubEnabled  = True
         , gitHubPrivate  = False
@@ -102,6 +134,7 @@ initialSummonKit = SummonKit
 makeFields ''SummonKit
 makeFields ''User
 makeFields ''Project
+makeFields ''ProjectMeta
 makeFields ''GitHub
 
 maybeLicense :: Lens' SummonKit (Maybe LicenseName)

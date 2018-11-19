@@ -10,23 +10,26 @@ module Summoner.Tui
        ) where
 
 import Brick (App (..), AttrMap, BrickEvent (VtyEvent), Padding (Pad), Widget, attrMap, continue,
-              customMain, hBox, halt, padRight, padTop, str, vBox, vLimit, withAttr, (<+>), (<=>))
+              customMain, hBox, halt, padRight, padTop, str, txt, vBox, vLimit, withAttr, (<+>),
+              (<=>))
 import Brick.Focus (focusRingCursor)
-import Brick.Forms (Form, checkboxField, editTextField, focusedFormInputAttr, formFocus, formState,
-                    handleFormEvent, invalidFormInputAttr, listField, newForm, radioField,
-                    renderForm, setFieldConcat, setFormConcat, (@@=))
+import Brick.Forms (Form, checkboxField, editField, editTextField, focusedFormInputAttr, formFocus,
+                    formState, handleFormEvent, invalidFormInputAttr, listField, newForm,
+                    radioField, renderForm, setFieldConcat, setFieldValid, setFormConcat, (@@=))
+import Lens.Micro ((^.))
 
+import Summoner.GhcVer (parseGhcVer, showGhcVer)
 import Summoner.License (LicenseName)
+import Summoner.Text (intercalateMap)
 import Summoner.Tui.GroupBorder (groupBorder, (|>))
-import Summoner.Tui.Kit (SummonKit (..), appVeyor, cabal, category, desc, email, enabled, fullName,
-                         gitHub, initialSummonKit, maybeLicense, owner, private, project, repo,
-                         stack, travis, user)
+import Summoner.Tui.Kit
 
 import qualified Brick (on)
 import qualified Brick.Widgets.Border as B
 import qualified Brick.Widgets.Center as C
 import qualified Brick.Widgets.Edit as E
 import qualified Brick.Widgets.List as L
+import qualified Data.Text as T
 import qualified Graphics.Vty as V
 
 
@@ -53,10 +56,16 @@ data SummonForm
     | CabalField
     | StackField
 
-     -- Build tools
-    | ToolsBox Int
+    -- Project Meta
+    | Lib
+    | Exe
+    | Test
+    | Bench
+    | CustomPreludeName
+    | CustomPreludeModule
+    | Ghcs
 
-      -- github fields
+      -- GitHub fields
     | GitHubEnable
     | GitHubDisable
     | GitHubPrivate
@@ -74,14 +83,23 @@ mkForm = setFormConcat arrangeColumns . newForm
         ]
    ++ groupBorder "Project"
         [ 2 |> label "Name" @@= editTextField (project . repo) ProjectName (Just 1)
-        , 2 |> label "Description" @@= editTextField (project . desc) ProjectDesc (Just 2)
-        , 1 |> label "Category" @@= editTextField (project . category) ProjectCat (Just 1)
+        , 3 |> label "Description" @@= editTextField (project . desc) ProjectDesc (Just 2)
+        , 2 |> label "Category" @@= editTextField (project . category) ProjectCat (Just 1)
         , 4 |> vLimit 3 . label "License" @@= listField (const (fromList $ universe @LicenseName))
               maybeLicense widgetList 1 ProjectLicense
         ]
    ++ groupBorder "Tools"
         [ 2 |> checkboxField cabal CabalField "Cabal"
         , 2 |> checkboxField stack StackField "Stack"
+        ]
+   ++ groupBorder "Project Meta"
+        [ 2 |> checkboxField (projectMeta . lib) Lib "Library"
+        , 1 |> checkboxField (projectMeta . exe) Exe "Executable"
+        , 1 |> checkboxField (projectMeta . test) Test "Tests"
+        , 2 |> checkboxField (projectMeta . bench) Bench "Benchmarks"
+        , 1 |> label "Name" @@= editTextField (projectMeta . preludeName) CustomPreludeName (Just 1)
+        , 2 |> label "Module" @@= editTextField (projectMeta . preludeModule) CustomPreludeModule (Just 1)
+        , 2 |> label "GHC versions" @@= editField (projectMeta . ghcs) Ghcs (Just 1) (intercalateMap " " showGhcVer) (traverse parseGhcVer . words . T.intercalate " ") (txt . T.intercalate "\n") id
         ]
    ++ groupBorder "GitHub"
         [ 2 |> setFieldConcat arrangeRadioHoriz . radioField (gitHub . enabled)
@@ -103,7 +121,7 @@ mkForm = setFormConcat arrangeColumns . newForm
     arrangeColumns :: [Widget SummonForm] -> Widget SummonForm
     arrangeColumns widgets =
         let (column1, columns23) = splitAt 7 widgets in
-        let (column2, column3)   = splitAt 2 columns23 in
+        let (column2, column3)   = splitAt 9 columns23 in
         hBox [ vBox column1
              , vBox column2
              , vBox column3
@@ -155,7 +173,16 @@ app = App
         VtyEvent V.EvResize {}       -> continue s
         -- TODO: should we cancel on Esc and apply on Ctrl+Enter?
         VtyEvent (V.EvKey V.KEsc []) -> halt s
-        _                            -> handleFormEvent ev s >>= continue
+        _                            -> do
+            s' <- handleFormEvent ev s
+            let kit = formState s'
+            let cabalOrStack = kit ^. cabal || kit ^. stack
+            let libOrExe = kit ^. projectMeta . lib || kit ^. projectMeta . exe
+            -- Require age field to contain a value that is at least 18.
+            continue $ setFieldValid cabalOrStack StackField
+                     $ setFieldValid cabalOrStack CabalField
+                     $ setFieldValid libOrExe Lib
+                     $ setFieldValid libOrExe Exe s'
     , appChooseCursor = focusRingCursor formFocus
     , appStartEvent = pure
     , appAttrMap = const theMap
