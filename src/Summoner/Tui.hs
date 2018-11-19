@@ -10,7 +10,7 @@ module Summoner.Tui
        ) where
 
 import Brick (App (..), AttrMap, BrickEvent (VtyEvent), Padding (Pad), Widget, attrMap, continue,
-              customMain, hBox, halt, padTop, str, vBox, vLimit, (<+>), (<=>))
+              customMain, hBox, halt, padRight, padTop, str, vBox, vLimit, withAttr, (<+>), (<=>))
 import Brick.Focus (focusRingCursor)
 import Brick.Forms (Form, checkboxField, editTextField, focusedFormInputAttr, formFocus, formState,
                     handleFormEvent, invalidFormInputAttr, listField, newForm, radioField,
@@ -84,7 +84,7 @@ mkForm = setFormConcat arrangeColumns . newForm
         , 2 |> checkboxField stack StackField "Stack"
         ]
    ++ groupBorder "GitHub"
-        [ 2 |> setFieldConcat hBox . radioField (gitHub . enabled)
+        [ 2 |> setFieldConcat arrangeRadioHoriz . radioField (gitHub . enabled)
             [ (True, GitHubEnable, "Enable")
             , (False, GitHubDisable, "Disable")
             ]
@@ -109,6 +109,14 @@ mkForm = setFormConcat arrangeColumns . newForm
              , vBox column3
              ]
 
+    arrangeRadioHoriz :: [Widget SummonForm] -> Widget SummonForm
+    arrangeRadioHoriz = hBox . updateHead (padRight (Pad 2))
+
+    updateHead :: (a -> a) -> [a] -> [a]
+    updateHead _ []       = []
+    updateHead f (a : as) = f a : as
+
+
 theMap :: AttrMap
 theMap = attrMap V.defAttr
     [ (E.editAttr,           V.white `Brick.on` V.black)
@@ -122,15 +130,30 @@ theMap = attrMap V.defAttr
 draw :: Form SummonKit e SummonForm -> [Widget SummonForm]
 draw f = [C.vCenter $ C.hCenter form <=> C.hCenter help]
   where
-    form = B.borderWithLabel (str "Form") $ padTop (Pad 1) (renderForm f)
-    help = padTop (Pad 1) $ B.borderWithLabel (str "Help") body
-    body = str "- Enter/Esc quit, mouse interacts with fields"
+    form :: Widget SummonForm
+    form = B.borderWithLabel (str "Summon new project") $ padTop (Pad 1) (renderForm f)
+
+    help, helpBody :: Widget SummonForm
+    help     = padTop (Pad 1) $ B.borderWithLabel (str "Help") helpBody
+    helpBody = vBox
+        [       str "• Esc    : quit"
+        , yellowStr "• Yellow" <+> str " : focused input field"
+        ,    redStr "• Red   " <+> str " : invalid input field"
+        ,       str "• Ctrk+U : remove input field content from cursor position to the start"
+        ,       str "• Ctrk+K : remove input field content from cursor position to the end"
+        ,       str "• Arrows : up/down arrows to choose license"
+        ]
+
+    redStr, yellowStr :: String -> Widget SummonForm
+    redStr = withAttr invalidFormInputAttr . str
+    yellowStr = withAttr E.editFocusedAttr . str
 
 app :: App (Form SummonKit e SummonForm) e SummonForm
 app = App
     { appDraw = draw
     , appHandleEvent = \s ev -> case ev of
         VtyEvent V.EvResize {}       -> continue s
+        -- TODO: should we cancel on Esc and apply on Ctrl+Enter?
         VtyEvent (V.EvKey V.KEsc []) -> halt s
         _                            -> handleFormEvent ev s >>= continue
     , appChooseCursor = focusRingCursor formFocus
