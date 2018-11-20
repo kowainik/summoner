@@ -72,7 +72,7 @@ renderCheckbox isEnabled label n foc val =
         csr = if foc then showCursor n (Location (1,0)) else id
     in if isEnabled
            then clickable n $ addAttr $ csr $
-                (str $ "[" <> (if val then "X" else " ") <>
+                str ("[" <> (if val then "X" else " ") <>
                        "]" <> " ") <+> str label
            else withAttr "disabled" $ str "[ ] " <+> str label
 
