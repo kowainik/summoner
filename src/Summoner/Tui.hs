@@ -9,7 +9,7 @@ module Summoner.Tui
        ( summonTui
        ) where
 
-import Brick (App (..), AttrMap, BrickEvent (VtyEvent), Padding (Pad), Widget, attrMap, continue,
+import Brick (App (..), AttrMap, BrickEvent (..), Padding (Pad), Widget, attrMap, continue,
               customMain, hBox, halt, padRight, padTop, str, txt, vBox, vLimit, withAttr, (<+>),
               (<=>))
 import Brick.Focus (focusGetCurrent, focusRingCursor)
@@ -21,11 +21,12 @@ import Lens.Micro ((.~), (^.))
 import Summoner.GhcVer (parseGhcVer, showGhcVer)
 import Summoner.License (LicenseName)
 import Summoner.Text (intercalateMap)
-import Summoner.Tui.Forms (textField)
+import Summoner.Tui.Forms (activeCheckboxField, disabledAttr, strField)
 import Summoner.Tui.GroupBorder (groupBorder, (|>))
 import Summoner.Tui.Kit
 
 import qualified Brick (on)
+import qualified Brick.Util as U
 import qualified Brick.Widgets.Border as B
 import qualified Brick.Widgets.Center as C
 import qualified Brick.Widgets.Edit as E
@@ -76,7 +77,7 @@ data SummonForm
 
 -- Creates the input form from the given initial 'SummonKit'.
 mkForm :: forall e . SummonKit -> Form SummonKit e SummonForm
-mkForm = setFormConcat arrangeColumns . newForm
+mkForm sk = setFormConcat arrangeColumns $ newForm
     ( groupBorder "User"
         [ 2 |> label "Owner" @@= editTextField (user . owner) UserOwner (Just 1)
         , 1 |> label "Full name" @@= editTextField (user . fullName) UserFullName (Just 1)
@@ -98,7 +99,7 @@ mkForm = setFormConcat arrangeColumns . newForm
         , 1 |> checkboxField (projectMeta . exe) Exe "Executable"
         , 1 |> checkboxField (projectMeta . test) Test "Tests"
         , 2 |> checkboxField (projectMeta . bench) Bench "Benchmarks"
-        , 1 |> textField "Custom prelude"
+        , 1 |> strField "Custom prelude"
         , 1 |> label "Name" @@= editTextField (projectMeta . preludeName) CustomPreludeName (Just 1)
         , 2 |> label "Module" @@= editTextField (projectMeta . preludeModule) CustomPreludeModule (Just 1)
         , 2 |> label "GHC versions" @@= editField (projectMeta . ghcs) Ghcs (Just 1) (intercalateMap " " showGhcVer) (traverse parseGhcVer . words . T.intercalate " ") (txt . T.intercalate "\n") id
@@ -108,12 +109,15 @@ mkForm = setFormConcat arrangeColumns . newForm
             [ (True, GitHubEnable, "Enable")
             , (False, GitHubDisable, "Disable")
             ]
-        , 1 |> checkboxField (gitHub . private)  GitHubPrivate  "Private"
-        , 1 |> checkboxField (gitHub . travis)   GitHubTravis   "Travis"
-        , 2 |> checkboxField (gitHub . appVeyor) GitHubAppVeyor "AppVeyor"
+        , 1 |> activeCheckboxField (gitHub . private)  isGitHubEnabled GitHubPrivate  "Private"
+        , 1 |> activeCheckboxField (gitHub . travis)   isGitHubEnabled GitHubTravis   "Travis"
+        , 2 |> activeCheckboxField (gitHub . appVeyor) isGitHubEnabled GitHubAppVeyor "AppVeyor"
         ]
-    )
+    ) sk
   where
+    isGitHubEnabled :: Bool
+    isGitHubEnabled = sk ^. gitHub . enabled
+
     label :: String -> Widget n -> Widget n
     label l w = str l <+>  w
 
@@ -145,7 +149,7 @@ theMap = attrMap V.defAttr
     , (focusedFormInputAttr, V.black `Brick.on` V.yellow)
     , (L.listAttr,           V.white `Brick.on` V.blue)
     , (L.listSelectedAttr,   V.blue  `Brick.on` V.white)
-    -- , (B.borderAttr,         )
+    , (disabledAttr,         U.fg V.brightBlack)
     ]
 
 draw :: Form SummonKit e SummonForm -> [Widget SummonForm]
@@ -183,6 +187,11 @@ app = App
                 if focusGetCurrent (formFocus s') == Just UserOwner
                 then mkForm $ formState s' & user . owner .~ ""
                 else s'
+
+        MouseDown n _ _ _ -> case n of
+            GitHubEnable  -> handleFormEvent ev s >>= continue . mkForm . formState
+            GitHubDisable -> handleFormEvent ev s >>= continue . mkForm . formState
+            _             -> handleFormEvent ev s >>= continue
 
         _                            -> do
             s' <- handleFormEvent ev s
