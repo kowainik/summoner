@@ -10,12 +10,12 @@ module Summoner.Tui
        ) where
 
 import Brick (App (..), AttrMap, BrickEvent (..), Padding (Pad), Widget, attrMap, continue,
-              customMain, hBox, halt, padRight, padTop, str, txt, vBox, vLimit, withAttr, (<+>),
-              (<=>))
+              customMain, hBox, halt, padRight, padTop, str, txt, vBox, vLimit, withAttr, (<+>))
 import Brick.Focus (focusGetCurrent, focusRingCursor)
 import Brick.Forms (Form, checkboxField, editField, editTextField, focusedFormInputAttr, formFocus,
-                    formState, handleFormEvent, invalidFormInputAttr, listField, newForm,
-                    radioField, renderForm, setFieldConcat, setFieldValid, setFormConcat, (@@=))
+                    formState, handleFormEvent, invalidFields, invalidFormInputAttr, listField,
+                    newForm, radioField, renderForm, setFieldConcat, setFieldValid, setFormConcat,
+                    (@@=))
 import Lens.Micro ((.~), (^.))
 
 import Summoner.GhcVer (parseGhcVer, showGhcVer)
@@ -153,10 +153,30 @@ theMap = attrMap V.defAttr
     ]
 
 draw :: Form SummonKit e SummonForm -> [Widget SummonForm]
-draw f = [C.vCenter $ C.hCenter form <=> C.hCenter help]
+draw f =
+    [ C.vCenter $ vBox
+        [ C.hCenter form
+        , validationErrors $ invalidFields f
+        , help
+        ]
+    ]
   where
     form :: Widget SummonForm
     form = B.borderWithLabel (str "Summon new project") $ padTop (Pad 1) (renderForm f)
+
+    validationErrors :: [SummonForm] -> Widget SummonForm
+    validationErrors formFields = B.borderWithLabel (str "Errors") $ case formFields of
+        []     -> str "Project configuration is valid"
+        fields -> vBox $ map str $ mapMaybe fieldNameErrorMsg fields
+      where
+        fieldNameErrorMsg :: SummonForm -> Maybe String
+        fieldNameErrorMsg = \case
+            ProjectName         -> Just "Directory with such name already exists"
+            CabalField          -> Just "At least one build tool should be selected"
+            Lib                 -> Just "At least library or executable should be selected"
+            CustomPreludeModule -> Just "Prelude module cannot be empty if package specified"
+            Ghcs                -> Just "Some GHC versions failed to parse"
+            _ -> Nothing
 
     help, helpBody :: Widget SummonForm
     help     = padTop (Pad 1) $ B.borderWithLabel (str "Help") helpBody
