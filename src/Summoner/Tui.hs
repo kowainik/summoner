@@ -10,7 +10,8 @@ module Summoner.Tui
        ) where
 
 import Brick (App (..), AttrMap, BrickEvent (VtyEvent), Padding (Pad), Widget, attrMap, continue,
-              customMain, hBox, halt, padRight, padTop, txt, vBox, vLimit, withAttr, (<+>), (<=>))
+              customMain, hBox, halt, padRight, padTop, str, txt, vBox, vLimit, withAttr, (<+>),
+              (<=>))
 import Brick.Focus (focusGetCurrent, focusRingCursor)
 import Brick.Forms (Form, checkboxField, editField, editTextField, focusedFormInputAttr, formFocus,
                     formState, handleFormEvent, invalidFormInputAttr, listField, newForm,
@@ -113,11 +114,11 @@ mkForm = setFormConcat arrangeColumns . newForm
         ]
     )
   where
-    label :: Text -> Widget n -> Widget n
-    label l w = txt l <+>  w
+    label :: String -> Widget n -> Widget n
+    label l w = str l <+>  w
 
     widgetList :: Bool -> LicenseName -> Widget SummonForm
-    widgetList p l = C.hCenter $ if p then txt ("[" <> show l <> "]") else txt $ show l
+    widgetList p l = C.hCenter $ str $ if p then "[" ++ show l ++ "]" else show l
 
     arrangeColumns :: [Widget SummonForm] -> Widget SummonForm
     arrangeColumns widgets =
@@ -151,22 +152,22 @@ draw :: Form SummonKit e SummonForm -> [Widget SummonForm]
 draw f = [C.vCenter $ C.hCenter form <=> C.hCenter help]
   where
     form :: Widget SummonForm
-    form = B.borderWithLabel (txt "Summon new project") $ padTop (Pad 1) (renderForm f)
+    form = B.borderWithLabel (str "Summon new project") $ padTop (Pad 1) (renderForm f)
 
     help, helpBody :: Widget SummonForm
-    help     = padTop (Pad 1) $ B.borderWithLabel (txt "Help") helpBody
+    help     = padTop (Pad 1) $ B.borderWithLabel (str "Help") helpBody
     helpBody = vBox
-        [       txt "• Esc    : quit"
-        , yellowStr "• Yellow" <+> txt " : focused input field"
-        ,    redStr "• Red   " <+> txt " : invalid input field"
-        ,       txt "• Ctrk+U : remove input field content from cursor position to the start"
-        ,       txt "• Ctrk+K : remove input field content from cursor position to the end"
-        ,       txt "• Arrows : up/down arrows to choose license"
+        [       str "• Esc    : quit"
+        , yellowStr "• Yellow" <+> str " : focused input field"
+        ,    redStr "• Red   " <+> str " : invalid input field"
+        ,       str "• Ctrk+U : remove input field content from cursor position to the start"
+        ,       str "• Ctrk+K : remove input field content from cursor position to the end"
+        ,       str "• Arrows : up/down arrows to choose license"
         ]
 
-    redStr, yellowStr :: Text -> Widget SummonForm
-    redStr = withAttr invalidFormInputAttr . txt
-    yellowStr = withAttr E.editFocusedAttr . txt
+    redStr, yellowStr :: String -> Widget SummonForm
+    redStr = withAttr invalidFormInputAttr . str
+    yellowStr = withAttr E.editFocusedAttr . str
 
 app :: App (Form SummonKit e SummonForm) e SummonForm
 app = App
@@ -179,7 +180,7 @@ app = App
         VtyEvent (V.EvKey (V.KChar 'd') [V.MCtrl]) -> do
             s' <- handleFormEvent ev s
             continue $
-                if (focusGetCurrent (formFocus s') == Just UserOwner)
+                if focusGetCurrent (formFocus s') == Just UserOwner
                 then mkForm $ formState s' & user . owner .~ ""
                 else s'
 
