@@ -10,17 +10,17 @@ module Summoner.Tui
        ) where
 
 import Brick (App (..), AttrMap, BrickEvent (VtyEvent), Padding (Pad), Widget, attrMap, continue,
-              customMain, hBox, halt, padRight, padTop, str, txt, vBox, vLimit, withAttr, (<+>),
-              (<=>))
-import Brick.Focus (focusRingCursor)
+              customMain, hBox, halt, padRight, padTop, txt, vBox, vLimit, withAttr, (<+>), (<=>))
+import Brick.Focus (focusGetCurrent, focusRingCursor)
 import Brick.Forms (Form, checkboxField, editField, editTextField, focusedFormInputAttr, formFocus,
                     formState, handleFormEvent, invalidFormInputAttr, listField, newForm,
                     radioField, renderForm, setFieldConcat, setFieldValid, setFormConcat, (@@=))
-import Lens.Micro ((^.))
+import Lens.Micro ((.~), (^.))
 
 import Summoner.GhcVer (parseGhcVer, showGhcVer)
 import Summoner.License (LicenseName)
 import Summoner.Text (intercalateMap)
+import Summoner.Tui.Forms (textField)
 import Summoner.Tui.GroupBorder (groupBorder, (|>))
 import Summoner.Tui.Kit
 
@@ -73,7 +73,7 @@ data SummonForm
     | GitHubAppVeyor
     deriving (Eq, Ord, Show)
 
--- Creates the inout form from the given initial 'TreasureChest'.
+-- Creates the input form from the given initial 'SummonKit'.
 mkForm :: forall e . SummonKit -> Form SummonKit e SummonForm
 mkForm = setFormConcat arrangeColumns . newForm
     ( groupBorder "User"
@@ -97,6 +97,7 @@ mkForm = setFormConcat arrangeColumns . newForm
         , 1 |> checkboxField (projectMeta . exe) Exe "Executable"
         , 1 |> checkboxField (projectMeta . test) Test "Tests"
         , 2 |> checkboxField (projectMeta . bench) Bench "Benchmarks"
+        , 1 |> textField "Custom prelude"
         , 1 |> label "Name" @@= editTextField (projectMeta . preludeName) CustomPreludeName (Just 1)
         , 2 |> label "Module" @@= editTextField (projectMeta . preludeModule) CustomPreludeModule (Just 1)
         , 2 |> label "GHC versions" @@= editField (projectMeta . ghcs) Ghcs (Just 1) (intercalateMap " " showGhcVer) (traverse parseGhcVer . words . T.intercalate " ") (txt . T.intercalate "\n") id
@@ -112,16 +113,16 @@ mkForm = setFormConcat arrangeColumns . newForm
         ]
     )
   where
-    label :: String -> Widget n -> Widget n
-    label s w = str s <+>  w
+    label :: Text -> Widget n -> Widget n
+    label l w = txt l <+>  w
 
     widgetList :: Bool -> LicenseName -> Widget SummonForm
-    widgetList p l = C.hCenter $ if p then str ("[" ++ show l ++ "]") else str $ show l
+    widgetList p l = C.hCenter $ if p then txt ("[" <> show l <> "]") else txt $ show l
 
     arrangeColumns :: [Widget SummonForm] -> Widget SummonForm
     arrangeColumns widgets =
         let (column1, columns23) = splitAt 7 widgets in
-        let (column2, column3)   = splitAt 9 columns23 in
+        let (column2, column3)   = splitAt 10 columns23 in
         hBox [ vBox column1
              , vBox column2
              , vBox column3
@@ -137,34 +138,35 @@ mkForm = setFormConcat arrangeColumns . newForm
 
 theMap :: AttrMap
 theMap = attrMap V.defAttr
-    [ (E.editAttr,           V.white `Brick.on` V.black)
+    [ (E.editAttr,           V.white `Brick.on` V.cyan)
     , (E.editFocusedAttr,    V.black `Brick.on` V.yellow)
     , (invalidFormInputAttr, V.white `Brick.on` V.red)
     , (focusedFormInputAttr, V.black `Brick.on` V.yellow)
     , (L.listAttr,           V.white `Brick.on` V.blue)
     , (L.listSelectedAttr,   V.blue  `Brick.on` V.white)
+    -- , (B.borderAttr,         )
     ]
 
 draw :: Form SummonKit e SummonForm -> [Widget SummonForm]
 draw f = [C.vCenter $ C.hCenter form <=> C.hCenter help]
   where
     form :: Widget SummonForm
-    form = B.borderWithLabel (str "Summon new project") $ padTop (Pad 1) (renderForm f)
+    form = B.borderWithLabel (txt "Summon new project") $ padTop (Pad 1) (renderForm f)
 
     help, helpBody :: Widget SummonForm
-    help     = padTop (Pad 1) $ B.borderWithLabel (str "Help") helpBody
+    help     = padTop (Pad 1) $ B.borderWithLabel (txt "Help") helpBody
     helpBody = vBox
-        [       str "• Esc    : quit"
-        , yellowStr "• Yellow" <+> str " : focused input field"
-        ,    redStr "• Red   " <+> str " : invalid input field"
-        ,       str "• Ctrk+U : remove input field content from cursor position to the start"
-        ,       str "• Ctrk+K : remove input field content from cursor position to the end"
-        ,       str "• Arrows : up/down arrows to choose license"
+        [       txt "• Esc    : quit"
+        , yellowStr "• Yellow" <+> txt " : focused input field"
+        ,    redStr "• Red   " <+> txt " : invalid input field"
+        ,       txt "• Ctrk+U : remove input field content from cursor position to the start"
+        ,       txt "• Ctrk+K : remove input field content from cursor position to the end"
+        ,       txt "• Arrows : up/down arrows to choose license"
         ]
 
-    redStr, yellowStr :: String -> Widget SummonForm
-    redStr = withAttr invalidFormInputAttr . str
-    yellowStr = withAttr E.editFocusedAttr . str
+    redStr, yellowStr :: Text -> Widget SummonForm
+    redStr = withAttr invalidFormInputAttr . txt
+    yellowStr = withAttr E.editFocusedAttr . txt
 
 app :: App (Form SummonKit e SummonForm) e SummonForm
 app = App
@@ -172,7 +174,15 @@ app = App
     , appHandleEvent = \s ev -> case ev of
         VtyEvent V.EvResize {}       -> continue s
         -- TODO: should we cancel on Esc and apply on Ctrl+Enter?
+        VtyEvent (V.EvKey V.KEnter [V.MCtrl]) -> halt s
         VtyEvent (V.EvKey V.KEsc []) -> halt s
+        VtyEvent (V.EvKey (V.KChar 'd') [V.MCtrl]) -> do
+            s' <- handleFormEvent ev s
+            continue $
+                if (focusGetCurrent (formFocus s') == Just UserOwner)
+                then mkForm $ formState s' & user . owner .~ ""
+                else s'
+
         _                            -> do
             s' <- handleFormEvent ev s
             let kit = formState s'

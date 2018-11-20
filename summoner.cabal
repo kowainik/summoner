@@ -48,6 +48,7 @@ library
                          Summoner.Text
                          Summoner.Tree
                          Summoner.Tui
+                           Summoner.Tui.Forms
                            Summoner.Tui.GroupBorder
                            Summoner.Tui.Kit
 
