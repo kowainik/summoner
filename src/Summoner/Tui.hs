@@ -17,6 +17,7 @@ import Brick.Forms (Form, checkboxField, editField, editTextField, focusedFormIn
                     newForm, radioField, renderForm, setFieldConcat, setFieldValid, setFormConcat,
                     (@@=))
 import Lens.Micro ((.~), (^.))
+import System.Directory (doesDirectoryExist, getCurrentDirectory, listDirectory)
 
 import Summoner.GhcVer (parseGhcVer, showGhcVer)
 import Summoner.License (LicenseName)
@@ -193,8 +194,8 @@ draw f =
     redStr = withAttr invalidFormInputAttr . str
     yellowStr = withAttr E.editFocusedAttr . str
 
-app :: App (Form SummonKit e SummonForm) e SummonForm
-app = App
+app :: [FilePath] -> App (Form SummonKit e SummonForm) e SummonForm
+app dirs = App
     { appDraw = draw
     , appHandleEvent = \s ev -> case ev of
         VtyEvent V.EvResize {}       -> continue s
@@ -216,20 +217,31 @@ app = App
         _                            -> do
             s' <- handleFormEvent ev s
             let kit = formState s'
+
+            let projectName = kit ^. project . repo
+            let doesProjectExist = toString projectName `notElem` dirs
+
+
             let cabalOrStack = kit ^. cabal || kit ^. stack
             let libOrExe = kit ^. projectMeta . lib || kit ^. projectMeta . exe
+
             -- Require age field to contain a value that is at least 18.
-            continue $ setFieldValid cabalOrStack StackField
+            continue $ setFieldValid doesProjectExist ProjectName
+                     $ setFieldValid cabalOrStack StackField
                      $ setFieldValid cabalOrStack CabalField
                      $ setFieldValid libOrExe Lib
                      $ setFieldValid libOrExe Exe s'
+
     , appChooseCursor = focusRingCursor formFocus
     , appStartEvent = pure
     , appAttrMap = const theMap
     }
 
 executeSummonTui :: IO (Form SummonKit e SummonForm)
-executeSummonTui = customMain buildVty Nothing app $ mkForm initialSummonKit
+executeSummonTui = do
+    filesAndDirs <- listDirectory =<< getCurrentDirectory
+    dirs <- filterM doesDirectoryExist filesAndDirs
+    customMain buildVty Nothing (app dirs) $ mkForm initialSummonKit
   where
     buildVty :: IO V.Vty
     buildVty = do
