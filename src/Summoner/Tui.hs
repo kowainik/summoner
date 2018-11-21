@@ -30,6 +30,7 @@ import qualified Brick (on)
 import qualified Brick.Util as U
 import qualified Brick.Widgets.Border as B
 import qualified Brick.Widgets.Center as C
+import qualified Brick.Widgets.Core as W
 import qualified Brick.Widgets.Edit as E
 import qualified Brick.Widgets.List as L
 import qualified Data.Text as T
@@ -127,11 +128,9 @@ mkForm sk = setFormConcat arrangeColumns $ newForm
 
     arrangeColumns :: [Widget SummonForm] -> Widget SummonForm
     arrangeColumns widgets =
-        let (column1, columns23) = splitAt 7 widgets in
-        let (column2, column3)   = splitAt 10 columns23 in
+        let (column1, column2) = splitAt 9 widgets in
         hBox [ vBox column1
              , vBox column2
-             , vBox column3
              ]
 
     arrangeRadioHoriz :: [Widget SummonForm] -> Widget SummonForm
@@ -157,7 +156,8 @@ draw :: Form SummonKit e SummonForm -> [Widget SummonForm]
 draw f =
     [ C.vCenter $ vBox
         [ C.hCenter form
-        , validationErrors $ invalidFields f
+      <+> W.hLimitPercent 25 (C.hCenter tree)
+        , validationErrors (invalidFields f)
         , help
         ]
     ]
@@ -189,6 +189,9 @@ draw f =
         ,       str "• Ctrk+K : remove input field content from cursor position to the end"
         ,       str "• Arrows : up/down arrows to choose license"
         ]
+
+    tree :: Widget SummonForm
+    tree = B.borderWithLabel (str "Project Structure") $ txt $ renderWidgetTree $ formState f
 
     redStr, yellowStr :: String -> Widget SummonForm
     redStr = withAttr invalidFormInputAttr . str
