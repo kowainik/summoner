@@ -194,4 +194,4 @@ summonKitToSettings sk = Settings
            else ("base", Nothing)
 
 renderWidgetTree :: SummonKit -> Text
-renderWidgetTree = showTree . createProjectTemplate . summonKitToSettings
+renderWidgetTree = showTree False . createProjectTemplate . summonKitToSettings
