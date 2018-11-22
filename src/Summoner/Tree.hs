@@ -3,6 +3,7 @@
 module Summoner.Tree
        ( TreeFs (..)
        , traverseTree
+       , showBoldTree
        , showTree
        ) where
 
@@ -26,29 +27,37 @@ traverseTree (Dir name children) = do
 traverseTree (File name content) = writeFileText name content
 
 -- | Pretty shows the directory tree content.
-showTree :: TreeFs -> Text
-showTree = unlines . showOne "  " "" ""
+showBoldTree :: TreeFs -> Text
+showBoldTree = showTree True
 
-showOne :: Text -> Text -> Text -> TreeFs -> [Text]
-showOne leader tie arm (File fp _) =  [leader <> arm <> tie <> toText fp]
-showOne leader tie arm (Dir fp (sortWith treeFp -> trees)) =
-    nodeRep : showChildren trees (leader <> extension)
+-- | Pretty shows tree with options.
+showTree
+    :: Bool    -- ^ Print directories bold.
+    -> TreeFs  -- ^ Given tree.
+    -> Text    -- ^ Pretty output.
+showTree isBold = unlines . showOne "  " "" ""
   where
-    nodeRep :: Text
-    nodeRep = leader <> arm <> tie <> boldDir (fp <> "/")
+    showOne :: Text -> Text -> Text -> TreeFs -> [Text]
+    showOne leader tie arm (File fp _) =  [leader <> arm <> tie <> toText fp]
+    showOne leader tie arm (Dir fp (sortWith treeFp -> trees)) =
+        nodeRep : showChildren trees (leader <> extension)
       where
-        boldDir str = toText
-            $ boldCode
-           <> str
-           <> resetCode
+        nodeRep :: Text
+        nodeRep = leader <> arm <> tie <> boldDir (fp <> "/")
+          where
+            boldDir :: FilePath -> Text
+            boldDir str = toText $
+                if isBold
+                then boldCode <> str <> resetCode
+                else str
 
-    extension :: Text
-    extension = case arm of ""  -> ""; "└" -> "    "; _   -> "│   "
+        extension :: Text
+        extension = case arm of ""  -> ""; "└" -> "    "; _   -> "│   "
 
-showChildren :: [TreeFs] -> Text -> [Text]
-showChildren children leader =
-    let arms = replicate (length children - 1) "├" <> ["└"]
-    in  concat (zipWith (showOne leader "── ") arms children)
+    showChildren :: [TreeFs] -> Text -> [Text]
+    showChildren children leader =
+        let arms = replicate (length children - 1) "├" <> ["└"]
+        in  concat (zipWith (showOne leader "── ") arms children)
 
 -- For sorting in alphabetic order.
 treeFp :: TreeFs -> FilePath

@@ -9,7 +9,7 @@ module Summoner.Tui
        ( summonTui
        ) where
 
-import Brick (App (..), AttrMap, BrickEvent (..), Padding (Pad), Widget, attrMap, continue,
+import Brick (App (..), AttrMap, BrickEvent (..), Padding (Max, Pad), Widget, attrMap, continue,
               customMain, hBox, halt, padRight, padTop, str, txt, vBox, vLimit, withAttr, (<+>))
 import Brick.Focus (focusGetCurrent, focusRingCursor)
 import Brick.Forms (Form, checkboxField, editField, editTextField, focusedFormInputAttr, formFocus,
@@ -25,10 +25,10 @@ import Summoner.Text (intercalateMap)
 import Summoner.Tui.Forms (activeCheckboxField, disabledAttr, strField)
 import Summoner.Tui.GroupBorder (groupBorder, (|>))
 import Summoner.Tui.Kit
+import Summoner.Tui.Widget (borderLabel, hArrange, label)
 
 import qualified Brick (on)
 import qualified Brick.Util as U
-import qualified Brick.Widgets.Border as B
 import qualified Brick.Widgets.Center as C
 import qualified Brick.Widgets.Core as W
 import qualified Brick.Widgets.Edit as E
@@ -81,33 +81,37 @@ data SummonForm
 mkForm :: forall e . SummonKit -> Form SummonKit e SummonForm
 mkForm sk = setFormConcat arrangeColumns $ newForm
     ( groupBorder "User"
-        [ 2 |> label "Owner" @@= editTextField (user . owner) UserOwner (Just 1)
-        , 1 |> label "Full name" @@= editTextField (user . fullName) UserFullName (Just 1)
-        , 2 |> label "Email" @@= editTextField (user . email) UserEmail (Just 1)
+        [ 2 |> label "Owner     " @@= editTextField (user . owner) UserOwner (Just 1)
+        , 1 |> label "Full name " @@= editTextField (user . fullName) UserFullName (Just 1)
+        , 2 |> label "Email     " @@= editTextField (user . email) UserEmail (Just 1)
         ]
    ++ groupBorder "Project"
-        [ 2 |> label "Name" @@= editTextField (project . repo) ProjectName (Just 1)
-        , 3 |> label "Description" @@= editTextField (project . desc) ProjectDesc (Just 2)
-        , 2 |> label "Category" @@= editTextField (project . category) ProjectCat (Just 1)
-        , 4 |> vLimit 3 . label "License" @@= listField (const (fromList $ universe @LicenseName))
+        [ 2 |> label "Name        " @@= editTextField (project . repo) ProjectName (Just 1)
+        , 3 |> label "Description " @@= editTextField (project . desc) ProjectDesc (Just 2)
+        , 2 |> label "Category    " @@= editTextField (project . category) ProjectCat (Just 1)
+        , 4 |> vLimit 3 . label "License " @@= listField (const (fromList $ universe @LicenseName))
               maybeLicense widgetList 1 ProjectLicense
         ]
-   ++ groupBorder "Tools"
-        [ 2 |> checkboxField cabal CabalField "Cabal"
-        , 2 |> checkboxField stack StackField "Stack"
+   -- ++ groupBorder "Tools"
+   --      [ 2 |> checkboxField cabal CabalField "Cabal"
+   --      , 2 |> checkboxField stack StackField "Stack"
+   --      ]
+   ++   [ checkboxField cabal CabalField "Cabal"
+        , checkboxField stack StackField "Stack"
         ]
+
    ++ groupBorder "Project Meta"
         [ 2 |> checkboxField (projectMeta . lib) Lib "Library"
         , 1 |> checkboxField (projectMeta . exe) Exe "Executable"
         , 1 |> checkboxField (projectMeta . test) Test "Tests"
         , 2 |> checkboxField (projectMeta . bench) Bench "Benchmarks"
         , 1 |> strField "Custom prelude"
-        , 1 |> label "Name" @@= editTextField (projectMeta . preludeName) CustomPreludeName (Just 1)
-        , 2 |> label "Module" @@= editTextField (projectMeta . preludeModule) CustomPreludeModule (Just 1)
-        , 2 |> label "GHC versions" @@= editField (projectMeta . ghcs) Ghcs (Just 1) (intercalateMap " " showGhcVer) (traverse parseGhcVer . words . T.intercalate " ") (txt . T.intercalate "\n") id
+        , 1 |> label "Name   " @@= editTextField (projectMeta . preludeName) CustomPreludeName (Just 1)
+        , 2 |> label "Module " @@= editTextField (projectMeta . preludeModule) CustomPreludeModule (Just 1)
+        , 2 |> label "GHC versions " @@= editField (projectMeta . ghcs) Ghcs (Just 1) (intercalateMap " " showGhcVer) (traverse parseGhcVer . words . T.intercalate " ") (txt . T.intercalate "\n") id
         ]
    ++ groupBorder "GitHub"
-        [ 2 |> setFieldConcat arrangeRadioHoriz . radioField (gitHub . enabled)
+        [ 2 |> setFieldConcat hArrange . radioField (gitHub . enabled)
             [ (True, GitHubEnable, "Enable")
             , (False, GitHubDisable, "Disable")
             ]
@@ -120,26 +124,16 @@ mkForm sk = setFormConcat arrangeColumns $ newForm
     isGitHubEnabled :: Bool
     isGitHubEnabled = sk ^. gitHub . enabled
 
-    label :: String -> Widget n -> Widget n
-    label l w = str l <+>  w
-
     widgetList :: Bool -> LicenseName -> Widget SummonForm
     widgetList p l = C.hCenter $ str $ if p then "[" ++ show l ++ "]" else show l
 
     arrangeColumns :: [Widget SummonForm] -> Widget SummonForm
     arrangeColumns widgets =
-        let (column1, column2) = splitAt 9 widgets in
-        hBox [ vBox column1
+        let (column1, columns2) = splitAt 7 widgets in
+        let (tools, column2) = splitAt 2 columns2 in
+        hBox [ vBox $ column1 ++ [borderLabel "Tools" $ padRight Max (hArrange tools)]
              , vBox column2
              ]
-
-    arrangeRadioHoriz :: [Widget SummonForm] -> Widget SummonForm
-    arrangeRadioHoriz = hBox . updateHead (padRight (Pad 2))
-
-    updateHead :: (a -> a) -> [a] -> [a]
-    updateHead _ []       = []
-    updateHead f (a : as) = f a : as
-
 
 theMap :: AttrMap
 theMap = attrMap V.defAttr
@@ -154,22 +148,30 @@ theMap = attrMap V.defAttr
 
 draw :: Form SummonKit e SummonForm -> [Widget SummonForm]
 draw f =
-    [ C.vCenter $ vBox
-        [ C.hCenter form
-      <+> W.hLimitPercent 25 (C.hCenter tree)
-        , validationErrors (invalidFields f)
-        , help
+    [ vBox
+        [ form <+> tree
+        , validationErrors (invalidFields f) <+> help
         ]
     ]
   where
     form :: Widget SummonForm
-    form = B.borderWithLabel (str "Summon new project") $ padTop (Pad 1) (renderForm f)
+    form = borderLabel "Summon new project" $ padTop (Pad 1) (renderForm f)
+
+    tree :: Widget SummonForm
+    tree = W.hLimitPercent 25 $ W.vLimit 23 $ borderLabel "Project Structure" $ vBox
+        [ txt $ renderWidgetTree $ formState f
+        -- to fill all the space that widget should take.
+        , W.fill ' '
+        ]
 
     validationErrors :: [SummonForm] -> Widget SummonForm
-    validationErrors formFields = B.borderWithLabel (str "Errors") $ case formFields of
-        []     -> str "Project configuration is valid"
-        fields -> vBox $ map str $ mapMaybe fieldNameErrorMsg fields
+    validationErrors formFields = W.hLimitPercent 45 $ borderLabel "Errors" (validationBlock <+> W.fill ' ')
       where
+        validationBlock :: Widget SummonForm
+        validationBlock = vBox $ case formFields of
+            []     -> [str "Project configuration is valid"]
+            fields -> map str $ mapMaybe fieldNameErrorMsg fields
+
         fieldNameErrorMsg :: SummonForm -> Maybe String
         fieldNameErrorMsg = \case
             ProjectName         -> Just "Directory with such name already exists"
@@ -180,18 +182,15 @@ draw f =
             _ -> Nothing
 
     help, helpBody :: Widget SummonForm
-    help     = padTop (Pad 1) $ B.borderWithLabel (str "Help") helpBody
+    help     = borderLabel "Help" (helpBody <+> W.fill ' ')
     helpBody = vBox
-        [       str "• Esc    : quit"
+        [ str       "• Esc    : quit"
         , yellowStr "• Yellow" <+> str " : focused input field"
-        ,    redStr "• Red   " <+> str " : invalid input field"
-        ,       str "• Ctrk+U : remove input field content from cursor position to the start"
-        ,       str "• Ctrk+K : remove input field content from cursor position to the end"
-        ,       str "• Arrows : up/down arrows to choose license"
+        , redStr    "• Red   " <+> str " : invalid input field"
+        , str       "• Ctrk+U : remove input to the start"
+        , str       "• Ctrk+K : remove input to the end"
+        , str       "• Arrows : up/down arrows to choose license"
         ]
-
-    tree :: Widget SummonForm
-    tree = B.borderWithLabel (str "Project Structure") $ txt $ renderWidgetTree $ formState f
 
     redStr, yellowStr :: String -> Widget SummonForm
     redStr = withAttr invalidFormInputAttr . str
