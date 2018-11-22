@@ -240,23 +240,23 @@ newP = do
 
 targetsP ::  Decision -> Parser PartialConfig
 targetsP d = do
-    cGitHub  <- githubP    d
-    cTravis  <- travisP    d
-    cAppVey  <- appVeyorP  d
-    cPrivate <- privateP   d
-    cLib     <- libraryP   d
-    cExe     <- execP      d
-    cTest    <- testP      d
-    cBench   <- benchmarkP d
+    cGitHub   <- githubP    d
+    cTravis   <- travisP    d
+    cAppVeyor <- appVeyorP  d
+    cPrivate  <- privateP   d
+    cLib      <- libraryP   d
+    cExe      <- execP      d
+    cTest     <- testP      d
+    cBench    <- benchmarkP d
     pure mempty
-        { cGitHub = cGitHub
-        , cTravis = cTravis
-        , cAppVey = cAppVey
-        , cPrivate= cPrivate
-        , cLib    = cLib
-        , cExe    = cExe
-        , cTest   = cTest
-        , cBench  = cBench
+        { cGitHub   = cGitHub
+        , cTravis   = cTravis
+        , cAppVeyor = cAppVeyor
+        , cPrivate  = cPrivate
+        , cLib      = cLib
+        , cExe      = cExe
+        , cTest     = cTest
+        , cBench    = cBench
         }
 
 githubP :: Decision -> Parser Decision

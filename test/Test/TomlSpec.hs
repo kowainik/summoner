@@ -50,24 +50,24 @@ genSource = do
 
 genPartialConfig :: MonadGen m => m PartialConfig
 genPartialConfig = do
-    cOwner      <- Last . Just <$> genText
-    cFullName   <- Last . Just <$> genText
-    cEmail      <- Last . Just <$> genText
-    cLicense    <- Last . Just <$> genLicense
-    cGhcVer     <- Last . Just <$> genGhcVerArr
-    cCabal      <- genDecision
-    cStack      <- genDecision
-    cGitHub     <- genDecision
-    cTravis     <- genDecision
-    cAppVey     <- genDecision
-    cPrivate    <- genDecision
-    cLib        <- genDecision
-    cExe        <- genDecision
-    cTest       <- genDecision
-    cBench      <- genDecision
-    cPrelude    <- Last <$> Gen.maybe genCustomPrelude
-    cExtensions <- genTextArr
-    cWarnings   <- genTextArr
-    cStylish    <- Last <$> Gen.maybe genSource
+    cOwner        <- Last . Just <$> genText
+    cFullName     <- Last . Just <$> genText
+    cEmail        <- Last . Just <$> genText
+    cLicense      <- Last . Just <$> genLicense
+    cGhcVersions  <- Last . Just <$> genGhcVerArr
+    cCabal        <- genDecision
+    cStack        <- genDecision
+    cGitHub       <- genDecision
+    cTravis       <- genDecision
+    cAppVeyor     <- genDecision
+    cPrivate      <- genDecision
+    cLib          <- genDecision
+    cExe          <- genDecision
+    cTest         <- genDecision
+    cBench        <- genDecision
+    cPrelude      <- Last <$> Gen.maybe genCustomPrelude
+    cExtensions   <- genTextArr
+    cWarnings     <- genTextArr
+    cStylish      <- Last <$> Gen.maybe genSource
     cContributing <- Last <$> Gen.maybe genSource
     pure Config{..}

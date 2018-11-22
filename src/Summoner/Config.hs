@@ -42,26 +42,26 @@ data Phase = Partial | Final
 
 -- | Potentially incomplete configuration.
 data ConfigP (p :: Phase) = Config
-    { cOwner        :: p :- Text
-    , cFullName     :: p :- Text
-    , cEmail        :: p :- Text
-    , cLicense      :: p :- LicenseName
-    , cGhcVer       :: p :- [GhcVer]
-    , cCabal        :: Decision
-    , cStack        :: Decision
-    , cGitHub       :: Decision
-    , cTravis       :: Decision
-    , cAppVey       :: Decision
-    , cPrivate      :: Decision
-    , cLib          :: Decision
-    , cExe          :: Decision
-    , cTest         :: Decision
-    , cBench        :: Decision
-    , cPrelude      :: Last CustomPrelude
-    , cExtensions   :: [Text]
-    , cWarnings     :: [Text]
-    , cStylish      :: Last Source
-    , cContributing :: Last Source
+    { cOwner        :: !(p :- Text)
+    , cFullName     :: !(p :- Text)
+    , cEmail        :: !(p :- Text)
+    , cLicense      :: !(p :- LicenseName)
+    , cGhcVersions  :: !(p :- [GhcVer])
+    , cCabal        :: !Decision
+    , cStack        :: !Decision
+    , cGitHub       :: !Decision
+    , cPrivate      :: !Decision
+    , cTravis       :: !Decision
+    , cAppVeyor     :: !Decision
+    , cLib          :: !Decision
+    , cExe          :: !Decision
+    , cTest         :: !Decision
+    , cBench        :: !Decision
+    , cPrelude      :: !(Last CustomPrelude)
+    , cExtensions   :: ![Text]
+    , cWarnings     :: ![Text]
+    , cStylish      :: !(Last Source)
+    , cContributing :: !(Last Source)
     } deriving (Generic)
 
 deriving instance
@@ -106,25 +106,25 @@ instance Monoid PartialConfig where
 -- | Default 'Config' configurations.
 defaultConfig :: PartialConfig
 defaultConfig = Config
-    { cOwner    = Last (Just "kowainik")
-    , cFullName = Last (Just "Kowainik")
-    , cEmail    = Last (Just "xrom.xkov@gmail.com")
-    , cLicense  = Last (Just MIT)
-    , cGhcVer   = Last (Just [])
-    , cCabal    = Idk
-    , cStack    = Idk
-    , cGitHub   = Idk
-    , cTravis   = Idk
-    , cAppVey   = Idk
-    , cPrivate  = Idk
-    , cLib      = Idk
-    , cExe      = Idk
-    , cTest     = Idk
-    , cBench    = Idk
-    , cPrelude  = Last Nothing
-    , cExtensions = []
-    , cWarnings = []
-    , cStylish  = Last Nothing
+    { cOwner        = Last (Just "kowainik")
+    , cFullName     = Last (Just "Kowainik")
+    , cEmail        = Last (Just "xrom.xkov@gmail.com")
+    , cLicense      = Last (Just MIT)
+    , cGhcVersions  = Last (Just [])
+    , cCabal        = Idk
+    , cStack        = Idk
+    , cGitHub       = Idk
+    , cTravis       = Idk
+    , cAppVeyor     = Idk
+    , cPrivate      = Idk
+    , cLib          = Idk
+    , cExe          = Idk
+    , cTest         = Idk
+    , cBench        = Idk
+    , cPrelude      = Last Nothing
+    , cExtensions   = []
+    , cWarnings     = []
+    , cStylish      = Last Nothing
     , cContributing = Last Nothing
     }
 
@@ -135,13 +135,13 @@ configT = Config
     <*> lastT Toml.text "fullName"    .= cFullName
     <*> lastT Toml.text "email"       .= cEmail
     <*> lastT license   "license"     .= cLicense
-    <*> lastT ghcVerArr "ghcVersions" .= cGhcVer
+    <*> lastT ghcVerArr "ghcVersions" .= cGhcVersions
     <*> decision        "cabal"       .= cCabal
     <*> decision        "stack"       .= cStack
     <*> decision        "github"      .= cGitHub
-    <*> decision        "travis"      .= cTravis
-    <*> decision        "appveyor"    .= cAppVey
     <*> decision        "private"     .= cPrivate
+    <*> decision        "travis"      .= cTravis
+    <*> decision        "appveyor"    .= cAppVeyor
     <*> decision        "lib"         .= cLib
     <*> decision        "exe"         .= cExe
     <*> decision        "test"        .= cTest
@@ -193,13 +193,13 @@ finalise Config{..} = Config
     <*> fin  "fullName"   cFullName
     <*> fin  "email"      cEmail
     <*> fin  "license"    cLicense
-    <*> fin  "ghcVersions" cGhcVer
+    <*> fin  "ghcVersions" cGhcVersions
     <*> pure cCabal
     <*> pure cStack
     <*> pure cGitHub
-    <*> pure cTravis
-    <*> pure cAppVey
     <*> pure cPrivate
+    <*> pure cTravis
+    <*> pure cAppVeyor
     <*> pure cLib
     <*> pure cExe
     <*> pure cTest

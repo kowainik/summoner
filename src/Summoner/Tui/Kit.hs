@@ -13,9 +13,15 @@ module Summoner.Tui.Kit
          SummonKit (..)
        , initialSummonKit
        , renderWidgetTree
+       , summonKitToConfig
+
+       , KitMode (..)
+       , formName
+       , leftColumnSize
 
          -- * Lenses
          -- ** SummonKit
+       , mode
        , user
        , project
        , cabal
@@ -54,6 +60,8 @@ module Summoner.Tui.Kit
 import Lens.Micro (Lens', lens, (.~), (^.))
 import Lens.Micro.TH (makeFields)
 
+import Summoner.Config (ConfigP (..), PartialConfig)
+import Summoner.Decision (boolToDecision)
 import Summoner.Default (defaultGHC)
 import Summoner.GhcVer (GhcVer)
 import Summoner.License (LicenseName (..))
@@ -64,13 +72,25 @@ import Summoner.Tree (showTree)
 
 -- | Global TUI state.
 data SummonKit = SummonKit
-    { summonKitUser        :: !User
+    { summonKitMode        :: !KitMode
+    , summonKitUser        :: !User
     , summonKitProject     :: !Project
     , summonKitCabal       :: !Bool
     , summonKitStack       :: !Bool
     , summonKitProjectMeta :: !ProjectMeta
     , summonKitGitHub      :: !GitHub
     } deriving (Show)
+
+data KitMode = New | Init
+    deriving (Show, Eq)
+
+formName :: KitMode -> String
+formName New  = "Summon new project"
+formName Init = "Initialize configuration"
+
+leftColumnSize :: KitMode -> Int
+leftColumnSize New  = 9
+leftColumnSize Init = 6
 
 data User = User
     { userOwner    :: !Text
@@ -105,7 +125,8 @@ data GitHub = GitHub
 -- | Initial global state of the tui.
 initialSummonKit :: SummonKit
 initialSummonKit = SummonKit
-    { summonKitUser  = User
+    { summonKitMode = Init
+    , summonKitUser  = User
         { userOwner = ""
         , userFullName = ""
         , userEmail = ""
@@ -185,13 +206,46 @@ summonKitToSettings sk = Settings
     }
   where
     baseT :: Text
+    baseT = maybe "base" (const "base-noprelude") cP
+
     cP ::  Maybe CustomPrelude
-    (baseT, cP) =
-        let cpPackage = sk ^. projectMeta . preludeName
-            cpModule  = sk ^. projectMeta . preludeModule
-        in if ("" /= cpPackage) && ("" /= cpModule)
-           then ("base-noprelude", Just CustomPrelude{..})
-           else ("base", Nothing)
+    cP = summonKitToPrelude sk
+
+summonKitToPrelude :: SummonKit -> Maybe CustomPrelude
+summonKitToPrelude sk =
+    let cpPackage = sk ^. projectMeta . preludeName
+        cpModule  = sk ^. projectMeta . preludeModule
+    in if cpPackage /= "" && cpModule /= ""
+       then Just CustomPrelude{..}
+       else Nothing
+
+
+summonKitToConfig :: SummonKit -> PartialConfig
+summonKitToConfig sk = Config
+    { cOwner        = guardLast (/= "") $ sk ^. user . owner
+    , cFullName     = guardLast (/= "") $ sk ^. user . fullName
+    , cEmail        = guardLast (/= "") $ sk ^. user . email
+    , cLicense      = Last $ Just $ sk ^. project . license
+    , cGhcVersions  = guardLast (not . null) $ sk ^. projectMeta . ghcs
+    , cCabal        = boolToDecision $ sk ^. cabal
+    , cStack        = boolToDecision $ sk ^. stack
+    , cGitHub       = boolToDecision $ sk ^. gitHub . enabled
+    , cPrivate      = boolToDecision $ sk ^. gitHub . private
+    , cTravis       = boolToDecision $ sk ^. gitHub . travis
+    , cAppVeyor     = boolToDecision $ sk ^. gitHub . appVeyor
+    , cLib          = boolToDecision $ sk ^. projectMeta . lib
+    , cExe          = boolToDecision $ sk ^. projectMeta . exe
+    , cTest         = boolToDecision $ sk ^. projectMeta . test
+    , cBench        = boolToDecision $ sk ^. projectMeta . bench
+    , cPrelude      = Last $ summonKitToPrelude sk
+    , cExtensions   = []
+    , cWarnings     = []
+    , cStylish      = mempty
+    , cContributing = mempty
+    }
+  where
+    guardLast :: (a -> Bool) -> a -> Last a
+    guardLast p a = if p a then pure a else mempty
 
 renderWidgetTree :: SummonKit -> Text
 renderWidgetTree = showTree . createProjectTemplate . summonKitToSettings

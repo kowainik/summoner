@@ -68,7 +68,7 @@ generateProject noUpload isOffline projectName Config{..} = do
         (YesNoPrompt "private repository" "Create as a private repository (Requires a GitHub private repo plan)?")
         cPrivate
     settingsTravis   <- decisionIf settingsGitHub (mkDefaultYesNoPrompt "Travis CI integration") cTravis
-    settingsAppVeyor <- decisionIf (settingsStack && settingsGitHub) (mkDefaultYesNoPrompt "AppVeyor CI integration") cAppVey
+    settingsAppVeyor <- decisionIf (settingsStack && settingsGitHub) (mkDefaultYesNoPrompt "AppVeyor CI integration") cAppVeyor
     settingsIsLib    <- decisionToBool cLib (mkDefaultYesNoPrompt "library target")
     settingsIsExe    <- let target = "executable target" in
         if settingsIsLib
@@ -85,7 +85,7 @@ generateProject noUpload isOffline projectName Config{..} = do
     let settingsWarnings = cWarnings
 
     putTextLn $ "The project will be created with the latest resolver for default GHC-" <> showGhcVer defaultGHC
-    settingsTestedVersions <- sortNub . (defaultGHC :) <$> case cGhcVer of
+    settingsTestedVersions <- sortNub . (defaultGHC :) <$> case cGhcVersions of
         [] -> do
             putTextLn "Additionally you can specify versions of GHC to test with (space-separated): "
             infoMessage $ "Supported by 'summoner' GHCs: " <> intercalateMap " " showGhcVer universe

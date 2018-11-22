@@ -17,8 +17,11 @@ import Brick.Forms (Form, checkboxField, editField, editTextField, focusedFormIn
                     newForm, radioField, renderForm, setFieldConcat, setFieldValid, setFormConcat,
                     (@@=))
 import Lens.Micro ((.~), (^.))
-import System.Directory (doesDirectoryExist, getCurrentDirectory, listDirectory)
+import System.Directory (doesDirectoryExist, getCurrentDirectory, getHomeDirectory, listDirectory)
+import System.FilePath ((</>))
 
+import Summoner.Config (configT)
+import Summoner.Default (defaultTomlFile)
 import Summoner.GhcVer (parseGhcVer, showGhcVer)
 import Summoner.License (LicenseName)
 import Summoner.Text (intercalateMap)
@@ -35,14 +38,22 @@ import qualified Brick.Widgets.Edit as E
 import qualified Brick.Widgets.List as L
 import qualified Data.Text as T
 import qualified Graphics.Vty as V
+import qualified Toml
 
 
 summonTui :: IO ()
 summonTui = do
-    tkForm <- executeSummonTui
-    putTextLn $ "The starting form state was:" <> show initialSummonKit
-    putTextLn $ "The final form state was:" <> show (formState tkForm)
+    finalSummonKitForm <- executeSummonTui
+    let finalSummonKit = formState finalSummonKitForm
 
+    case finalSummonKit ^. mode of
+        New -> do
+           putTextLn $ "The starting form state was:" <> show initialSummonKit
+           putTextLn $ "The final form state was:" <> show finalSummonKit
+        Init -> do
+            let tomlConfig = Toml.encode configT $ summonKitToConfig finalSummonKit
+            homeDir <- getHomeDirectory
+            writeFileText (homeDir </> defaultTomlFile) tomlConfig
 
 data SummonForm
     -- User
@@ -85,13 +96,14 @@ mkForm sk = setFormConcat arrangeColumns $ newForm
         , 1 |> label "Full name" @@= editTextField (user . fullName) UserFullName (Just 1)
         , 2 |> label "Email" @@= editTextField (user . email) UserEmail (Just 1)
         ]
-   ++ groupBorder "Project"
-        [ 2 |> label "Name" @@= editTextField (project . repo) ProjectName (Just 1)
-        , 3 |> label "Description" @@= editTextField (project . desc) ProjectDesc (Just 2)
-        , 2 |> label "Category" @@= editTextField (project . category) ProjectCat (Just 1)
-        , 4 |> vLimit 3 . label "License" @@= listField (const (fromList $ universe @LicenseName))
+   ++ groupBorder "Project" (
+        [2 |> label "Name"        @@= editTextField (project . repo)     ProjectName (Just 1) | currentMode == New ] ++
+        [3 |> label "Description" @@= editTextField (project . desc)     ProjectDesc (Just 2) | currentMode == New ] ++
+        [2 |> label "Category"    @@= editTextField (project . category) ProjectCat (Just 1)  | currentMode == New ] ++
+        [4 |> vLimit 3 . label "License" @@= listField (const (fromList $ universe @LicenseName))
               maybeLicense widgetList 1 ProjectLicense
         ]
+      )
    ++ groupBorder "Tools"
         [ 2 |> checkboxField cabal CabalField "Cabal"
         , 2 |> checkboxField stack StackField "Stack"
@@ -117,6 +129,9 @@ mkForm sk = setFormConcat arrangeColumns $ newForm
         ]
     ) sk
   where
+    currentMode :: KitMode
+    currentMode = sk ^. mode
+
     isGitHubEnabled :: Bool
     isGitHubEnabled = sk ^. gitHub . enabled
 
@@ -128,7 +143,7 @@ mkForm sk = setFormConcat arrangeColumns $ newForm
 
     arrangeColumns :: [Widget SummonForm] -> Widget SummonForm
     arrangeColumns widgets =
-        let (column1, column2) = splitAt 9 widgets in
+        let (column1, column2) = splitAt (leftColumnSize currentMode) widgets in
         hBox [ vBox column1
              , vBox column2
              ]
@@ -162,8 +177,11 @@ draw f =
         ]
     ]
   where
+    kit :: SummonKit
+    kit = formState f
+
     form :: Widget SummonForm
-    form = B.borderWithLabel (str "Summon new project") $ padTop (Pad 1) (renderForm f)
+    form = B.borderWithLabel (str $ formName $ kit ^. mode) $ padTop (Pad 1) (renderForm f)
 
     validationErrors :: [SummonForm] -> Widget SummonForm
     validationErrors formFields = B.borderWithLabel (str "Errors") $ case formFields of

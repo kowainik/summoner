@@ -82,7 +82,7 @@ groupBorderMid (i, f) =
 -- | Creates the border around the only one element.
 groupAllBorders :: String -> (Int, s -> FormFieldState s e n) -> (s -> FormFieldState s e n)
 groupAllBorders groupName (i, f) =
-    ( vLimit i
+    ( vLimit (i + 1)
     . B.withBorderStyle B.unicodeBold
     . B.borderWithLabel (str groupName)
     . padRight Max

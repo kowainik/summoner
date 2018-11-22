@@ -2,6 +2,7 @@
 
 module Summoner.Decision
        ( Decision (..)
+       , boolToDecision
        , decisionToBool
        ) where
 
@@ -31,6 +32,9 @@ instance GSemigroup Decision where
 instance GMonoid Decision where
     gmempty = mempty
     gmappend = (<>)
+
+boolToDecision :: Bool -> Decision
+boolToDecision p = if p then Yes else Nop
 
 decisionToBool :: Decision -> YesNoPrompt -> IO Bool
 decisionToBool decision target@YesNoPrompt {..} = case decision of
