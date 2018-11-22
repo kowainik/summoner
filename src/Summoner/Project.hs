@@ -24,7 +24,7 @@ import Summoner.Settings (CustomPrelude (..), Settings (..))
 import Summoner.Source (fetchSource)
 import Summoner.Template (createProjectTemplate)
 import Summoner.Text (intercalateMap, packageToModule)
-import Summoner.Tree (showTree, traverseTree)
+import Summoner.Tree (showBoldTree, traverseTree)
 
 
 -- | Generate the project.
@@ -116,7 +116,7 @@ generateProject noUpload isOffline projectName Config{..} = do
         let tree = createProjectTemplate settings
         traverseTree tree
         successMessage "\nThe project with the following structure has been created:"
-        putTextLn $ showTree tree
+        putTextLn $ showBoldTree tree
         setCurrentDirectory (toString settingsRepo)
 
     doGithubCommands :: Settings -> Bool -> IO ()

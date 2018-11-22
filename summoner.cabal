@@ -51,6 +51,7 @@ library
                            Summoner.Tui.Forms
                            Summoner.Tui.GroupBorder
                            Summoner.Tui.Kit
+                           Summoner.Tui.Widget
 
   autogen-modules:     Paths_summoner
   other-modules:       Paths_summoner
