@@ -2,7 +2,7 @@ module Main where
 
 import System.IO (hSetEncoding, stdout, utf8)
 
-import Summoner (summon)
+import Summoner (summonCli)
 
 main :: IO ()
-main = hSetEncoding stdout utf8 >> summon
+main = hSetEncoding stdout utf8 >> summonCli

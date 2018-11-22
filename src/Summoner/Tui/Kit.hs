@@ -11,7 +11,7 @@ in the form.
 module Summoner.Tui.Kit
        ( -- * Data types
          SummonKit (..)
-       , initialSummonKit
+       , mkSummonKit
        , renderWidgetTree
        , summonKitToConfig
 
@@ -81,16 +81,16 @@ data SummonKit = SummonKit
     , summonKitGitHub      :: !GitHub
     } deriving (Show)
 
-data KitMode = New | Init
+data KitMode = NewMode | InitMode
     deriving (Show, Eq)
 
 formName :: KitMode -> String
-formName New  = "Summon new project"
-formName Init = "Initialize configuration"
+formName NewMode  = "Summon new project"
+formName InitMode = "Initialize configuration"
 
 leftColumnSize :: KitMode -> Int
-leftColumnSize New  = 9
-leftColumnSize Init = 6
+leftColumnSize NewMode  = 9
+leftColumnSize InitMode = 6
 
 data User = User
     { userOwner    :: !Text
@@ -123,9 +123,9 @@ data GitHub = GitHub
     } deriving (Show)
 
 -- | Initial global state of the tui.
-initialSummonKit :: SummonKit
-initialSummonKit = SummonKit
-    { summonKitMode = Init
+mkSummonKit :: KitMode -> SummonKit
+mkSummonKit kitMode = SummonKit
+    { summonKitMode = kitMode
     , summonKitUser  = User
         { userOwner = ""
         , userFullName = ""

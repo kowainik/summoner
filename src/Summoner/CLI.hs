@@ -7,6 +7,11 @@
 
 module Summoner.CLI
        ( summon
+       , summonCli
+
+         -- * Helpers
+       , Command (..)
+       , runShow
        ) where
 
 import Data.Version (showVersion)
@@ -34,13 +39,17 @@ import qualified Data.Text as T
 
 
 -- | Main function that parses @CLI@ commands and runs them.
-summon :: IO ()
-summon = execParser cliParser >>= runCommand
+summon :: (Command -> IO ()) -> IO ()
+summon performCommand = execParser cliParser >>= performCommand
+
+summonCli :: IO ()
+summonCli = summon runCliCommand
 
 -- | Run 'summoner' with @CLI@ command
-runCommand :: Command -> IO ()
-runCommand = \case
+runCliCommand :: Command -> IO ()
+runCliCommand = \case
     New opts -> runNew opts
+    Init -> putTextLn "`summon init` command is not supported in CLI mode"
     ShowInfo opts -> runShow opts
 
 {- | Runs @show@ command.
@@ -146,6 +155,8 @@ readFileConfig ignoreFile maybeFile = if ignoreFile then pure mempty else do
 data Command
     -- | @new@ command creates a new project
     = New NewOpts
+    -- | @init@ command creates .summoner.toml config
+    | Init
     -- | @show@ command shows supported licenses or GHC versions
     | ShowInfo ShowOpts
 
@@ -192,6 +203,7 @@ summonerVersion = toString $ intercalate "\n" $ [sVersion, sHash, sDate] ++ [sDi
 summonerP :: Parser Command
 summonerP = subparser
     $ command "new" (info (helper <*> newP) $ progDesc "Create a new Haskell project")
+   <> command "init" (info (helper <*> pure Init) $ progDesc "Initialize config")
    <> command "show" (info (helper <*> showP) $ progDesc "Show supported licenses or ghc versions")
 
 ----------------------------------------------------------------------------

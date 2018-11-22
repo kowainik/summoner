@@ -20,6 +20,7 @@ import Lens.Micro ((.~), (^.))
 import System.Directory (doesDirectoryExist, getCurrentDirectory, getHomeDirectory, listDirectory)
 import System.FilePath ((</>))
 
+import Summoner.CLI (Command (..), runShow, summon)
 import Summoner.Config (configT)
 import Summoner.Default (defaultTomlFile)
 import Summoner.GhcVer (parseGhcVer, showGhcVer)
@@ -42,18 +43,25 @@ import qualified Toml
 
 
 summonTui :: IO ()
-summonTui = do
-    finalSummonKitForm <- executeSummonTui
-    let finalSummonKit = formState finalSummonKitForm
+summonTui = summon runTuiCommand
 
-    case finalSummonKit ^. mode of
-        New -> do
-           putTextLn $ "The starting form state was:" <> show initialSummonKit
-           putTextLn $ "The final form state was:" <> show finalSummonKit
-        Init -> do
-            let tomlConfig = Toml.encode configT $ summonKitToConfig finalSummonKit
-            homeDir <- getHomeDirectory
-            writeFileText (homeDir </> defaultTomlFile) tomlConfig
+runTuiCommand :: Command -> IO ()
+runTuiCommand = \case
+    -- TODO: parse config and initialize TUI with it
+    New _ -> do
+        let initialSummonKit = mkSummonKit NewMode
+        finalSummonKitForm <- executeSummonTui initialSummonKit
+        putTextLn $ "The starting form state was:" <> show initialSummonKit
+        putTextLn $ "The final form state was:" <> show (formState finalSummonKitForm)
+
+    Init -> do
+        let initialSummonKit = mkSummonKit InitMode
+        finalSummonKitForm <- executeSummonTui initialSummonKit
+        let tomlConfig = Toml.encode configT $ summonKitToConfig $ formState finalSummonKitForm
+        homeDir <- getHomeDirectory
+        writeFileText (homeDir </> defaultTomlFile) tomlConfig
+
+    ShowInfo opts -> runShow opts
 
 data SummonForm
     -- User
@@ -97,9 +105,9 @@ mkForm sk = setFormConcat arrangeColumns $ newForm
         , 2 |> label "Email" @@= editTextField (user . email) UserEmail (Just 1)
         ]
    ++ groupBorder "Project" (
-        [2 |> label "Name"        @@= editTextField (project . repo)     ProjectName (Just 1) | currentMode == New ] ++
-        [3 |> label "Description" @@= editTextField (project . desc)     ProjectDesc (Just 2) | currentMode == New ] ++
-        [2 |> label "Category"    @@= editTextField (project . category) ProjectCat (Just 1)  | currentMode == New ] ++
+        [2 |> label "Name"        @@= editTextField (project . repo)     ProjectName (Just 1) | currentMode == NewMode ] ++
+        [3 |> label "Description" @@= editTextField (project . desc)     ProjectDesc (Just 2) | currentMode == NewMode ] ++
+        [2 |> label "Category"    @@= editTextField (project . category) ProjectCat (Just 1)  | currentMode == NewMode ] ++
         [4 |> vLimit 3 . label "License" @@= listField (const (fromList $ universe @LicenseName))
               maybeLicense widgetList 1 ProjectLicense
         ]
@@ -258,11 +266,11 @@ app dirs = App
     , appAttrMap = const theMap
     }
 
-executeSummonTui :: IO (Form SummonKit e SummonForm)
-executeSummonTui = do
+executeSummonTui :: SummonKit -> IO (Form SummonKit e SummonForm)
+executeSummonTui kit = do
     filesAndDirs <- listDirectory =<< getCurrentDirectory
     dirs <- filterM doesDirectoryExist filesAndDirs
-    customMain buildVty Nothing (app dirs) $ mkForm initialSummonKit
+    customMain buildVty Nothing (app dirs) $ mkForm kit
   where
     buildVty :: IO V.Vty
     buildVty = do
