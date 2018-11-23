@@ -130,9 +130,10 @@ app dirs = App
         VtyEvent (V.EvKey (V.KChar 'd') [V.MCtrl]) ->
             withForm ev s (summonFormValidation dirs . ctrlD)
         MouseDown n _ _ _ -> case n of
-            GitHubEnable  -> withForm ev s (mkForm . formState)
-            GitHubDisable -> withForm ev s (mkForm . formState)
-            _             -> withForm ev s id
+            GitHubEnable   -> withForm ev s (mkForm . formState)
+            GitHubDisable  -> withForm ev s (mkForm . formState)
+            GitHubNoUpload -> withForm ev s (mkForm . formState)
+            _              -> withForm ev s id
         _ -> withForm ev s (summonFormValidation dirs)
 
     , appChooseCursor = focusRingCursor formFocus
@@ -171,7 +172,7 @@ runTuiShowGhcVersions :: IO ()
 runTuiShowGhcVersions = runSimpleApp drawGhcVersions
   where
     drawGhcVersions :: Widget ()
-    drawGhcVersions = listInBorder "Supported GHC versions" 28 0 (map showGhcVer universe)
+    drawGhcVersions = listInBorder "Supported GHC versions" 30 0 (map showGhcVer universe)
 
 runTuiShowAllLicenses :: IO ()
 runTuiShowAllLicenses = runSimpleApp drawLicenseNames
@@ -192,7 +193,7 @@ runTuiShowLicense (toText -> name) = case parseLicenseName name of
     licenseApp licenseName lc = App
         { appDraw         = drawScrollableLicense licenseName lc
         , appStartEvent   = pure
-        , appAttrMap      = const $ attrMap V.defAttr []
+        , appAttrMap      = const theMap
         , appChooseCursor = M.neverShowCursor
         , appHandleEvent  = \() event -> case event of
             VtyEvent (V.EvKey V.KDown []) -> M.vScrollBy licenseScroll   1  >> continue ()

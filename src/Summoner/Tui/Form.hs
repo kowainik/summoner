@@ -50,6 +50,7 @@ data SummonForm
       -- GitHub fields
     | GitHubEnable
     | GitHubDisable
+    | GitHubNoUpload
     | GitHubPrivate
     | GitHubTravis
     | GitHubAppVeyor
@@ -94,14 +95,17 @@ mkForm sk = setFormConcat arrangeColumns $ newForm
             [ (True, GitHubEnable, "Enable")
             , (False, GitHubDisable, "Disable")
             ]
-        , 1 |> activeCheckboxField (gitHub . private)  isGitHubEnabled GitHubPrivate  "Private"
+        , 1 |> activeCheckboxField (gitHub . noUpload) isGitHubEnabled GitHubNoUpload "No upload"
+        , 1 |> activeCheckboxField (gitHub . private)  (isGitHubEnabled && isUploadEnabled) GitHubPrivate  "Private"
         , 1 |> activeCheckboxField (gitHub . travis)   isGitHubEnabled GitHubTravis   "Travis"
         , 2 |> activeCheckboxField (gitHub . appVeyor) isGitHubEnabled GitHubAppVeyor "AppVeyor"
         ]
     ) sk
   where
-    isGitHubEnabled :: Bool
+    isGitHubEnabled, isUploadEnabled :: Bool
     isGitHubEnabled = sk ^. gitHub . enabled
+    isUploadEnabled = not $ sk ^. gitHub . noUpload
+
 
     widgetList :: Bool -> LicenseName -> Widget SummonForm
     widgetList p l = C.hCenter $ str $ if p then "[" ++ show l ++ "]" else show l
