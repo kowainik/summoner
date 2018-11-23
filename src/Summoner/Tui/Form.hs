@@ -1,8 +1,10 @@
+-- | Form layout and form fields data type.
+
 module Summoner.Tui.Form
        ( SummonForm (..)
+       , KitForm
        , mkForm
        ) where
-
 
 import Brick (Padding (Max), Widget, hBox, padRight, str, txt, vBox, vLimit)
 import Brick.Forms (Form, checkboxField, editField, editTextField, listField, newForm, radioField,
@@ -56,9 +58,11 @@ data SummonForm
     | GitHubAppVeyor
     deriving (Eq, Ord, Show)
 
+-- | Alias for type of the @summoner@ form.
+type KitForm e = Form SummonKit e SummonForm
 
 -- | Creates the input form from the given initial 'SummonKit'.
-mkForm :: forall e . SummonKit -> Form SummonKit e SummonForm
+mkForm :: forall e . SummonKit -> KitForm e
 mkForm sk = setFormConcat arrangeColumns $ newForm
     ( groupBorder "User"
         [ 2 |> label "Owner     " @@= editTextField (user . owner) UserOwner (Just 1)
@@ -88,7 +92,15 @@ mkForm sk = setFormConcat arrangeColumns $ newForm
         , 1 |> strField "Custom prelude"
         , 1 |> label "Name   " @@= editTextField (projectMeta . preludeName) CustomPreludeName (Just 1)
         , 2 |> label "Module " @@= editTextField (projectMeta . preludeModule) CustomPreludeModule (Just 1)
-        , 2 |> label "GHC versions " @@= editField (projectMeta . ghcs) Ghcs (Just 1) (intercalateMap " " showGhcVer) (traverse parseGhcVer . words . T.intercalate " ") (txt . T.intercalate "\n") id
+        , 2 |> label "GHC versions " @@=
+            editField
+                (projectMeta . ghcs)
+                Ghcs
+                (Just 1)
+                (intercalateMap " " showGhcVer)
+                (traverse parseGhcVer . words . T.intercalate " ")
+                (txt . T.intercalate "\n")
+                id
         ]
    ++ groupBorder "GitHub"
         [ 2 |> setFieldConcat hArrange . radioField (gitHub . enabled)

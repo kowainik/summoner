@@ -5,18 +5,16 @@
 module Summoner.Tui.Validation
        ( ctrlD
        , summonFormValidation
-       , fieldNameErrorMsg
+       , formErrorMessages
        ) where
 
 import Brick.Focus (focusGetCurrent)
-import Brick.Forms (Form, formFocus, formState, setFieldValid, setFormFocus)
+import Brick.Forms (formFocus, formState, invalidFields, setFieldValid, setFormFocus)
 import Lens.Micro (Lens', (.~), (^.))
 
-import Summoner.Tui.Form (SummonForm (..), mkForm)
+import Summoner.Tui.Form (KitForm, SummonForm (..), mkForm)
 import Summoner.Tui.Kit
 
-
-type KitForm e = Form SummonKit e SummonForm
 
 -- | Clears the 'Text' fields by @Ctrl + d@ key combination.
 ctrlD :: KitForm e -> KitForm e
@@ -38,32 +36,126 @@ ctrlD =
         else f
 
 -- | Validates the main @new@ command form.
-summonFormValidation :: [FilePath] -> KitForm e -> KitForm e
-summonFormValidation dirs f =
-      setFieldValid doesProjectExist ProjectName
-    . setFieldValid cabalOrStack StackField
-    . setFieldValid cabalOrStack CabalField
-    . setFieldValid libOrExe Lib
-    . setFieldValid libOrExe Exe
-    $ f
+summonFormValidation :: forall e . [FilePath] -> KitForm e -> KitForm e
+summonFormValidation dirs kitForm = foldr setValidation kitForm fieldsToValidate
   where
     kit :: SummonKit
-    kit = formState f
+    kit = formState kitForm
 
-    projectName :: Text
-    projectName = kit ^. project . repo
+    wrongFields :: [SummonForm]
+    wrongFields = case validateKit dirs kit of
+        Success _      -> []
+        Failure errors -> concatMap (toList . errorToInvalidFields) errors
 
-    doesProjectExist, cabalOrStack, libOrExe :: Bool
-    doesProjectExist = toString projectName `notElem` dirs
-    cabalOrStack = kit ^. cabal || kit ^. stack
-    libOrExe = kit ^. projectMeta . lib || kit ^. projectMeta . exe
+    -- All fields that should be validated
+    fieldsToValidate :: [SummonForm]
+    fieldsToValidate =
+        [ UserOwner, UserFullName, UserEmail
+        , ProjectName, ProjectDesc, ProjectCat
+        , CabalField, StackField , Lib, Exe
+        , CustomPreludeModule
+        ]
 
--- | Creates the error messages for 'SummonForm' invalid data.
-fieldNameErrorMsg :: SummonForm -> Maybe String
-fieldNameErrorMsg = \case
-    ProjectName         -> Just "Directory with such name already exists"
-    CabalField          -> Just "At least one build tool should be selected"
-    Lib                 -> Just "At least library or executable should be selected"
-    CustomPreludeModule -> Just "Prelude module cannot be empty if package specified"
-    Ghcs                -> Just "Some GHC versions failed to parse"
-    _ -> Nothing
+    setValidation :: SummonForm -> KitForm e -> KitForm e
+    setValidation field = setFieldValid (field `notElem` wrongFields) field
+
+-- | This data type represents all possible errors that can happen during
+-- validation of form input fields.
+data FormError
+    -- | List of empty fields that shouldn't be empty.
+    = EmptyFields (NonEmpty SummonForm)
+    -- | Project with such name already exist.
+    | ProjectExist
+    -- | At least one build tool should be chosen.
+    | CabalOrStack
+    -- | At least library or executable should be selected.
+    | LibOrExe
+
+-- | Show 'FormError' to display later in TUI.
+showFormError :: FormError -> String
+showFormError = \case
+    ProjectExist -> "Directory with such name already exists"
+    CabalOrStack -> "Choose at least one: Cabal or Stack"
+    LibOrExe     -> "Choose at least one: Library or Executable"
+    EmptyFields fields -> "These fields must not be empty: "
+        <> intercalate ", " (mapMaybe showField $ toList fields)
+  where
+    showField :: SummonForm -> Maybe String
+    showField = \case
+        UserOwner           -> Just "Owner"
+        UserFullName        -> Just "Full name"
+        UserEmail           -> Just "Email"
+        ProjectName         -> Just "Name"
+        ProjectDesc         -> Just "Description"
+        ProjectCat          -> Just "Category"
+        CustomPreludeModule -> Just "Module"
+        _ -> Nothing
+
+-- | Returns list of all invalid fields according to the error.
+errorToInvalidFields :: FormError -> NonEmpty SummonForm
+errorToInvalidFields = \case
+    EmptyFields fields -> fields
+    ProjectExist       -> one ProjectName
+    CabalOrStack       -> CabalField :| [StackField]
+    LibOrExe           -> Lib :| [Exe]
+
+-- | Takes boolean value and error and returns error if predicate 'True'.
+toError :: Bool -> e -> Validation (NonEmpty e) ()
+toError p e = if p then Failure (one e) else Success ()
+
+-- | Validates 'SummonKit' and returns list of all possible errors or success.
+validateKit :: [FilePath] -> SummonKit -> Validation (NonEmpty FormError) ()
+validateKit dirs kit =
+       validateEmpty
+    *> validateProjectExist
+    *> validateBuildTools
+    *> validateLibOrExe
+  where
+    validateEmpty :: Validation (NonEmpty FormError) ()
+    validateEmpty = first (one . EmptyFields) validateFields
+      where
+        validateFields :: Validation (NonEmpty SummonForm) ()
+        validateFields =
+               checkField (user . owner) UserOwner
+            *> checkField (user . fullName) UserFullName
+            *> checkField (user . email) UserEmail
+            *> checkField (project . repo) ProjectName
+            *> checkField (project . desc) ProjectDesc
+            *> checkField (project . category) ProjectCat
+            *> toError isEmptyPrelude CustomPreludeModule
+
+        checkField :: Lens' SummonKit Text -> SummonForm -> Validation (NonEmpty SummonForm) ()
+        checkField textL = toError (kit ^. textL == "")
+
+        isEmptyPrelude :: Bool
+        isEmptyPrelude =
+               kit ^. projectMeta . preludeName   /= ""
+            && kit ^. projectMeta . preludeModule == ""
+
+    validateProjectExist :: Validation (NonEmpty FormError) ()
+    validateProjectExist = toError
+        (toString (kit ^. project . repo) `elem` dirs)
+        ProjectExist
+
+    validateBuildTools :: Validation (NonEmpty FormError) ()
+    validateBuildTools = toError
+        (not $ kit ^. cabal || kit ^. stack)
+        CabalOrStack
+
+    validateLibOrExe :: Validation (NonEmpty FormError) ()
+    validateLibOrExe = toError
+        (not $ kit ^. projectMeta . lib  || kit ^. projectMeta . exe)
+        LibOrExe
+
+-- | Returns list of error messages according to all invalid fields.
+formErrorMessages :: [FilePath] -> KitForm e -> [String]
+formErrorMessages dirs kitForm = validatedErrorMessages ++ ghcErrorMessage
+  where
+    validatedErrorMessages :: [String]
+    validatedErrorMessages = case validateKit dirs (formState kitForm) of
+        Success _      -> []
+        Failure errors -> map showFormError $ toList errors
+
+    -- Hack because input field for GHC versions uses custom @editField@ with its own validation
+    ghcErrorMessage :: [String]
+    ghcErrorMessage = ["Some GHC versions failed to parse" | Ghcs `elem` invalidFields kitForm]
