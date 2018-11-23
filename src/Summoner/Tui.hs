@@ -128,17 +128,19 @@ app dirs = App
         VtyEvent (V.EvKey V.KEnter []) -> halt s
         VtyEvent (V.EvKey V.KEsc []) -> halt s
         VtyEvent (V.EvKey (V.KChar 'd') [V.MCtrl]) ->
-            handleFormEvent ev s >>= continue . summonFormValidation dirs . ctrlD
+            withForm ev s (summonFormValidation dirs . ctrlD)
         MouseDown n _ _ _ -> case n of
-            GitHubEnable  -> handleFormEvent ev s >>= continue . mkForm . formState
-            GitHubDisable -> handleFormEvent ev s >>= continue . mkForm . formState
-            _             -> handleFormEvent ev s >>= continue
-        _ -> handleFormEvent ev s >>= continue . summonFormValidation dirs
+            GitHubEnable  -> withForm ev s (mkForm . formState)
+            GitHubDisable -> withForm ev s (mkForm . formState)
+            _             -> withForm ev s id
+        _ -> withForm ev s (summonFormValidation dirs)
 
     , appChooseCursor = focusRingCursor formFocus
     , appStartEvent = pure
     , appAttrMap = const theMap
     }
+  where
+    withForm ev s f = handleFormEvent ev s >>= continue . f
 
 -- | Runs brick application with given start state.
 runApp :: Ord n => App s e n -> s -> IO s

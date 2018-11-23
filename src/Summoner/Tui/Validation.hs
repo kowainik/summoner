@@ -21,19 +21,20 @@ type KitForm e = Form SummonKit e SummonForm
 -- | Clears the 'Text' fields by @Ctrl + d@ key combination.
 ctrlD :: KitForm e -> KitForm e
 ctrlD =
-      clearField UserFullName (user . fullName)
-    . clearField UserEmail (user . email)
-    . clearField ProjectName (project . repo)
-    . clearField ProjectDesc (project . desc)
-    . clearField ProjectCat (project . category)
-    . clearField CustomPreludeName (projectMeta . preludeName)
-    . clearField CustomPreludeModule (projectMeta . preludeModule)
-    . clearField UserOwner (user . owner)
+      clearField "" UserFullName (user . fullName)
+    . clearField "" UserEmail (user . email)
+    . clearField "" ProjectName (project . repo)
+    . clearField "" ProjectDesc (project . desc)
+    . clearField "" ProjectCat (project . category)
+    . clearField "" CustomPreludeName (projectMeta . preludeName)
+    . clearField "" CustomPreludeModule (projectMeta . preludeModule)
+    . clearField [] Ghcs (projectMeta . ghcs)
+    . clearField "" UserOwner (user . owner)
   where
-    clearField :: SummonForm -> Lens' SummonKit Text -> KitForm e -> KitForm e
-    clearField formField fieldLens f =
+    clearField :: a -> SummonForm -> Lens' SummonKit a -> KitForm e -> KitForm e
+    clearField nil formField fieldLens f =
         if focusGetCurrent (formFocus f) == Just formField
-        then mkForm $ formState f & fieldLens .~ ""
+        then mkForm $ formState f & fieldLens .~ nil
         else f
 
 -- | Validates the main @new@ command form.
