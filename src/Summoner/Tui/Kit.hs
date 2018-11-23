@@ -13,6 +13,7 @@ module Summoner.Tui.Kit
          SummonKit (..)
        , renderWidgetTree
        , configToSummonKit
+       , finalSettings
 
          -- * Lenses
          -- ** SummonKit
@@ -22,6 +23,11 @@ module Summoner.Tui.Kit
        , stack
        , projectMeta
        , gitHub
+       , extensions
+       , warnings
+       , stylish
+       , contributing
+       , offline
 
          -- ** User
        , owner
@@ -57,10 +63,11 @@ import Lens.Micro.TH (makeFields)
 
 import Summoner.Config (Config, ConfigP (..))
 import Summoner.Decision (Decision (..))
+import Summoner.Default (currentYear, defaultGHC)
 import Summoner.GhcVer (GhcVer)
-import Summoner.License (LicenseName (..))
+import Summoner.License (LicenseName (..), customizeLicense, fetchLicense)
 import Summoner.Settings (CustomPrelude (..), Settings (..))
-import Summoner.Source (Source)
+import Summoner.Source (Source, fetchSource)
 import Summoner.Template (createProjectTemplate)
 import Summoner.Tree (showTree)
 
@@ -73,10 +80,11 @@ data SummonKit = SummonKit
     , summonKitStack        :: !Bool
     , summonKitProjectMeta  :: !ProjectMeta
     , summonKitGitHub       :: !GitHub
-    , summonKitExtensions   :: [Text]
-    , summonKitWarnings     :: [Text]
-    , summonKitStylish      :: Maybe Source
-    , summonKitContributing :: Maybe Source
+    , summonKitExtensions   :: ![Text]
+    , summonKitWarnings     :: ![Text]
+    , summonKitStylish      :: !(Maybe Source)
+    , summonKitContributing :: !(Maybe Source)
+    , summonKitOffline      :: !Bool
     } deriving (Show)
 
 data User = User
@@ -142,21 +150,23 @@ summonKitToSettings sk = Settings
     , settingsLicenseName    = sk ^. project . license
     , settingsLicenseText    = ""
     , settingsGitHub         = isGitHub
+    , settingsPrivate        = isGitHub && sk ^. gitHub . private
     , settingsTravis         = isGitHub && sk ^. gitHub . travis
     , settingsAppVeyor       = isGitHub && sk ^. gitHub . appVeyor
     , settingsIsLib          = sk ^. projectMeta . lib
     , settingsIsExe          = sk ^. projectMeta . exe
     , settingsTest           = sk ^. projectMeta . test
     , settingsBench          = sk ^. projectMeta . bench
-    , settingsTestedVersions = sk ^. projectMeta . ghcs
+    , settingsTestedVersions = sortNub $ defaultGHC : (sk ^. projectMeta . ghcs)
     , settingsBaseType       = baseT
     , settingsPrelude        = cP
-    , settingsExtensions     = []
-    , settingsWarnings       = []
+    , settingsExtensions     = sk ^. extensions
+    , settingsWarnings       = sk ^. warnings
     , settingsCabal          = sk ^. cabal
     , settingsStack          = sk ^. stack
-    , settingsStylish        = Nothing
-    , settingsContributing   = Nothing
+    , settingsStylish        = "" <$ sk ^. stylish
+    , settingsContributing   = "" <$ sk ^. contributing
+    , settingsNoUpload       = sk ^. gitHub . noUpload
     }
   where
     isGitHub :: Bool
@@ -171,13 +181,36 @@ summonKitToSettings sk = Settings
            then ("base-noprelude", Just CustomPrelude{..})
            else ("base", Nothing)
 
+finalSettings :: SummonKit -> IO Settings
+finalSettings sk = do
+    year <- currentYear
+    let licenseName = sk ^. project . license
+    fetchedLicense <- fetchLicense licenseName
+    let licenseText = customizeLicense
+            licenseName
+            fetchedLicense
+            (sk ^. user . fullName)
+            year
+
+    let fetch = maybe (pure Nothing) (fetchSource (sk ^. offline))
+    sStylish      <- fetch $ sk ^. stylish
+    sContributing <- fetch $ sk ^. contributing
+
+    pure (summonKitToSettings sk)
+        { settingsYear = year
+        , settingsLicenseText = licenseText
+        , settingsStylish = sStylish
+        , settingsContributing = sContributing
+        }
+
 -- | Gets the initial 'SummonKit' from the given 'Config'.
 configToSummonKit
-    :: Text  -- ^ Given project name
-    -> Bool  -- ^ no @noUpload@ option (to not upload to @Github@).
+    :: Text    -- ^ Given project name
+    -> Bool    -- ^ @noUpload@ option (to not upload to @Github@).
+    -> Bool    -- ^  @offline@ mode option
     -> Config  -- ^ Given configurations.
     -> SummonKit
-configToSummonKit cRepo cNoUpload Config{..} = SummonKit
+configToSummonKit cRepo cNoUpload cOffline Config{..} = SummonKit
     { summonKitUser  = User
         { userOwner    = cOwner
         , userFullName = cFullName
@@ -187,7 +220,7 @@ configToSummonKit cRepo cNoUpload Config{..} = SummonKit
         { projectRepo     = cRepo
         , projectDesc     = ""
         , projectCategory = ""
-        , projectLicense  = cLicense
+        , projectLicense  = if cOffline then None else cLicense
         }
     , summonKitProjectMeta = ProjectMeta
         { projectMetaLib = kitLib
@@ -202,7 +235,7 @@ configToSummonKit cRepo cNoUpload Config{..} = SummonKit
     , summonKitStack = kitStack
     , summonKitGitHub = GitHub
         { gitHubEnabled  = cGitHub /= Nop
-        , gitHubNoUpload = cNoUpload
+        , gitHubNoUpload = cNoUpload || cOffline
         , gitHubPrivate  = toBool cPrivate
         , gitHubTravis   = (cGitHub /= Nop) && (cTravis /= Nop)
         , gitHubAppVeyor = toBool cAppVey
@@ -211,6 +244,7 @@ configToSummonKit cRepo cNoUpload Config{..} = SummonKit
     , summonKitWarnings     = cWarnings
     , summonKitStylish      = getLast cStylish
     , summonKitContributing = getLast cContributing
+    , summonKitOffline      = cOffline
     }
   where
     kitCabal, kitStack, kitLib, kitExe :: Bool

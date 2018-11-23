@@ -4,12 +4,14 @@
 
 module Summoner.Project
        ( generateProject
+       , initializeProject
        ) where
 
 import NeatInterpolation (text)
 import System.Directory (setCurrentDirectory)
 
-import Summoner.Ansi (errorMessage, infoMessage, successMessage)
+import Summoner.Ansi (Color (Green), beautyPrint, bold, errorMessage, infoMessage, setColor,
+                      successMessage)
 import Summoner.Config (Config, ConfigP (..))
 import Summoner.Decision (Decision (..), decisionToBool)
 import Summoner.Default (currentYear, defaultGHC)
@@ -34,7 +36,7 @@ generateProject
     -> Text    -- ^ Given project name.
     -> Config  -- ^ Given configurations.
     -> IO ()
-generateProject noUpload isOffline projectName Config{..} = do
+generateProject settingsNoUpload isOffline projectName Config{..} = do
     settingsRepo   <- checkUniqueName projectName
     -- decide cabal stack or both
     (settingsCabal, settingsStack) <- getCabalStack (cCabal, cStack)
@@ -63,8 +65,8 @@ generateProject noUpload isOffline projectName Config{..} = do
 
     settingsGitHub   <- decisionToBool cGitHub
         (YesNoPrompt "GitHub integration" "Do you want to create a GitHub repository?")
-    settingsPrivat   <- decisionIf
-        (settingsGitHub && not noUpload)
+    settingsPrivate  <- decisionIf
+        (settingsGitHub && not settingsNoUpload)
         (YesNoPrompt "private repository" "Create as a private repository (Requires a GitHub private repo plan)?")
         cPrivate
     settingsTravis   <- decisionIf settingsGitHub (mkDefaultYesNoPrompt "Travis CI integration") cTravis
@@ -99,37 +101,14 @@ generateProject noUpload isOffline projectName Config{..} = do
     settingsContributing <- fetchLast cContributing
 
     -- Create project data from all variables in scope
-    let settings = Settings{..}
-
-    createProjectDirectory settings
-    -- Create github repository, commit, optionally push and make it private
-    when settingsGitHub $ doGithubCommands settings settingsPrivat
-
+    -- and make a project from it.
+    initializeProject Settings{..}
  where
     decisionIf :: Bool -> YesNoPrompt -> Decision -> IO Bool
     decisionIf p ynPrompt decision = if p
         then decisionToBool decision ynPrompt
         else falseMessage (yesNoTarget ynPrompt)
 
-    createProjectDirectory :: Settings -> IO ()
-    createProjectDirectory settings@Settings{..} = do
-        let tree = createProjectTemplate settings
-        traverseTree tree
-        successMessage "\nThe project with the following structure has been created:"
-        putTextLn $ showBoldTree tree
-        setCurrentDirectory (toString settingsRepo)
-
-    doGithubCommands :: Settings -> Bool -> IO ()
-    doGithubCommands Settings{..} private = do
-        -- Create git repostitory and do a commit.
-        "git" ["init"]
-        "git" ["add", "."]
-        "git" ["commit", "-m", "Create the project"]
-        unless noUpload $ do
-            "hub" $ ["create", "-d", settingsDescription, settingsOwner <> "/" <> settingsRepo]
-                    ++ ["-p" | private]  -- Create private repository if asked so
-             -- Upload repository to GitHub.
-            "git" ["push", "-u", "origin", "master"]
 
     categoryText :: Text
     categoryText =
@@ -192,3 +171,33 @@ generateProject noUpload isOffline projectName Config{..} = do
 
         cabalMsg c = targetMessageWithText c "Cabal" "used in this project"
         stackMsg c = targetMessageWithText c "Stack" "used in this project"
+
+-- | Creates the directory and run GitHub commands.
+initializeProject :: Settings -> IO ()
+initializeProject settings@Settings{..} = do
+    createProjectDirectory settings
+    when settingsGitHub $ doGithubCommands settings
+    beautyPrint [bold, setColor Green] "\nJob's done\n"
+
+
+-- | From the given 'Settings' creates the project.
+createProjectDirectory :: Settings -> IO ()
+createProjectDirectory settings@Settings{..} = do
+    let tree = createProjectTemplate settings
+    traverseTree tree
+    successMessage "\nThe project with the following structure has been created:"
+    putTextLn $ showBoldTree tree
+    setCurrentDirectory (toString settingsRepo)
+
+-- | Init, commit and push repository to GitHub.
+doGithubCommands :: Settings -> IO ()
+doGithubCommands Settings{..} = do
+    -- Create git repostitory and do a commit.
+    "git" ["init"]
+    "git" ["add", "."]
+    "git" ["commit", "-m", "Create the project"]
+    unless settingsNoUpload $ do
+        "hub" $ ["create", "-d", settingsDescription, settingsOwner <> "/" <> settingsRepo]
+             ++ ["-p" | settingsPrivate]  -- Create private repository if asked so
+         -- Upload repository to GitHub.
+        "git" ["push", "-u", "origin", "master"]
