@@ -46,6 +46,7 @@ module Summoner.Tui.Kit
 
          -- ** GitHub
        , enabled
+       , noUpload
        , private
        , travis
        , appVeyor
@@ -97,6 +98,7 @@ data ProjectMeta = ProjectMeta
 
 data GitHub = GitHub
     { gitHubEnabled  :: !Bool
+    , gitHubNoUpload :: !Bool
     , gitHubPrivate  :: !Bool
     , gitHubTravis   :: !Bool
     , gitHubAppVeyor :: !Bool
@@ -129,6 +131,7 @@ initialSummonKit = SummonKit
     , summonKitStack = True
     , summonKitGitHub = GitHub
         { gitHubEnabled  = True
+        , gitHubNoUpload = False
         , gitHubPrivate  = False
         , gitHubTravis   = False
         , gitHubAppVeyor = False
@@ -166,9 +169,9 @@ summonKitToSettings sk = Settings
     , settingsCategories     = sk ^. project . category
     , settingsLicenseName    = sk ^. project . license
     , settingsLicenseText    = ""
-    , settingsGitHub         = sk ^. gitHub . enabled
-    , settingsTravis         = sk ^. gitHub . travis
-    , settingsAppVeyor       = sk ^. gitHub . appVeyor
+    , settingsGitHub         = isGitHub
+    , settingsTravis         = isGitHub && sk ^. gitHub . travis
+    , settingsAppVeyor       = isGitHub && sk ^. gitHub . appVeyor
     , settingsIsLib          = sk ^. projectMeta . lib
     , settingsIsExe          = sk ^. projectMeta . exe
     , settingsTest           = sk ^. projectMeta . test
@@ -184,6 +187,9 @@ summonKitToSettings sk = Settings
     , settingsContributing   = Nothing
     }
   where
+    isGitHub :: Bool
+    isGitHub = sk ^. gitHub . enabled
+
     baseT :: Text
     cP ::  Maybe CustomPrelude
     (baseT, cP) =
