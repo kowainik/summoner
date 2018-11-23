@@ -11,8 +11,8 @@ in the form.
 module Summoner.Tui.Kit
        ( -- * Data types
          SummonKit (..)
-       , initialSummonKit
        , renderWidgetTree
+       , configToSummonKit
 
          -- * Lenses
          -- ** SummonKit
@@ -55,22 +55,28 @@ module Summoner.Tui.Kit
 import Lens.Micro (Lens', lens, (.~), (^.))
 import Lens.Micro.TH (makeFields)
 
-import Summoner.Default (defaultGHC)
+import Summoner.Config (Config, ConfigP (..))
+import Summoner.Decision (Decision (..))
 import Summoner.GhcVer (GhcVer)
 import Summoner.License (LicenseName (..))
 import Summoner.Settings (CustomPrelude (..), Settings (..))
+import Summoner.Source (Source)
 import Summoner.Template (createProjectTemplate)
 import Summoner.Tree (showTree)
 
 
 -- | Global TUI state.
 data SummonKit = SummonKit
-    { summonKitUser        :: !User
-    , summonKitProject     :: !Project
-    , summonKitCabal       :: !Bool
-    , summonKitStack       :: !Bool
-    , summonKitProjectMeta :: !ProjectMeta
-    , summonKitGitHub      :: !GitHub
+    { summonKitUser         :: !User
+    , summonKitProject      :: !Project
+    , summonKitCabal        :: !Bool
+    , summonKitStack        :: !Bool
+    , summonKitProjectMeta  :: !ProjectMeta
+    , summonKitGitHub       :: !GitHub
+    , summonKitExtensions   :: [Text]
+    , summonKitWarnings     :: [Text]
+    , summonKitStylish      :: Maybe Source
+    , summonKitContributing :: Maybe Source
     } deriving (Show)
 
 data User = User
@@ -103,40 +109,6 @@ data GitHub = GitHub
     , gitHubTravis   :: !Bool
     , gitHubAppVeyor :: !Bool
     } deriving (Show)
-
--- | Initial global state of the tui.
-initialSummonKit :: SummonKit
-initialSummonKit = SummonKit
-    { summonKitUser  = User
-        { userOwner = ""
-        , userFullName = ""
-        , userEmail = ""
-        }
-    , summonKitProject = Project
-        { projectRepo = ""
-        , projectDesc = ""
-        , projectCategory = ""
-        , projectLicense = MIT
-        }
-    , summonKitProjectMeta = ProjectMeta
-        { projectMetaLib = True
-        , projectMetaExe = False
-        , projectMetaTest = True
-        , projectMetaBench = False
-        , projectMetaGhcs = [defaultGHC]
-        , projectMetaPreludeName = ""
-        , projectMetaPreludeModule = ""
-        }
-    , summonKitCabal = True
-    , summonKitStack = True
-    , summonKitGitHub = GitHub
-        { gitHubEnabled  = True
-        , gitHubNoUpload = False
-        , gitHubPrivate  = False
-        , gitHubTravis   = False
-        , gitHubAppVeyor = False
-        }
-    }
 
 makeFields ''SummonKit
 makeFields ''User
@@ -198,6 +170,72 @@ summonKitToSettings sk = Settings
         in if ("" /= cpPackage) && ("" /= cpModule)
            then ("base-noprelude", Just CustomPrelude{..})
            else ("base", Nothing)
+
+-- | Gets the initial 'SummonKit' from the given 'Config'.
+configToSummonKit
+    :: Text  -- ^ Given project name
+    -> Bool  -- ^ no @noUpload@ option (to not upload to @Github@).
+    -> Config  -- ^ Given configurations.
+    -> SummonKit
+configToSummonKit cRepo cNoUpload Config{..} = SummonKit
+    { summonKitUser  = User
+        { userOwner    = cOwner
+        , userFullName = cFullName
+        , userEmail    = cEmail
+        }
+    , summonKitProject = Project
+        { projectRepo     = cRepo
+        , projectDesc     = ""
+        , projectCategory = ""
+        , projectLicense  = cLicense
+        }
+    , summonKitProjectMeta = ProjectMeta
+        { projectMetaLib = kitLib
+        , projectMetaExe = kitExe
+        , projectMetaTest = toBool cTest
+        , projectMetaBench = toBool cBench
+        , projectMetaGhcs = cGhcVer
+        , projectMetaPreludeName = kitPreludeName
+        , projectMetaPreludeModule = kitPreludeModule
+        }
+    , summonKitCabal = kitCabal
+    , summonKitStack = kitStack
+    , summonKitGitHub = GitHub
+        { gitHubEnabled  = cGitHub /= Nop
+        , gitHubNoUpload = cNoUpload
+        , gitHubPrivate  = toBool cPrivate
+        , gitHubTravis   = (cGitHub /= Nop) && (cTravis /= Nop)
+        , gitHubAppVeyor = toBool cAppVey
+        }
+    , summonKitExtensions   = cExtensions
+    , summonKitWarnings     = cWarnings
+    , summonKitStylish      = getLast cStylish
+    , summonKitContributing = getLast cContributing
+    }
+  where
+    kitCabal, kitStack, kitLib, kitExe :: Bool
+    (kitCabal, kitStack) = decToBools (cCabal, cStack)
+    (kitLib, kitExe) = decToBools (cLib, cExe)
+
+    decToBools :: (Decision, Decision) -> (Bool, Bool)
+    decToBools = \case
+        (Idk, Idk) -> (True, True)
+        (Yes, Idk) -> (True, False)
+        (Idk, Yes) -> (False, True)
+        (Nop, Idk) -> (False, True)
+        (Idk, Nop) -> (True, False)
+        (x, y)     -> (toBool x, toBool y)
+
+    toBool :: Decision -> Bool
+    toBool = \case
+        Yes -> True
+        Nop -> False
+        Idk -> False
+
+    kitPreludeName, kitPreludeModule :: Text
+    (kitPreludeName, kitPreludeModule) = case getLast cPrelude of
+        Nothing                -> ("", "")
+        Just CustomPrelude{..} -> (cpPackage, cpModule)
 
 renderWidgetTree :: SummonKit -> Text
 renderWidgetTree = showTree False . createProjectTemplate . summonKitToSettings
