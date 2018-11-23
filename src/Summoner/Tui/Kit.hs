@@ -28,6 +28,7 @@ module Summoner.Tui.Kit
        , stylish
        , contributing
        , offline
+       , shouldSummon
 
          -- ** User
        , owner
@@ -85,6 +86,7 @@ data SummonKit = SummonKit
     , summonKitStylish      :: !(Maybe Source)
     , summonKitContributing :: !(Maybe Source)
     , summonKitOffline      :: !Bool
+    , summonKitShouldSummon :: !Bool  -- ^ Check if project needs to be created.
     } deriving (Show)
 
 data User = User
@@ -245,6 +247,7 @@ configToSummonKit cRepo cNoUpload cOffline Config{..} = SummonKit
     , summonKitStylish      = getLast cStylish
     , summonKitContributing = getLast cContributing
     , summonKitOffline      = cOffline
+    , summonKitShouldSummon = False
     }
   where
     kitCabal, kitStack, kitLib, kitExe :: Bool

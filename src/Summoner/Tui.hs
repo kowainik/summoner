@@ -16,6 +16,7 @@ import Brick.Focus (focusRingCursor)
 import Brick.Forms (allFieldsValid, focusedFormInputAttr, formFocus, formState, handleFormEvent,
                     invalidFormInputAttr, renderForm)
 import Brick.Types (ViewportType (Vertical))
+import Lens.Micro ((.~), (^.))
 import System.Directory (doesDirectoryExist, getCurrentDirectory, listDirectory)
 
 import Summoner.Ansi (errorMessage, infoMessage)
@@ -56,10 +57,11 @@ fields or checkboxes to configure settings for new project.
 summonTuiNew :: NewOpts -> IO ()
 summonTuiNew newOpts@NewOpts{..} = do
     finalConfig <- getFinalConfig newOpts
-    let kit = configToSummonKit newOptsProjectName newOptsNoUpload newOptsOffline finalConfig
-    skForm <- runTuiNew kit
-    if allFieldsValid skForm
-    then finalSettings (formState skForm) >>= initializeProject
+    let initialKit = configToSummonKit newOptsProjectName newOptsNoUpload newOptsOffline finalConfig
+    skForm <- runTuiNew initialKit
+    let kit = formState skForm
+    if allFieldsValid skForm && kit ^. shouldSummon
+    then finalSettings kit >>= initializeProject
     else errorMessage "Aborting summoner"
 
 -- | Simply shows info about GHC versions or licenses in TUI.
@@ -129,7 +131,9 @@ app dirs = App
     , appHandleEvent = \s ev -> case ev of
         VtyEvent V.EvResize {} -> continue s
         VtyEvent (V.EvKey V.KEnter []) ->
-            if allFieldsValid s then halt s else continue s
+            if allFieldsValid s
+            then halt $ mkForm $ formState s & shouldSummon .~ True
+            else continue s
         VtyEvent (V.EvKey V.KEsc []) -> halt s
         VtyEvent (V.EvKey (V.KChar 'd') [V.MCtrl]) ->
             withForm ev s (validateForm . ctrlD)
