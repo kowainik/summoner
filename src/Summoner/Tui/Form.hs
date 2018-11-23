@@ -4,11 +4,13 @@ module Summoner.Tui.Form
        ( SummonForm (..)
        , KitForm
        , mkForm
+       , recreateForm
        ) where
 
 import Brick (Padding (Max), Widget, hBox, padRight, str, txt, vBox, vLimit)
-import Brick.Forms (Form, checkboxField, editField, editTextField, listField, newForm, radioField,
-                    setFieldConcat, setFormConcat, (@@=))
+import Brick.Focus (focusGetCurrent)
+import Brick.Forms (Form, checkboxField, editField, editTextField, formFocus, formState, listField,
+                    newForm, radioField, setFieldConcat, setFormConcat, setFormFocus, (@@=))
 import Lens.Micro ((^.))
 
 import Summoner.GhcVer (parseGhcVer, showGhcVer)
@@ -129,3 +131,20 @@ mkForm sk = setFormConcat arrangeColumns $ newForm
         hBox [ vBox $ column1 ++ [borderLabel "Tools" $ padRight Max (hArrange tools)]
              , vBox column2
              ]
+
+{- | Create form from scratch using its current state. This is needed to
+activate/deactivate checkboxes. Should be done with care to preserve focus and
+fields validation.
+-}
+recreateForm
+    :: forall e .
+       (KitForm e -> KitForm e)  -- ^ Validation function
+    -> KitForm e  -- ^ Original form
+    -> KitForm e  -- ^ New form
+recreateForm validate kitForm = setFocus $ validate $ mkForm $ formState kitForm
+  where
+    currentFocus :: Maybe SummonForm
+    currentFocus = focusGetCurrent (formFocus kitForm)
+
+    setFocus :: KitForm e -> KitForm e
+    setFocus = maybe id setFormFocus currentFocus
