@@ -1,10 +1,10 @@
 {-# LANGUAGE Rank2Types #-}
 
-{- | This modules adds necessary functions for Forms, that are not covered
-in @brick@ library.
+{- | This modules adds necessary functions for Forms and Form fields
+that are not covered in @brick@ library.
 -}
 
-module Summoner.Tui.Forms
+module Summoner.Tui.Field
        ( strField
        , activeCheckboxField
        , disabledAttr
