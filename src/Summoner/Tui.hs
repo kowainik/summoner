@@ -19,7 +19,7 @@ import Brick.Types (ViewportType (Vertical))
 import System.Directory (doesDirectoryExist, getCurrentDirectory, listDirectory)
 
 import Summoner.Ansi (errorMessage, infoMessage)
-import Summoner.CLI (Command (..), NewOpts, ShowOpts (..), summon)
+import Summoner.CLI (Command (..), NewOpts (..), ShowOpts (..), getFinalConfig, summon)
 import Summoner.GhcVer (showGhcVer)
 import Summoner.License (License (..), LicenseName, fetchLicense, parseLicenseName,
                          showLicenseWithDesc)
@@ -53,9 +53,11 @@ runTuiCommand = \case
 fields or checkboxes to configure settings for new project.
 -}
 summonTuiNew :: NewOpts -> IO ()
-summonTuiNew _ = do  -- TODO: use 'NewOpts'
-    tkForm <- runTuiNew
-    putTextLn $ "The starting form state was:" <> show initialSummonKit
+summonTuiNew newOpts@NewOpts{..} = do
+    finalConfig <- getFinalConfig newOpts
+    let kit = configToSummonKit newOptsProjectName newOptsNoUpload finalConfig
+    tkForm <- runTuiNew kit
+    putTextLn $ "The starting form state was:" <> show kit
     putTextLn $ "The final form state was:" <> show (formState tkForm)
 
 -- | Simply shows info about GHC versions or licenses in TUI.
@@ -153,11 +155,11 @@ runApp = customMain buildVty Nothing
         V.setMode (V.outputIface v) V.Mouse True
         pure v
 
-runTuiNew :: IO (Form SummonKit e SummonForm)
-runTuiNew = do
+runTuiNew :: SummonKit -> IO (Form SummonKit e SummonForm)
+runTuiNew kit = do
     filesAndDirs <- listDirectory =<< getCurrentDirectory
     dirs <- filterM doesDirectoryExist filesAndDirs
-    runApp (app dirs) (mkForm initialSummonKit)
+    runApp (app dirs) (mkForm kit)
 
 -- | Creates simple brick app that doesn't have state and just displays given 'Widget'.
 mkSimpleApp :: Widget n -> App () e n
