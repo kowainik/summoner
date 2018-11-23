@@ -14,6 +14,9 @@ module Summoner.CLI
          -- * Functions to parse CLI arguments and run @summoner@
        , summon
        , summonCli
+
+         -- * Common helper functions
+       , getFinalConfig
        ) where
 
 import Data.Version (showVersion)
@@ -28,7 +31,8 @@ import System.Directory (doesFileExist)
 import Paths_summoner (version)
 import Summoner.Ansi (Color (Green), beautyPrint, blueCode, bold, boldCode, errorMessage,
                       infoMessage, redCode, resetCode, setColor, warningMessage)
-import Summoner.Config (ConfigP (..), PartialConfig, defaultConfig, finalise, loadFileConfig)
+import Summoner.Config (Config, ConfigP (..), PartialConfig, defaultConfig, finalise,
+                        loadFileConfig)
 import Summoner.Decision (Decision (..))
 import Summoner.Default (defaultConfigFile)
 import Summoner.GhcVer (GhcVer, showGhcVer)
@@ -106,7 +110,18 @@ Usage:
 
 -}
 runNew :: NewOpts -> IO ()
-runNew NewOpts{..} = do
+runNew newOpts@NewOpts{..} = do
+    -- get the final config
+    finalConfig <- getFinalConfig newOpts
+    -- Generate the project.
+    generateProject newOptsNoUpload newOptsOffline newOptsProjectName finalConfig
+
+    -- print result
+    beautyPrint [bold, setColor Green] "\nJob's done\n"
+
+-- | By the given 'NewOpts' return the final configurations.
+getFinalConfig :: NewOpts -> IO Config
+getFinalConfig NewOpts{..} = do
     -- read config from file
     fileConfig <- readFileConfig newOptsIgnoreFile newOptsConfigFile
 
@@ -114,17 +129,11 @@ runNew NewOpts{..} = do
     let unionConfig = defaultConfig <> fileConfig <> newOptsCliConfig
 
     -- get the final config
-    finalConfig <- case finalise unionConfig of
+    case finalise unionConfig of
              Success c    -> pure c
              Failure msgs -> do
                  for_ msgs errorMessage
                  exitFailure
-
-    -- Generate the project.
-    generateProject newOptsNoUpload newOptsOffline newOptsProjectName finalConfig
-
-    -- print result
-    beautyPrint [bold, setColor Green] "\nJob's done\n"
 
 -- | Reads and parses the given config file. If no file is provided the default
 -- configuration returned.
