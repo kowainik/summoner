@@ -8,23 +8,38 @@ module Summoner.Tui.Widget
        , listInBorder
        ) where
 
-import Brick (Padding (Pad), Widget, padRight, (<+>))
+import Brick.Types (Padding (Pad), Widget)
 import Brick.Widgets.Border (borderWithLabel)
 import Brick.Widgets.Center (center)
-import Brick.Widgets.Core (hBox, hLimit, str, txtWrap, vBox, vLimit, withAttr)
+import Brick.Widgets.Core (hBox, hLimit, padLeftRight, padRight, str, txtWrap, vBox, vLimit,
+                           withAttr, (<+>))
 
 
 -- | Adds label to the Form's field.
 label :: String -> Widget n -> Widget n
 label l = (<+>) (str l)
 
--- | Like 'borderWithLabel' but receives 'String'.
+{- | Like 'borderWithLabel' but receives 'String'. Also adds padding and fancy
+unicode characters for border label.
+
+__Example:__
+
+@
+┌─────╼ Some label ╾───┐
+│                      │
+│                      │
+│                      │
+│                      │
+│                      │
+└──────────────────────┘
+@
+-}
 borderLabel :: String -> Widget n -> Widget n
-borderLabel l = borderWithLabel (str l)
+borderLabel l = borderWithLabel (str "╼" <+> padLeftRight 1 (str l) <+> str "╾")
 
 {- | Arranges 'Widget's horizontally.
 
-Example:
+__Example:__
 
 @
  [x] Cabal   [ ] Stack
@@ -40,6 +55,7 @@ hArrange = hBox . updateHead (padRight (Pad 2))
 {- | Shows list of elements inside 'borderWithLabel'.
 
 __Example:__
+
 @
 ┌────────────Some label──────────────────┐
 │                                        │
@@ -49,7 +65,6 @@ __Example:__
 │                                        │
 └────────────────────────────────────────┘
 @
-
 -}
 listInBorder
     :: String  -- ^ Border label

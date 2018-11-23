@@ -9,7 +9,7 @@ module Summoner.Tui.Validation
        ) where
 
 import Brick.Focus (focusGetCurrent)
-import Brick.Forms (Form, formFocus, formState, setFieldValid)
+import Brick.Forms (Form, formFocus, formState, setFieldValid, setFormFocus)
 import Lens.Micro (Lens', (.~), (^.))
 
 import Summoner.Tui.Form (SummonForm (..), mkForm)
@@ -34,7 +34,7 @@ ctrlD =
     clearField :: a -> SummonForm -> Lens' SummonKit a -> KitForm e -> KitForm e
     clearField nil formField fieldLens f =
         if focusGetCurrent (formFocus f) == Just formField
-        then mkForm $ formState f & fieldLens .~ nil
+        then setFormFocus formField $ mkForm $ formState f & fieldLens .~ nil
         else f
 
 -- | Validates the main @new@ command form.
