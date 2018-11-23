@@ -1,3 +1,6 @@
+-- | Data types that represent license names and license content and functions
+-- to work with them.
+
 module Summoner.License
        ( LicenseName(..)
        , License(..)
@@ -7,6 +10,7 @@ module Summoner.License
        , parseLicenseName
        , fetchLicense
        , licenseShortDesc
+       , showLicenseWithDesc
        ) where
 
 import Data.Aeson (FromJSON (..), decodeStrict, withObject, (.:))
@@ -111,3 +115,7 @@ licenseShortDesc = \case
     None     -> "License file won't be added. Explicitly 'All Rights Reserved', eg \
         \for proprietary software. The package may not be legally modified or \
         \redistributed by anyone but the rightsholder"
+
+-- | Show license name along with its short description.
+showLicenseWithDesc :: LicenseName -> Text
+showLicenseWithDesc l = show l <> ": " <> licenseShortDesc l

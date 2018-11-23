@@ -1,4 +1,5 @@
-{-# LANGUAGE Rank2Types #-}
+{-# LANGUAGE Rank2Types   #-}
+{-# LANGUAGE ViewPatterns #-}
 
 {- | This is experimental module.
 
@@ -10,24 +11,30 @@ module Summoner.Tui
        ) where
 
 import Brick (App (..), AttrMap, BrickEvent (..), Padding (Max, Pad), Widget, attrMap, continue,
-              customMain, hBox, halt, padRight, padTop, str, txt, vBox, vLimit, withAttr, (<+>))
+              customMain, hBox, halt, padRight, padTop, simpleApp, str, txt, vBox, vLimit, withAttr,
+              (<+>))
 import Brick.Focus (focusGetCurrent, focusRingCursor)
 import Brick.Forms (Form, checkboxField, editField, editTextField, focusedFormInputAttr, formFocus,
                     formState, handleFormEvent, invalidFields, invalidFormInputAttr, listField,
                     newForm, radioField, renderForm, setFieldConcat, setFieldValid, setFormConcat,
                     (@@=))
+import Brick.Types (ViewportType (Vertical))
 import Lens.Micro ((.~), (^.))
 import System.Directory (doesDirectoryExist, getCurrentDirectory, listDirectory)
 
+import Summoner.Ansi (errorMessage, infoMessage)
+import Summoner.CLI (Command (..), NewOpts, ShowOpts (..), summon)
 import Summoner.GhcVer (parseGhcVer, showGhcVer)
-import Summoner.License (LicenseName)
+import Summoner.License (License (..), LicenseName, fetchLicense, parseLicenseName,
+                         showLicenseWithDesc)
 import Summoner.Text (intercalateMap)
 import Summoner.Tui.Forms (activeCheckboxField, disabledAttr, strField)
 import Summoner.Tui.GroupBorder (groupBorder, (|>))
 import Summoner.Tui.Kit
-import Summoner.Tui.Widget (borderLabel, hArrange, label)
+import Summoner.Tui.Widget (borderLabel, hArrange, label, listInBorder)
 
 import qualified Brick (on)
+import qualified Brick.Main as M
 import qualified Brick.Util as U
 import qualified Brick.Widgets.Center as C
 import qualified Brick.Widgets.Core as W
@@ -37,12 +44,31 @@ import qualified Data.Text as T
 import qualified Graphics.Vty as V
 
 
+-- | Main function that parses @CLI@ arguments and runs @summoner@ in TUI mode.
 summonTui :: IO ()
-summonTui = do
-    tkForm <- executeSummonTui
+summonTui = summon runTuiCommand
+
+-- | Run TUI specific to each command.
+runTuiCommand :: Command -> IO ()
+runTuiCommand = \case
+    New opts      -> summonTuiNew opts
+    ShowInfo opts -> summonTuiShow opts
+
+{- | TUI for creating new project. Contains interactive elements like text input
+fields or checkboxes to configure settings for new project.
+-}
+summonTuiNew :: NewOpts -> IO ()
+summonTuiNew _ = do  -- TODO: use 'NewOpts'
+    tkForm <- runTuiNew
     putTextLn $ "The starting form state was:" <> show initialSummonKit
     putTextLn $ "The final form state was:" <> show (formState tkForm)
 
+-- | Simply shows info about GHC versions or licenses in TUI.
+summonTuiShow :: ShowOpts -> IO ()
+summonTuiShow = \case
+    GhcList                 -> runTuiShowGhcVersions
+    LicenseList Nothing     -> runTuiShowAllLicenses
+    LicenseList (Just name) -> runTuiShowLicense name
 
 data SummonForm
     -- User
@@ -144,6 +170,7 @@ theMap = attrMap V.defAttr
     , (L.listAttr,           V.white `Brick.on` V.blue)
     , (L.listSelectedAttr,   V.blue  `Brick.on` V.white)
     , (disabledAttr,         U.fg V.brightBlack)
+    , ("blue-fg",            U.fg V.blue)
     ]
 
 draw :: Form SummonKit e SummonForm -> [Widget SummonForm]
@@ -239,14 +266,77 @@ app dirs = App
     , appAttrMap = const theMap
     }
 
-executeSummonTui :: IO (Form SummonKit e SummonForm)
-executeSummonTui = do
-    filesAndDirs <- listDirectory =<< getCurrentDirectory
-    dirs <- filterM doesDirectoryExist filesAndDirs
-    customMain buildVty Nothing (app dirs) $ mkForm initialSummonKit
+-- | Runs brick application with given start state.
+runApp :: Ord n => App s e n -> s -> IO s
+runApp = customMain buildVty Nothing
   where
     buildVty :: IO V.Vty
     buildVty = do
         v <- V.mkVty =<< V.standardIOConfig
         V.setMode (V.outputIface v) V.Mouse True
         pure v
+
+runTuiNew :: IO (Form SummonKit e SummonForm)
+runTuiNew = do
+    filesAndDirs <- listDirectory =<< getCurrentDirectory
+    dirs <- filterM doesDirectoryExist filesAndDirs
+    runApp (app dirs) (mkForm initialSummonKit)
+
+-- | Creates simple brick app that doesn't have state and just displays given 'Widget'.
+mkSimpleApp :: Widget n -> App () e n
+mkSimpleApp w = (simpleApp w)
+    { appAttrMap = const theMap
+    }
+
+runSimpleApp :: Ord n => Widget n -> IO ()
+runSimpleApp w = runApp (mkSimpleApp w) ()
+
+runTuiShowGhcVersions :: IO ()
+runTuiShowGhcVersions = runSimpleApp drawGhcVersions
+  where
+    drawGhcVersions :: Widget ()
+    drawGhcVersions = listInBorder "Supported GHC versions" 28 0 (map showGhcVer universe)
+
+runTuiShowAllLicenses :: IO ()
+runTuiShowAllLicenses = runSimpleApp drawLicenseNames
+  where
+    drawLicenseNames :: Widget ()
+    drawLicenseNames = listInBorder "Supported licenses" 70 4 (map showLicenseWithDesc universe)
+
+runTuiShowLicense :: String -> IO ()
+runTuiShowLicense (toText -> name) = case parseLicenseName name of
+    Nothing -> do
+        errorMessage $ "Error parsing license name: " <> name
+        infoMessage "Use 'summon show license' command to see the list of all available licenses"
+    Just licenseName -> do
+        lc <- fetchLicense licenseName
+        runApp (licenseApp licenseName lc) ()
+  where
+    licenseApp :: LicenseName -> License -> App () e ()
+    licenseApp licenseName lc = App
+        { appDraw         = drawScrollableLicense licenseName lc
+        , appStartEvent   = pure
+        , appAttrMap      = const $ attrMap V.defAttr []
+        , appChooseCursor = M.neverShowCursor
+        , appHandleEvent  = \() event -> case event of
+            VtyEvent (V.EvKey V.KDown []) -> M.vScrollBy licenseScroll   1  >> continue ()
+            VtyEvent (V.EvKey V.KUp [])   -> M.vScrollBy licenseScroll (-1) >> continue ()
+            VtyEvent (V.EvKey V.KEsc [])  -> halt ()
+            _                             -> continue ()
+        }
+
+
+    licenseScroll :: M.ViewportScroll ()
+    licenseScroll = M.viewportScroll ()
+
+    drawScrollableLicense :: LicenseName -> License -> () -> [Widget ()]
+    drawScrollableLicense licenseName (License lc) = const [ui]
+      where
+        ui :: Widget ()
+        ui = C.center
+            $ W.hLimit 80
+            $ borderLabel ("License: " ++ show licenseName)
+            $ W.viewport () Vertical
+            $ vBox
+            $ map (\t -> if t == "" then txt "\n" else W.txtWrap t)
+            $ lines lc
