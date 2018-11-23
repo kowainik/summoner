@@ -48,9 +48,11 @@ library
                          Summoner.Text
                          Summoner.Tree
                          Summoner.Tui
-                           Summoner.Tui.Forms
+                           Summoner.Tui.Field
+                           Summoner.Tui.Form
                            Summoner.Tui.GroupBorder
                            Summoner.Tui.Kit
+                           Summoner.Tui.Validation
                            Summoner.Tui.Widget
 
   autogen-modules:     Paths_summoner
