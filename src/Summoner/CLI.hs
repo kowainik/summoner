@@ -6,7 +6,14 @@
 -- | This module contains functions and data types to parse CLI inputs.
 
 module Summoner.CLI
-       ( summon
+       ( -- * CLI data types
+         Command (..)
+       , NewOpts (..)
+       , ShowOpts (..)
+
+         -- * Functions to parse CLI arguments and run @summoner@
+       , summon
+       , summonCli
        ) where
 
 import Data.Version (showVersion)
@@ -25,21 +32,26 @@ import Summoner.Config (ConfigP (..), PartialConfig, defaultConfig, finalise, lo
 import Summoner.Decision (Decision (..))
 import Summoner.Default (defaultConfigFile)
 import Summoner.GhcVer (GhcVer, showGhcVer)
-import Summoner.License (License (..), LicenseName (..), fetchLicense, licenseShortDesc,
-                         parseLicenseName)
+import Summoner.License (License (..), LicenseName (..), fetchLicense, parseLicenseName,
+                         showLicenseWithDesc)
 import Summoner.Project (generateProject)
 import Summoner.Settings (CustomPrelude (..))
 
 import qualified Data.Text as T
 
 
--- | Main function that parses @CLI@ commands and runs them.
-summon :: IO ()
-summon = execParser cliParser >>= runCommand
+-- | Main function that parses @CLI@ commands and runs them using given
+-- 'Command' handler.
+summon :: (Command -> IO ()) -> IO ()
+summon performCommand = execParser cliParser >>= performCommand
+
+-- | Runs @summoner@ in CLI mode.
+summonCli :: IO ()
+summonCli = summon runCliCommand
 
 -- | Run 'summoner' with @CLI@ command
-runCommand :: Command -> IO ()
-runCommand = \case
+runCliCommand :: Command -> IO ()
+runCliCommand = \case
     New opts -> runNew opts
     ShowInfo opts -> runShow opts
 
@@ -62,7 +74,7 @@ runShow = \case
     -- show list of all available GHC versions
     GhcList -> showBulletList @GhcVer showGhcVer (reverse universe)
     -- show a list of all available licenses
-    LicenseList Nothing -> showBulletList @LicenseName showDesc universe
+    LicenseList Nothing -> showBulletList @LicenseName showLicenseWithDesc universe
     -- show a specific license
     LicenseList (Just name) ->
         case parseLicenseName (toText name) of
@@ -77,9 +89,6 @@ runShow = \case
   where
     showBulletList :: (a -> Text) -> [a] -> IO ()
     showBulletList showT = mapM_ (infoMessage . T.append "➤ " . showT)
-
-    showDesc :: LicenseName -> Text
-    showDesc l = show l <> ": " <> licenseShortDesc l
 
 {- | Runs @new@ command.
 
