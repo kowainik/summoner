@@ -203,6 +203,7 @@ queryDef question defAnswer = do
 queryManyRepeatOnFail :: forall a . (Text -> Maybe a) -> IO [a]
 queryManyRepeatOnFail parser = promptLoop
   where
+    -- TODO: probably a good idea to use 'Validation' here to simplify code
     promptLoop :: IO [a]
     promptLoop = do
         answer <- prompt

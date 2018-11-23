@@ -11,10 +11,10 @@ module Summoner.Tui
        ) where
 
 import Brick (App (..), AttrMap, BrickEvent (..), Padding (Pad), Widget, attrMap, continue,
-              customMain, halt, padTop, simpleApp, str, txt, vBox, withAttr, (<+>))
+              customMain, halt, padTop, simpleApp, str, txt, vBox, withAttr, (<+>), (<=>))
 import Brick.Focus (focusRingCursor)
-import Brick.Forms (Form, focusedFormInputAttr, formFocus, formState, handleFormEvent,
-                    invalidFields, invalidFormInputAttr, renderForm)
+import Brick.Forms (focusedFormInputAttr, formFocus, formState, handleFormEvent,
+                    invalidFormInputAttr, renderForm)
 import Brick.Types (ViewportType (Vertical))
 import System.Directory (doesDirectoryExist, getCurrentDirectory, listDirectory)
 
@@ -24,9 +24,9 @@ import Summoner.GhcVer (showGhcVer)
 import Summoner.License (License (..), LicenseName, fetchLicense, parseLicenseName,
                          showLicenseWithDesc)
 import Summoner.Tui.Field (disabledAttr)
-import Summoner.Tui.Form (SummonForm (..), mkForm)
+import Summoner.Tui.Form (KitForm, SummonForm (..), mkForm)
 import Summoner.Tui.Kit
-import Summoner.Tui.Validation (ctrlD, fieldNameErrorMsg, summonFormValidation)
+import Summoner.Tui.Validation (ctrlD, formErrorMessages, summonFormValidation)
 import Summoner.Tui.Widget (borderLabel, listInBorder)
 
 import qualified Brick (on)
@@ -79,11 +79,11 @@ theMap = attrMap V.defAttr
     , ("blue-fg",            U.fg V.blue)
     ]
 
-draw :: Form SummonKit e SummonForm -> [Widget SummonForm]
-draw f =
+draw :: [FilePath] -> KitForm e -> [Widget SummonForm]
+draw dirs f =
     [ vBox
         [ form <+> tree
-        , validationErrors (invalidFields f) <+> help
+        , validationErrors <+> help
         ]
     ]
   where
@@ -97,14 +97,14 @@ draw f =
         , W.fill ' '
         ]
 
-    validationErrors :: [SummonForm] -> Widget SummonForm
-    validationErrors formFields = W.hLimitPercent 45 $
-        borderLabel "Errors" (validationBlock <+> W.fill ' ')
+    validationErrors :: Widget SummonForm
+    validationErrors = W.hLimitPercent 45 $
+        borderLabel "Errors" (validationBlock <=> W.fill ' ')
       where
         validationBlock :: Widget SummonForm
-        validationBlock = vBox $ case formFields of
-            []     -> [str "Project configuration is valid"]
-            fields -> map str $ mapMaybe fieldNameErrorMsg fields
+        validationBlock = vBox $ case formErrorMessages dirs f of
+            []     -> [str "✔ Project configuration is valid"]
+            fields -> map (\msg -> W.strWrap $ "❌ " ++ msg) fields
 
     help, helpBody :: Widget SummonForm
     help     = borderLabel "Help" (helpBody <+> W.fill ' ')
@@ -121,9 +121,9 @@ draw f =
     redStr = withAttr invalidFormInputAttr . str
     yellowStr = withAttr E.editFocusedAttr . str
 
-app :: [FilePath] -> App (Form SummonKit e SummonForm) e SummonForm
+app :: [FilePath] -> App (KitForm e) e SummonForm
 app dirs = App
-    { appDraw = draw
+    { appDraw = draw dirs
     , appHandleEvent = \s ev -> case ev of
         VtyEvent V.EvResize {} -> continue s
         -- TODO: successful exit
@@ -155,11 +155,11 @@ runApp = customMain buildVty Nothing
         V.setMode (V.outputIface v) V.Mouse True
         pure v
 
-runTuiNew :: SummonKit -> IO (Form SummonKit e SummonForm)
+runTuiNew :: SummonKit -> IO (KitForm e)
 runTuiNew kit = do
     filesAndDirs <- listDirectory =<< getCurrentDirectory
     dirs <- filterM doesDirectoryExist filesAndDirs
-    runApp (app dirs) (mkForm kit)
+    runApp (app dirs) (summonFormValidation dirs $ mkForm kit)
 
 -- | Creates simple brick app that doesn't have state and just displays given 'Widget'.
 mkSimpleApp :: Widget n -> App () e n
