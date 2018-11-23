@@ -24,7 +24,7 @@ import Summoner.GhcVer (showGhcVer)
 import Summoner.License (License (..), LicenseName, fetchLicense, parseLicenseName,
                          showLicenseWithDesc)
 import Summoner.Tui.Field (disabledAttr)
-import Summoner.Tui.Form (KitForm, SummonForm (..), mkForm)
+import Summoner.Tui.Form (KitForm, SummonForm (..), mkForm, recreateForm)
 import Summoner.Tui.Kit
 import Summoner.Tui.Validation (ctrlD, formErrorMessages, summonFormValidation)
 import Summoner.Tui.Widget (borderLabel, listInBorder)
@@ -130,13 +130,13 @@ app dirs = App
         VtyEvent (V.EvKey V.KEnter []) -> halt s
         VtyEvent (V.EvKey V.KEsc []) -> halt s
         VtyEvent (V.EvKey (V.KChar 'd') [V.MCtrl]) ->
-            withForm ev s (summonFormValidation dirs . ctrlD)
+            withForm ev s (validateForm . ctrlD)
         MouseDown n _ _ _ -> case n of
-            GitHubEnable   -> withForm ev s (mkForm . formState)
-            GitHubDisable  -> withForm ev s (mkForm . formState)
-            GitHubNoUpload -> withForm ev s (mkForm . formState)
+            GitHubEnable   -> withForm ev s mkNewForm
+            GitHubDisable  -> withForm ev s mkNewForm
+            GitHubNoUpload -> withForm ev s mkNewForm
             _              -> withForm ev s id
-        _ -> withForm ev s (summonFormValidation dirs)
+        _ -> withForm ev s validateForm
 
     , appChooseCursor = focusRingCursor formFocus
     , appStartEvent = pure
@@ -144,6 +144,12 @@ app dirs = App
     }
   where
     withForm ev s f = handleFormEvent ev s >>= continue . f
+
+    validateForm :: KitForm e -> KitForm e
+    validateForm = summonFormValidation dirs
+
+    mkNewForm :: KitForm e -> KitForm e
+    mkNewForm = recreateForm validateForm
 
 -- | Runs brick application with given start state.
 runApp :: Ord n => App s e n -> s -> IO s
