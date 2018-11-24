@@ -14,7 +14,7 @@ module Summoner.Tui.Kit
        , User (..)
        , Project (..)
        , ProjectMeta (..)
-       , Github (..)
+       , GitHub (..)
        , renderWidgetTree
        , configToSummonKit
        , finalSettings
