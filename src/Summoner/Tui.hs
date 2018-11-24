@@ -88,6 +88,7 @@ appNew dirs = App
         VtyEvent (V.EvKey (V.KChar 'd') [V.MCtrl]) ->
             withForm ev s (validateForm . ctrlD)
         MouseDown n _ _ _ -> case n of
+            StackField     -> withForm ev s mkNewForm
             GitHubEnable   -> withForm ev s mkNewForm
             GitHubDisable  -> withForm ev s mkNewForm
             GitHubNoUpload -> withForm ev s mkNewForm

@@ -76,6 +76,8 @@ import Summoner.Source (Source, fetchSource)
 import Summoner.Template (createProjectTemplate)
 import Summoner.Tree (showTree)
 
+import qualified Data.List as List (delete)
+
 
 -- | Global TUI state.
 data SummonKit = SummonKit
@@ -162,7 +164,7 @@ summonKitToSettings sk = Settings
     , settingsGitHub         = isGitHub
     , settingsPrivate        = isGitHub && sk ^. gitHub . private
     , settingsTravis         = isGitHub && sk ^. gitHub . travis
-    , settingsAppVeyor       = isGitHub && sk ^. gitHub . appVeyor
+    , settingsAppVeyor       = isGitHub && sk ^. gitHub . appVeyor && sk ^. stack
     , settingsIsLib          = sk ^. projectMeta . lib
     , settingsIsExe          = sk ^. projectMeta . exe
     , settingsTest           = sk ^. projectMeta . test
@@ -238,7 +240,7 @@ configToSummonKit cRepo cNoUpload cOffline Config{..} = SummonKit
         , projectMetaExe = kitExe
         , projectMetaTest = toBool cTest
         , projectMetaBench = toBool cBench
-        , projectMetaGhcs = cGhcVer
+        , projectMetaGhcs = List.delete defaultGHC cGhcVer
         , projectMetaPreludeName = kitPreludeName
         , projectMetaPreludeModule = kitPreludeModule
         }
@@ -249,7 +251,7 @@ configToSummonKit cRepo cNoUpload cOffline Config{..} = SummonKit
         , gitHubNoUpload = cNoUpload || cOffline
         , gitHubPrivate  = toBool cPrivate
         , gitHubTravis   = (cGitHub /= Nop) && (cTravis /= Nop)
-        , gitHubAppVeyor = toBool cAppVey
+        , gitHubAppVeyor = toBool cAppVey && kitStack
         }
     , summonKitExtensions   = cExtensions
     , summonKitWarnings     = cWarnings

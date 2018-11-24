@@ -13,6 +13,7 @@ import Brick.Forms (Form, editField, editTextField, formFocus, formState, listFi
                     setFieldConcat, setFormConcat, setFormFocus, (@@=))
 import Lens.Micro ((^.))
 
+import Summoner.Default (defaultGHC)
 import Summoner.GhcVer (parseGhcVer, showGhcVer)
 import Summoner.License (LicenseName)
 import Summoner.Text (intercalateMap)
@@ -94,7 +95,7 @@ mkForm sk = setFormConcat arrangeColumns $ newForm
         , 1 |> strField "Custom prelude"
         , 1 |> label "Name   " @@= editTextField (projectMeta . preludeName) CustomPreludeName (Just 1)
         , 2 |> label "Module " @@= editTextField (projectMeta . preludeModule) CustomPreludeModule (Just 1)
-        , 2 |> label "GHC versions " @@=
+        , 2 |> label ("GHC versions: " <> toString (showGhcVer defaultGHC) <> " ") @@=
             editField
                 (projectMeta . ghcs)
                 Ghcs
@@ -112,13 +113,14 @@ mkForm sk = setFormConcat arrangeColumns $ newForm
         , 1 |> activeCheckboxField (gitHub . noUpload) isGitHubEnabled GitHubNoUpload "No upload"
         , 1 |> activeCheckboxField (gitHub . private)  (isGitHubEnabled && isUploadEnabled) GitHubPrivate  "Private"
         , 1 |> activeCheckboxField (gitHub . travis)   isGitHubEnabled GitHubTravis   "Travis"
-        , 2 |> activeCheckboxField (gitHub . appVeyor) isGitHubEnabled GitHubAppVeyor "AppVeyor"
+        , 2 |> activeCheckboxField (gitHub . appVeyor) (isGitHubEnabled && isStack) GitHubAppVeyor "AppVeyor"
         ]
     ) sk
   where
-    isGitHubEnabled, isUploadEnabled :: Bool
+    isGitHubEnabled, isUploadEnabled, isStack :: Bool
     isGitHubEnabled = sk ^. gitHub . enabled
     isUploadEnabled = not $ sk ^. gitHub . noUpload
+    isStack = sk ^. stack
 
 
     widgetList :: Bool -> LicenseName -> Widget SummonForm
