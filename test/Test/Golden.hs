@@ -58,6 +58,7 @@ fullProject = Settings
     , settingsLicenseName    = MIT
     , settingsLicenseText    = mitLicense
     , settingsGitHub         = True
+    , settingsPrivate        = True
     , settingsTravis         = True
     , settingsAppVeyor       = True
     , settingsIsLib          = True
@@ -73,6 +74,7 @@ fullProject = Settings
     , settingsStack          = True
     , settingsStylish        = Just "This is stylish-haskell.yaml\n"
     , settingsContributing   = Just "This is contributing guide\n"
+    , settingsNoUpload       = True
     }
   where
     mitLicense :: License
@@ -112,6 +114,7 @@ smallProject = Settings
     , settingsLicenseName    = None
     , settingsLicenseText    = ""
     , settingsGitHub         = False
+    , settingsPrivate        = False
     , settingsTravis         = False
     , settingsAppVeyor       = False
     , settingsIsLib          = False
@@ -127,4 +130,5 @@ smallProject = Settings
     , settingsStack          = False
     , settingsStylish        = Nothing
     , settingsContributing   = Nothing
+    , settingsNoUpload       = True
     }

@@ -33,14 +33,15 @@ data Settings = Settings
     , settingsCategories     :: !Text   -- ^ project category
     , settingsLicenseName    :: !LicenseName -- ^ type of license
     , settingsLicenseText    :: !License -- ^ license text
-    , settingsGitHub         :: !Bool   -- ^ github repository
+    , settingsGitHub         :: !Bool   -- ^ GitHub repository
+    , settingsPrivate        :: !Bool   -- ^ private repository
     , settingsTravis         :: !Bool   -- ^ Travis CI integration
     , settingsAppVeyor       :: !Bool   -- ^ AppVeyor CI integration
     , settingsIsLib          :: !Bool   -- ^ is library
     , settingsIsExe          :: !Bool   -- ^ is executable
     , settingsTest           :: !Bool   -- ^ add tests
     , settingsBench          :: !Bool   -- ^ add benchmarks
-    , settingsTestedVersions :: ![GhcVer]  -- ^ ghc versions
+    , settingsTestedVersions :: ![GhcVer]  -- ^ GHC versions
     , settingsBaseType       :: !Text -- ^ Base library to use
     , settingsPrelude        :: !(Maybe CustomPrelude)  -- ^ custom prelude to be used
     , settingsExtensions     :: ![Text] -- ^ default extensions
@@ -49,4 +50,5 @@ data Settings = Settings
     , settingsStack          :: !Bool
     , settingsStylish        :: !(Maybe Text) -- ^ @.stylish-haskell.yaml@ file
     , settingsContributing   :: !(Maybe Text) -- ^ @CONTRIBUTING.md@ file
+    , settingsNoUpload       :: !Bool  -- ^ do not upload to GitHub
     } deriving (Show)
