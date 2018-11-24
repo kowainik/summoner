@@ -9,14 +9,14 @@ module Summoner.Tui.Form
 
 import Brick (Padding (Max), Widget, hBox, padRight, str, txt, vBox, vLimit)
 import Brick.Focus (focusGetCurrent)
-import Brick.Forms (Form, checkboxField, editField, editTextField, formFocus, formState, listField,
-                    newForm, radioField, setFieldConcat, setFormConcat, setFormFocus, (@@=))
+import Brick.Forms (Form, editField, editTextField, formFocus, formState, listField, newForm,
+                    setFieldConcat, setFormConcat, setFormFocus, (@@=))
 import Lens.Micro ((^.))
 
 import Summoner.GhcVer (parseGhcVer, showGhcVer)
 import Summoner.License (LicenseName)
 import Summoner.Text (intercalateMap)
-import Summoner.Tui.Field (activeCheckboxField, strField)
+import Summoner.Tui.Field (activeCheckboxField, checkboxField, radioField, strField)
 import Summoner.Tui.GroupBorder (groupBorder, (|>))
 import Summoner.Tui.Kit
 import Summoner.Tui.Widget (borderLabel, hArrange, label)
