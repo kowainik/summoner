@@ -19,6 +19,8 @@ import Brick.Forms (FormField (..), FormFieldState (..), checkboxCustomField, fo
                     radioCustomField)
 import Lens.Micro (Lens', lens, (^.))
 
+-- | A form field with a given text value which can not be modified or changed
+-- via any events. It is always valid.
 strField :: forall s e n . String -> s -> FormFieldState s e n
 strField t _ = FormFieldState
     { formFieldState = ()
@@ -103,6 +105,7 @@ activeCheckboxField stLens isEnabled name label initialState = FormFieldState
         , formFieldHandleEvent = handleEvent
         }
 
+-- | Renders checkbox depending on its state.
 renderCheckbox :: Bool -> String -> n -> Bool -> Bool -> Widget n
 renderCheckbox isEnabled label n foc val =
     let addAttr = if foc then withDefAttr focusedFormInputAttr else id
@@ -112,5 +115,6 @@ renderCheckbox isEnabled label n foc val =
                "⟬" <> (if val then "✔" else " ") <> "⟭" <> " " <> label
            else withAttr disabledAttr $ str $ "⟬ ⟭ " <> label
 
+-- | Attribute for disabled checkboxes.
 disabledAttr :: AttrName
 disabledAttr = "disabled"
