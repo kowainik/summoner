@@ -29,8 +29,8 @@ import Options.Applicative.Help.Chunk (stringChunk)
 import System.Directory (doesFileExist)
 
 import Paths_summoner (version)
-import Summoner.Ansi (Color (Green), beautyPrint, blueCode, bold, boldCode, errorMessage,
-                      infoMessage, redCode, resetCode, setColor, warningMessage)
+import Summoner.Ansi (blueCode, boldCode, errorMessage, infoMessage, redCode, resetCode,
+                      warningMessage)
 import Summoner.Config (Config, ConfigP (..), PartialConfig, defaultConfig, finalise,
                         loadFileConfig)
 import Summoner.Decision (Decision (..))
@@ -115,9 +115,6 @@ runNew newOpts@NewOpts{..} = do
     finalConfig <- getFinalConfig newOpts
     -- Generate the project.
     generateProject newOptsNoUpload newOptsOffline newOptsProjectName finalConfig
-
-    -- print result
-    beautyPrint [bold, setColor Green] "\nJob's done\n"
 
 -- | By the given 'NewOpts' return the final configurations.
 getFinalConfig :: NewOpts -> IO Config

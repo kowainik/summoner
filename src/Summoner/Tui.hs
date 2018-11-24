@@ -13,9 +13,10 @@ module Summoner.Tui
 import Brick (App (..), AttrMap, BrickEvent (..), Padding (Pad), Widget, attrMap, continue,
               customMain, halt, padTop, simpleApp, str, txt, vBox, withAttr, (<+>), (<=>))
 import Brick.Focus (focusRingCursor)
-import Brick.Forms (focusedFormInputAttr, formFocus, formState, handleFormEvent,
+import Brick.Forms (allFieldsValid, focusedFormInputAttr, formFocus, formState, handleFormEvent,
                     invalidFormInputAttr, renderForm)
 import Brick.Types (ViewportType (Vertical))
+import Lens.Micro ((.~), (^.))
 import System.Directory (doesDirectoryExist, getCurrentDirectory, listDirectory)
 
 import Summoner.Ansi (errorMessage, infoMessage)
@@ -23,6 +24,7 @@ import Summoner.CLI (Command (..), NewOpts (..), ShowOpts (..), getFinalConfig, 
 import Summoner.GhcVer (showGhcVer)
 import Summoner.License (License (..), LicenseName, fetchLicense, parseLicenseName,
                          showLicenseWithDesc)
+import Summoner.Project (initializeProject)
 import Summoner.Tui.Field (disabledAttr)
 import Summoner.Tui.Form (KitForm, SummonForm (..), mkForm, recreateForm)
 import Summoner.Tui.Kit
@@ -55,10 +57,12 @@ fields or checkboxes to configure settings for new project.
 summonTuiNew :: NewOpts -> IO ()
 summonTuiNew newOpts@NewOpts{..} = do
     finalConfig <- getFinalConfig newOpts
-    let kit = configToSummonKit newOptsProjectName newOptsNoUpload finalConfig
-    tkForm <- runTuiNew kit
-    putTextLn $ "The starting form state was:" <> show kit
-    putTextLn $ "The final form state was:" <> show (formState tkForm)
+    let initialKit = configToSummonKit newOptsProjectName newOptsNoUpload newOptsOffline finalConfig
+    skForm <- runTuiNew initialKit
+    let kit = formState skForm
+    if allFieldsValid skForm && kit ^. shouldSummon
+    then finalSettings kit >>= initializeProject
+    else errorMessage "Aborting summoner"
 
 -- | Simply shows info about GHC versions or licenses in TUI.
 summonTuiShow :: ShowOpts -> IO ()
@@ -126,8 +130,10 @@ app dirs = App
     { appDraw = draw dirs
     , appHandleEvent = \s ev -> case ev of
         VtyEvent V.EvResize {} -> continue s
-        -- TODO: successful exit
-        VtyEvent (V.EvKey V.KEnter []) -> halt s
+        VtyEvent (V.EvKey V.KEnter []) ->
+            if allFieldsValid s
+            then halt $ mkForm $ formState s & shouldSummon .~ True
+            else continue s
         VtyEvent (V.EvKey V.KEsc []) -> halt s
         VtyEvent (V.EvKey (V.KChar 'd') [V.MCtrl]) ->
             withForm ev s (validateForm . ctrlD)
