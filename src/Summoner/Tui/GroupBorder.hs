@@ -14,10 +14,9 @@ module Summoner.Tui.GroupBorder
 
 import Brick (Edges (..), Padding (Max), Widget, padRight, vLimit, (<+>), (<=>))
 import Brick.Forms (FormFieldState, (@@=))
+import Brick.Widgets.Border (hBorder, hBorderWithLabel, joinableBorder, vBorder)
 
-import Summoner.Tui.Widget (borderName)
-
-import qualified Brick.Widgets.Border as B
+import Summoner.Tui.Widget (borderLabel, borderName)
 
 
 -- | Create a pair of elements.
@@ -54,18 +53,18 @@ groupBorder groupName  = \case
 groupBorderTop :: String -> (Int, s -> FormFieldState s e n) -> (s -> FormFieldState s e n)
 groupBorderTop groupName (i, f) =
     ( vLimit i
-    . ((tl <=> B.vBorder) <+>)
-    . (<+> (tr <=> B.vBorder))
-    . (B.hBorderWithLabel (borderName groupName) <=>)
+    . ((tl <=> vBorder) <+>)
+    . (<+> (tr <=> vBorder))
+    . (hBorderWithLabel (borderName groupName) <=>)
     ) @@= f
 
 -- | Creates the bottom border of the group.
 groupBorderBottom :: (Int, s -> FormFieldState s e n) -> (s -> FormFieldState s e n)
 groupBorderBottom (i, f) =
     ( vLimit i
-    . ((B.vBorder <=> bl) <+>)
-    . (<+> (B.vBorder <=> br))
-    . (<=> B.hBorder)
+    . ((vBorder <=> bl) <+>)
+    . (<+> (vBorder <=> br))
+    . (<=> hBorder)
     . padRight Max
     ) @@= f
 
@@ -73,8 +72,8 @@ groupBorderBottom (i, f) =
 groupBorderMid :: (Int, s -> FormFieldState s e n) -> (s -> FormFieldState s e n)
 groupBorderMid (i, f) =
     ( vLimit i
-    . (B.vBorder <+>)
-    . (<+> B.vBorder)
+    . (vBorder <+>)
+    . (<+> vBorder)
     . padRight Max
     ) @@= f
 
@@ -82,14 +81,14 @@ groupBorderMid (i, f) =
 groupAllBorders :: String -> (Int, s -> FormFieldState s e n) -> (s -> FormFieldState s e n)
 groupAllBorders groupName (i, f) =
     ( vLimit i
-    . B.borderWithLabel (borderName groupName)
+    . borderLabel groupName
     . padRight Max
     ) @@= f
 
 
 -- | Helpers for the correct border lines.
 tl, tr, bl, br :: Widget n
-tl = B.joinableBorder (Edges False True False True)
-tr = B.joinableBorder (Edges False True True False)
-bl = B.joinableBorder (Edges True False False True)
-br = B.joinableBorder (Edges True False True False)
+tl = joinableBorder (Edges False True False True)
+tr = joinableBorder (Edges False True True False)
+bl = joinableBorder (Edges True False False True)
+br = joinableBorder (Edges True False True False)

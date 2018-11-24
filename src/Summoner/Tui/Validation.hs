@@ -158,4 +158,7 @@ formErrorMessages dirs kitForm = validatedErrorMessages ++ ghcErrorMessage
 
     -- Hack because input field for GHC versions uses custom @editField@ with its own validation
     ghcErrorMessage :: [String]
-    ghcErrorMessage = ["Some GHC versions failed to parse" | Ghcs `elem` invalidFields kitForm]
+    ghcErrorMessage =
+        ["Some GHC versions failed to parse: use space-separated valid GHC versions"
+        | Ghcs `elem` invalidFields kitForm
+        ]
