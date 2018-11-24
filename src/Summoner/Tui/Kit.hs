@@ -122,7 +122,7 @@ data ProjectMeta = ProjectMeta
 -- | Github specific information.
 data GitHub = GitHub
     { gitHubEnabled  :: !Bool
-    , gitHubNoUpload :: !Bool  -- Do not upload to GitHub, only local initialization.
+    , gitHubNoUpload :: !Bool  -- ^ Do not upload to GitHub, only local initialization.
     , gitHubPrivate  :: !Bool
     , gitHubTravis   :: !Bool
     , gitHubAppVeyor :: !Bool
