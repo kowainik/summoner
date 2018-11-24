@@ -15,7 +15,13 @@ import Brick (App (..), AttrMap, BrickEvent (..), Padding (Pad), Widget, attrMap
 import Brick.Focus (focusRingCursor)
 import Brick.Forms (allFieldsValid, focusedFormInputAttr, formFocus, formState, handleFormEvent,
                     invalidFormInputAttr, renderForm)
+import Brick.Main (ViewportScroll, neverShowCursor, vScrollBy, viewportScroll)
 import Brick.Types (ViewportType (Vertical))
+import Brick.Util (fg)
+import Brick.Widgets.Center (center)
+import Brick.Widgets.Core (fill, hLimit, hLimitPercent, strWrap, txtWrap, vLimit, viewport)
+import Brick.Widgets.Edit (editAttr, editFocusedAttr)
+import Brick.Widgets.List (listAttr, listSelectedAttr)
 import Lens.Micro ((.~), (^.))
 import System.Directory (doesDirectoryExist, getCurrentDirectory, listDirectory)
 
@@ -32,12 +38,6 @@ import Summoner.Tui.Validation (ctrlD, formErrorMessages, summonFormValidation)
 import Summoner.Tui.Widget (borderLabel, listInBorder)
 
 import qualified Brick (on)
-import qualified Brick.Main as M
-import qualified Brick.Util as U
-import qualified Brick.Widgets.Center as C
-import qualified Brick.Widgets.Core as W
-import qualified Brick.Widgets.Edit as E
-import qualified Brick.Widgets.List as L
 import qualified Graphics.Vty as V
 
 
@@ -50,6 +50,10 @@ runTuiCommand :: Command -> IO ()
 runTuiCommand = \case
     New opts      -> summonTuiNew opts
     ShowInfo opts -> summonTuiShow opts
+
+----------------------------------------------------------------------------
+-- New command
+----------------------------------------------------------------------------
 
 {- | TUI for creating new project. Contains interactive elements like text input
 fields or checkboxes to configure settings for new project.
@@ -64,70 +68,16 @@ summonTuiNew newOpts@NewOpts{..} = do
     then finalSettings kit >>= initializeProject
     else errorMessage "Aborting summoner"
 
--- | Simply shows info about GHC versions or licenses in TUI.
-summonTuiShow :: ShowOpts -> IO ()
-summonTuiShow = \case
-    GhcList                 -> runTuiShowGhcVersions
-    LicenseList Nothing     -> runTuiShowAllLicenses
-    LicenseList (Just name) -> runTuiShowLicense name
+runTuiNew :: SummonKit -> IO (KitForm e)
+runTuiNew kit = do
+    filesAndDirs <- listDirectory =<< getCurrentDirectory
+    dirs <- filterM doesDirectoryExist filesAndDirs
+    runApp (appNew dirs) (summonFormValidation dirs $ mkForm kit)
 
-theMap :: AttrMap
-theMap = attrMap V.defAttr
-    [ (E.editAttr,           V.black `Brick.on` V.cyan)
-    , (E.editFocusedAttr,    V.black `Brick.on` V.white)
-    , (invalidFormInputAttr, V.white `Brick.on` V.red)
-    , (focusedFormInputAttr, V.black `Brick.on` V.yellow)
-    , (L.listAttr,           V.white `Brick.on` V.blue)
-    , (L.listSelectedAttr,   V.blue  `Brick.on` V.white)
-    , (disabledAttr,         U.fg V.brightBlack)
-    , ("blue-fg",            U.fg V.blue)
-    ]
-
-draw :: [FilePath] -> KitForm e -> [Widget SummonForm]
-draw dirs f =
-    [ vBox
-        [ form <+> tree
-        , validationErrors <+> help
-        ]
-    ]
-  where
-    form :: Widget SummonForm
-    form = borderLabel "Summon new project" $ padTop (Pad 1) (renderForm f)
-
-    tree :: Widget SummonForm
-    tree = W.hLimitPercent 25 $ W.vLimit 22 $ borderLabel "Project Structure" $ vBox
-        [ txt $ renderWidgetTree $ formState f
-        -- to fill all the space that widget should take.
-        , W.fill ' '
-        ]
-
-    validationErrors :: Widget SummonForm
-    validationErrors = W.hLimitPercent 45 $
-        borderLabel "Errors" (validationBlock <=> W.fill ' ')
-      where
-        validationBlock :: Widget SummonForm
-        validationBlock = vBox $ case formErrorMessages dirs f of
-            []     -> [str "✔ Project configuration is valid"]
-            fields -> map (\msg -> W.strWrap $ "☓ " ++ msg) fields
-
-    help, helpBody :: Widget SummonForm
-    help     = borderLabel "Help" (helpBody <+> W.fill ' ')
-    helpBody = vBox
-        [ str       "• Esc    : quit"
-        , yellowStr "• Yellow" <+> str " : focused input field"
-        , redStr    "• Red   " <+> str " : invalid input field"
-        , str       "• Ctrk+U : remove input to the start"
-        , str       "• Ctrk+K : remove input to the end"
-        , str       "• Arrows : up/down arrows to choose license"
-        ]
-
-    redStr, yellowStr :: String -> Widget SummonForm
-    redStr = withAttr invalidFormInputAttr . str
-    yellowStr = withAttr E.editFocusedAttr . str
-
-app :: [FilePath] -> App (KitForm e) e SummonForm
-app dirs = App
-    { appDraw = draw dirs
+-- | Represents @new@ command app behaviour.
+appNew :: [FilePath] -> App (KitForm e) e SummonForm
+appNew dirs = App
+    { appDraw = drawNew dirs
     , appHandleEvent = \s ev -> case ev of
         VtyEvent V.EvResize {} -> continue s
         VtyEvent (V.EvKey V.KEnter []) ->
@@ -157,30 +107,59 @@ app dirs = App
     mkNewForm :: KitForm e -> KitForm e
     mkNewForm = recreateForm validateForm
 
--- | Runs brick application with given start state.
-runApp :: Ord n => App s e n -> s -> IO s
-runApp = customMain buildVty Nothing
+-- | Draws the form for @new@ command.
+drawNew :: [FilePath] -> KitForm e -> [Widget SummonForm]
+drawNew dirs f =
+    [ vBox
+        [ form <+> tree
+        , validationErrors <+> help
+        ]
+    ]
   where
-    buildVty :: IO V.Vty
-    buildVty = do
-        v <- V.mkVty =<< V.standardIOConfig
-        V.setMode (V.outputIface v) V.Mouse True
-        pure v
+    form :: Widget SummonForm
+    form = borderLabel "Summon new project" $ padTop (Pad 1) (renderForm f)
 
-runTuiNew :: SummonKit -> IO (KitForm e)
-runTuiNew kit = do
-    filesAndDirs <- listDirectory =<< getCurrentDirectory
-    dirs <- filterM doesDirectoryExist filesAndDirs
-    runApp (app dirs) (summonFormValidation dirs $ mkForm kit)
+    tree :: Widget SummonForm
+    tree = hLimitPercent 25 $ vLimit 22 $ borderLabel "Project Structure" $ vBox
+        [ txt $ renderWidgetTree $ formState f
+        -- to fill all the space that widget should take.
+        , fill ' '
+        ]
 
--- | Creates simple brick app that doesn't have state and just displays given 'Widget'.
-mkSimpleApp :: Widget n -> App () e n
-mkSimpleApp w = (simpleApp w)
-    { appAttrMap = const theMap
-    }
+    validationErrors :: Widget SummonForm
+    validationErrors = hLimitPercent 45 $
+        borderLabel "Errors" (validationBlock <=> fill ' ')
+      where
+        validationBlock :: Widget SummonForm
+        validationBlock = vBox $ case formErrorMessages dirs f of
+            []     -> [str "✔ Project configuration is valid"]
+            fields -> map (\msg -> strWrap $ "☓ " ++ msg) fields
 
-runSimpleApp :: Ord n => Widget n -> IO ()
-runSimpleApp w = runApp (mkSimpleApp w) ()
+    help, helpBody :: Widget SummonForm
+    help     = borderLabel "Help" (helpBody <+> fill ' ')
+    helpBody = vBox
+        [ str       "• Esc    : quit"
+        , yellowStr "• Yellow" <+> str " : focused input field"
+        , redStr    "• Red   " <+> str " : invalid input field"
+        , str       "• Ctrk+U : remove input to the start"
+        , str       "• Ctrk+K : remove input to the end"
+        , str       "• Arrows : up/down arrows to choose license"
+        ]
+
+    redStr, yellowStr :: String -> Widget SummonForm
+    redStr = withAttr invalidFormInputAttr . str
+    yellowStr = withAttr editFocusedAttr . str
+
+----------------------------------------------------------------------------
+-- Show command
+----------------------------------------------------------------------------
+
+-- | Simply shows info about GHC versions or licenses in TUI.
+summonTuiShow :: ShowOpts -> IO ()
+summonTuiShow = \case
+    GhcList                 -> runTuiShowGhcVersions
+    LicenseList Nothing     -> runTuiShowAllLicenses
+    LicenseList (Just name) -> runTuiShowLicense name
 
 runTuiShowGhcVersions :: IO ()
 runTuiShowGhcVersions = runSimpleApp drawGhcVersions
@@ -208,26 +187,62 @@ runTuiShowLicense (toText -> name) = case parseLicenseName name of
         { appDraw         = drawScrollableLicense licenseName lc
         , appStartEvent   = pure
         , appAttrMap      = const theMap
-        , appChooseCursor = M.neverShowCursor
+        , appChooseCursor = neverShowCursor
         , appHandleEvent  = \() event -> case event of
-            VtyEvent (V.EvKey V.KDown []) -> M.vScrollBy licenseScroll   1  >> continue ()
-            VtyEvent (V.EvKey V.KUp [])   -> M.vScrollBy licenseScroll (-1) >> continue ()
+            VtyEvent (V.EvKey V.KDown []) -> vScrollBy licenseScroll   1  >> continue ()
+            VtyEvent (V.EvKey V.KUp [])   -> vScrollBy licenseScroll (-1) >> continue ()
             VtyEvent (V.EvKey V.KEsc [])  -> halt ()
             _                             -> continue ()
         }
 
-
-    licenseScroll :: M.ViewportScroll ()
-    licenseScroll = M.viewportScroll ()
+    licenseScroll :: ViewportScroll ()
+    licenseScroll = viewportScroll ()
 
     drawScrollableLicense :: LicenseName -> License -> () -> [Widget ()]
     drawScrollableLicense licenseName (License lc) = const [ui]
       where
         ui :: Widget ()
-        ui = C.center
-            $ W.hLimit 80
+        ui = center
+            $ hLimit 80
             $ borderLabel ("License: " ++ show licenseName)
-            $ W.viewport () Vertical
+            $ viewport () Vertical
             $ vBox
-            $ map (\t -> if t == "" then txt "\n" else W.txtWrap t)
+            $ map (\t -> if t == "" then txt "\n" else txtWrap t)
             $ lines lc
+
+----------------------------------------------------------------------------
+-- Internal
+----------------------------------------------------------------------------
+
+-- | Runs brick application with given start state.
+runApp :: Ord n => App s e n -> s -> IO s
+runApp = customMain buildVty Nothing
+  where
+    buildVty :: IO V.Vty
+    buildVty = do
+        v <- V.mkVty =<< V.standardIOConfig
+        V.setMode (V.outputIface v) V.Mouse True
+        pure v
+
+-- | Runs the app without any state.
+runSimpleApp :: Ord n => Widget n -> IO ()
+runSimpleApp w = runApp (mkSimpleApp w) ()
+
+-- | Creates simple brick app that doesn't have state and just displays given 'Widget'.
+mkSimpleApp :: Widget n -> App () e n
+mkSimpleApp w = (simpleApp w)
+    { appAttrMap = const theMap
+    }
+
+-- | Styles, colours that are used across the app.
+theMap :: AttrMap
+theMap = attrMap V.defAttr
+    [ (editAttr,             V.black `Brick.on` V.cyan)
+    , (editFocusedAttr,      V.black `Brick.on` V.white)
+    , (invalidFormInputAttr, V.white `Brick.on` V.red)
+    , (focusedFormInputAttr, V.black `Brick.on` V.yellow)
+    , (listAttr,             V.white `Brick.on` V.blue)
+    , (listSelectedAttr,     V.blue  `Brick.on` V.white)
+    , (disabledAttr,         fg V.brightBlack)
+    , ("blue-fg",            fg V.blue)
+    ]

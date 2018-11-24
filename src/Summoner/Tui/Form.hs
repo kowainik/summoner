@@ -1,4 +1,4 @@
--- | Form layout and form fields data type.
+-- | Form layout and form fields data types.
 
 module Summoner.Tui.Form
        ( SummonForm (..)

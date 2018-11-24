@@ -11,6 +11,10 @@ in the form.
 module Summoner.Tui.Kit
        ( -- * Data types
          SummonKit (..)
+       , User (..)
+       , Project (..)
+       , ProjectMeta (..)
+       , GitHub (..)
        , renderWidgetTree
        , configToSummonKit
        , finalSettings
@@ -81,40 +85,44 @@ data SummonKit = SummonKit
     , summonKitStack        :: !Bool
     , summonKitProjectMeta  :: !ProjectMeta
     , summonKitGitHub       :: !GitHub
-    , summonKitExtensions   :: ![Text]
-    , summonKitWarnings     :: ![Text]
-    , summonKitStylish      :: !(Maybe Source)
-    , summonKitContributing :: !(Maybe Source)
+    , summonKitExtensions   :: ![Text]  -- ^ Can be recieved from the config file.
+    , summonKitWarnings     :: ![Text]  -- ^ Can be recieved from the config file.
+    , summonKitStylish      :: !(Maybe Source)  -- ^ Can be recieved from the config file.
+    , summonKitContributing :: !(Maybe Source)  -- ^ Can be recieved from the config file.
     , summonKitOffline      :: !Bool
     , summonKitShouldSummon :: !Bool  -- ^ Check if project needs to be created.
     } deriving (Show)
 
+-- | User information.
 data User = User
-    { userOwner    :: !Text
+    { userOwner    :: !Text  -- ^ GitHub user or organization name.
     , userFullName :: !Text
     , userEmail    :: !Text
     } deriving (Show)
 
+-- | Project related information
 data Project = Project
-    { projectRepo     :: !Text
-    , projectDesc     :: !Text
-    , projectCategory :: !Text
+    { projectRepo     :: !Text  -- ^ Project name.
+    , projectDesc     :: !Text  -- ^ Short project description.
+    , projectCategory :: !Text  -- ^ Comma-separated. See @Hackage@ for existing category list.
     , projectLicense  :: !LicenseName
     } deriving (Show)
 
+-- | Project meta information.
 data ProjectMeta = ProjectMeta
     { projectMetaLib           :: !Bool
     , projectMetaExe           :: !Bool
     , projectMetaTest          :: !Bool
     , projectMetaBench         :: !Bool
-    , projectMetaGhcs          :: ![GhcVer]
+    , projectMetaGhcs          :: ![GhcVer]  -- ^ Default GHC version is always added.
     , projectMetaPreludeName   :: !Text
     , projectMetaPreludeModule :: !Text
     } deriving (Show)
 
+-- | Github specific information.
 data GitHub = GitHub
     { gitHubEnabled  :: !Bool
-    , gitHubNoUpload :: !Bool
+    , gitHubNoUpload :: !Bool  -- ^ Do not upload to GitHub, only local initialization.
     , gitHubPrivate  :: !Bool
     , gitHubTravis   :: !Bool
     , gitHubAppVeyor :: !Bool
@@ -126,6 +134,7 @@ makeFields ''Project
 makeFields ''ProjectMeta
 makeFields ''GitHub
 
+-- | Lens for 'Maybe' 'LicenseName' in 'SummonKit'.
 maybeLicense :: Lens' SummonKit (Maybe LicenseName)
 maybeLicense = lens getL setL
   where
@@ -137,7 +146,6 @@ maybeLicense = lens getL setL
         Just l  -> sk & project . license .~ l
         Nothing -> sk
 
--- TODO: WIP need to fetch license in other func?
 -- The following function is for tree rendering only.
 -- | Converts 'SummonKit' to main 'Settings' data type.
 summonKitToSettings :: SummonKit -> Settings
@@ -183,6 +191,7 @@ summonKitToSettings sk = Settings
            then ("base-noprelude", Just CustomPrelude{..})
            else ("base", Nothing)
 
+-- | Gets 'Settings' on successful application complition.
 finalSettings :: SummonKit -> IO Settings
 finalSettings sk = do
     year <- currentYear
@@ -274,5 +283,6 @@ configToSummonKit cRepo cNoUpload cOffline Config{..} = SummonKit
         Nothing                -> ("", "")
         Just CustomPrelude{..} -> (cpPackage, cpModule)
 
+-- | Shows the Widget with the generated project structure tree.
 renderWidgetTree :: SummonKit -> Text
 renderWidgetTree = showTree False . createProjectTemplate . summonKitToSettings
