@@ -4,6 +4,7 @@
 module Summoner.Tui.Widget
        ( label
        , borderLabel
+       , borderName
        , hArrange
        , listInBorder
        ) where
@@ -35,7 +36,11 @@ __Example:__
 @
 -}
 borderLabel :: String -> Widget n -> Widget n
-borderLabel l = borderWithLabel (str "╼" <+> padLeftRight 1 (str l) <+> str "╾")
+borderLabel l = borderWithLabel (borderName l)
+
+-- | Border label pretty text 'Widget'
+borderName :: String -> Widget n
+borderName l = str "╼" <+> padLeftRight 1 (str l) <+> str "╾"
 
 {- | Arranges 'Widget's horizontally.
 

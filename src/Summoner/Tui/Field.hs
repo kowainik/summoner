@@ -19,6 +19,7 @@ import Brick.Forms (FormField (..), FormFieldState (..), checkboxCustomField, fo
                     radioCustomField)
 import Lens.Micro (Lens', lens, (^.))
 
+
 -- | A form field with a given text value which can not be modified or changed
 -- via any events. It is always valid.
 strField :: forall s e n . String -> s -> FormFieldState s e n

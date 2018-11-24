@@ -12,12 +12,12 @@ module Summoner.Tui.GroupBorder
        , (|>)
        ) where
 
-import Brick (Edges (..), Padding (Max), Widget, padRight, str, vLimit, (<+>), (<=>))
+import Brick (Edges (..), Padding (Max), Widget, padRight, vLimit, (<+>), (<=>))
 import Brick.Forms (FormFieldState, (@@=))
 
+import Summoner.Tui.Widget (borderName)
+
 import qualified Brick.Widgets.Border as B
-import qualified Brick.Widgets.Border.Style as B
-import qualified Brick.Widgets.Core as B
 
 
 -- | Create a pair of elements.
@@ -54,17 +54,15 @@ groupBorder groupName  = \case
 groupBorderTop :: String -> (Int, s -> FormFieldState s e n) -> (s -> FormFieldState s e n)
 groupBorderTop groupName (i, f) =
     ( vLimit i
-    . B.withBorderStyle B.unicodeBold
     . ((tl <=> B.vBorder) <+>)
     . (<+> (tr <=> B.vBorder))
-    . (B.hBorderWithLabel (str groupName) <=>)
+    . (B.hBorderWithLabel (borderName groupName) <=>)
     ) @@= f
 
 -- | Creates the bottom border of the group.
 groupBorderBottom :: (Int, s -> FormFieldState s e n) -> (s -> FormFieldState s e n)
 groupBorderBottom (i, f) =
     ( vLimit i
-    . B.withBorderStyle B.unicodeBold
     . ((B.vBorder <=> bl) <+>)
     . (<+> (B.vBorder <=> br))
     . (<=> B.hBorder)
@@ -75,7 +73,6 @@ groupBorderBottom (i, f) =
 groupBorderMid :: (Int, s -> FormFieldState s e n) -> (s -> FormFieldState s e n)
 groupBorderMid (i, f) =
     ( vLimit i
-    . B.withBorderStyle B.unicodeBold
     . (B.vBorder <+>)
     . (<+> B.vBorder)
     . padRight Max
@@ -85,8 +82,7 @@ groupBorderMid (i, f) =
 groupAllBorders :: String -> (Int, s -> FormFieldState s e n) -> (s -> FormFieldState s e n)
 groupAllBorders groupName (i, f) =
     ( vLimit i
-    . B.withBorderStyle B.unicodeBold
-    . B.borderWithLabel (str groupName)
+    . B.borderWithLabel (borderName groupName)
     . padRight Max
     ) @@= f
 
