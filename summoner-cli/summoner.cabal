@@ -1,9 +1,9 @@
 cabal-version:       2.0
 name:                summoner
 version:             1.2.0
-synopsis:            Tool for creating completely configured production Haskell projects.
-description:         Tool for creating completely configured production Haskell projects.
-                     See README.md for details.
+synopsis:            Tool for scaffolding completely configured production Haskell projects.
+description:         Tool for scaffolding completely configured production Haskell projects.
+                     See [README.md](https://github.com/kowainik/summoner#-summoner) for details.
 homepage:            https://github.com/kowainik/summoner
 bug-reports:         https://github.com/kowainik/summoner/issues
 license:             MPL-2.0
@@ -14,7 +14,7 @@ copyright:           2018 Kowainik
 category:            CLI, CLI Tool, Development
 build-type:          Simple
 stability:           stable
-extra-doc-files:     ../README.md
+extra-doc-files:     README.md
                    , CHANGELOG.md
 tested-with:         GHC == 8.2.2
                    , GHC == 8.4.4

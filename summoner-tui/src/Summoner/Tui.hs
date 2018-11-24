@@ -40,11 +40,12 @@ import Summoner.Tui.Widget (borderLabel, listInBorder)
 
 import qualified Brick (on)
 import qualified Graphics.Vty as V
+import qualified Paths_summoner_tui as Meta (version)
 
 
 -- | Main function that parses @CLI@ arguments and runs @summoner@ in TUI mode.
 summonTui :: IO ()
-summonTui = summon runTuiCommand
+summonTui = summon Meta.version runTuiCommand
 
 -- | Run TUI specific to each command.
 runTuiCommand :: Command -> IO ()
