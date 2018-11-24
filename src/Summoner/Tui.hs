@@ -73,8 +73,8 @@ summonTuiShow = \case
 
 theMap :: AttrMap
 theMap = attrMap V.defAttr
-    [ (E.editAttr,           V.white `Brick.on` V.cyan)
-    , (E.editFocusedAttr,    V.black `Brick.on` V.yellow)
+    [ (E.editAttr,           V.black `Brick.on` V.cyan)
+    , (E.editFocusedAttr,    V.black `Brick.on` V.white)
     , (invalidFormInputAttr, V.white `Brick.on` V.red)
     , (focusedFormInputAttr, V.black `Brick.on` V.yellow)
     , (L.listAttr,           V.white `Brick.on` V.blue)
@@ -108,7 +108,7 @@ draw dirs f =
         validationBlock :: Widget SummonForm
         validationBlock = vBox $ case formErrorMessages dirs f of
             []     -> [str "✔ Project configuration is valid"]
-            fields -> map (\msg -> W.strWrap $ "❌ " ++ msg) fields
+            fields -> map (\msg -> W.strWrap $ "☓ " ++ msg) fields
 
     help, helpBody :: Widget SummonForm
     help     = borderLabel "Help" (helpBody <+> W.fill ' ')
