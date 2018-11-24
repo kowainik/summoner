@@ -47,7 +47,7 @@ The change log is available [on GitHub][2].
   Add golden tests.
 * Remove `tasty` dependencies from tests.
 
-## 1.1.0.1
+## 1.1.0.1 – Sep 10, 2018
 
 * Bump up `relude` version to `0.3.0`.
 * [#146](https://github.com/kowainik/summoner/issues/146):
