@@ -36,6 +36,13 @@ strField t _ = FormFieldState
     renderString w = str t <+> w
 
 {- | Custom checkbox with unique fancy style.
+
+__Example:__
+
+@
+⟬✔⟭ Library
+⟬ ⟭ Executable
+@
 -}
 checkboxField
     :: (Ord n, Show n)
@@ -47,6 +54,12 @@ checkboxField
 checkboxField = checkboxCustomField '⟬' '✔' '⟭'
 
 {- | Custom radio button with unique fancy style.
+
+__Example:__
+
+@
+❮◆❯ Enable  ❮ ❯ Disable
+@
 -}
 radioField
     :: (Ord n, Show n, Eq a)
