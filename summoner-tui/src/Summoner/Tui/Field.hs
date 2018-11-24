@@ -54,7 +54,7 @@ checkboxField
     -> Text         -- ^ The label for the check box, to appear at its right.
     -> s            -- ^ The initial form state.
     -> FormFieldState s e n
-checkboxField = checkboxCustomField '⟬' '✔' '⟭'
+checkboxField = checkboxCustomField '⟦' '✔' '⟧'
 
 {- | Custom radio button with unique fancy style.
 
@@ -113,8 +113,8 @@ renderCheckbox isEnabled label n foc val =
         csr = if foc then showCursor n (Location (1,0)) else id
     in if isEnabled
            then clickable n $ addAttr $ csr $ str $
-               "⟬" <> (if val then "✔" else " ") <> "⟭" <> " " <> label
-           else withAttr disabledAttr $ str $ "⟬ ⟭ " <> label
+               "⟦" <> (if val then "✔" else " ") <> "⟧" <> " " <> label
+           else withAttr disabledAttr $ str $ "⟦ ⟧ " <> label
 
 -- | Attribute for disabled checkboxes.
 disabledAttr :: AttrName
