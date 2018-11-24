@@ -15,6 +15,8 @@ import Lens.Micro (Lens', (.~), (^.))
 import Summoner.Tui.Form (KitForm, SummonForm (..), mkForm)
 import Summoner.Tui.Kit
 
+import qualified Data.Text as T
+
 
 -- | Clears the 'Text' fields by @Ctrl + d@ key combination.
 ctrlD :: KitForm e -> KitForm e
@@ -37,7 +39,7 @@ ctrlD =
 
 -- | Validates the main @new@ command form.
 summonFormValidation :: forall e . [FilePath] -> KitForm e -> KitForm e
-summonFormValidation dirs kitForm = foldr setValidation kitForm fieldsToValidate
+summonFormValidation dirs kitForm = foldr setValidation kitForm universe
   where
     kit :: SummonKit
     kit = formState kitForm
@@ -47,15 +49,6 @@ summonFormValidation dirs kitForm = foldr setValidation kitForm fieldsToValidate
         Success _      -> []
         Failure errors -> concatMap (toList . errorToInvalidFields) errors
 
-    -- All fields that should be validated
-    fieldsToValidate :: [SummonForm]
-    fieldsToValidate =
-        [ UserOwner, UserFullName, UserEmail
-        , ProjectName, ProjectDesc, ProjectCat
-        , CabalField, StackField , Lib, Exe
-        , CustomPreludeModule
-        ]
-
     setValidation :: SummonForm -> KitForm e -> KitForm e
     setValidation field = setFieldValid (field `notElem` wrongFields) field
 
@@ -64,6 +57,8 @@ summonFormValidation dirs kitForm = foldr setValidation kitForm fieldsToValidate
 data FormError
     -- | List of empty fields that shouldn't be empty.
     = EmptyFields (NonEmpty SummonForm)
+    -- | List of fields that should be exactly one word.
+    | OneWord (NonEmpty SummonForm)
     -- | Project with such name already exist.
     | ProjectExist
     -- | At least one build tool should be chosen.
@@ -77,9 +72,12 @@ showFormError = \case
     ProjectExist -> "Directory with such name already exists"
     CabalOrStack -> "Choose at least one: Cabal or Stack"
     LibOrExe     -> "Choose at least one: Library or Executable"
-    EmptyFields fields -> "These fields must not be empty: "
-        <> intercalate ", " (mapMaybe showField $ toList fields)
+    EmptyFields fields -> "These fields must not be empty: " ++ joinFields fields
+    OneWord fields -> "These fields should contain exactly one word: " ++ joinFields fields
   where
+    joinFields :: NonEmpty SummonForm -> String
+    joinFields = intercalate ", " . mapMaybe showField . toList
+
     showField :: SummonForm -> Maybe String
     showField = \case
         UserOwner           -> Just "Owner"
@@ -88,6 +86,7 @@ showFormError = \case
         ProjectName         -> Just "Name"
         ProjectDesc         -> Just "Description"
         ProjectCat          -> Just "Category"
+        CustomPreludeName   -> Just "Prelude name"
         CustomPreludeModule -> Just "Module"
         _ -> Nothing
 
@@ -95,6 +94,7 @@ showFormError = \case
 errorToInvalidFields :: FormError -> NonEmpty SummonForm
 errorToInvalidFields = \case
     EmptyFields fields -> fields
+    OneWord fields     -> fields
     ProjectExist       -> one ProjectName
     CabalOrStack       -> CabalField :| [StackField]
     LibOrExe           -> Lib :| [Exe]
@@ -107,12 +107,19 @@ toError p e = if p then Failure (one e) else Success ()
 validateKit :: [FilePath] -> SummonKit -> Validation (NonEmpty FormError) ()
 validateKit dirs kit =
        validateEmpty
+    *> validateOneWord
     *> validateProjectExist
     *> validateBuildTools
     *> validateLibOrExe
   where
+    liftValidation
+        :: (e -> FormError)
+        -> Validation e ()
+        -> Validation (NonEmpty FormError) ()
+    liftValidation mkError = first (one . mkError)
+
     validateEmpty :: Validation (NonEmpty FormError) ()
-    validateEmpty = first (one . EmptyFields) validateFields
+    validateEmpty = liftValidation EmptyFields validateFields
       where
         validateFields :: Validation (NonEmpty SummonForm) ()
         validateFields =
@@ -125,12 +132,29 @@ validateKit dirs kit =
             *> toError isEmptyPrelude CustomPreludeModule
 
         checkField :: Lens' SummonKit Text -> SummonForm -> Validation (NonEmpty SummonForm) ()
-        checkField textL = toError (kit ^. textL == "")
+        checkField textL = toError $ isEmpty $ kit ^. textL
+
+        isEmpty :: Text -> Bool
+        isEmpty t = T.strip t == ""
 
         isEmptyPrelude :: Bool
         isEmptyPrelude =
-               kit ^. projectMeta . preludeName   /= ""
-            && kit ^. projectMeta . preludeModule == ""
+               not (isEmpty $ kit ^. projectMeta . preludeName)
+            && isEmpty (kit ^. projectMeta . preludeModule)
+
+    validateOneWord :: Validation (NonEmpty FormError) ()
+    validateOneWord = liftValidation OneWord validateFields
+      where
+        validateFields :: Validation (NonEmpty SummonForm) ()
+        validateFields =
+               checkField (user . owner) UserOwner
+            *> checkField (user . email) UserEmail
+            *> checkField (project . repo) ProjectName
+            *> checkField (projectMeta . preludeName) CustomPreludeName
+            *> checkField (projectMeta . preludeModule) CustomPreludeModule
+
+        checkField :: Lens' SummonKit Text -> SummonForm -> Validation (NonEmpty SummonForm) ()
+        checkField textL = toError (length (words $ kit ^. textL) > 1)
 
     validateProjectExist :: Validation (NonEmpty FormError) ()
     validateProjectExist = toError
