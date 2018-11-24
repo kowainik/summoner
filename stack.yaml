@@ -1,5 +1,9 @@
 resolver: lts-12.18
 
+packages:
+  - summoner-cli/
+  - summoner-tui/
+
 extra-deps:
   - base-noprelude-4.11.1.0
   - brick-0.41.4

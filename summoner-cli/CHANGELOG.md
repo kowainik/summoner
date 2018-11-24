@@ -1,7 +1,9 @@
-# Summoner
+# Change log
 
-1.2.0
-=======
+`summoner` uses [PVP Versioning][1].
+The change log is available [on GitHub][2].
+
+## Unreleased: 1.2.0
 
 * [#169](https://github.com/kowainik/summoner/issues/169):
   Make AppVeyor use the 64bits version of stack and build for 64 bits.
@@ -45,16 +47,14 @@
   Add golden tests.
 * Remove `tasty` dependencies from tests.
 
-1.1.0.1
-=======
+## 1.1.0.1
 
 * Bump up `relude` version to `0.3.0`.
 * [#146](https://github.com/kowainik/summoner/issues/146):
   Migrate to `base-noprelude`.
 * Add -Werror to build option in generated .travis.yml
 
-1.1.0
-=====
+## 1.1.0
 
 * [#128](https://github.com/kowainik/summoner/issues/128):
   __Important:__ Replace `summon` with `summon new` command.
@@ -98,15 +98,13 @@
 * [#27](https://github.com/kowainik/summoner/issues/27):
   Remove `b` script.
 
-1.0.6
-=====
+## 1.0.6
 
 * Use `relude` instead of `universum`.
 * [#105](https://github.com/kowainik/summoner/issues/105):
   Add `--ignore-config` option.
 
-1.0.5
-=====
+## 1.0.5
 
 * [#100](https://github.com/kowainik/summoner/issues/100):
   Bump up to `ghc-8.4.3`. Add support for `Ghc843` in code
@@ -119,30 +117,27 @@
 * [#96](https://github.com/kowainik/summoner/issues/96):
   Add option to choose `cabal`, `stack` or both.
 
-1.0.4
-=====
+## 1.0.4
+
 * Bump up `tomland` to version `0.3`.
 
-1.0.3
-=====
+## 1.0.3
+
 * [#92](https://github.com/kowainik/summoner/issues/92):
   Remove -fhide-source-paths from generated stack yaml files for
   GHC < 8.2
 
-1.0.2
-=====
+## 1.0.2
 
 * [#87](https://github.com/kowainik/summoner/issues/87):
   Fix Travis matrix for not default `ghc` versions.
 
-1.0.1
-=====
+## 1.0.1
 
 * [#85](https://github.com/kowainik/summoner/issues/85):
   Remove `base-noprelude` from dependencies.
 
-1.0.0
-=====
+## 1.0.0
 
 * __Important:__ Rename `hs-init` to `summoner`. Transform the script into the package.
 * [#54](https://github.com/kowainik/summoner/issues/54):
@@ -169,26 +164,26 @@
 
 # hs-init
 
-0.0.4
-=====
+## 0.0.4
+
 * Now works on windows systems as well
 * Add powershell install script for Windows
 
 
-0.0.3
-=====
+## 0.0.3
 
 * [#45](https://github.com/vrom911/hs-init/issues/45):
   Support AppVeyor CI for created projects.
 
-0.0.2
-=====
+## 0.0.2
 
 * Use metavar for on-off commands.
 * Upgrade `lts` to `10.3`, use `ghc 8.2.2` as default value.
 
-0.0.1
-=====
+## 0.0.1
 
 * [#36](https://github.com/vrom911/hs-init/issues/36):
   Add option for creating private repositories — `-p | --private`.
+
+[1]: https://pvp.haskell.org
+[2]: https://github.com/kowainik/summoner/releases
