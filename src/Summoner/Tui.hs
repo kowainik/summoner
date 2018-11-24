@@ -22,7 +22,7 @@ import Brick.Widgets.Border (borderAttr)
 import Brick.Widgets.Center (center)
 import Brick.Widgets.Core (fill, hLimit, hLimitPercent, strWrap, txtWrap, vLimit, viewport)
 import Brick.Widgets.Edit (editAttr, editFocusedAttr)
-import Brick.Widgets.List (listAttr, listSelectedAttr)
+import Brick.Widgets.List (listSelectedAttr, listSelectedFocusedAttr)
 import Lens.Micro ((.~), (^.))
 import System.Directory (doesDirectoryExist, getCurrentDirectory, listDirectory)
 
@@ -140,17 +140,11 @@ drawNew dirs f =
     help, helpBody :: Widget SummonForm
     help     = borderLabel "Help" (helpBody <+> fill ' ')
     helpBody = vBox
-        [ str       "• Esc    : quit"
-        , yellowStr "• Yellow" <+> str " : focused input field"
-        , redStr    "• Red   " <+> str " : invalid input field"
-        , str       "• Ctrk+U : remove input to the start"
-        , str       "• Ctrk+K : remove input to the end"
-        , str       "• Arrows : up/down arrows to choose license"
+        [ str "• Enter  : create the project"
+        , str "• Esc    : quit"
+        , str "• Ctrl+d : remove input of the text field"
+        , str "• Arrows : up/down arrows to choose license"
         ]
-
-    redStr, yellowStr :: String -> Widget SummonForm
-    redStr = withAttr invalidFormInputAttr . str
-    yellowStr = withAttr editFocusedAttr . str
 
 ----------------------------------------------------------------------------
 -- Show command
@@ -239,16 +233,16 @@ mkSimpleApp w = (simpleApp w)
 -- | Styles, colours that are used across the app.
 theMap :: AttrMap
 theMap = attrMap V.defAttr
-    [ (editAttr,             V.black `Brick.on` V.cyan)
-    , (editFocusedAttr,      V.black `Brick.on` V.white)
-    , (invalidFormInputAttr, V.white `Brick.on` V.red)
-    , (focusedFormInputAttr, V.black `Brick.on` V.yellow)
-    , (listAttr,             V.white `Brick.on` V.blue)
-    , (listSelectedAttr,     V.blue  `Brick.on` V.white)
-    , (disabledAttr,         fg V.brightBlack)
-    , ("blue-fg",            fg V.blue)
-    , (borderAttr,           fg orange)
-    , ("tree",               fg V.cyan)
+    [ (editAttr,                V.black `Brick.on` V.cyan)
+    , (editFocusedAttr,         V.black `Brick.on` V.white)
+    , (invalidFormInputAttr,    V.white `Brick.on` V.red)
+    , (focusedFormInputAttr,    V.black `Brick.on` V.yellow)
+    , (listSelectedAttr,        V.black  `Brick.on` V.cyan)
+    , (listSelectedFocusedAttr, V.black `Brick.on` V.white)
+    , (disabledAttr,            fg V.brightBlack)
+    , ("blue-fg",               fg V.blue)
+    , (borderAttr,              fg orange)
+    , ("tree",                  fg V.cyan)
     ]
 
 orange :: V.Color
