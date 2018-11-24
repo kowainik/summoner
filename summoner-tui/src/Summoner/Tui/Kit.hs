@@ -232,7 +232,7 @@ configToSummonKit cRepo cNoUpload cOffline Config{..} = SummonKit
         }
     , summonKitProject = Project
         { projectRepo     = cRepo
-        , projectDesc     = ""
+        , projectDesc     = "See README for more info"
         , projectCategory = ""
         , projectLicense  = if cOffline then None else cLicense
         }
