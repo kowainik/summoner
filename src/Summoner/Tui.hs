@@ -141,16 +141,10 @@ drawNew dirs f =
     help     = borderLabel "Help" (helpBody <+> fill ' ')
     helpBody = vBox
         [ str       "• Esc    : quit"
-        , yellowStr "• Yellow" <+> str " : focused input field"
-        , redStr    "• Red   " <+> str " : invalid input field"
-        , str       "• Ctrk+U : remove input to the start"
-        , str       "• Ctrk+K : remove input to the end"
+        , str       "• Enter  : create the project"
+        , str       "• Ctrk+d : remove input of the text field"
         , str       "• Arrows : up/down arrows to choose license"
         ]
-
-    redStr, yellowStr :: String -> Widget SummonForm
-    redStr = withAttr invalidFormInputAttr . str
-    yellowStr = withAttr editFocusedAttr . str
 
 ----------------------------------------------------------------------------
 -- Show command
