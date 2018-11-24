@@ -10,14 +10,15 @@ module Summoner.Tui
        ( summonTui
        ) where
 
-import Brick (App (..), AttrMap, BrickEvent (..), Padding (Pad), Widget, attrMap, continue,
-              customMain, halt, padTop, simpleApp, str, txt, vBox, withAttr, (<+>), (<=>))
+import Brick (App (..), AttrMap, BrickEvent (..), Widget, attrMap, continue, customMain, halt,
+              simpleApp, str, txt, vBox, withAttr, (<+>), (<=>))
 import Brick.Focus (focusRingCursor)
 import Brick.Forms (allFieldsValid, focusedFormInputAttr, formFocus, formState, handleFormEvent,
                     invalidFormInputAttr, renderForm)
 import Brick.Main (ViewportScroll, neverShowCursor, vScrollBy, viewportScroll)
 import Brick.Types (ViewportType (Vertical))
 import Brick.Util (fg)
+import Brick.Widgets.Border (borderAttr)
 import Brick.Widgets.Center (center)
 import Brick.Widgets.Core (fill, hLimit, hLimitPercent, strWrap, txtWrap, vLimit, viewport)
 import Brick.Widgets.Edit (editAttr, editFocusedAttr)
@@ -118,11 +119,11 @@ drawNew dirs f =
     ]
   where
     form :: Widget SummonForm
-    form = borderLabel "Summon new project" $ padTop (Pad 1) (renderForm f)
+    form = borderLabel "Summon new project" (renderForm f)
 
     tree :: Widget SummonForm
-    tree = hLimitPercent 25 $ vLimit 22 $ borderLabel "Project Structure" $ vBox
-        [ txt $ renderWidgetTree $ formState f
+    tree = hLimitPercent 25 $ vLimit 21 $ borderLabel "Project Structure" $ vBox
+        [ withAttr "tree" $ txt $ renderWidgetTree $ formState f
         -- to fill all the space that widget should take.
         , fill ' '
         ]
@@ -246,4 +247,12 @@ theMap = attrMap V.defAttr
     , (listSelectedAttr,     V.blue  `Brick.on` V.white)
     , (disabledAttr,         fg V.brightBlack)
     , ("blue-fg",            fg V.blue)
+    , (borderAttr,           fg orange)
+    , ("tree",               fg V.cyan)
     ]
+
+orange :: V.Color
+orange = rgb 0xff 0x5f 0x00
+
+rgb :: Word8 -> Word8 -> Word8 -> V.Color
+rgb = V.rgbColor
