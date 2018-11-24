@@ -75,7 +75,7 @@ install:
       export PATH="/opt/ghc/$GHCVER/bin:/opt/cabal/$CABALVER/bin:$PATH"
       echo $PATH
       cabal new-update
-      cabal new-build --enable-tests --enable-benchmarks
+      cabal new-build all --enable-tests --enable-benchmarks
     else
       mkdir -p ~/.local/bin
       export PATH="$HOME/.local/bin:$PATH"
@@ -85,15 +85,16 @@ install:
       stack ghc -- --version
       stack build --only-dependencies --no-terminal
     fi
+
 script:
   - |
     if [ -z "$STACK_YAML" ]; then
-      cabal new-test
+      cabal new-test all
     else
       stack build --test --no-terminal
     fi
   - curl https://raw.githubusercontent.com/kowainik/relude/988bbdd3a09df1159917012933780523644880e5/.hlint.yaml -o .hlint-relude.yaml
-  - curl -sSL https://raw.github.com/ndmitchell/neil/master/misc/travis.sh | sh -s -- hlint -h .hlint-relude.yaml src/ test/
+  - curl -sSL https://raw.github.com/ndmitchell/neil/master/misc/travis.sh | sh -s -- hlint -h .hlint-relude.yaml summoner-cli/src/ summoner-cli/test/ summoner-tui/src/
 
 notifications:
   email: false

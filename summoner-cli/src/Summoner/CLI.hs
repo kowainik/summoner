@@ -19,7 +19,7 @@ module Summoner.CLI
        , getFinalConfig
        ) where
 
-import Data.Version (showVersion)
+import Data.Version (Version, showVersion)
 import Development.GitRev (gitCommitDate, gitDirty, gitHash)
 import NeatInterpolation (text)
 import Options.Applicative (Parser, ParserInfo, command, execParser, flag, fullDesc, help, helper,
@@ -28,7 +28,6 @@ import Options.Applicative (Parser, ParserInfo, command, execParser, flag, fullD
 import Options.Applicative.Help.Chunk (stringChunk)
 import System.Directory (doesFileExist)
 
-import Paths_summoner (version)
 import Summoner.Ansi (blueCode, boldCode, errorMessage, infoMessage, redCode, resetCode,
                       warningMessage)
 import Summoner.Config (Config, ConfigP (..), PartialConfig, defaultConfig, finalise,
@@ -42,16 +41,17 @@ import Summoner.Project (generateProject)
 import Summoner.Settings (CustomPrelude (..))
 
 import qualified Data.Text as T
+import qualified Paths_summoner as Meta (version)
 
 
 -- | Main function that parses @CLI@ commands and runs them using given
 -- 'Command' handler.
-summon :: (Command -> IO ()) -> IO ()
-summon performCommand = execParser cliParser >>= performCommand
+summon :: Version -> (Command -> IO ()) -> IO ()
+summon version performCommand = execParser (cliParser version) >>= performCommand
 
 -- | Runs @summoner@ in CLI mode.
 summonCli :: IO ()
-summonCli = summon runCliCommand
+summonCli = summon Meta.version runCliCommand
 
 -- | Run 'summoner' with @CLI@ command
 runCliCommand :: Command -> IO ()
@@ -182,21 +182,23 @@ data ShowOpts = GhcList | LicenseList (Maybe String)
 ----------------------------------------------------------------------------
 
 -- | Main parser of the app.
-cliParser :: ParserInfo Command
-cliParser = modifyHeader
+cliParser :: Version -> ParserInfo Command
+cliParser version = modifyHeader
      $ modifyFooter
-     $ info ( helper <*> versionP <*> summonerP )
+     $ info ( helper <*> versionP version <*> summonerP )
             $ fullDesc
            <> progDesc "Set up your own Haskell project"
 
-versionP :: Parser (a -> a)
-versionP = infoOption summonerVersion
+versionP :: Version -> Parser (a -> a)
+versionP version = infoOption (summonerVersion version)
     $ long "version"
    <> short 'v'
    <> help "Show summoner's version"
 
-summonerVersion :: String
-summonerVersion = toString $ intercalate "\n" $ [sVersion, sHash, sDate] ++ [sDirty | $(gitDirty)]
+summonerVersion :: Version -> String
+summonerVersion version = toString
+    $ intercalate "\n"
+    $ [sVersion, sHash, sDate] ++ [sDirty | $(gitDirty)]
   where
     sVersion = blueCode <> boldCode <> "Summoner " <> "v" <>  showVersion version <> resetCode
     sHash = " ➤ " <> blueCode <> boldCode <> "Git revision: " <> resetCode <> $(gitHash)

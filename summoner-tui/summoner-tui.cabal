@@ -1,0 +1,88 @@
+cabal-version:       2.0
+name:                summoner-tui
+version:             0.0.0
+synopsis:            Tool for scaffolding completely configured production Haskell projects using TUI.
+description: :       Tool for scaffolding completely configured production Haskell projects using TUI.
+                     See [README.md](https://github.com/kowainik/summoner#-summoner) for details.
+homepage:            https://github.com/kowainik/summoner
+bug-reports:         https://github.com/kowainik/summoner/issues
+license:             MPL-2.0
+license-file:        LICENSE
+author:              Kowainik
+maintainer:          xrom.xkov@gmail.com
+copyright:           2018 Kowainik
+category:            TUI, TUI Tool, Development
+build-type:          Simple
+stability:           experimental
+extra-doc-files:     README.md
+                   , CHANGELOG.md
+tested-with:         GHC == 8.2.2
+                   , GHC == 8.4.4
+                   , GHC == 8.6.2
+
+source-repository head
+  type:     git
+  location: git@github.com:kowainik/summoner.git
+
+library
+  hs-source-dirs:      src
+  exposed-modules:     Summoner.Tui
+                         Summoner.Tui.Field
+                         Summoner.Tui.Form
+                         Summoner.Tui.GroupBorder
+                         Summoner.Tui.Kit
+                         Summoner.Tui.Validation
+                         Summoner.Tui.Widget
+
+  autogen-modules:     Paths_summoner_tui
+  other-modules:       Paths_summoner_tui
+                       Prelude
+
+  build-depends:       base-noprelude >= 4.10 && < 4.13
+                     , brick ^>= 0.41.4
+                     , directory ^>= 1.3.0.2
+                     , filepath ^>= 1.4.1.2
+                     , microlens ^>= 0.4
+                     , microlens-th ^>= 0.4
+                     , relude ^>= 0.4.0
+                     , summoner ^>= 1.2.0
+                     , text ^>= 1.2.3.0
+                     , vty ^>= 5.25
+
+  ghc-options:         -Wall
+                       -Wincomplete-uni-patterns
+                       -Wincomplete-record-updates
+                       -Wcompat
+                       -Widentities
+                       -Wredundant-constraints
+                       -fhide-source-paths
+
+  default-extensions:  DeriveGeneric
+                       GeneralizedNewtypeDeriving
+                       InstanceSigs
+                       LambdaCase
+                       OverloadedStrings
+                       RecordWildCards
+                       ScopedTypeVariables
+                       TypeApplications
+
+  default-language:    Haskell2010
+
+executable summon-tui
+  hs-source-dirs:      app
+  main-is:             Tui.hs
+  build-depends:       base >= 4.10 && < 4.13
+                     , summoner-tui
+
+  ghc-options:         -Wall
+                       -threaded
+                       -rtsopts
+                       -with-rtsopts=-N
+                       -Wincomplete-uni-patterns
+                       -Wincomplete-record-updates
+                       -Wcompat
+                       -Widentities
+                       -Wredundant-constraints
+                       -fhide-source-paths
+
+  default-language:    Haskell2010

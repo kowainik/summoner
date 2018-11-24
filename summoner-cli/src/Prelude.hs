@@ -1,4 +1,4 @@
--- | Uses @relude@ as a default prelude.
+-- | Uses [relude](https://hackage.haskell.org/package/relude) as default Prelude.
 
 module Prelude
        ( module Relude
