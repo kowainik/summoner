@@ -2,7 +2,9 @@
 @Brick@ library helper functions to group checkbox elements inside the form.
 This is not going to be the part of the library itself, so we will have it in
 our own libraries. See relevant discussion under the corresponding issue:
+
 * https://github.com/jtdaugherty/brick/issues/190
+
 -}
 
 module Summoner.Tui.GroupBorder
