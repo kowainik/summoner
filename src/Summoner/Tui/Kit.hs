@@ -1,6 +1,7 @@
 {-# LANGUAGE FlexibleInstances      #-}
 {-# LANGUAGE FunctionalDependencies #-}
 {-# LANGUAGE MultiParamTypeClasses  #-}
+{-# LANGUAGE Rank2Types             #-}
 {-# LANGUAGE TemplateHaskell        #-}
 
 {- | This module contains data types to work with application form.
@@ -77,6 +78,7 @@ import Summoner.Template (createProjectTemplate)
 import Summoner.Tree (showTree)
 
 import qualified Data.List as List (delete)
+import qualified Data.Text as T
 
 
 -- | Global TUI state.
@@ -148,17 +150,16 @@ maybeLicense = lens getL setL
         Just l  -> sk & project . license .~ l
         Nothing -> sk
 
--- The following function is for tree rendering only.
 -- | Converts 'SummonKit' to main 'Settings' data type.
 summonKitToSettings :: SummonKit -> Settings
 summonKitToSettings sk = Settings
-    { settingsRepo           = sk ^. project . repo
-    , settingsOwner          = sk ^. user . owner
+    { settingsRepo           = T.strip $ sk ^. project . repo
+    , settingsOwner          = T.strip $ sk ^. user . owner
     , settingsDescription    = sk ^. project . desc
-    , settingsFullName       = sk ^. user . fullName
-    , settingsEmail          = sk ^. user . email
+    , settingsFullName       = T.strip $ sk ^. user . fullName
+    , settingsEmail          = T.strip $ sk ^. user . email
     , settingsYear           = "20!8"
-    , settingsCategories     = sk ^. project . category
+    , settingsCategories     = T.strip $ sk ^. project . category
     , settingsLicenseName    = sk ^. project . license
     , settingsLicenseText    = ""
     , settingsGitHub         = isGitHub
@@ -187,8 +188,8 @@ summonKitToSettings sk = Settings
     baseT :: Text
     cP ::  Maybe CustomPrelude
     (baseT, cP) =
-        let cpPackage = sk ^. projectMeta . preludeName
-            cpModule  = sk ^. projectMeta . preludeModule
+        let cpPackage = T.strip $ sk ^. projectMeta . preludeName
+            cpModule  = T.strip $ sk ^. projectMeta . preludeModule
         in if ("" /= cpPackage) && ("" /= cpModule)
            then ("base-noprelude", Just CustomPrelude{..})
            else ("base", Nothing)
