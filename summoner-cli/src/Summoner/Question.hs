@@ -191,7 +191,7 @@ queryNotNull question = do
     answer <- prompt
     if | T.null answer -> do
            errorMessage "An answer is required."
-           query question
+           queryNotNull question
        | otherwise -> pure answer
 
 -- | Like 'query' but has the default answer if no answer is specified.
@@ -240,7 +240,7 @@ checkUniqueName nm = do
     exist   <- doesPathExist $ curPath </> toString nm
     if exist then do
         warningMessage "Project with this name is already exist. Please choose another one"
-        newNm <- query "Project name: "
+        newNm <- queryNotNull "Project name: "
         checkUniqueName newNm
     else
         pure nm

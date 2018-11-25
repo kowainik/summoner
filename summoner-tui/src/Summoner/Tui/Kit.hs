@@ -219,7 +219,7 @@ finalSettings sk = do
 
 -- | Gets the initial 'SummonKit' from the given 'Config'.
 configToSummonKit
-    :: Text    -- ^ Given project name
+    :: Maybe Text  -- ^ Given project name
     -> Bool    -- ^ @noUpload@ option (to not upload to @Github@).
     -> Bool    -- ^  @offline@ mode option
     -> Config  -- ^ Given configurations.
@@ -231,7 +231,7 @@ configToSummonKit cRepo cNoUpload cOffline Config{..} = SummonKit
         , userEmail    = cEmail
         }
     , summonKitProject = Project
-        { projectRepo     = cRepo
+        { projectRepo     = maybeToMonoid cRepo
         , projectDesc     = defaultDescription
         , projectCategory = ""
         , projectLicense  = if cOffline then None else cLicense
