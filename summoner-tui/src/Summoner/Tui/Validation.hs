@@ -128,7 +128,6 @@ validateKit dirs kit =
             *> checkField (user . email) UserEmail
             *> checkField (project . repo) ProjectName
             *> checkField (project . desc) ProjectDesc
-            *> checkField (project . category) ProjectCat
             *> toError isEmptyPrelude CustomPreludeModule
 
         checkField :: Lens' SummonKit Text -> SummonForm -> Validation (NonEmpty SummonForm) ()

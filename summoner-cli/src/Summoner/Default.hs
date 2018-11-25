@@ -4,6 +4,7 @@ module Summoner.Default
        ( defaultGHC
        , defaultTomlFile
        , defaultConfigFile
+       , defaultDescription
        , currentYear
        ) where
 
@@ -21,11 +22,14 @@ import Summoner.GhcVer (GhcVer)
 defaultGHC :: GhcVer
 defaultGHC = maxBound
 
-defaultTomlFile :: String
+defaultTomlFile :: FilePath
 defaultTomlFile = ".summoner.toml"
 
 defaultConfigFile :: IO FilePath
 defaultConfigFile = (</> defaultTomlFile) <$> getHomeDirectory
+
+defaultDescription :: Text
+defaultDescription = "See README for more info"
 
 currentYear :: IO Text
 currentYear = do

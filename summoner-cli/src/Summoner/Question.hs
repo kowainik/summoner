@@ -16,6 +16,7 @@ module Summoner.Question
 
          -- * Queries
        , query
+       , queryNotNull
        , queryDef
        , queryManyRepeatOnFail
        , checkUniqueName
@@ -172,7 +173,7 @@ trueMessage  = targetMessage True
 falseMessage = targetMessage False
 
 
-{- | Queries for an non-empty answer.
+{- | Queries for any answer.
 
 @
   Short project description:
@@ -180,7 +181,12 @@ falseMessage = targetMessage False
 @
 -}
 query :: Text -> IO Text
-query question = do
+query question = putTextLn question >> prompt
+
+
+-- | Queries for an non-empty answer.
+queryNotNull :: Text -> IO Text
+queryNotNull question = do
     putTextLn question
     answer <- prompt
     if | T.null answer -> do

@@ -69,7 +69,7 @@ import Lens.Micro.TH (makeFields)
 
 import Summoner.Config (Config, ConfigP (..))
 import Summoner.Decision (Decision (..))
-import Summoner.Default (currentYear, defaultGHC)
+import Summoner.Default (currentYear, defaultDescription, defaultGHC)
 import Summoner.GhcVer (GhcVer)
 import Summoner.License (LicenseName (..), customizeLicense, fetchLicense)
 import Summoner.Settings (CustomPrelude (..), Settings (..))
@@ -232,7 +232,7 @@ configToSummonKit cRepo cNoUpload cOffline Config{..} = SummonKit
         }
     , summonKitProject = Project
         { projectRepo     = cRepo
-        , projectDesc     = "See README for more info"
+        , projectDesc     = defaultDescription
         , projectCategory = ""
         , projectLicense  = if cOffline then None else cLicense
         }

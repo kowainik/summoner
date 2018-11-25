@@ -7,7 +7,6 @@ license:             AllRightsReserved
 author:              Kowainik
 maintainer:          xrom.xkov@gmail.com
 copyright:           2018 Kowainik
-category:            Testing
 build-type:          Simple
 extra-doc-files:     README.md
                    , CHANGELOG.md

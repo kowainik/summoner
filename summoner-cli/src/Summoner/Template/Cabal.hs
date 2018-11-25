@@ -42,9 +42,9 @@ cabalFile Settings{..} = File (toString settingsRepo ++ ".cabal") cabalFileConte
         [ "license-file:        LICENSE" | settingsGitHub] ++
         [ "author:              " <> settingsFullName
         , "maintainer:          " <> settingsEmail
-        , "copyright:           " <> settingsYear <> " " <> settingsFullName
-        , "category:            " <> settingsCategories
-        , "build-type:          Simple"
+        , "copyright:           " <> settingsYear <> " " <> settingsFullName ] ++
+        [ "category:            " <> settingsCategories | "" /= settingsCategories ] ++
+        [ "build-type:          Simple"
         , "extra-doc-files:     README.md"
         , "                   , CHANGELOG.md"
         , "tested-with:         " <> testedGhcs
