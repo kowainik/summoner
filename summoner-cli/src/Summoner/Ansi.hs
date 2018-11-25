@@ -26,6 +26,8 @@ import System.Console.ANSI (Color (..), ColorIntensity (Vivid), ConsoleIntensity
                             ConsoleLayer (Foreground), SGR (..), setSGR, setSGRCode)
 import System.IO (hFlush)
 
+import qualified Data.Text as T
+
 
 -- | Explicit flush ensures prompt messages are in the correct order on all systems.
 putStrFlush :: Text -> IO ()
@@ -61,7 +63,7 @@ prompt = do
     setColor Blue
     putStrFlush "  ->   "
     reset
-    getLine
+    T.strip <$> getLine
 
 boldText :: Text -> IO ()
 boldText message = bold >> putStrFlush message >> reset
