@@ -19,6 +19,8 @@ import Brick.Forms (FormField (..), FormFieldState (..), checkboxCustomField, fo
                     radioCustomField)
 import Lens.Micro (Lens', lens, (^.))
 
+import qualified Graphics.Vty as V
+
 
 -- | A form field with a given text value which can not be modified or changed
 -- via any events. It is always valid.
@@ -43,8 +45,8 @@ strField t _ = FormFieldState
 __Example:__
 
 @
-⟬✔⟭ Library
-⟬ ⟭ Executable
+⟦✔⟧ Library
+⟦ ⟧ Executable
 @
 -}
 checkboxField
@@ -76,12 +78,12 @@ radioField = radioCustomField '❮' '◆' '❯'
 activeCheckboxField
     :: forall n s e . Ord n
     => Lens' s Bool
-    -> Bool    -- ^ False if checkbox is disabled
+    -> (s -> n -> Bool)  -- ^ Function should return 'False' if checkbox should be disabled.
     -> n
     -> String  -- ^ The label for the check box, to appear at its right.
     -> s       -- ^ The initial form state.
     -> FormFieldState s e n
-activeCheckboxField stLens isEnabled name label initialState = FormFieldState
+activeCheckboxField stLens isActive name label initialState = FormFieldState
     { formFieldState        = initVal
     , formFields            = [checkboxFormField]
     , formFieldLens         = stLens
@@ -89,13 +91,15 @@ activeCheckboxField stLens isEnabled name label initialState = FormFieldState
     , formFieldConcat       = vBox
     }
   where
-    initVal :: Bool
-    initVal = initialState ^. stLens
+    initVal, isEnabled :: Bool
+    initVal   = initialState ^. stLens
+    isEnabled = isActive initialState name
 
     handleEvent :: BrickEvent n e -> Bool -> EventM n Bool
-    handleEvent (MouseDown n _ _ _) s
-        | isEnabled && n == name = pure $ not s
-    handleEvent _ s = pure s
+    handleEvent (MouseDown n _ _ _)
+        | isEnabled && n == name = pure . not
+    handleEvent (VtyEvent (V.EvKey (V.KChar ' ') [])) = pure . not
+    handleEvent _ = pure
 
     checkboxFormField :: FormField Bool Bool e n
     checkboxFormField = FormField

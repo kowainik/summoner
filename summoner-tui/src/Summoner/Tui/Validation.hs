@@ -8,11 +8,10 @@ module Summoner.Tui.Validation
        , formErrorMessages
        ) where
 
-import Brick.Focus (focusGetCurrent)
-import Brick.Forms (formFocus, formState, invalidFields, setFieldValid, setFormFocus)
+import Brick.Forms (formState, invalidFields, setFieldValid, setFormFocus)
 import Lens.Micro (Lens', (.~), (^.))
 
-import Summoner.Tui.Form (KitForm, SummonForm (..), mkForm)
+import Summoner.Tui.Form (KitForm, SummonForm (..), getCurrentFocus, mkForm)
 import Summoner.Tui.Kit
 
 import qualified Data.Text as T
@@ -33,7 +32,7 @@ ctrlD =
   where
     clearField :: a -> SummonForm -> Lens' SummonKit a -> KitForm e -> KitForm e
     clearField nil formField fieldLens f =
-        if focusGetCurrent (formFocus f) == Just formField
+        if getCurrentFocus f == Just formField
         then setFormFocus formField $ mkForm $ formState f & fieldLens .~ nil
         else f
 
