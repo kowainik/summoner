@@ -31,12 +31,13 @@ import Summoner.Tree (showBoldTree, traverseTree)
 
 -- | Generate the project.
 generateProject
-    :: Bool    -- ^ @noUpload@ option (to not upload to @Github@).
-    -> Bool    -- ^ @offline@ mode option
-    -> Text    -- ^ Given project name.
-    -> Config  -- ^ Given configurations.
+    :: Bool        -- ^ @noUpload@ option (to not upload to @Github@).
+    -> Bool        -- ^ @offline@ mode option
+    -> Maybe Text  -- ^ Given project name.
+    -> Config      -- ^ Given configurations.
     -> IO ()
-generateProject settingsNoUpload isOffline projectName Config{..} = do
+generateProject settingsNoUpload isOffline maybeName Config{..} = do
+    projectName <- whenNothing maybeName (queryNotNull "Project name: ")
     settingsRepo   <- checkUniqueName projectName
     -- decide cabal stack or both
     (settingsCabal, settingsStack) <- getCabalStack (cCabal, cStack)

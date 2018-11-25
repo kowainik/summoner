@@ -156,7 +156,7 @@ Available global options:
 
 ```
 Usage:
-  summon new PROJECT_NAME [--ignore-config] [--no-upload] [--offline]
+  summon new [PROJECT_NAME] [--ignore-config] [--no-upload] [--offline]
              [-f|--file FILENAME]
              [--cabal]
              [--stack]
@@ -231,7 +231,7 @@ integrated with `Travis-CI`, `AppVeyor-CI`, but benchmarks won't be attached to 
 But when calling this command
 
 ```
-  summon new my-project
+  summon new
 ```
 
 the tool asks about every particular option, rather you'd like to have it
