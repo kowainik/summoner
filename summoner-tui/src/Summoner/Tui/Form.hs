@@ -4,6 +4,8 @@ module Summoner.Tui.Form
        ( SummonForm (..)
        , KitForm
        , mkForm
+       , getCurrentFocus
+       , isActive
        , recreateForm
        ) where
 
@@ -110,19 +112,13 @@ mkForm sk = setFormConcat arrangeColumns $ newForm
             [ (True, GitHubEnable, "Enable")
             , (False, GitHubDisable, "Disable")
             ]
-        , 1 |> activeCheckboxField (gitHub . noUpload) isGitHubEnabled GitHubNoUpload "No upload"
-        , 1 |> activeCheckboxField (gitHub . private)  (isGitHubEnabled && isUploadEnabled) GitHubPrivate  "Private"
-        , 1 |> activeCheckboxField (gitHub . travis)   isGitHubEnabled GitHubTravis   "Travis"
-        , 2 |> activeCheckboxField (gitHub . appVeyor) (isGitHubEnabled && isStack) GitHubAppVeyor "AppVeyor"
+        , 1 |> activeCheckboxField (gitHub . noUpload) isActive GitHubNoUpload "No upload"
+        , 1 |> activeCheckboxField (gitHub . private)  isActive GitHubPrivate  "Private"
+        , 1 |> activeCheckboxField (gitHub . travis)   isActive GitHubTravis   "Travis"
+        , 2 |> activeCheckboxField (gitHub . appVeyor) isActive GitHubAppVeyor "AppVeyor"
         ]
     ) sk
   where
-    isGitHubEnabled, isUploadEnabled, isStack :: Bool
-    isGitHubEnabled = sk ^. gitHub . enabled
-    isUploadEnabled = not $ sk ^. gitHub . noUpload
-    isStack = sk ^. stack
-
-
     widgetList :: Bool -> LicenseName -> Widget SummonForm
     widgetList p l = C.hCenter $ str $ if p then "[" ++ show l ++ "]" else show l
 
@@ -133,6 +129,24 @@ mkForm sk = setFormConcat arrangeColumns $ newForm
         hBox [ vBox $ column1 ++ [borderLabel "Tools" $ padRight Max (hArrange tools)]
              , vBox column2
              ]
+
+-- | Returns 'True' when form field is active depending on the current state of 'SummonKit'.
+isActive :: SummonKit -> SummonForm -> Bool
+isActive kit = \case
+    GitHubNoUpload -> isGitHubEnabled
+    GitHubPrivate  -> isGitHubEnabled && isUploadEnabled
+    GitHubTravis   -> isGitHubEnabled
+    GitHubAppVeyor -> isGitHubEnabled && isStack
+    _ -> True
+  where
+    isGitHubEnabled, isUploadEnabled, isStack :: Bool
+    isGitHubEnabled = kit ^. gitHub . enabled
+    isUploadEnabled = not $ kit ^. gitHub . noUpload
+    isStack = kit ^. stack
+
+-- | Gets current focus of the form.
+getCurrentFocus :: Form s e n -> Maybe n
+getCurrentFocus = focusGetCurrent . formFocus
 
 {- | Create form from scratch using its current state. This is needed to
 activate/deactivate checkboxes. Should be done with care to preserve focus and
@@ -145,8 +159,5 @@ recreateForm
     -> KitForm e  -- ^ New form
 recreateForm validate kitForm = setFocus $ validate $ mkForm $ formState kitForm
   where
-    currentFocus :: Maybe SummonForm
-    currentFocus = focusGetCurrent (formFocus kitForm)
-
     setFocus :: KitForm e -> KitForm e
-    setFocus = maybe id setFormFocus currentFocus
+    setFocus = maybe id setFormFocus (getCurrentFocus kitForm)

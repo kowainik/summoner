@@ -16,7 +16,7 @@ import Brick.Focus (focusRingCursor)
 import Brick.Forms (allFieldsValid, focusedFormInputAttr, formFocus, formState, handleFormEvent,
                     invalidFormInputAttr, renderForm)
 import Brick.Main (ViewportScroll, neverShowCursor, vScrollBy, viewportScroll)
-import Brick.Types (ViewportType (Vertical))
+import Brick.Types (EventM, Next, ViewportType (Vertical))
 import Brick.Util (fg)
 import Brick.Widgets.Border (borderAttr)
 import Brick.Widgets.Center (center)
@@ -35,7 +35,7 @@ import Summoner.License (License (..), LicenseName, fetchLicense, parseLicenseNa
                          showLicenseWithDesc)
 import Summoner.Project (initializeProject)
 import Summoner.Tui.Field (disabledAttr)
-import Summoner.Tui.Form (KitForm, SummonForm (..), mkForm, recreateForm)
+import Summoner.Tui.Form (KitForm, SummonForm (..), getCurrentFocus, isActive, mkForm, recreateForm)
 import Summoner.Tui.Kit
 import Summoner.Tui.Validation (ctrlD, formErrorMessages, summonFormValidation)
 import Summoner.Tui.Widget (borderLabel, listInBorder)
@@ -82,7 +82,7 @@ runTuiNew kit = do
 appNew :: [FilePath] -> App (KitForm e) e SummonForm
 appNew dirs = App
     { appDraw = drawNew dirs
-    , appHandleEvent = \s ev -> if (formState s ^. shouldSummon == Idk)
+    , appHandleEvent = \s ev -> if formState s ^. shouldSummon == Idk
         then case ev of
             VtyEvent (V.EvKey V.KEnter []) -> halt $ changeShouldSummon Yes s
             VtyEvent (V.EvKey V.KEsc [])   -> withForm ev s (changeShouldSummon Nop)
@@ -96,21 +96,27 @@ appNew dirs = App
             VtyEvent (V.EvKey V.KEsc []) -> halt s
             VtyEvent (V.EvKey (V.KChar 'd') [V.MCtrl]) ->
                 withForm ev s (validateForm . ctrlD)
-            MouseDown n _ _ _ -> case n of
-                StackField     -> withForm ev s mkNewForm
-                GitHubEnable   -> withForm ev s mkNewForm
-                GitHubDisable  -> withForm ev s mkNewForm
-                GitHubNoUpload -> withForm ev s mkNewForm
-                _              -> withForm ev s id
-            _ -> withForm ev s validateForm
+
+            -- Handle active/inactive checkboxes
+            VtyEvent (V.EvKey (V.KChar ' ') []) -> case getCurrentFocus s of
+                Nothing    -> withFormDef ev s
+                Just field -> handleCheckboxActivation ev s field
+            MouseDown n _ _ _ -> handleCheckboxActivation ev s n
+
+            -- Handle skip of deactivated checkboxes
+            VtyEvent (V.EvKey (V.KChar '\t') []) -> loopWhileInactive ev s
+            VtyEvent (V.EvKey V.KBackTab     []) -> loopWhileInactive ev s
+
+            -- Default action
+            _ -> withFormDef ev s
 
     , appChooseCursor = focusRingCursor formFocus
     , appStartEvent = pure
     , appAttrMap = const theMap
     }
   where
-    withForm ev s f = handleFormEvent ev s >>= continue . f
-
+    withForm  ev s f = handleFormEvent ev s >>= continue . f
+    withFormDef ev s = withForm ev s validateForm
 
     changeShouldSummon :: Decision -> KitForm e -> KitForm e
     changeShouldSummon newShould f = mkForm $ formState f & shouldSummon .~ newShould
@@ -121,21 +127,48 @@ appNew dirs = App
     mkNewForm :: KitForm e -> KitForm e
     mkNewForm = recreateForm validateForm
 
+    -- Activate/Deactivate checkboxes depending on current field change
+    handleCheckboxActivation
+        :: BrickEvent SummonForm e
+        -> KitForm e
+        -> SummonForm
+        -> EventM SummonForm (Next (KitForm e))
+    handleCheckboxActivation ev form = \case
+        StackField     -> withForm ev form mkNewForm
+        GitHubEnable   -> withForm ev form mkNewForm
+        GitHubDisable  -> withForm ev form mkNewForm
+        GitHubNoUpload -> withForm ev form mkNewForm
+        _              -> withFormDef ev form
+
+    -- Handles form event until current element is active
+    loopWhileInactive
+        :: BrickEvent SummonForm e
+        -> KitForm e
+        -> EventM SummonForm (Next (KitForm e))
+    loopWhileInactive ev form = do
+        newForm <- handleFormEvent ev form
+        case getCurrentFocus newForm of
+            Nothing -> continue newForm
+            Just field -> if not $ isActive (formState newForm) field
+                then loopWhileInactive ev newForm
+                else continue newForm
+
 -- | Draws the form for @new@ command.
 drawNew :: [FilePath] -> KitForm e -> [Widget SummonForm]
 drawNew dirs f = case formState f ^. shouldSummon of
-    Idk -> [confirm]
-    _   ->
-        [ vBox
-            [ form <+> tree
-            , validationErrors <+> help
-            ]
-        ]
+    Idk -> [confirmDialog]
+    _   -> [formWidget]
   where
-    confirm :: Widget SummonForm
-    confirm = center $ hLimit 55 $ borderLabel "Confirm" $ padTopBottom 2 $ vBox
+    confirmDialog :: Widget SummonForm
+    confirmDialog = center $ hLimit 55 $ borderLabel "Confirm" $ padTopBottom 2 $ vBox
         [ str "• Enter – Press Enter to create the project"
         , str "• Esc   – Or Esc to go back to settings"
+        ]
+
+    formWidget :: Widget SummonForm
+    formWidget = vBox
+        [ form <+> tree
+        , validationErrors <+> help
         ]
 
     form :: Widget SummonForm
