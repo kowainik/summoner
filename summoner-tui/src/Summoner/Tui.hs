@@ -20,7 +20,8 @@ import Brick.Types (ViewportType (Vertical))
 import Brick.Util (fg)
 import Brick.Widgets.Border (borderAttr)
 import Brick.Widgets.Center (center)
-import Brick.Widgets.Core (fill, hLimit, hLimitPercent, strWrap, txtWrap, vLimit, viewport)
+import Brick.Widgets.Core (fill, hLimit, hLimitPercent, padTopBottom, strWrap, txtWrap, vLimit,
+                           viewport)
 import Brick.Widgets.Edit (editAttr, editFocusedAttr)
 import Brick.Widgets.List (listSelectedAttr, listSelectedFocusedAttr)
 import Lens.Micro ((.~), (^.))
@@ -28,6 +29,7 @@ import System.Directory (doesDirectoryExist, getCurrentDirectory, listDirectory)
 
 import Summoner.Ansi (errorMessage, infoMessage)
 import Summoner.CLI (Command (..), NewOpts (..), ShowOpts (..), getFinalConfig, summon)
+import Summoner.Decision (Decision (..))
 import Summoner.GhcVer (showGhcVer)
 import Summoner.License (License (..), LicenseName, fetchLicense, parseLicenseName,
                          showLicenseWithDesc)
@@ -66,7 +68,7 @@ summonTuiNew newOpts@NewOpts{..} = do
     let initialKit = configToSummonKit newOptsProjectName newOptsNoUpload newOptsOffline finalConfig
     skForm <- runTuiNew initialKit
     let kit = formState skForm
-    if allFieldsValid skForm && kit ^. shouldSummon
+    if allFieldsValid skForm && (kit ^. shouldSummon == Yes)
     then finalSettings kit >>= initializeProject
     else errorMessage "Aborting summoner"
 
@@ -80,22 +82,27 @@ runTuiNew kit = do
 appNew :: [FilePath] -> App (KitForm e) e SummonForm
 appNew dirs = App
     { appDraw = drawNew dirs
-    , appHandleEvent = \s ev -> case ev of
-        VtyEvent V.EvResize {} -> continue s
-        VtyEvent (V.EvKey V.KEnter []) ->
-            if allFieldsValid s
-            then halt $ mkForm $ formState s & shouldSummon .~ True
-            else continue s
-        VtyEvent (V.EvKey V.KEsc []) -> halt s
-        VtyEvent (V.EvKey (V.KChar 'd') [V.MCtrl]) ->
-            withForm ev s (validateForm . ctrlD)
-        MouseDown n _ _ _ -> case n of
-            StackField     -> withForm ev s mkNewForm
-            GitHubEnable   -> withForm ev s mkNewForm
-            GitHubDisable  -> withForm ev s mkNewForm
-            GitHubNoUpload -> withForm ev s mkNewForm
-            _              -> withForm ev s id
-        _ -> withForm ev s validateForm
+    , appHandleEvent = \s ev -> if (formState s ^. shouldSummon == Idk)
+        then case ev of
+            VtyEvent (V.EvKey V.KEnter []) -> halt $ changeShouldSummon Yes s
+            VtyEvent (V.EvKey V.KEsc [])   -> withForm ev s (changeShouldSummon Nop)
+            _                              -> continue s
+        else case ev of
+            VtyEvent V.EvResize {} -> continue s
+            VtyEvent (V.EvKey V.KEnter []) ->
+                if allFieldsValid s
+                then withForm ev s (changeShouldSummon Idk)
+                else continue s
+            VtyEvent (V.EvKey V.KEsc []) -> halt s
+            VtyEvent (V.EvKey (V.KChar 'd') [V.MCtrl]) ->
+                withForm ev s (validateForm . ctrlD)
+            MouseDown n _ _ _ -> case n of
+                StackField     -> withForm ev s mkNewForm
+                GitHubEnable   -> withForm ev s mkNewForm
+                GitHubDisable  -> withForm ev s mkNewForm
+                GitHubNoUpload -> withForm ev s mkNewForm
+                _              -> withForm ev s id
+            _ -> withForm ev s validateForm
 
     , appChooseCursor = focusRingCursor formFocus
     , appStartEvent = pure
@@ -103,6 +110,10 @@ appNew dirs = App
     }
   where
     withForm ev s f = handleFormEvent ev s >>= continue . f
+
+
+    changeShouldSummon :: Decision -> KitForm e -> KitForm e
+    changeShouldSummon newShould f = mkForm $ formState f & shouldSummon .~ newShould
 
     validateForm :: KitForm e -> KitForm e
     validateForm = summonFormValidation dirs
@@ -112,13 +123,21 @@ appNew dirs = App
 
 -- | Draws the form for @new@ command.
 drawNew :: [FilePath] -> KitForm e -> [Widget SummonForm]
-drawNew dirs f =
-    [ vBox
-        [ form <+> tree
-        , validationErrors <+> help
+drawNew dirs f = case formState f ^. shouldSummon of
+    Idk -> [confirm]
+    _   ->
+        [ vBox
+            [ form <+> tree
+            , validationErrors <+> help
+            ]
         ]
-    ]
   where
+    confirm :: Widget SummonForm
+    confirm = center $ hLimit 55 $ borderLabel "Confirm" $ padTopBottom 2 $ vBox
+        [ str "• Enter – Press Enter to create the project"
+        , str "• Esc   – Or Esc to go back to settings"
+        ]
+
     form :: Widget SummonForm
     form = borderLabel "Summon new project" (renderForm f)
 

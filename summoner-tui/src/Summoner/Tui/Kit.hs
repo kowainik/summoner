@@ -94,7 +94,7 @@ data SummonKit = SummonKit
     , summonKitStylish      :: !(Maybe Source)  -- ^ Can be recieved from the config file.
     , summonKitContributing :: !(Maybe Source)  -- ^ Can be recieved from the config file.
     , summonKitOffline      :: !Bool
-    , summonKitShouldSummon :: !Bool  -- ^ Check if project needs to be created.
+    , summonKitShouldSummon :: !Decision  -- ^ Check if project needs to be created.
     } deriving (Show)
 
 -- | User information.
@@ -259,7 +259,7 @@ configToSummonKit cRepo cNoUpload cOffline Config{..} = SummonKit
     , summonKitStylish      = getLast cStylish
     , summonKitContributing = getLast cContributing
     , summonKitOffline      = cOffline
-    , summonKitShouldSummon = False
+    , summonKitShouldSummon = Nop
     }
   where
     kitCabal, kitStack, kitLib, kitExe :: Bool
