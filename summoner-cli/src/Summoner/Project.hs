@@ -14,14 +14,14 @@ import Summoner.Ansi (Color (Green), beautyPrint, bold, errorMessage, infoMessag
                       successMessage)
 import Summoner.Config (Config, ConfigP (..))
 import Summoner.Decision (Decision (..), decisionToBool)
-import Summoner.Default (currentYear, defaultGHC)
+import Summoner.Default (currentYear, defaultDescription, defaultGHC)
 import Summoner.GhcVer (parseGhcVer, showGhcVer)
 import Summoner.License (LicenseName (..), customizeLicense, fetchLicense, licenseShortDesc,
                          parseLicenseName)
 import Summoner.Process ()
 import Summoner.Question (YesNoPrompt (..), checkUniqueName, choose, chooseYesNo, falseMessage,
                           mkDefaultYesNoPrompt, query, queryDef, queryManyRepeatOnFail,
-                          targetMessageWithText, trueMessage)
+                          queryNotNull, targetMessageWithText, trueMessage)
 import Summoner.Settings (CustomPrelude (..), Settings (..))
 import Summoner.Source (fetchSource)
 import Summoner.Template (createProjectTemplate)
@@ -42,7 +42,7 @@ generateProject settingsNoUpload isOffline projectName Config{..} = do
     (settingsCabal, settingsStack) <- getCabalStack (cCabal, cStack)
 
     settingsOwner       <- queryDef "Repository owner: " cOwner
-    settingsDescription <- query "Short project description: "
+    settingsDescription <- queryDef "Short project description: " defaultDescription
     settingsFullName    <- queryDef "Author: " cFullName
     settingsEmail       <- queryDef "Maintainer e-mail: " cEmail
 
@@ -143,7 +143,7 @@ generateProject settingsNoUpload isOffline projectName Config{..} = do
         Last Nothing -> do
             let yesDo, noDo :: IO (Maybe CustomPrelude)
                 yesDo = do
-                    p <- query "Custom prelude package: "
+                    p <- queryNotNull "Custom prelude package: "
                     m <- queryDef "Custom prelude module: " (packageToModule p)
                     successMessage $ "Custom prelude " <> p <> " will be used in the project"
                     pure $ Just $ CustomPrelude p m

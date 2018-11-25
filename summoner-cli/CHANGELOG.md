@@ -46,6 +46,10 @@ The change log is available [on GitHub][2].
 * [#185](https://github.com/kowainik/summoner/issues/185):
   Add golden tests.
 * Remove `tasty` dependencies from tests.
+* Use `defaultDescription` for project description if not specified.
+* [#239](https://github.com/kowainik/summoner/issues/239):
+   Make categories not mandatory.
+
 
 ## 1.1.0.1 – Sep 10, 2018
 
