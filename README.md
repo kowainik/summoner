@@ -14,7 +14,7 @@ Summoner is a tool for scaffolding fully configured batteries-included productio
 
 Do you want to create a library that is to be uploaded to the Hackage/Stackage, that builds with both Cabal and Stack and supports the latest three major GHC versions?
 Or you are building a production application which uses a custom prelude and has CI with Travis Linux and AppVeyors Windows checks?
-Summoner can help you to do all of that with the minimal effort from your side and also it can upload the project to GitHub if you want to!
+Summoner can help you to do all of that with minimal effort from you - it can even upload the project to GitHub if you want to!
 
 By the way, Summoner operates as either CLI or TUI application, so you can choose what you're more comfortable with and install only the required one.
 
