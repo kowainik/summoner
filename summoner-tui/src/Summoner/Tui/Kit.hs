@@ -34,6 +34,7 @@ module Summoner.Tui.Kit
        , contributing
        , offline
        , shouldSummon
+       , configFile
 
          -- ** User
        , owner
@@ -95,6 +96,7 @@ data SummonKit = SummonKit
     , summonKitContributing :: !(Maybe Source)  -- ^ Can be recieved from the config file.
     , summonKitOffline      :: !Bool
     , summonKitShouldSummon :: !Decision  -- ^ Check if project needs to be created.
+    , summonKitConfigFile   :: !(Maybe FilePath)  -- ^ Just if configuration file was used.
     } deriving (Show)
 
 -- | User information.
@@ -222,9 +224,10 @@ configToSummonKit
     :: Maybe Text  -- ^ Given project name
     -> Bool    -- ^ @noUpload@ option (to not upload to @Github@).
     -> Bool    -- ^  @offline@ mode option
+    -> Maybe FilePath  -- ^ Configuration file used
     -> Config  -- ^ Given configurations.
     -> SummonKit
-configToSummonKit cRepo cNoUpload cOffline Config{..} = SummonKit
+configToSummonKit cRepo cNoUpload cOffline cConfigFile Config{..} = SummonKit
     { summonKitUser  = User
         { userOwner    = cOwner
         , userFullName = cFullName
@@ -260,6 +263,7 @@ configToSummonKit cRepo cNoUpload cOffline Config{..} = SummonKit
     , summonKitContributing = getLast cContributing
     , summonKitOffline      = cOffline
     , summonKitShouldSummon = Nop
+    , summonKitConfigFile   = cConfigFile
     }
   where
     kitCabal, kitStack, kitLib, kitExe :: Bool
