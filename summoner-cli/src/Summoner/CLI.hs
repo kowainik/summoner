@@ -127,10 +127,8 @@ getFinalConfig NewOpts{..} = do
 
     -- get the final config
     case finalise unionConfig of
-             Success c    -> pure c
-             Failure msgs -> do
-                 for_ msgs errorMessage
-                 exitFailure
+        Success c    -> pure c
+        Failure msgs -> for_ msgs errorMessage >> exitFailure
 
 -- | Reads and parses the given config file. If no file is provided the default
 -- configuration returned.

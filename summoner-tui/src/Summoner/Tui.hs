@@ -25,11 +25,12 @@ import Brick.Widgets.Core (emptyWidget, fill, hLimit, hLimitPercent, padTopBotto
 import Brick.Widgets.Edit (editAttr, editFocusedAttr)
 import Brick.Widgets.List (listSelectedAttr, listSelectedFocusedAttr)
 import Lens.Micro ((.~), (^.))
-import System.Directory (doesDirectoryExist, getCurrentDirectory, listDirectory)
+import System.Directory (doesDirectoryExist, doesFileExist, getCurrentDirectory, listDirectory)
 
 import Summoner.Ansi (errorMessage, infoMessage)
 import Summoner.CLI (Command (..), NewOpts (..), ShowOpts (..), getFinalConfig, summon)
 import Summoner.Decision (Decision (..))
+import Summoner.Default (defaultConfigFile)
 import Summoner.GhcVer (showGhcVer)
 import Summoner.License (License (..), LicenseName, fetchLicense, parseLicenseName,
                          showLicenseWithDesc)
@@ -64,13 +65,32 @@ fields or checkboxes to configure settings for new project.
 -}
 summonTuiNew :: NewOpts -> IO ()
 summonTuiNew newOpts@NewOpts{..} = do
+    -- configure initial state for TUI application
     finalConfig <- getFinalConfig newOpts
-    let initialKit = configToSummonKit newOptsProjectName newOptsNoUpload newOptsOffline finalConfig
+    configFilePath <- findConfigFile
+    let initialKit = configToSummonKit
+            newOptsProjectName
+            newOptsNoUpload
+            newOptsOffline
+            configFilePath
+            finalConfig
+
+    -- run TUI app
     skForm <- runTuiNew initialKit
+
+    -- perform actions depending on the final state
     let kit = formState skForm
     if allFieldsValid skForm && (kit ^. shouldSummon == Yes)
     then finalSettings kit >>= initializeProject
     else errorMessage "Aborting summoner"
+  where
+    findConfigFile :: IO (Maybe FilePath)
+    findConfigFile = if newOptsIgnoreFile
+        then pure Nothing
+        else case newOptsConfigFile of
+            Nothing  -> defaultConfigFile >>= \file ->
+                ifM (doesFileExist file) (pure $ Just file) (pure Nothing)
+            justFile -> pure justFile
 
 runTuiNew :: SummonKit -> IO (KitForm e)
 runTuiNew kit = do
@@ -155,10 +175,13 @@ appNew dirs = App
 
 -- | Draws the form for @new@ command.
 drawNew :: [FilePath] -> KitForm e -> [Widget SummonForm]
-drawNew dirs f = case formState f ^. shouldSummon of
+drawNew dirs kitForm = case kit ^. shouldSummon of
     Idk -> [confirmDialog]
     _   -> [formWidget]
   where
+    kit :: SummonKit
+    kit = formState kitForm
+
     confirmDialog :: Widget SummonForm
     confirmDialog = center $ hLimit 55 $ borderLabel "Confirm" $ padTopBottom 2 $ vBox
         [ str "• Enter – Press Enter to create the project"
@@ -172,11 +195,11 @@ drawNew dirs f = case formState f ^. shouldSummon of
         ]
 
     form :: Widget SummonForm
-    form = borderLabel "Summon new project" (renderForm f)
+    form = borderLabel "Summon new project" (renderForm kitForm)
 
     tree :: Widget SummonForm
     tree = hLimitPercent 25 $ vLimit 21 $ borderLabel "Project Structure" $ vBox
-        [ withAttr "tree" $ txt $ renderWidgetTree $ formState f
+        [ withAttr "tree" $ txt $ renderWidgetTree kit
         -- to fill all the space that widget should take.
         , fill ' '
         ]
@@ -186,23 +209,29 @@ drawNew dirs f = case formState f ^. shouldSummon of
         borderLabel "Status" $ vBox
             [ informationBlock
             , validationBlock
+            , configBlock
             , fill ' '
             ]
       where
         informationBlock :: Widget SummonForm
-        informationBlock = case getCurrentFocus f of
+        informationBlock = case getCurrentFocus kitForm of
             Just UserOwner  -> infoTxt "GitHub username"
             Just ProjectCat -> infoTxt "Comma-separated categories as used at Hackage"
             Just Ghcs       -> infoTxt "Space separated GHC versions"
             _               -> emptyWidget
 
         infoTxt :: Text -> Widget SummonForm
-        infoTxt = withAttr "blue-fg" . txt . (<>) " ⓘ  "
+        infoTxt = withAttr "blue-fg" . txtWrap . (<>) " ⓘ  "
 
         validationBlock :: Widget SummonForm
-        validationBlock = vBox $ case formErrorMessages dirs f of
+        validationBlock = vBox $ case formErrorMessages dirs kitForm of
             []     -> [withAttr "green-fg" $ str " ✔  Project configuration is valid"]
             fields -> map (\msg -> withAttr "red-fg" $ strWrap $ " ☓  " ++ msg) fields
+
+        configBlock :: Widget SummonForm
+        configBlock = case kit ^. configFile of
+            Nothing   -> emptyWidget
+            Just file -> infoTxt $ toText file <> " file is used"
 
     help, helpBody :: Widget SummonForm
     help     = borderLabel "Help" (helpBody <+> fill ' ')
