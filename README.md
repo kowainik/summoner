@@ -103,7 +103,7 @@ Below you can see highlighted features in different categories.
 
 + Support for Cabal and Stack build tools.
 + Ability to pick stanzas (library, executable, test-suite, benchmark).
-+ Option to include an alternative prelude, if needed. The project then would use [`base-noprelude` technique](http://hackage.haskell.org/package/Prelude), and `Prelude` module would be added to the library target.
++ Option to include an alternative prelude, if desired. The project then would use [`base-noprelude` technique](http://hackage.haskell.org/package/Prelude), and `Prelude` module would be added to the library target.
 + Whole Hackage-upload checklist support.
 + Support of the multiple GHC versions, with the thoughtful reflection on project meta, base versions (e.g. `base >= 4.9 && < 4.12`), etc.
 + Different license support: MIT, BSD2, BSD3, GPL-2, GPL-3, LGPL-2.1, LGPL-3, AGPL-3, Apache-2.0, MPL-2.0, None (All Rights Reserved license without file).
