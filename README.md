@@ -404,7 +404,7 @@ summon new my-project with -letgcpw without -b --prelude-package relude --prelud
 
 TODO: screenshot
 
-The TUI window opens with the filled in information received from a config file and command-line arguments. However, it's possible to change any field you would like.
+The TUI window opens with the pre-filled information received from a config file and command-line arguments. However, it's possible to change any field you would like.
 
 At the screenshot you can see that you'll be given a few text fields to fill in or some checkboxes to represent boolean values of the configurations. To help you fill in the correct input, there are some ⓘ info messages in the `Errors` section, which give additional details on the current field.
 
