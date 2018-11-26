@@ -10,7 +10,7 @@
 >
 > Christopher Reeve
 
-Summoner is the tool for scaffolding fully configured batteries-included production Haskell projects.
+Summoner is a tool for scaffolding fully configured batteries-included production Haskell projects.
 
 Do you want to create a library that is to be uploaded to the Hackage/Stackage, that builds with both Cabal and Stack and supports the latest three major GHC versions?
 Or you are building a production application which uses a custom prelude and has CI with Travis Linux and AppVeyors Windows checks?
