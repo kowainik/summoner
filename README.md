@@ -15,6 +15,24 @@
 
 Summoner is the tool for creating fully configured production Haskell projects.
 
+## Structure
+
+* [Demo](#demo)
+* [Get started](#getting-started)
+    + [Prerequisites](#prerequisites)
+    + [Installation](#installation)
+    + [Usage](#usage)
+        + [Configurations](#configurations)
+            + [TOML files](#toml-files)
+                + [Global keys](#global-keys)
+                + [Custom Prelude Options](#custom-prelude-options)
+                + [TOML file Examples](#examples)
+            + [CLI](#cli)
+* [Features](#features)
+* [GHC options](#ghc-options)
+* [Change log](#change-log)
+* [Acknowledgments](#acknowledgments)
+
 ## Demo
 
 [![asciicast](https://asciinema.org/a/198918.png)](https://asciinema.org/a/198918)
