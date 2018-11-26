@@ -11,7 +11,7 @@ module Summoner.Tui
        ) where
 
 import Brick (App (..), AttrMap, BrickEvent (..), Widget, attrMap, continue, customMain, halt,
-              simpleApp, str, txt, vBox, withAttr, (<+>), (<=>))
+              simpleApp, str, txt, vBox, withAttr, (<+>))
 import Brick.Focus (focusRingCursor)
 import Brick.Forms (allFieldsValid, focusedFormInputAttr, formFocus, formState, handleFormEvent,
                     invalidFormInputAttr, renderForm)
@@ -20,8 +20,8 @@ import Brick.Types (EventM, Next, ViewportType (Vertical))
 import Brick.Util (fg)
 import Brick.Widgets.Border (borderAttr)
 import Brick.Widgets.Center (center)
-import Brick.Widgets.Core (fill, hLimit, hLimitPercent, padTopBottom, strWrap, txtWrap, vLimit,
-                           viewport)
+import Brick.Widgets.Core (emptyWidget, fill, hLimit, hLimitPercent, padTopBottom, strWrap, txtWrap,
+                           vLimit, viewport)
 import Brick.Widgets.Edit (editAttr, editFocusedAttr)
 import Brick.Widgets.List (listSelectedAttr, listSelectedFocusedAttr)
 import Lens.Micro ((.~), (^.))
@@ -167,8 +167,8 @@ drawNew dirs f = case formState f ^. shouldSummon of
 
     formWidget :: Widget SummonForm
     formWidget = vBox
-        [ form <+> tree
-        , validationErrors <+> help
+        [ form   <+> tree
+        , status <+> help
         ]
 
     form :: Widget SummonForm
@@ -181,14 +181,28 @@ drawNew dirs f = case formState f ^. shouldSummon of
         , fill ' '
         ]
 
-    validationErrors :: Widget SummonForm
-    validationErrors = hLimitPercent 45 $
-        borderLabel "Errors" (validationBlock <=> fill ' ')
+    status :: Widget SummonForm
+    status = hLimitPercent 45 $
+        borderLabel "Status" $ vBox
+            [ informationBlock
+            , validationBlock
+            , fill ' '
+            ]
       where
+        informationBlock :: Widget SummonForm
+        informationBlock = case getCurrentFocus f of
+            Just UserOwner  -> infoTxt "GitHub username"
+            Just ProjectCat -> infoTxt "Comma-separated categories as used at Hackage"
+            Just Ghcs       -> infoTxt "Space separated GHC versions"
+            _               -> emptyWidget
+
+        infoTxt :: Text -> Widget SummonForm
+        infoTxt = withAttr "blue-fg" . txt . (<>) " ⓘ  "
+
         validationBlock :: Widget SummonForm
         validationBlock = vBox $ case formErrorMessages dirs f of
-            []     -> [str "✔ Project configuration is valid"]
-            fields -> map (\msg -> strWrap $ "☓ " ++ msg) fields
+            []     -> [withAttr "green-fg" $ str " ✔  Project configuration is valid"]
+            fields -> map (\msg -> withAttr "red-fg" $ strWrap $ " ☓  " ++ msg) fields
 
     help, helpBody :: Widget SummonForm
     help     = borderLabel "Help" (helpBody <+> fill ' ')
@@ -294,6 +308,8 @@ theMap = attrMap V.defAttr
     , (listSelectedFocusedAttr, V.black `Brick.on` V.white)
     , (disabledAttr,            fg V.brightBlack)
     , ("blue-fg",               fg V.blue)
+    , ("green-fg",              fg V.green)
+    , ("red-fg",                fg V.brightRed)
     , (borderAttr,              fg orange)
     , ("tree",                  fg V.cyan)
     ]
