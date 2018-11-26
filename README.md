@@ -101,7 +101,7 @@ Below you can see highlighted features in different categories.
 
 ### Project [↑](#structure)
 
-+ Cabal and Stack build tools support.
++ Support for Cabal and Stack build tools.
 + Ability to pick stanzas (library, executable, test-suite, benchmark).
 + Option to include an alternative prelude, if needed. The project then would use [`base-noprelude` technique](http://hackage.haskell.org/package/Prelude), and `Prelude` module would be added to the library target.
 + Whole Hackage-upload checklist support.
