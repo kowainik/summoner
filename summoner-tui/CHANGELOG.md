@@ -1,7 +1,7 @@
-# Change log
+# Changelog
 
 `summoner-tui` uses [PVP Versioning][1].
-The change log is available [on GitHub][2].
+The changelog is available [on GitHub][2].
 
 ## Unreleased: 0.0.0
 
