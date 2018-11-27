@@ -92,6 +92,7 @@ summonTuiNew newOpts@NewOpts{..} = do
                 ifM (doesFileExist file) (pure $ Just file) (pure Nothing)
             justFile -> pure justFile
 
+-- | Check content of current directory and create form after forming 'SummonKit'.
 runTuiNew :: SummonKit -> IO (KitForm e)
 runTuiNew kit = do
     filesAndDirs <- listDirectory =<< getCurrentDirectory
