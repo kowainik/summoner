@@ -54,7 +54,7 @@ matrix:
         - libgmp-dev
 
   - ghc: 8.4.4
-    env: GHCVER='8.4.4' STACK_YAML="$TRAVIS_BUILD_DIR/stack.yaml"
+    env: GHCVER='8.4.4' STACK_YAML="$TRAVIS_BUILD_DIR/stack.yaml" DEPLOY=yes
     os: linux
     addons:
       apt:
@@ -64,6 +64,15 @@ matrix:
   - ghc: 8.6.2
     env: GHCVER='8.6.2' STACK_YAML="$TRAVIS_BUILD_DIR/stack-$GHCVER.yaml"
     os: linux
+    addons:
+      apt:
+        packages:
+        - libgmp-dev
+
+  # macOS build
+  - ghc: 8.4.4
+    env: GHCVER='8.4.4' STACK_YAML="$TRAVIS_BUILD_DIR/stack.yaml" DEPLOY=yes
+    os: osx
     addons:
       apt:
         packages:
@@ -79,7 +88,16 @@ install:
     else
       mkdir -p ~/.local/bin
       export PATH="$HOME/.local/bin:$PATH"
-      travis_retry curl -L 'https://www.stackage.org/stack/linux-x86_64' | tar xz --wildcards --strip-components=1 -C ~/.local/bin '*/stack'
+
+      # install stack
+      export STACK_URL="https://www.stackage.org/stack/${TRAVIS_OS_NAME}-x86_64"
+      echo "Download stack from: $STACK_URL"
+      cd /tmp
+      curl --location "$STACK_URL" > stack.tar.gz
+      tar xz --strip-components=1 --file=stack.tar.gz -C ~/.local/bin/
+      cd -
+
+      # build project with stack
       stack --version
       stack setup --no-terminal --install-cabal 2.2.0.1
       stack ghc -- --version
@@ -95,6 +113,29 @@ script:
     fi
   - curl https://raw.githubusercontent.com/kowainik/relude/988bbdd3a09df1159917012933780523644880e5/.hlint.yaml -o .hlint-relude.yaml
   - curl -sSL https://raw.github.com/ndmitchell/neil/master/misc/travis.sh | sh -s -- hlint -h .hlint-relude.yaml summoner-cli/src/ summoner-cli/test/ summoner-tui/src/
+
+after_success:
+  - echo "Trying to deploy..."
+  - |
+    if [ "$DEPLOY" = "yes" ]; then
+      echo "Deploy triggered!"
+      mv "$(stack path --local-install-root)/bin/summon" "summon-${TRAVIS_OS_NAME}"
+      mv "$(stack path --local-install-root)/bin/summon-tui" "summon-tui-${TRAVIS_OS_NAME}"
+      git tag "$(date +'%Y%m%d%H%M%S')"
+    fi
+
+deploy:
+  - skip_cleanup: true
+    provider: releases
+    api_key:
+      secure: "esOmMFQxFv+M0V49iVbUPWUv875neNFQJVfrU4w4bs/vpZv8hn9txNngTS66mNbXNgsoy3RML1rXkSKl1PIV3mzwYrW6bN0lfaiRJcDWBTFWLy2sq0ac5GKJgCMeyLLC2leKLMTjkVBHQA3i5gMnhCEB0Nv2F32Fh1gogIvyzsqLfmq1HI2Dmwt+C8U2GQ+fJ9BvnewMYri7Q1O9poEgPgKzoi2quKYABSSW1KS/fQLPGsYT6MRHxOEfB2jAZc6wIabgd6FnQgeRjfU0iJ04K5svZCIvbUJbXltTb1FiGOZk3bTZDQmUKGcYXXddKg/SklKTQHf7B/5DVn7yELWsPHKqj1MWDu1YE2yFoThUcnaWGVnvTf/a9XOknHmlkLaczuNdl6dw6EMYuPWRSacRPca7t8zzYRU23KRebAxbq5NClc4k5svEvPxI8qQFNizU+GkglXZn4Ro9F2GiuP0IE4tGJLrJ0xGIti3Sswdsz3/dBeipXF0EO5fW8qjbQs7vjby2WD3Eq3AeIkWXYudSbxgoXOV5OHmAcx4TjLuF3UbrN0DfV3ljN5KhcR6HPXERL5FEAkRSzRjzo2hxtybY7s/Uee3zn4eeNfgwdgxbiIK+g2W3BiTC6g44AFvKM5ehurHLE1ESZz8cBgPnBtdaM01l70ZzKAjxD+oMNbjQyEc="
+    file:
+      - "summon-${TRAVIS_OS_NAME}"
+      - "summon-tui-${TRAVIS_OS_NAME}"
+    on:
+      repo: kowainik/summoner
+      tags: true
+      condition: $DEPLOY = yes
 
 notifications:
   email: false
