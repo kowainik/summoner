@@ -19,7 +19,7 @@ test_script:
 - echo "" | stack --arch x86_64 --no-terminal build summoner --bench --no-run-benchmarks --test
 
 on_success:
-- ps: cp "$(stack path --local-install-root)/bin/summon.exe" summon-cli.exe
+- ps: cp "$(./stack.exe path --local-install-root)/bin/summon.exe" summon-cli.exe
 
 artifacts:
   - path: summon-cli.exe
