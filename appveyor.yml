@@ -17,8 +17,6 @@ test_script:
 # The ugly echo "" hack is to avoid complaints about 0 being an invalid file
 # descriptor
 - echo "" | stack --arch x86_64 --no-terminal build summoner --bench --no-run-benchmarks --test
-
-on_success:
 - ps: cp "$(./stack.exe path --local-install-root)/bin/summon.exe" summon-cli.exe
 
 artifacts:
