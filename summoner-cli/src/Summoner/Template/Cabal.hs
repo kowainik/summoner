@@ -7,7 +7,7 @@ module Summoner.Template.Cabal
 import NeatInterpolation (text)
 
 import Summoner.GhcVer (GhcVer (..), cabalBaseVersions, showGhcVer)
-import Summoner.License (cabalLicense)
+import Summoner.License (LicenseName (..), cabalLicense)
 import Summoner.Settings (CustomPrelude (..), Settings (..))
 import Summoner.Text (intercalateMap, packageToModule)
 import Summoner.Tree (TreeFs (..))
@@ -39,7 +39,7 @@ cabalFile Settings{..} = File (toString settingsRepo ++ ".cabal") cabalFileConte
         [ "homepage:            " <> githubUrl        | settingsGitHub ] ++
         [ "bug-reports:         " <> githubBugReports | settingsGitHub ] ++
         ( "license:             " <> licenseName) :
-        [ "license-file:        LICENSE" | settingsGitHub] ++
+        [ "license-file:        LICENSE" | settingsLicenseName /= None] ++
         [ "author:              " <> settingsFullName
         , "maintainer:          " <> settingsEmail
         , "copyright:           " <> settingsYear <> " " <> settingsFullName ] ++

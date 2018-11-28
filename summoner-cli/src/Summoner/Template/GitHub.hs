@@ -205,6 +205,8 @@ gitHubFiles Settings{..} =
             else
               stack build --test --bench --no-run-benchmarks --no-terminal --ghc-options=-Werror
             fi
+
+          - curl -sSL https://raw.github.com/ndmitchell/neil/master/misc/travis.sh | sh -s -- hlint .
         |]
 
     installScriptCabal :: Text

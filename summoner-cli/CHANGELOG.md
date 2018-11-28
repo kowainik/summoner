@@ -51,6 +51,8 @@ The changelog is available [on GitHub][2].
   Make categories not mandatory.
 * [#243](https://github.com/kowainik/summoner/issues/243):
   Make project name optional in CLI arguments.
+* [#37](https://github.com/kowainik/summoner/issues/37):
+  Add HLint check on Travis CI in generatd projects.
 
 
 ## 1.1.0.1 – Sep 10, 2018
