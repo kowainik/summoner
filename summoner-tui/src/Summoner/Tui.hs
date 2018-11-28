@@ -340,12 +340,6 @@ theMap = attrMap V.defAttr
     , ("blue-fg",               fg V.blue)
     , ("green-fg",              fg V.green)
     , ("red-fg",                fg V.brightRed)
-    , (borderAttr,              fg orange)
+    , (borderAttr,              fg V.cyan)
     , ("tree",                  fg V.cyan)
     ]
-
-orange :: V.Color
-orange = rgb 0xff 0x5f 0x00
-
-rgb :: Word8 -> Word8 -> Word8 -> V.Color
-rgb = V.rgbColor
