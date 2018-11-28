@@ -119,7 +119,7 @@ after_success:
   - |
     if [ "$DEPLOY" = "yes" ]; then
       echo "Deploy triggered!"
-      mv "$(stack path --local-install-root)/bin/summon" "summon-${TRAVIS_OS_NAME}"
+      mv "$(stack path --local-install-root)/bin/summon"     "summon-cli-${TRAVIS_OS_NAME}"
       mv "$(stack path --local-install-root)/bin/summon-tui" "summon-tui-${TRAVIS_OS_NAME}"
       git tag "$(date +'%Y%m%d%H%M%S')"
     fi
@@ -130,7 +130,7 @@ deploy:
     api_key:
       secure: XhNZ1oniO2dABEFsTuWr0NxzcIGHDwF/MgamGpqkk64TslJngRgsKsiaHQQSOYKtMpF6bwoJ31mLA6EfIu7e7DFSvFCYmwEci/rPXLZVyrmNGWyby2K0MGuLQNdacEJATrwmuxnPTdc1zqm9AK/iGu9hcHBgsGpWpQur3E2g9A+IokTZ7gGqz2I/INk/YCS6YvjYulrSqFxhBTOdFKY4UlUM4KzVANZVCOrSx7kveH01vX7mYMIPxKR+pdD+7jya/jLZHnzXahMWlktiUG5pqebkNfgnJo6x/x/jTQwg3W80XKAm1RdRXsSTVCFGsuYpo/Jkd81Q5/mYYWhZYyX90dPInlYW0PtEuPkVIpG60waFAz58SHpWdMH6hVRxAnwvOOeT5pgEmMDXovy7Dl5YF37JqxqJ+LDFr97H/Zp16h9njKcU1GEWEkMTKxsyCgOu1gpHT1oby7UU4bMkDGQ9HjUhaE+n5kGUZ9brNDYI7223C+cyEW3pQgDIhXTh2kuRyM+RbJOcgxbHtO5uMqP12P0dLXlPfbohUMsSfwWbIQGGIY4EKY2wc1DYILQ6moj5FYlBb381mb/J7pIhuerRNgtocQhaHe47KjP+diWmVe1BuypOTUuS2Hrf5TGqurRiJeH4+bHjxhHbDFH7RbsaNbeupp2J4mHsGIKeHeQHZJY=
     file:
-      - "summon-${TRAVIS_OS_NAME}"
+      - "summon-cli-${TRAVIS_OS_NAME}"
       - "summon-tui-${TRAVIS_OS_NAME}"
     on:
       repo: kowainik/summoner
