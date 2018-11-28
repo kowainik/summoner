@@ -5,55 +5,50 @@ The changelog is available [on GitHub][2].
 
 ## Unreleased: 1.2.0
 
-* [#169](https://github.com/kowainik/summoner/issues/169):
-  Make AppVeyor use the 64bits version of stack and build for 64 bits.
-* [#154](https://github.com/kowainik/summoner/issues/154):
-  Add `Link` constructor to `Source` data type.
-* [#172](https://github.com/kowainik/summoner/issues/172):
-  Introduce pull request template.
-* [#125](https://github.com/kowainik/summoner/issues/125):
-  Split `Summoner.Template` into multiple modules.
-* [#189](https://github.com/kowainik/summoner/issues/189):
-  Add a `tconcatMap` function to `Summoner.Text`
-* [#184](https://github.com/kowainik/summoner/issues/184)
-  Add `--no-upload` option.
-* [#178](https://github.com/kowainik/summoner/issues/178):
-  Remove unnecessary new lines and trailing spaces in most places.
-* [#168](https://github.com/kowainik/summoner/issues/168):
-  Upgrade `stack` `intall-cabal` option's version to `2.2.0.1` in
-  the generated Travis file.
-* [#197](https://github.com/kowainik/summoner/issues/197)
-  Build with `stack` lts-12.18, and support `GHC` 8.4.4 in
-  project generation. Make GHC-8.4.4 the default one for generated project.
-  Drop support for GHC-8.4.3 on CI. Build with GHC-8.4.4 on CI.
-* [#142](https://github.com/kowainik/summoner/issues/142):
-  Add version bounds to `base` in the generated `.cabal` file.
+
+* [#243](https://github.com/kowainik/summoner/issues/243):
+  Make project name optional in CLI arguments. Now you can `summon new` to start creating the project.
+* Make `cabal-version: 2.0` default in generated projects.
+* [#11](https://github.com/kowainik/summoner/issues/11):
+  Support offline mode.
 * [#199](https://github.com/kowainik/summoner/issues/199):
   Add `None` license with no `LICENSE` file generation.
   Add licenses short descriptions text during the interactive mode.
   Patch `summon show license` command to show short description about
   each license.
-* [#195](https://github.com/kowainik/summoner/issues/195):
-  Update prompt questions for CLI
-* [#155](https://github.com/kowainik/summoner/issues/155):
-  Bump up to `tomland-0.5.0`.
-* Drop support for GHC-8.6.1 on CI. Support GHC-8.6.2 on CI.
-* [#202](https://github.com/kowainik/summoner/issues/202):
-  Bump up to `relude-0.4.0`.
-* [#11](https://github.com/kowainik/summoner/issues/11):
-  Support offline mode.
-* Add more documentation to the functions.
-* [#185](https://github.com/kowainik/summoner/issues/185):
-  Add golden tests.
-* Remove `tasty` dependencies from tests.
-* Use `defaultDescription` for project description if not specified.
-* [#239](https://github.com/kowainik/summoner/issues/239):
-  Make categories not mandatory.
-* [#243](https://github.com/kowainik/summoner/issues/243):
-  Make project name optional in CLI arguments.
+* [#197](https://github.com/kowainik/summoner/issues/197)
+  Build with `stack` lts-12.20, and support `GHC` 8.4.4 in
+  project generation. Make GHC-8.4.4 the default one for generated project.
 * [#37](https://github.com/kowainik/summoner/issues/37):
   Add HLint check on Travis CI in generatd projects.
-
+* [#142](https://github.com/kowainik/summoner/issues/142):
+  Add version bounds to `base` in the generated `.cabal` file.
+* [#239](https://github.com/kowainik/summoner/issues/239):
+  Make categories not mandatory.
+* Use `defaultDescription` for project description if not specified.
+* [#185](https://github.com/kowainik/summoner/issues/185):
+  Add golden tests.
+* [#184](https://github.com/kowainik/summoner/issues/184)
+  Add `--no-upload` option.
+* [#169](https://github.com/kowainik/summoner/issues/169):
+  Make AppVeyor use the 64bits version of stack and build for 64 bits.
+* [#154](https://github.com/kowainik/summoner/issues/154):
+  Add `Link` constructor to `Source` data type.
+* [#178](https://github.com/kowainik/summoner/issues/178):
+  Remove unnecessary new lines and trailing spaces in most places.
+* [#168](https://github.com/kowainik/summoner/issues/168):
+  Upgrade `stack` `intall-cabal` option's version to `2.2.0.1` in
+  the generated Travis file.
+* [#195](https://github.com/kowainik/summoner/issues/195):
+  Update prompt questions for CLI.
+* Add more documentation to the functions.
+* [#155](https://github.com/kowainik/summoner/issues/155):
+  Bump up to `tomland-0.5.0`.
+* [#202](https://github.com/kowainik/summoner/issues/202):
+  Bump up to `relude-0.4.0`.
+* Remove `tasty` dependencies from tests.
+* Drop support for GHC-8.6.1 on CI. Support GHC-8.6.2 on CI.
+* Drop support for GHC-8.4.3 on CI. Build with GHC-8.4.4 on CI.
 
 ## 1.1.0.1 – Sep 10, 2018
 
