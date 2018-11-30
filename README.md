@@ -51,11 +51,11 @@ By the way, Summoner operates as either CLI or TUI application, so you can choos
 
 ### TUI demo [↑](#structure)
 
-TODO: TUI demo asciinema
+[![TUI demo](https://asciinema.org/a/214424.png)](https://asciinema.org/a/214424)
 
 ### CLI demo [↑](#structure)
 
-[![asciicast](https://asciinema.org/a/198918.png)](https://asciinema.org/a/198918)
+[![CLI demo](https://asciinema.org/a/214433.png)](https://asciinema.org/a/214433)
 
 ### Scaffolded project structure [↑](#structure)
 
