@@ -403,7 +403,15 @@ summon new my-project with -letgcpw without -b --prelude-package relude --prelud
 
 #### TUI new command [↑](#structure)
 
-TODO: screenshot
+![summon new TUI](https://user-images.githubusercontent.com/8126674/49283553-fc684e00-f4cc-11e8-8411-f173f5f19a71.png)
+
+> **Section 1** – The main section where user inputs data or changes the configurations.
+
+> **Section 2** – The structure of the project that is going to be created with the current configurations. This tree changes on-the-fly.
+
+> **Section 3** – Hints, project status, or current errors in the configurations.
+
+> **Section 4** – Useful hotkeys.
 
 The TUI window opens with the pre-filled information received from a config file and command-line arguments. However, it's possible to change any field as per your needs.
 
