@@ -5,9 +5,6 @@ The changelog is available [on GitHub][2].
 
 ## Unreleased: 1.2.0
 
-
-* [#243](https://github.com/kowainik/summoner/issues/243):
-  Make project name optional in CLI arguments. Now you can `summon new` to start creating the project.
 * Make `cabal-version: 2.0` default in generated projects.
 * [#11](https://github.com/kowainik/summoner/issues/11):
   Support offline mode.

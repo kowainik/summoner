@@ -335,7 +335,7 @@ Available global options:
 
 ```
 Usage:
-  summon new [PROJECT_NAME] [--ignore-config] [--no-upload] [--offline]
+  summon new PROJECT_NAME [--ignore-config] [--no-upload] [--offline]
              [-f|--file FILENAME]
              [--cabal]
              [--stack]

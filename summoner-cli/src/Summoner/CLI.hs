@@ -164,7 +164,7 @@ data Command
 
 -- | Options parsed with @new@ command
 data NewOpts = NewOpts
-    { newOptsProjectName :: Maybe Text     -- ^ project name
+    { newOptsProjectName :: Text           -- ^ project name
     , newOptsIgnoreFile  :: Bool           -- ^ ignore all config files if 'True'
     , newOptsNoUpload    :: Bool           -- ^ don't upload to github
     , newOptsOffline     :: Bool           -- ^ Offline mode
@@ -231,7 +231,7 @@ licenseText = LicenseList <$> optional
 -- | Parses options of the @new@ command.
 newP :: Parser Command
 newP = do
-    newOptsProjectName <- optional $ strArgument (metavar "PROJECT_NAME")
+    newOptsProjectName <- strArgument (metavar "PROJECT_NAME")
     newOptsIgnoreFile  <- ignoreFileP
     newOptsNoUpload    <- noUploadP
     newOptsOffline     <- offlineP
