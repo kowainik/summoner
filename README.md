@@ -30,8 +30,10 @@ By the way, Summoner operates as either CLI or TUI application, so you can choos
     + [Prerequisites](#prerequisites-)
     + [Installation](#installation-)
         + [Summon-TUI](#summon-tui-)
+          + [TUI: download binary](#tui-download-binary-)
           + [TUI: from source](#tui-from-source-)
         + [Summon-CLI](#summon-cli-)
+          + [CLI: download binary](#cli-download-binary-)
           + [CLI: from Hackage/Stackage](#cli-from-hackagestackage-)
           + [CLI: from source](#cli-from-source-)
     + [Setup](#setup-)
@@ -179,6 +181,17 @@ Below you can find the description of how to install each of them so you can cho
 
 > **NOTE:** `summon-tui` is not supported on Windows. See [this issue](https://github.com/jtdaugherty/vty/pull/1).
 
+##### TUI: download binary [↑](#structure)
+
+You can download binary directly [from GitHub releases](https://github.com/kowainik/summoner/releases).
+
+After downloading binary, make it executable and copy it under convenient location, for example:
+
+```shell
+chmod +x summon-cli-linux
+mv summon-cli-linux ~/.local/bin/summon
+```
+
 ##### TUI: from source [↑](#structure)
 
 Fetch the repo using `cabal`:
@@ -212,6 +225,17 @@ stack install summoner-tui:exe:summon-tui
 ```
 
 #### Summon-CLI [↑](#structure)
+
+##### CLI: download binary [↑](#structure)
+
+You can download binary directly [from GitHub releases](https://github.com/kowainik/summoner/releases).
+
+After downloading binary, make it executable and copy it under convenient location, for example:
+
+```shell
+chmod +x summon-cli-linux
+mv summon-cli-linux ~/.local/bin/summon
+```
 
 ##### CLI: from Hackage/Stackage [↑](#structure)
 
