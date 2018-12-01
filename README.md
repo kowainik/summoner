@@ -484,6 +484,10 @@ If you'd like to take part in the development processes, here are a few things t
 * To sum up, [here is the Contributing guide](https://github.com/kowainik/org/blob/master/CONTRIBUTING.md#contributing-to-the-kowainik-repositories) we use across the repositories.
 * This project is contributor-friendly, so be kind to other people working on the project.
 
+### Dependencies [↑](#structure)
+
+On Linux, to build the `summoner-tui` you'll need to have `libtinfo` installed. The easiest way to get this is from your system's package manager and is usually available as the package `libtinfo-dev`.
+
 ### Build [↑](#structure)
 
 To build the project you can use the following commands:
