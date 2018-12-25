@@ -16,6 +16,7 @@ build-type:          Simple
 stability:           stable
 extra-doc-files:     README.md
                    , CHANGELOG.md
+data-dir:            test/golden
 tested-with:         GHC == 8.2.2
                    , GHC == 8.4.4
                    , GHC == 8.6.3
