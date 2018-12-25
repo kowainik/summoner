@@ -6,6 +6,7 @@ module Summoner.Template.Stack
 
 import NeatInterpolation (text)
 
+import Summoner.Default (defaultGHC)
 import Summoner.GhcVer (GhcVer (..), baseVer, latestLts, showGhcVer)
 import Summoner.Settings (Settings (..))
 import Summoner.Tree (TreeFs (..))
@@ -20,9 +21,9 @@ stackFiles Settings{..} = map createStackYaml settingsTestedVersions
         $ "resolver: lts-" <> latestLts ghcV <> extraDeps <> ghcOpts
       where
         ver :: Text
-        ver = case ghcV of
-            Ghc844 -> ""
-            _      -> "-" <> showGhcVer ghcV
+        ver = if ghcV == defaultGHC
+              then ""
+              else "-" <> showGhcVer ghcV
 
         extraDeps :: Text
         extraDeps = case settingsPrelude of

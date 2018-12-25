@@ -3,6 +3,11 @@
 `summoner` uses [PVP Versioning][1].
 The changelog is available [on GitHub][2].
 
+## Unreleased
+
+* [#151](https://github.com/kowainik/summoner/issues/151):
+  Make GHC-8.6.3 default.
+
 ## 1.2.0 — Nov 30, 2018
 
 * Make `cabal-version: 2.0` default in generated projects.
