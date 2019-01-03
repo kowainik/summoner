@@ -1,12 +1,15 @@
 sudo: true
-language: generic
+language: haskell
 
 git:
   depth: 5
 
+cabal: "head"
+
 cache:
   directories:
   - "$HOME/.cabal"
+  - "$HOME/.cabal/store"
   - "$HOME/.stack"
   - "$TRAVIS_BUILD_DIR/.stack-work"
 
@@ -15,35 +18,15 @@ matrix:
   - ghc: 8.2.2
     env: GHCVER='8.2.2' CABALVER='head'
     os: linux
-    addons:
-      apt:
-        sources:
-        - hvr-ghc
-        packages:
-        - ghc-8.2.2
-        - cabal-install-head
 
   - ghc: 8.4.4
     env: GHCVER='8.4.4' CABALVER='head'
     os: linux
-    addons:
-      apt:
-        sources:
-        - hvr-ghc
-        packages:
-        - ghc-8.4.4
-        - cabal-install-head
+
 
   - ghc: 8.6.3
     env: GHCVER='8.6.3' CABALVER='head'
     os: linux
-    addons:
-      apt:
-        sources:
-        - hvr-ghc
-        packages:
-        - ghc-8.6.3
-        - cabal-install-head
 
   - ghc: 8.2.2
     env: GHCVER='8.2.2' STACK_YAML="$TRAVIS_BUILD_DIR/stack-$GHCVER.yaml"
@@ -86,16 +69,8 @@ install:
       cabal new-update
       cabal new-build all --enable-tests --enable-benchmarks
     else
-      mkdir -p ~/.local/bin
-      export PATH="$HOME/.local/bin:$PATH"
-
       # install stack
-      export STACK_URL="https://www.stackage.org/stack/${TRAVIS_OS_NAME}-x86_64"
-      echo "Download stack from: $STACK_URL"
-      cd /tmp
-      curl --location "$STACK_URL" > stack.tar.gz
-      tar xz --strip-components=1 --file=stack.tar.gz -C ~/.local/bin/
-      cd -
+      curl -sSL https://get.haskellstack.org/ | sh
 
       # build project with stack
       stack --version
