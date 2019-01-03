@@ -91,6 +91,8 @@ gitHubFiles Settings{..} =
         git:
           depth: 5
 
+        cabal: "head"
+
         cache:
           directories:
           $travisCabalCache
@@ -130,13 +132,6 @@ gitHubFiles Settings{..} =
         - ghc: ${ghcV}
           env: GHCVER='${ghcV}' CABALVER='head'
           os: linux
-          addons:
-            apt:
-              sources:
-              - hvr-ghc
-              packages:
-              - ghc-${ghcV}
-              - cabal-install-head
         |]
 
     travisStackMtr :: Text
