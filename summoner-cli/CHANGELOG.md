@@ -7,6 +7,8 @@ The changelog is available [on GitHub][2].
 
 * [#151](https://github.com/kowainik/summoner/issues/151):
   Make GHC-8.6.3 default.
+* [#268](https://github.com/kowainik/summoner/issues/268):
+  Simplify process of adding custom prelude in the interactive mode.
 
 ## 1.2.0 — Nov 30, 2018
 
