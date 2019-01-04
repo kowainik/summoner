@@ -2,6 +2,7 @@
 
 module Summoner.Default
        ( defaultGHC
+       , defaultCabal
        , defaultTomlFile
        , defaultConfigFile
        , defaultDescription
@@ -21,6 +22,10 @@ import Summoner.GhcVer (GhcVer)
 -- | Default GHC version is the latest available.
 defaultGHC :: GhcVer
 defaultGHC = maxBound
+
+-- | Default version of the Cabal.
+defaultCabal :: Text
+defaultCabal = "2.0"
 
 defaultTomlFile :: FilePath
 defaultTomlFile = ".summoner.toml"

@@ -8,7 +8,7 @@ module Summoner.Template.GitHub
 import Data.List (delete)
 import NeatInterpolation (text)
 
-import Summoner.Default (defaultGHC)
+import Summoner.Default (defaultCabal, defaultGHC)
 import Summoner.GhcVer (GhcVer (..), showGhcVer)
 import Summoner.Settings (Settings (..))
 import Summoner.Text (tconcatMap)
@@ -91,7 +91,7 @@ gitHubFiles Settings{..} =
         git:
           depth: 5
 
-        cabal: "head"
+        cabal: "$defaultCabal"
 
         cache:
           directories:
@@ -110,7 +110,7 @@ gitHubFiles Settings{..} =
         |]
 
     travisCabalCache, travisStackCache :: Text
-    travisCabalCache = memptyIfFalse settingsCabal "- \"$HOME/.cabal\""
+    travisCabalCache = memptyIfFalse settingsCabal "- \"$HOME/.cabal/store\""
     travisStackCache = memptyIfFalse settingsStack
         [text|
         - "$$HOME/.stack"
@@ -126,13 +126,7 @@ gitHubFiles Settings{..} =
         tconcatMap travisCabalMatrixItem settingsTestedVersions
 
     travisCabalMatrixItem :: GhcVer -> Text
-    travisCabalMatrixItem (showGhcVer -> ghcV) =
-        [text|
-        $endLine
-        - ghc: ${ghcV}
-          env: GHCVER='${ghcV}' CABALVER='head'
-          os: linux
-        |]
+    travisCabalMatrixItem (showGhcVer -> ghcV) = [text|- ghc: $ghcV|]
 
     travisStackMtr :: Text
     travisStackMtr = memptyIfFalse settingsStack $
@@ -144,12 +138,7 @@ gitHubFiles Settings{..} =
         [text|
         $endLine
         - ghc: ${ghcV}
-          env: GHCVER='${ghcV}' STACK_YAML="$$TRAVIS_BUILD_DIR/stack-$$GHCVER.yaml"
-          os: linux
-          addons:
-            apt:
-              packages:
-              - libgmp-dev
+          env: STACK_YAML="$$TRAVIS_BUILD_DIR/stack-$ghcV.yaml"
         |]
 
     travisStackMatrixDefaultItem :: Text
@@ -157,12 +146,7 @@ gitHubFiles Settings{..} =
         [text|
         $endLine
         - ghc: ${defGhc}
-          env: GHCVER='${defGhc}' STACK_YAML="$$TRAVIS_BUILD_DIR/stack.yaml"
-          os: linux
-          addons:
-            apt:
-              packages:
-              - libgmp-dev
+          env: STACK_YAML="$$TRAVIS_BUILD_DIR/stack.yaml"
         |]
 
     installAndScript :: Text
@@ -179,18 +163,12 @@ gitHubFiles Settings{..} =
         install:
           - |
             if [ -z "$$STACK_YAML" ]; then
-              export PATH="/opt/ghc/$$GHCVER/bin:/opt/cabal/$$CABALVER/bin:$$PATH"
-              echo $$PATH
               cabal new-update
               cabal new-build --enable-tests --enable-benchmarks
             else
-              mkdir -p ~/.local/bin
-              export PATH="$$HOME/.local/bin:$$PATH"
-              travis_retry curl -L 'https://www.stackage.org/stack/linux-x86_64' | tar xz --wildcards --strip-components=1 -C ~/.local/bin '*/stack'
+              curl -sSL https://get.haskellstack.org/ | sh
               stack --version
-              stack setup --no-terminal --install-cabal 2.2.0.1
-              stack ghc -- --version
-              stack build --only-dependencies --no-terminal
+              stack build --system-ghc --test --no-run-tests
             fi
 
         script:
@@ -201,6 +179,7 @@ gitHubFiles Settings{..} =
               stack build --test --bench --no-run-benchmarks --no-terminal --ghc-options=-Werror
             fi
 
+          # HLint check
           - curl -sSL https://raw.github.com/ndmitchell/neil/master/misc/travis.sh | sh -s -- hlint .
         |]
 
@@ -208,8 +187,6 @@ gitHubFiles Settings{..} =
     installScriptCabal =
         [text|
         install:
-          - export PATH="/opt/ghc/$$GHCVER/bin:/opt/cabal/$$CABALVER/bin:$$PATH"
-          - echo $$PATH
           - cabal new-update
           - cabal new-build --enable-tests --enable-benchmarks
 
@@ -221,14 +198,9 @@ gitHubFiles Settings{..} =
     installScriptStack =
         [text|
         install:
-          - mkdir -p ~/.local/bin
-          - export PATH="$$HOME/.local/bin:$$PATH"
-          - travis_retry curl -L 'https://www.stackage.org/stack/linux-x86_64' | tar xz --wildcards --strip-components=1 -C ~/.local/bin '*/stack'
+          - curl -sSL https://get.haskellstack.org/ | sh
           - stack --version
-          - stack setup --no-terminal --install-cabal 2.2.0.1
-          - stack ghc -- --version
-          - stack build --only-dependencies --no-terminal
-
+          - stack build --system-ghc --test --no-run-tests
         script:
           - stack build --test --bench --no-run-benchmarks --no-terminal --ghc-options=-Werror
         |]

@@ -6,6 +6,7 @@ module Summoner.Template.Cabal
 
 import NeatInterpolation (text)
 
+import Summoner.Default (defaultCabal)
 import Summoner.GhcVer (GhcVer (..), cabalBaseVersions, showGhcVer)
 import Summoner.License (LicenseName (..), cabalLicense)
 import Summoner.Settings (CustomPrelude (..), Settings (..))
@@ -31,7 +32,7 @@ cabalFile Settings{..} = File (toString settingsRepo ++ ".cabal") cabalFileConte
     -- TODO: do something to not have empty lines
     cabalHeader :: Text
     cabalHeader = unlines $
-        [ "cabal-version:       2.0"
+        [ "cabal-version:       " <> defaultCabal
         , "name:                " <> settingsRepo
         , "version:             0.0.0"
         , "synopsis:            " <> settingsDescription
