@@ -14,31 +14,20 @@ cache:
 
 matrix:
   include:
-  # Cabal
+  # Cabal, linux
   - ghc: 8.2.2
-    env: GHCVER='8.2.2' CABALVER='head'
-    os: linux
+  - ghc: 8.4.4
+  - ghc: 8.6.3
+
+  # Stack, linux
+  - ghc: 8.2.2
+    env: STACK_YAML="$TRAVIS_BUILD_DIR/stack-8.2.2.yaml"
 
   - ghc: 8.4.4
-    env: GHCVER='8.4.4' CABALVER='head'
-    os: linux
+    env: STACK_YAML="$TRAVIS_BUILD_DIR/stack-8.4.4.yaml"
 
   - ghc: 8.6.3
-    env: GHCVER='8.6.3' CABALVER='head'
-    os: linux
-
-  # Stack
-  - ghc: 8.2.2
-    env: GHCVER='8.2.2' STACK_YAML="$TRAVIS_BUILD_DIR/stack-$GHCVER.yaml"
-    os: linux
-
-  - ghc: 8.4.4
-    env: GHCVER='8.4.4' STACK_YAML="$TRAVIS_BUILD_DIR/stack-$GHCVER.yaml"
-    os: linux
-
-  - ghc: 8.6.3
-    env: GHCVER='8.6.3' STACK_YAML="$TRAVIS_BUILD_DIR/stack.yaml" DEPLOY=yes
-    os: linux
+    env: STACK_YAML="$TRAVIS_BUILD_DIR/stack.yaml" DEPLOY=yes
 
 #  Disabled because of Travis bugs
 #  # macOS build
@@ -56,9 +45,7 @@ install:
 
       # build project with stack
       stack --version
-      stack setup --no-terminal --install-cabal 2.2.0.1
-      stack ghc -- --version
-      stack build --only-dependencies --no-terminal
+      stack build --system-ghc --test --no-run-tests
     fi
 
 script:
@@ -66,7 +53,7 @@ script:
     if [ -z "$STACK_YAML" ]; then
       cabal new-test all
     else
-      stack build --test --no-terminal
+      stack test --no-terminal
     fi
   - curl https://raw.githubusercontent.com/kowainik/relude/988bbdd3a09df1159917012933780523644880e5/.hlint.yaml -o .hlint-relude.yaml
   - curl -sSL https://raw.github.com/ndmitchell/neil/master/misc/travis.sh | sh -s -- hlint -h .hlint-relude.yaml summoner-cli/src/ summoner-cli/test/ summoner-tui/src/
