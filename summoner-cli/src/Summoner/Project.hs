@@ -11,7 +11,7 @@ import NeatInterpolation (text)
 import System.Directory (setCurrentDirectory)
 
 import Summoner.Ansi (Color (Green), beautyPrint, bold, errorMessage, infoMessage, setColor,
-                      successMessage)
+                      skipMessage, successMessage)
 import Summoner.Config (Config, ConfigP (..))
 import Summoner.Decision (Decision (..), decisionToBool)
 import Summoner.Default (currentYear, defaultDescription, defaultGHC)
@@ -19,9 +19,9 @@ import Summoner.GhcVer (parseGhcVer, showGhcVer)
 import Summoner.License (LicenseName (..), customizeLicense, fetchLicense, licenseShortDesc,
                          parseLicenseName)
 import Summoner.Process ()
-import Summoner.Question (YesNoPrompt (..), checkUniqueName, choose, chooseYesNo, falseMessage,
+import Summoner.Question (YesNoPrompt (..), checkUniqueName, choose, falseMessage,
                           mkDefaultYesNoPrompt, query, queryDef, queryManyRepeatOnFail,
-                          queryNotNull, targetMessageWithText, trueMessage)
+                          targetMessageWithText, trueMessage)
 import Summoner.Settings (CustomPrelude (..), Settings (..))
 import Summoner.Source (fetchSource)
 import Summoner.Template (createProjectTemplate)
@@ -141,14 +141,12 @@ generateProject settingsNoUpload isOffline projectName Config{..} = do
     getPrelude :: IO (Maybe CustomPrelude)
     getPrelude = case cPrelude of
         Last Nothing -> do
-            let yesDo, noDo :: IO (Maybe CustomPrelude)
-                yesDo = do
-                    p <- queryNotNull "Custom prelude package: "
-                    m <- queryDef "Custom prelude module: " (packageToModule p)
-                    successMessage $ "Custom prelude " <> p <> " will be used in the project"
-                    pure $ Just $ CustomPrelude p m
-                noDo = pure Nothing
-            chooseYesNo (mkDefaultYesNoPrompt "custom prelude") yesDo noDo
+            p <- query "Custom prelude package (leave empty if no custom prelude is needed): "
+            if p == "" then Nothing <$ skipMessage "No custom prelude will be used in the project"
+            else do
+                m <- queryDef "Custom prelude module: " (packageToModule p)
+                successMessage $ "Custom prelude " <> p <> " will be used in the project"
+                pure $ Just $ CustomPrelude p m
         Last prelude@(Just (CustomPrelude p _)) ->
             prelude <$ successMessage ("Custom prelude " <> p <> " will be used in the project")
 
