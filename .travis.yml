@@ -40,9 +40,10 @@ matrix:
     env: GHCVER='8.6.3' STACK_YAML="$TRAVIS_BUILD_DIR/stack.yaml" DEPLOY=yes
     os: linux
 
-  # macOS build
-  - env: GHCVER='8.6.3' STACK_YAML="$TRAVIS_BUILD_DIR/stack.yaml" DEPLOY=yes
-    os: osx
+#  Disabled because of Travis bugs
+#  # macOS build
+#  - env: GHCVER='8.6.3' STACK_YAML="$TRAVIS_BUILD_DIR/stack.yaml" DEPLOY=yes
+#    os: osx
 
 install:
   - |
