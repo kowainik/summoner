@@ -1,3 +1,7 @@
+{- | Contains data type for GHC versions supported by Summoner
+and some useful functions for manipulation with them.
+-}
+
 module Summoner.GhcVer
        ( GhcVer (..)
        , Pvp (..)
@@ -6,6 +10,8 @@ module Summoner.GhcVer
        , latestLts
        , baseVer
        , cabalBaseVersions
+
+       , oldGhcs
        ) where
 
 import Data.List (maximum, minimum)
@@ -34,6 +40,10 @@ showGhcVer = \case
     Ghc843  -> "8.4.3"
     Ghc844  -> "8.4.4"
     Ghc863  -> "8.6.3"
+
+-- | These are old GHC versions that are not working with default GHC versions when using Stack.
+oldGhcs :: [GhcVer]
+oldGhcs = [minBound .. Ghc802]
 
 parseGhcVer :: Text -> Maybe GhcVer
 parseGhcVer = inverseMap showGhcVer

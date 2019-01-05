@@ -1,15 +1,29 @@
 {-# LANGUAGE QuasiQuotes  #-}
 {-# LANGUAGE ViewPatterns #-}
 
+{-| This module contains template for GitHub related docs:
+
+ * @.gitignore@ — static file with all Haskell related ignored files.
+ * @appveyor.yml@ — Appveyor CI for Stack project only.
+ * @.travis.yml@ — depending on the build tool and supported GHC versions
+   builds the Travis matrix with all necessary checks, including HLint check.
+   __NOTE:__ Old GHC versions is not included into Travis matrix for Stack due to
+   Stack limitations with the Cabal version usage on each GHC. See this issue to
+   track the problem:
+
+    + https://github.com/commercialhaskell/stack/issues/4488
+
+-}
+
 module Summoner.Template.GitHub
        ( gitHubFiles
        ) where
 
-import Data.List (delete)
+import Data.List ((\\))
 import NeatInterpolation (text)
 
 import Summoner.Default (defaultCabal, defaultGHC)
-import Summoner.GhcVer (GhcVer (..), showGhcVer)
+import Summoner.GhcVer (GhcVer (..), oldGhcs, showGhcVer)
 import Summoner.Settings (Settings (..))
 import Summoner.Text (tconcatMap)
 import Summoner.Tree (TreeFs (..))
@@ -128,10 +142,11 @@ gitHubFiles Settings{..} =
     travisCabalMatrixItem :: GhcVer -> Text
     travisCabalMatrixItem (showGhcVer -> ghcV) = [text|- ghc: $ghcV|]
 
+    -- Due to Stach issues with newer Cabal versions we are not supporting Travis CI for GHC <= 8.0.2 for stack
     travisStackMtr :: Text
-    travisStackMtr = memptyIfFalse settingsStack $
-        tconcatMap travisStackMatrixItem (delete defaultGHC settingsTestedVersions)
-            <> travisStackMatrixDefaultItem
+    travisStackMtr = memptyIfFalse settingsStack $ tconcatMap
+           travisStackMatrixItem (settingsTestedVersions \\ (defaultGHC:oldGhcs))
+        <> travisStackMatrixDefaultItem
 
     travisStackMatrixItem :: GhcVer -> Text
     travisStackMatrixItem (showGhcVer -> ghcV) =
@@ -176,7 +191,7 @@ gitHubFiles Settings{..} =
             if [ -z "$$STACK_YAML" ]; then
                ${cabalTest}
             else
-              stack build --test --bench --no-run-benchmarks --no-terminal --ghc-options=-Werror
+              stack build --system-ghc --test --bench --no-run-benchmarks --no-terminal --ghc-options=-Werror
             fi
 
           # HLint check
@@ -202,7 +217,7 @@ gitHubFiles Settings{..} =
           - stack --version
           - stack build --system-ghc --test --no-run-tests
         script:
-          - stack build --test --bench --no-run-benchmarks --no-terminal --ghc-options=-Werror
+          - stack build --system-ghc --test --bench --no-run-benchmarks --no-terminal --ghc-options=-Werror
         |]
 
 

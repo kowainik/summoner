@@ -7,15 +7,16 @@ module Summoner.Project
        , initializeProject
        ) where
 
+import Data.List (intersect)
 import NeatInterpolation (text)
 import System.Directory (setCurrentDirectory)
 
 import Summoner.Ansi (Color (Green), beautyPrint, bold, errorMessage, infoMessage, setColor,
-                      skipMessage, successMessage)
+                      skipMessage, successMessage, warningMessage)
 import Summoner.Config (Config, ConfigP (..))
 import Summoner.Decision (Decision (..), decisionToBool)
 import Summoner.Default (currentYear, defaultDescription, defaultGHC)
-import Summoner.GhcVer (parseGhcVer, showGhcVer)
+import Summoner.GhcVer (oldGhcs, parseGhcVer, showGhcVer)
 import Summoner.License (LicenseName (..), customizeLicense, fetchLicense, licenseShortDesc,
                          parseLicenseName)
 import Summoner.Process ()
@@ -86,7 +87,7 @@ generateProject settingsNoUpload isOffline projectName Config{..} = do
     let settingsExtensions = cExtensions
     let settingsWarnings = cWarnings
 
-    putTextLn $ "The project will be created with the latest resolver for default GHC-" <> showGhcVer defaultGHC
+    putTextLn $ "The project will be created with GHC-" <> showGhcVer defaultGHC
     settingsTestedVersions <- sortNub . (defaultGHC :) <$> case cGhcVer of
         [] -> do
             putTextLn "Additionally you can specify versions of GHC to test with (space-separated): "
@@ -95,6 +96,10 @@ generateProject settingsNoUpload isOffline projectName Config{..} = do
         vers -> do
             putTextLn $ "Also these GHC versions will be added: " <> intercalateMap " " showGhcVer vers
             pure vers
+    -- Inform if there are old GHCs that won't be included to Travis Stack matrix
+    let oldGhcIncluded = not $ null $ settingsTestedVersions `intersect` oldGhcs
+    when (oldGhcIncluded && settingsStack && settingsTravis) $
+        warningMessage "Old GHC versions won't be included into Stack matrix at Travis CI because of the Stack issue with newer Cabal versions."
 
     let fetchLast = maybe (pure Nothing) (fetchSource isOffline) . getLast
     settingsStylish      <- fetchLast cStylish

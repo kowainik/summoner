@@ -19,9 +19,6 @@ matrix:
   - ghc: 8.4.4
   - ghc: 8.6.3
   
-  - ghc: 8.0.2
-    env: STACK_YAML="$TRAVIS_BUILD_DIR/stack-8.0.2.yaml"
-  
   - ghc: 8.2.2
     env: STACK_YAML="$TRAVIS_BUILD_DIR/stack-8.2.2.yaml"
   
@@ -47,7 +44,7 @@ script:
     if [ -z "$STACK_YAML" ]; then
        cabal new-test
     else
-      stack build --test --bench --no-run-benchmarks --no-terminal --ghc-options=-Werror
+      stack build --system-ghc --test --bench --no-run-benchmarks --no-terminal --ghc-options=-Werror
     fi
 
   # HLint check
