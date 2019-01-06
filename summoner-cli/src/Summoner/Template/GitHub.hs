@@ -1,15 +1,29 @@
 {-# LANGUAGE QuasiQuotes  #-}
 {-# LANGUAGE ViewPatterns #-}
 
+{-| This module contains template for GitHub related docs:
+
+ * @.gitignore@ — static file with all Haskell related ignored files.
+ * @appveyor.yml@ — Appveyor CI for Stack project only.
+ * @.travis.yml@ — depending on the build tool and supported GHC versions
+   builds the Travis matrix with all necessary checks, including HLint check.
+   __NOTE:__ Old GHC versions is not included into Travis matrix for Stack due to
+   Stack limitations with the Cabal version usage on each GHC. See this issue to
+   track the problem:
+
+    + https://github.com/commercialhaskell/stack/issues/4488
+
+-}
+
 module Summoner.Template.GitHub
        ( gitHubFiles
        ) where
 
-import Data.List (delete)
+import Data.List ((\\))
 import NeatInterpolation (text)
 
-import Summoner.Default (defaultGHC)
-import Summoner.GhcVer (GhcVer (..), showGhcVer)
+import Summoner.Default (defaultCabal, defaultGHC)
+import Summoner.GhcVer (GhcVer (..), oldGhcs, showGhcVer)
 import Summoner.Settings (Settings (..))
 import Summoner.Text (tconcatMap)
 import Summoner.Tree (TreeFs (..))
@@ -91,6 +105,8 @@ gitHubFiles Settings{..} =
         git:
           depth: 5
 
+        cabal: "$defaultCabal"
+
         cache:
           directories:
           $travisCabalCache
@@ -108,7 +124,7 @@ gitHubFiles Settings{..} =
         |]
 
     travisCabalCache, travisStackCache :: Text
-    travisCabalCache = memptyIfFalse settingsCabal "- \"$HOME/.cabal\""
+    travisCabalCache = memptyIfFalse settingsCabal "- \"$HOME/.cabal/store\""
     travisStackCache = memptyIfFalse settingsStack
         [text|
         - "$$HOME/.stack"
@@ -124,37 +140,20 @@ gitHubFiles Settings{..} =
         tconcatMap travisCabalMatrixItem settingsTestedVersions
 
     travisCabalMatrixItem :: GhcVer -> Text
-    travisCabalMatrixItem (showGhcVer -> ghcV) =
-        [text|
-        $endLine
-        - ghc: ${ghcV}
-          env: GHCVER='${ghcV}' CABALVER='head'
-          os: linux
-          addons:
-            apt:
-              sources:
-              - hvr-ghc
-              packages:
-              - ghc-${ghcV}
-              - cabal-install-head
-        |]
+    travisCabalMatrixItem (showGhcVer -> ghcV) = [text|- ghc: $ghcV|]
 
+    -- Due to Stach issues with newer Cabal versions we are not supporting Travis CI for GHC <= 8.0.2 for stack
     travisStackMtr :: Text
-    travisStackMtr = memptyIfFalse settingsStack $
-        tconcatMap travisStackMatrixItem (delete defaultGHC settingsTestedVersions)
-            <> travisStackMatrixDefaultItem
+    travisStackMtr = memptyIfFalse settingsStack $ tconcatMap
+           travisStackMatrixItem (settingsTestedVersions \\ (defaultGHC:oldGhcs))
+        <> travisStackMatrixDefaultItem
 
     travisStackMatrixItem :: GhcVer -> Text
     travisStackMatrixItem (showGhcVer -> ghcV) =
         [text|
         $endLine
         - ghc: ${ghcV}
-          env: GHCVER='${ghcV}' STACK_YAML="$$TRAVIS_BUILD_DIR/stack-$$GHCVER.yaml"
-          os: linux
-          addons:
-            apt:
-              packages:
-              - libgmp-dev
+          env: STACK_YAML="$$TRAVIS_BUILD_DIR/stack-$ghcV.yaml"
         |]
 
     travisStackMatrixDefaultItem :: Text
@@ -162,12 +161,7 @@ gitHubFiles Settings{..} =
         [text|
         $endLine
         - ghc: ${defGhc}
-          env: GHCVER='${defGhc}' STACK_YAML="$$TRAVIS_BUILD_DIR/stack.yaml"
-          os: linux
-          addons:
-            apt:
-              packages:
-              - libgmp-dev
+          env: STACK_YAML="$$TRAVIS_BUILD_DIR/stack.yaml"
         |]
 
     installAndScript :: Text
@@ -184,18 +178,12 @@ gitHubFiles Settings{..} =
         install:
           - |
             if [ -z "$$STACK_YAML" ]; then
-              export PATH="/opt/ghc/$$GHCVER/bin:/opt/cabal/$$CABALVER/bin:$$PATH"
-              echo $$PATH
               cabal new-update
               cabal new-build --enable-tests --enable-benchmarks
             else
-              mkdir -p ~/.local/bin
-              export PATH="$$HOME/.local/bin:$$PATH"
-              travis_retry curl -L 'https://www.stackage.org/stack/linux-x86_64' | tar xz --wildcards --strip-components=1 -C ~/.local/bin '*/stack'
+              curl -sSL https://get.haskellstack.org/ | sh
               stack --version
-              stack setup --no-terminal --install-cabal 2.2.0.1
-              stack ghc -- --version
-              stack build --only-dependencies --no-terminal
+              stack build --system-ghc --test --no-run-tests
             fi
 
         script:
@@ -203,9 +191,10 @@ gitHubFiles Settings{..} =
             if [ -z "$$STACK_YAML" ]; then
                ${cabalTest}
             else
-              stack build --test --bench --no-run-benchmarks --no-terminal --ghc-options=-Werror
+              stack build --system-ghc --test --bench --no-run-benchmarks --no-terminal --ghc-options=-Werror
             fi
 
+          # HLint check
           - curl -sSL https://raw.github.com/ndmitchell/neil/master/misc/travis.sh | sh -s -- hlint .
         |]
 
@@ -213,8 +202,6 @@ gitHubFiles Settings{..} =
     installScriptCabal =
         [text|
         install:
-          - export PATH="/opt/ghc/$$GHCVER/bin:/opt/cabal/$$CABALVER/bin:$$PATH"
-          - echo $$PATH
           - cabal new-update
           - cabal new-build --enable-tests --enable-benchmarks
 
@@ -226,16 +213,11 @@ gitHubFiles Settings{..} =
     installScriptStack =
         [text|
         install:
-          - mkdir -p ~/.local/bin
-          - export PATH="$$HOME/.local/bin:$$PATH"
-          - travis_retry curl -L 'https://www.stackage.org/stack/linux-x86_64' | tar xz --wildcards --strip-components=1 -C ~/.local/bin '*/stack'
+          - curl -sSL https://get.haskellstack.org/ | sh
           - stack --version
-          - stack setup --no-terminal --install-cabal 2.2.0.1
-          - stack ghc -- --version
-          - stack build --only-dependencies --no-terminal
-
+          - stack build --system-ghc --test --no-run-tests
         script:
-          - stack build --test --bench --no-run-benchmarks --no-terminal --ghc-options=-Werror
+          - stack build --system-ghc --test --bench --no-run-benchmarks --no-terminal --ghc-options=-Werror
         |]
 
 

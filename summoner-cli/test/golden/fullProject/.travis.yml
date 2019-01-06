@@ -4,106 +4,39 @@ language: haskell
 git:
   depth: 5
 
+cabal: "2.0"
+
 cache:
   directories:
-  - "$HOME/.cabal"
+  - "$HOME/.cabal/store"
   - "$HOME/.stack"
   - "$TRAVIS_BUILD_DIR/.stack-work"
 
 matrix:
   include:
-  
   - ghc: 8.0.2
-    env: GHCVER='8.0.2' CABALVER='head'
-    os: linux
-    addons:
-      apt:
-        sources:
-        - hvr-ghc
-        packages:
-        - ghc-8.0.2
-        - cabal-install-head
+  - ghc: 8.2.2
+  - ghc: 8.4.4
+  - ghc: 8.6.3
   
   - ghc: 8.2.2
-    env: GHCVER='8.2.2' CABALVER='head'
-    os: linux
-    addons:
-      apt:
-        sources:
-        - hvr-ghc
-        packages:
-        - ghc-8.2.2
-        - cabal-install-head
+    env: STACK_YAML="$TRAVIS_BUILD_DIR/stack-8.2.2.yaml"
   
   - ghc: 8.4.4
-    env: GHCVER='8.4.4' CABALVER='head'
-    os: linux
-    addons:
-      apt:
-        sources:
-        - hvr-ghc
-        packages:
-        - ghc-8.4.4
-        - cabal-install-head
+    env: STACK_YAML="$TRAVIS_BUILD_DIR/stack-8.4.4.yaml"
   
   - ghc: 8.6.3
-    env: GHCVER='8.6.3' CABALVER='head'
-    os: linux
-    addons:
-      apt:
-        sources:
-        - hvr-ghc
-        packages:
-        - ghc-8.6.3
-        - cabal-install-head
-  
-  - ghc: 8.0.2
-    env: GHCVER='8.0.2' STACK_YAML="$TRAVIS_BUILD_DIR/stack-$GHCVER.yaml"
-    os: linux
-    addons:
-      apt:
-        packages:
-        - libgmp-dev
-  
-  - ghc: 8.2.2
-    env: GHCVER='8.2.2' STACK_YAML="$TRAVIS_BUILD_DIR/stack-$GHCVER.yaml"
-    os: linux
-    addons:
-      apt:
-        packages:
-        - libgmp-dev
-  
-  - ghc: 8.4.4
-    env: GHCVER='8.4.4' STACK_YAML="$TRAVIS_BUILD_DIR/stack-$GHCVER.yaml"
-    os: linux
-    addons:
-      apt:
-        packages:
-        - libgmp-dev
-  
-  - ghc: 8.6.3
-    env: GHCVER='8.6.3' STACK_YAML="$TRAVIS_BUILD_DIR/stack.yaml"
-    os: linux
-    addons:
-      apt:
-        packages:
-        - libgmp-dev
+    env: STACK_YAML="$TRAVIS_BUILD_DIR/stack.yaml"
 
 install:
   - |
     if [ -z "$STACK_YAML" ]; then
-      export PATH="/opt/ghc/$GHCVER/bin:/opt/cabal/$CABALVER/bin:$PATH"
-      echo $PATH
       cabal new-update
       cabal new-build --enable-tests --enable-benchmarks
     else
-      mkdir -p ~/.local/bin
-      export PATH="$HOME/.local/bin:$PATH"
-      travis_retry curl -L 'https://www.stackage.org/stack/linux-x86_64' | tar xz --wildcards --strip-components=1 -C ~/.local/bin '*/stack'
+      curl -sSL https://get.haskellstack.org/ | sh
       stack --version
-      stack setup --no-terminal --install-cabal 2.2.0.1
-      stack ghc -- --version
-      stack build --only-dependencies --no-terminal
+      stack build --system-ghc --test --no-run-tests
     fi
 
 script:
@@ -111,9 +44,10 @@ script:
     if [ -z "$STACK_YAML" ]; then
        cabal new-test
     else
-      stack build --test --bench --no-run-benchmarks --no-terminal --ghc-options=-Werror
+      stack build --system-ghc --test --bench --no-run-benchmarks --no-terminal --ghc-options=-Werror
     fi
 
+  # HLint check
   - curl -sSL https://raw.github.com/ndmitchell/neil/master/misc/travis.sh | sh -s -- hlint .
 
 notifications:

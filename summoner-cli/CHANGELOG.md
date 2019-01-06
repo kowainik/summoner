@@ -9,6 +9,13 @@ The changelog is available [on GitHub][2].
   Make GHC-8.6.3 default.
 * [#268](https://github.com/kowainik/summoner/issues/268):
   Simplify process of adding custom prelude in the interactive mode.
+* [#272](https://github.com/kowainik/summoner/issues/272):
+  Simplify Travis config for Cabal.
+* [#275](https://github.com/kowainik/summoner/issues/275):
+  Simplify Travis settings/installation process for Stack.
+* __Important:__ Summoner doesn't add old GHC versions into Travis matrix for
+  Stack. See this Stack issue for reasoning:
+      https://github.com/commercialhaskell/stack/issues/4488
 
 ## 1.2.0 — Nov 30, 2018
 
