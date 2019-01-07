@@ -25,6 +25,33 @@ customPreludeT = CustomPrelude
     <$> Toml.text "package" .= cpPackage
     <*> Toml.text "module"  .= cpModule
 
+-- | A 'NixPkgSet' is represented as four things:
+--
+-- * A GitHub repository owner
+-- * A GitHub repository name
+-- * A GitHub repository revision
+-- * A GitHub repository SHA256 hash
+--
+-- 'NixPkgSet's get turned into a url that is used to fetch
+-- a nix package set.
+--
+-- As an example, a 'NixPkgSet' like the following:
+--
+-- @ myNixPkgSet :: NixPkgSet
+--   myNixPkgSet = NixPkgSet
+--     { npsOwner = "NixOS"
+--     , npsRepo  = "nixpkgs"
+--     , npsRev   = "fakeRev"
+--     , npsSha   = "fakeSha"
+--     }
+-- @
+--
+-- would get expanded into the following URL:
+--
+-- https://github.com/NixOS/nixpkgs/archive/fakeRev.tar.gz
+--
+-- where nix would make sure you have the correct SHA256 hash.
+--
 data NixPkgSet = NixPkgSet
     { npsOwner :: Text
     , npsRepo  :: Text
@@ -32,6 +59,7 @@ data NixPkgSet = NixPkgSet
     , npsSha   :: Text
     } deriving (Show, Eq)
 
+-- | Parse a 'NixPkgSet' from a .toml file
 nixPkgSetT :: TomlCodec NixPkgSet
 nixPkgSetT = NixPkgSet
     <$> Toml.text "owner"  .= npsOwner
@@ -39,6 +67,7 @@ nixPkgSetT = NixPkgSet
     <*> Toml.text "rev"    .= npsRev
     <*> Toml.text "sha256" .= npsSha
 
+-- | The default nix package set.
 defaultNixPkgSet :: NixPkgSet
 defaultNixPkgSet = NixPkgSet
     { npsOwner = "NixOS"
@@ -47,6 +76,7 @@ defaultNixPkgSet = NixPkgSet
     , npsSha   = "1sq538wy0shbakah27b6n4bl5amzwkzjsds77vdd8rsq0d1nys4w"
     }
 
+-- | Show a nix package set as a URL, along with the SHA256.
 showNixPkgSet :: NixPkgSet -> Text
 showNixPkgSet NixPkgSet{..} = mconcat
     [ "https://github.com/"
@@ -85,10 +115,10 @@ data Settings = Settings
     , settingsPrelude        :: !(Maybe CustomPrelude)  -- ^ custom prelude to be used
     , settingsExtensions     :: ![Text] -- ^ default extensions
     , settingsWarnings       :: ![Text] -- ^ default warnings
-    , settingsCabal          :: !Bool
-    , settingsStack          :: !Bool
-    , settingsNix            :: !Bool
-    , settingsNixPkgSet      :: !(Maybe NixPkgSet)
+    , settingsCabal          :: !Bool -- ^ use cabal build tool
+    , settingsStack          :: !Bool -- ^ use stack build tool
+    , settingsNix            :: !Bool -- ^ use nix build tool (currently only available if 'settingsCabal' is 'True')
+    , settingsNixPkgSet      :: !(Maybe NixPkgSet) -- ^ pinned nix package set
     , settingsStylish        :: !(Maybe Text) -- ^ @.stylish-haskell.yaml@ file
     , settingsContributing   :: !(Maybe Text) -- ^ @CONTRIBUTING.md@ file
     , settingsNoUpload       :: !Bool  -- ^ do not upload to GitHub
