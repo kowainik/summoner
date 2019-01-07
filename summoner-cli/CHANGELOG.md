@@ -16,6 +16,9 @@ The changelog is available [on GitHub][2].
 * __Important:__ Summoner doesn't add old GHC versions into Travis matrix for
   Stack. See this Stack issue for reasoning:
       https://github.com/commercialhaskell/stack/issues/4488
+* [#150](https://github.com/kowainik/summoner/issues/150):
+  Only part of issue addressed. Add nix scaffolding, allowing users
+  to use nix/custom nix package sets.
 
 ## 1.2.0 — Nov 30, 2018
 
