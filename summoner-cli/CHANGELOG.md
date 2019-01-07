@@ -18,6 +18,8 @@ The changelog is available [on GitHub][2].
       https://github.com/commercialhaskell/stack/issues/4488
 * [#286](https://github.com/kowainik/summoner/issues/286):
   Bump up to `tomland-1.0.0`
+* [#282](https://github.com/kowainik/summoner/issues/282):
+  Allow users to extend the .gitignore file.
 
 ## 1.2.0 — Nov 30, 2018
 
