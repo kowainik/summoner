@@ -31,11 +31,10 @@ import Toml (BiMap (..), Key, TomlCodec, (.=))
 import Summoner.Decision (Decision (..))
 import Summoner.GhcVer (GhcVer (..), parseGhcVer, showGhcVer)
 import Summoner.License (LicenseName (..), parseLicenseName)
-import Summoner.Settings (CustomPrelude (..), customPreludeT)
+import Summoner.Settings (CustomPrelude (..), customPreludeT, NixPkgSet (..), nixPkgSetT)
 import Summoner.Source (Source, sourceT)
 
 import qualified Toml
-
 
 -- | The phase of the configurations.
 data Phase = Partial | Final
@@ -49,6 +48,8 @@ data ConfigP (p :: Phase) = Config
     , cGhcVer       :: p :- [GhcVer]
     , cCabal        :: Decision
     , cStack        :: Decision
+    , cNix          :: Decision
+    , cNixPkgSet    :: Last NixPkgSet 
     , cGitHub       :: Decision
     , cTravis       :: Decision
     , cAppVey       :: Decision
@@ -113,6 +114,8 @@ defaultConfig = Config
     , cGhcVer   = Last (Just [])
     , cCabal    = Idk
     , cStack    = Idk
+    , cNix      = Idk
+    , cNixPkgSet = Last Nothing 
     , cGitHub   = Idk
     , cTravis   = Idk
     , cAppVey   = Idk
@@ -138,6 +141,8 @@ configT = Config
     <*> lastT ghcVerArr "ghcVersions" .= cGhcVer
     <*> decision        "cabal"       .= cCabal
     <*> decision        "stack"       .= cStack
+    <*> decision        "nix"         .= cNix
+    <*> lastT nixT      "nixpkgs"     .= cNixPkgSet 
     <*> decision        "github"      .= cGitHub
     <*> decision        "travis"      .= cTravis
     <*> decision        "appveyor"    .= cAppVey
@@ -185,6 +190,8 @@ configT = Config
     preludeT :: Key -> TomlCodec CustomPrelude
     preludeT = Toml.table customPreludeT
 
+    nixT :: Key -> TomlCodec NixPkgSet
+    nixT = Toml.table nixPkgSetT
 
 -- | Make sure that all the required configurations options were specified.
 finalise :: PartialConfig -> Validation [Text] Config
@@ -196,6 +203,8 @@ finalise Config{..} = Config
     <*> fin  "ghcVersions" cGhcVer
     <*> pure cCabal
     <*> pure cStack
+    <*> pure cNix
+    <*> pure cNixPkgSet
     <*> pure cGitHub
     <*> pure cTravis
     <*> pure cAppVey

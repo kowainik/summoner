@@ -9,6 +9,7 @@ import Summoner.Template.Cabal (cabalFile)
 import Summoner.Template.Doc (docFiles)
 import Summoner.Template.GitHub (gitHubFiles)
 import Summoner.Template.Haskell (haskellFiles)
+import Summoner.Template.Nix (nixFiles)
 import Summoner.Template.Stack (stackFiles)
 import Summoner.Tree (TreeFs (..))
 
@@ -18,6 +19,7 @@ createProjectTemplate :: Settings -> TreeFs
 createProjectTemplate settings@Settings{..} = Dir (toString settingsRepo) $ concat
     [ cabal
     , stack
+    , nix
     , haskell
     , docs
     , gitHub
@@ -26,6 +28,7 @@ createProjectTemplate settings@Settings{..} = Dir (toString settingsRepo) $ conc
     cabal, stack :: [TreeFs]
     cabal   = [cabalFile settings]
     stack   = memptyIfFalse settingsStack $ stackFiles settings  -- TODO: write more elegant
+    nix     = memptyIfFalse settingsNix $ nixFiles settings  -- TODO: write more elegant
     haskell = haskellFiles settings
     docs    = docFiles settings
     gitHub  = gitHubFiles settings

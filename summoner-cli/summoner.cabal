@@ -45,6 +45,7 @@ library
                            Summoner.Template.Doc
                            Summoner.Template.GitHub
                            Summoner.Template.Haskell
+                           Summoner.Template.Nix
                            Summoner.Template.Stack
                          Summoner.Text
                          Summoner.Tree

@@ -21,9 +21,9 @@ import Summoner.License (LicenseName (..), customizeLicense, fetchLicense, licen
                          parseLicenseName)
 import Summoner.Process ()
 import Summoner.Question (YesNoPrompt (..), checkUniqueName, choose, falseMessage,
-                          mkDefaultYesNoPrompt, query, queryDef, queryManyRepeatOnFail,
-                          targetMessageWithText, trueMessage)
-import Summoner.Settings (CustomPrelude (..), Settings (..))
+                          mkDefaultYesNoPrompt, query, queryNotNull, queryDef, queryManyRepeatOnFail,
+                          targetMessageWithText, trueMessage, chooseYesNo)
+import Summoner.Settings (CustomPrelude (..), Settings (..), NixPkgSet (..), defaultNixPkgSet, showNixPkgSet)
 import Summoner.Source (fetchSource)
 import Summoner.Template (createProjectTemplate)
 import Summoner.Text (intercalateMap, packageToModule)
@@ -40,7 +40,8 @@ generateProject
 generateProject settingsNoUpload isOffline projectName Config{..} = do
     settingsRepo <- checkUniqueName projectName
     -- decide cabal stack or both
-    (settingsCabal, settingsStack) <- getCabalStack (cCabal, cStack)
+    (settingsCabal, settingsStack, settingsNix) <- getCabalStackNix (cCabal, cStack, cNix)
+    settingsNixPkgSet <- getNixPkgSet settingsNix
 
     settingsOwner       <- queryDef "Repository owner: " cOwner
     settingsDescription <- queryDef "Short project description: " defaultDescription
@@ -154,26 +155,62 @@ generateProject settingsNoUpload isOffline projectName Config{..} = do
                 pure $ Just $ CustomPrelude p m
         Last prelude@(Just (CustomPrelude p _)) ->
             prelude <$ successMessage ("Custom prelude " <> p <> " will be used in the project")
-
+    
+    getNixPkgSet :: Bool -> IO (Maybe NixPkgSet)
+    getNixPkgSet usingNix = if usingNix
+      then case cNixPkgSet of
+        Last Nothing -> do
+          let yesDo, noDo :: IO (Maybe NixPkgSet)
+              yesDo = do
+                o <- queryNotNull "Nix package set GitHub owner name: "
+                r <- queryNotNull "Nix package set GitHub repo name: "
+                rv <- queryNotNull "Nix package set Git revision: "
+                s  <- queryNotNull "Nix package set unpacked SHA256: "
+                let pkgSet = NixPkgSet { npsOwner = o, npsRepo = r, npsRev = rv, npsSha = s }
+                successMessage ("The nix package set " <> showNixPkgSet pkgSet <> " will be used in the project")
+                pure $ Just pkgSet
+              noDo = do
+                successMessage ("The default nix package set " <> showNixPkgSet defaultNixPkgSet <> " will be used in the project")
+                pure $ Just defaultNixPkgSet 
+          chooseYesNo (mkDefaultYesNoPrompt "nix package set") yesDo noDo
+        Last set@(Just n) -> set <$ successMessage ("The nix package set " <> showNixPkgSet n <> " will be used in the project")
+      else pure Nothing
+    
     -- get what build tool to use in the project
     -- If user chose only one during CLI, we assume to use only that one.
-    getCabalStack :: (Decision, Decision) -> IO (Bool, Bool)
-    getCabalStack = \case
-        (Idk, Idk) -> decisionToBool cCabal (mkDefaultYesNoPrompt "cabal") >>= \c ->
-            if c then decisionToBool cStack (mkDefaultYesNoPrompt "stack") >>= \s -> pure (c, s)
-            else stackMsg True >> pure (False, True)
-        (Nop, Nop) -> errorMessage "Neither cabal nor stack was chosen" >> exitFailure
-        (Yes, Yes) -> output (True, True)
-        (Yes, _)   -> output (True, False)
-        (_, Yes)   -> output (False, True)
-        (Nop, Idk) -> output (False, True)
-        (Idk, Nop) -> output (True, False)
+    getCabalStackNix :: (Decision, Decision, Decision) -> IO (Bool, Bool, Bool)
+    getCabalStackNix = \case
+        (Idk, Idk, Idk) -> do
+          c <- decisionToBool cCabal (mkDefaultYesNoPrompt "cabal")
+          s <- decisionToBool cStack (mkDefaultYesNoPrompt "stack")
+          n <- decisionToBool cNix (mkDefaultYesNoPrompt "nix")
+          when (not c && n) nixWithoutCabalError
+          output (c, s, n)
+        (Nop, Nop, Nop) -> noneOfError
+        (Yes, Yes, Yes) -> output (True, True, True)
+        (Idk, Idk, Nop) -> output (True, False, False)
+        (Idk, Idk, Yes) -> output (True, False, True)
+        (Idk, Nop, _)   -> output (True, False, False)
+        (Idk, Yes, _)   -> output (True, True, False)
+        (Nop, Idk, _)   -> output (False, True, False)
+        (Nop, Nop, Idk) -> noneOfError
+        (Nop, Nop, Yes) -> nixWithoutCabalError
+        (Nop, Yes, _)   -> output (False, True, False)
+        (Yes, Idk, _)   -> output (True, False, False)
+        (Yes, Nop, _)   -> output (True, False, False)
+        (Yes, Yes, Idk) -> output (True, True, False)
+        (Yes, Yes, Nop) -> output (True, True, False)
       where
-        output :: (Bool, Bool) -> IO (Bool, Bool)
-        output x@(c, s) = cabalMsg c >> stackMsg s >> pure x
+        output :: (Bool, Bool, Bool) -> IO (Bool, Bool, Bool)
+        output x@(c, s, n) = cabalMsg c >> stackMsg s >> nixMsg n >> pure x
 
         cabalMsg c = targetMessageWithText c "Cabal" "used in this project"
         stackMsg c = targetMessageWithText c "Stack" "used in this project"
+        nixMsg   c = targetMessageWithText c "Nix"   "used in this project"
+
+        nixWithoutCabalError = errorMessage "Using nix without cabal is an unsupported configuration" >> exitFailure
+        noneOfError = errorMessage "None of {cabal,stack,nix} was chosen" >> exitFailure
+
 
 -- | Creates the directory and run GitHub commands.
 initializeProject :: Settings -> IO ()
