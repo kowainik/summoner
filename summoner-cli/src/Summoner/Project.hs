@@ -159,34 +159,34 @@ generateProject settingsNoUpload isOffline projectName Config{..} = do
 
     getNixPkgSet :: Bool -> IO (Maybe NixPkgSet)
     getNixPkgSet usingNix = if usingNix
-      then case cNixPkgSet of
-        Last Nothing -> do
-          let yesDo, noDo :: IO (Maybe NixPkgSet)
-              yesDo = do
-                o <- queryNotNull "Nix package set GitHub owner name: "
-                r <- queryNotNull "Nix package set GitHub repo name: "
-                rv <- queryNotNull "Nix package set Git revision: "
-                s  <- queryNotNull "Nix package set unpacked SHA256: "
-                let pkgSet = NixPkgSet { npsOwner = o, npsRepo = r, npsRev = rv, npsSha = s }
-                successMessage ("The nix package set " <> showNixPkgSet pkgSet <> " will be used in the project")
-                pure $ Just pkgSet
-              noDo = do
-                successMessage ("The default nix package set " <> showNixPkgSet defaultNixPkgSet <> " will be used in the project")
-                pure $ Just defaultNixPkgSet
-          chooseYesNo (mkDefaultYesNoPrompt "nix package set") yesDo noDo
-        Last set@(Just n) -> set <$ successMessage ("The nix package set " <> showNixPkgSet n <> " will be used in the project")
-      else pure Nothing
+        then case cNixPkgSet of
+            Last Nothing -> do
+                let yesDo, noDo :: IO (Maybe NixPkgSet)
+                    yesDo = do
+                        o <- queryNotNull "Nix package set GitHub owner name: "
+                        r <- queryNotNull "Nix package set GitHub repo name: "
+                        rv <- queryNotNull "Nix package set Git revision: "
+                        s  <- queryNotNull "Nix package set unpacked SHA256: "
+                        let pkgSet = NixPkgSet { npsOwner = o, npsRepo = r, npsRev = rv, npsSha = s }
+                        successMessage ("The nix package set " <> showNixPkgSet pkgSet <> " will be used in the project")
+                        pure $ Just pkgSet
+                    noDo = do
+                        successMessage ("The default nix package set " <> showNixPkgSet defaultNixPkgSet <> " will be used in the project")
+                        pure $ Just defaultNixPkgSet
+                chooseYesNo (mkDefaultYesNoPrompt "nix package set") yesDo noDo
+            Last set@(Just n) -> set <$ successMessage ("The nix package set " <> showNixPkgSet n <> " will be used in the project")
+        else pure Nothing
 
     -- get what build tool to use in the project
     -- If user chose only one during CLI, we assume to use only that one.
     getCabalStackNix :: (Decision, Decision, Decision) -> IO (Bool, Bool, Bool)
     getCabalStackNix = \case
         (Idk, Idk, Idk) -> do
-          c <- decisionToBool cCabal (mkDefaultYesNoPrompt "cabal")
-          s <- decisionToBool cStack (mkDefaultYesNoPrompt "stack")
-          n <- decisionToBool cNix (mkDefaultYesNoPrompt "nix")
-          when (not c && n) nixWithoutCabalError
-          output (c, s, n)
+            c <- decisionToBool cCabal (mkDefaultYesNoPrompt "cabal")
+            s <- decisionToBool cStack (mkDefaultYesNoPrompt "stack")
+            n <- decisionToBool cNix (mkDefaultYesNoPrompt "nix")
+            when (not c && n) nixWithoutCabalError
+            output (c, s, n)
         (Nop, Nop, Nop) -> noneOfError
         (Yes, Yes, Yes) -> output (True, True, True)
         (Idk, Idk, Nop) -> output (True, False, False)
