@@ -41,24 +41,24 @@ nixPkgSetT = NixPkgSet
 
 defaultNixPkgSet :: NixPkgSet
 defaultNixPkgSet = NixPkgSet
-  { npsOwner = "NixOS" 
-  , npsRepo  = "nixpkgs" 
+  { npsOwner = "NixOS"
+  , npsRepo  = "nixpkgs"
   , npsRev   = "cecec1f74468766825c2ad32d8388c2ded36225f"
   , npsSha   = "1sq538wy0shbakah27b6n4bl5amzwkzjsds77vdd8rsq0d1nys4w"
   }
 
-showNixPkgSet :: NixPkgSet -> Text                                                                   
-showNixPkgSet NixPkgSet{..} = mconcat                                                                
+showNixPkgSet :: NixPkgSet -> Text
+showNixPkgSet NixPkgSet{..} = mconcat
   [ "https://github.com/"
-  , npsOwner 
-  , "/"        
-  , npsRepo 
+  , npsOwner
+  , "/"
+  , npsRepo
   , "/archive/"
   , npsRev
   , ".tar.gz"
   , " (SHA256 is "
   , npsSha
-  , ")" 
+  , ")"
   ]
 
 -- | Data needed for project creation.

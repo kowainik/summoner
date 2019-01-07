@@ -31,7 +31,7 @@ import Toml (BiMap (..), Key, TomlCodec, (.=))
 import Summoner.Decision (Decision (..))
 import Summoner.GhcVer (GhcVer (..), parseGhcVer, showGhcVer)
 import Summoner.License (LicenseName (..), parseLicenseName)
-import Summoner.Settings (CustomPrelude (..), customPreludeT, NixPkgSet (..), nixPkgSetT)
+import Summoner.Settings (CustomPrelude (..), NixPkgSet (..), customPreludeT, nixPkgSetT)
 import Summoner.Source (Source, sourceT)
 
 import qualified Toml
@@ -49,7 +49,7 @@ data ConfigP (p :: Phase) = Config
     , cCabal        :: Decision
     , cStack        :: Decision
     , cNix          :: Decision
-    , cNixPkgSet    :: Last NixPkgSet 
+    , cNixPkgSet    :: Last NixPkgSet
     , cGitHub       :: Decision
     , cTravis       :: Decision
     , cAppVey       :: Decision
@@ -115,7 +115,7 @@ defaultConfig = Config
     , cCabal    = Idk
     , cStack    = Idk
     , cNix      = Idk
-    , cNixPkgSet = Last Nothing 
+    , cNixPkgSet = Last Nothing
     , cGitHub   = Idk
     , cTravis   = Idk
     , cAppVey   = Idk
@@ -142,7 +142,7 @@ configT = Config
     <*> decision        "cabal"       .= cCabal
     <*> decision        "stack"       .= cStack
     <*> decision        "nix"         .= cNix
-    <*> lastT nixT      "nixpkgs"     .= cNixPkgSet 
+    <*> lastT nixT      "nixpkgs"     .= cNixPkgSet
     <*> decision        "github"      .= cGitHub
     <*> decision        "travis"      .= cTravis
     <*> decision        "appveyor"    .= cAppVey

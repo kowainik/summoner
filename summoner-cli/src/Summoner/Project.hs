@@ -20,10 +20,11 @@ import Summoner.GhcVer (oldGhcs, parseGhcVer, showGhcVer)
 import Summoner.License (LicenseName (..), customizeLicense, fetchLicense, licenseShortDesc,
                          parseLicenseName)
 import Summoner.Process ()
-import Summoner.Question (YesNoPrompt (..), checkUniqueName, choose, falseMessage,
-                          mkDefaultYesNoPrompt, query, queryNotNull, queryDef, queryManyRepeatOnFail,
-                          targetMessageWithText, trueMessage, chooseYesNo)
-import Summoner.Settings (CustomPrelude (..), Settings (..), NixPkgSet (..), defaultNixPkgSet, showNixPkgSet)
+import Summoner.Question (YesNoPrompt (..), checkUniqueName, choose, chooseYesNo, falseMessage,
+                          mkDefaultYesNoPrompt, query, queryDef, queryManyRepeatOnFail,
+                          queryNotNull, targetMessageWithText, trueMessage)
+import Summoner.Settings (CustomPrelude (..), NixPkgSet (..), Settings (..), defaultNixPkgSet,
+                          showNixPkgSet)
 import Summoner.Source (fetchSource)
 import Summoner.Template (createProjectTemplate)
 import Summoner.Text (intercalateMap, packageToModule)
@@ -155,7 +156,7 @@ generateProject settingsNoUpload isOffline projectName Config{..} = do
                 pure $ Just $ CustomPrelude p m
         Last prelude@(Just (CustomPrelude p _)) ->
             prelude <$ successMessage ("Custom prelude " <> p <> " will be used in the project")
-    
+
     getNixPkgSet :: Bool -> IO (Maybe NixPkgSet)
     getNixPkgSet usingNix = if usingNix
       then case cNixPkgSet of
@@ -171,11 +172,11 @@ generateProject settingsNoUpload isOffline projectName Config{..} = do
                 pure $ Just pkgSet
               noDo = do
                 successMessage ("The default nix package set " <> showNixPkgSet defaultNixPkgSet <> " will be used in the project")
-                pure $ Just defaultNixPkgSet 
+                pure $ Just defaultNixPkgSet
           chooseYesNo (mkDefaultYesNoPrompt "nix package set") yesDo noDo
         Last set@(Just n) -> set <$ successMessage ("The nix package set " <> showNixPkgSet n <> " will be used in the project")
       else pure Nothing
-    
+
     -- get what build tool to use in the project
     -- If user chose only one during CLI, we assume to use only that one.
     getCabalStackNix :: (Decision, Decision, Decision) -> IO (Bool, Bool, Bool)

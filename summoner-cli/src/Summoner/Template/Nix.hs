@@ -1,5 +1,5 @@
-{-# LANGUAGE QuasiQuotes #-}
 {-# LANGUAGE NamedFieldPuns #-}
+{-# LANGUAGE QuasiQuotes    #-}
 
 module Summoner.Template.Nix
        ( nixFiles
@@ -9,7 +9,7 @@ import NeatInterpolation (text)
 
 import Summoner.Default (defaultGHC)
 import Summoner.GhcVer (GhcVer (..))
-import Summoner.Settings (Settings (..), NixPkgSet (..), defaultNixPkgSet)
+import Summoner.Settings (NixPkgSet (..), Settings (..), defaultNixPkgSet)
 import Summoner.Tree (TreeFs (..))
 
 import qualified Data.Text as T
@@ -20,7 +20,7 @@ nixCompiler = \case
   Ghc801  -> "ghc802"
   Ghc802  -> "ghc802"
   Ghc822  -> "ghc822"
-  Ghc843  -> "ghc844" 
+  Ghc843  -> "ghc844"
   Ghc844  -> "ghc844"
   Ghc863  -> "ghc863"
 
@@ -66,7 +66,7 @@ nixFiles Settings{..} =
       [ "{"
       , endLine
       , T.intercalate endLine
-          ( map 
+          ( map
             (\ghcV -> let compiler = nixCompiler ghcV
                       in compiler <> "  = import ./default.nix { compiler = \"" <> compiler <> "\";  };"
             )
@@ -80,7 +80,7 @@ nixFiles Settings{..} =
     fetchNixpkgsNixT :: Text
     fetchNixpkgsNixT = T.concat
       [ "{ owner  # The owner of the nixpkgs", endLine
-      , ", repo   # The repo of the nixpkgs", endLine 
+      , ", repo   # The repo of the nixpkgs", endLine
       , ", rev    # The Git revision of nixpkgs to fetch", endLine
       , ", sha256 # The SHA256 hash of the unpacked archive", endLine
       , "}:", endLine, endLine
@@ -133,7 +133,7 @@ nixFiles Settings{..} =
         $settingsRepo = (
           with rec {
             ${settingsRepo}Source = pkgs.lib.cleanSource ../.;
-            ${settingsRepo}Basic  = self.callCabal2nix "${settingsRepo}" ${settingsRepo}Source { };  
+            ${settingsRepo}Basic  = self.callCabal2nix "${settingsRepo}" ${settingsRepo}Source { };
           };
           overrideCabal ${settingsRepo}Basic (old: {
           })
