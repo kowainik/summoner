@@ -46,6 +46,7 @@ data Settings = Settings
     , settingsPrelude        :: !(Maybe CustomPrelude)  -- ^ custom prelude to be used
     , settingsExtensions     :: ![Text] -- ^ default extensions
     , settingsWarnings       :: ![Text] -- ^ default warnings
+    , settingsGitignore      :: ![Text] -- ^ .gitignore file
     , settingsCabal          :: !Bool
     , settingsStack          :: !Bool
     , settingsStylish        :: !(Maybe Text) -- ^ @.stylish-haskell.yaml@ file

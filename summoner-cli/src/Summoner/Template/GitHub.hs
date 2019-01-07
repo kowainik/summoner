@@ -28,16 +28,22 @@ import Summoner.Settings (Settings (..))
 import Summoner.Text (tconcatMap)
 import Summoner.Tree (TreeFs (..))
 
+import qualified Data.Text as T
 
 gitHubFiles :: Settings -> [TreeFs]
 gitHubFiles Settings{..} =
-    [File ".gitignore" gitignore     | settingsGitHub]
+    [File ".gitignore" (gitignoreDefault <> gitignoreCustom) | settingsGitHub]
  ++ [File ".travis.yml" travisYml    | settingsTravis]
  ++ [File "appveyor.yml" appVeyorYml | settingsAppVeyor]
   where
-    -- create .gitignore template
-    gitignore :: Text
-    gitignore =
+
+    -- additional .gitignore
+    gitignoreCustom :: Text
+    gitignoreCustom = T.intercalate endLine settingsGitignore <> endLine
+
+    -- default .gitignore template
+    gitignoreDefault :: Text
+    gitignoreDefault =
         [text|
         ### Haskell
         dist
