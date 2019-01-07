@@ -314,6 +314,7 @@ Here is the list of the options that can be configured to suit your needs. If op
 |------------------|---------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `cabal`          | Bool    | Add Cabal support?                                                                                                                                                   |
 | `stack`          | Bool    | Add Stack support?                                                                                                                                                   |
+| `nix`            | Bool    | Add Nix support?                                                                                                                                                     |
 | `owner`          | Text    | GitHub login.                                                                                                                                                        |
 | `fullName`       | Text    | Full name.                                                                                                                                                           |
 | `email`          | Text    | E-mail address.                                                                                                                                                      |
@@ -332,6 +333,7 @@ Here is the list of the options that can be configured to suit your needs. If op
 | `stylish.*`      | Text    | `stylish.file` to provide the absolute file path OR `stylish.url` to download the `.stylish-haskell.yaml` file to use in the project.                                |
 | `contributing.*` | Text    | `contributing.file` to provide the absolute file path OR `contributing.url` download OR `contribuint.link` to link the `CONTRIBUTING.md` file to use in the project. |
 |`[prelude]`       |         |                                                                                                                                                                      |
+|`[nixpkgs]`       |         |                                                                                                                                                                      |
 | `package`        | Text    | The package name of the custom prelude you'd like to use in the project (doesn't work without `module` field).                                                       |
 | `module`         | Text    | The module name of the custom prelude you'd like to use in the project (doesn't work without `package` field).                                                       |
 
