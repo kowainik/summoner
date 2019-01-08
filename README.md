@@ -333,9 +333,13 @@ Here is the list of the options that can be configured to suit your needs. If op
 | `stylish.*`      | Text    | `stylish.file` to provide the absolute file path OR `stylish.url` to download the `.stylish-haskell.yaml` file to use in the project.                                |
 | `contributing.*` | Text    | `contributing.file` to provide the absolute file path OR `contributing.url` download OR `contribuint.link` to link the `CONTRIBUTING.md` file to use in the project. |
 |`[prelude]`       |         |                                                                                                                                                                      |
-|`[nixpkgs]`       |         |                                                                                                                                                                      |
 | `package`        | Text    | The package name of the custom prelude you'd like to use in the project (doesn't work without `module` field).                                                       |
 | `module`         | Text    | The module name of the custom prelude you'd like to use in the project (doesn't work without `package` field).                                                       |
+|`[nixpkgs]`       |         |                                                                                                                                                                      |
+|`owner`           | Text    | The owner of the GitHub repo where your nix package set is located.                                                                                                  |
+|`repo`            | Text    | The repo name of the GitHub repo where your nix package set is located.                                                                                              |
+|`rev`             | Text    | The SHA1 revision (git commit revision) of the GitHub repo where your nix package set is located.                                                                    |
+|`sha256`          | Text    | The SHA256 hash of the unpacked [NAR archive](https://nixos.org/nixos/nix-pills/automatic-runtime-dependencies.html#idm140737316073472) of your nix package set.                                                                                                                                                    |
 
 See the example of [the configuration for projects of the `Kowainik` organization](https://github.com/kowainik/org/blob/master/.summoner.toml).
 
