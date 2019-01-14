@@ -59,63 +59,65 @@ nixFiles Settings{..} =
             |]
 
         shellNixT :: Text
-        shellNixT = "(import ./default.nix {}).env" <> endLine
+        shellNixT =
+            [text|
+            (import ./default.nix {}).env
+            |]
 
-        releaseNixT :: Text
-        releaseNixT = T.concat
-            [ "{"
-            , endLine
-            , T.intercalate endLine
-                ( map
+        releaseNixCompilers :: Text
+        releaseNixCompilers = T.unlines
+            ( map
                   (\ghcV -> let compiler = nixCompiler ghcV
                             in "  " <> compiler <> "  = import ./default.nix { compiler = \"" <> compiler <> "\";  };"
                   )
                   settingsTestedVersions
-                )
-            , endLine
-            , "}"
-            , endLine
-            ]
+            )
 
+        releaseNixT :: Text
+        releaseNixT =
+            [text|
+            {
+            $releaseNixCompilers
+            }
+            |]
+ 
         fetchNixpkgsNixT :: Text
-        fetchNixpkgsNixT = T.concat
-            [ "{ owner  # The owner of the nixpkgs", endLine
-            , ", repo   # The repo of the nixpkgs", endLine
-            , ", rev    # The Git revision of nixpkgs to fetch", endLine
-            , ", sha256 # The SHA256 hash of the unpacked archive", endLine
-            , "}:", endLine, endLine
-            , "builtins.fetchTarball {", endLine
-            , "  url = \"https://github.com/${owner}/${repo}/archive/${rev}.tar.gz\";", endLine
-            , "  inherit sha256;", endLine
+        fetchNixpkgsNixT = T.unlines
+            [ "{ owner  # The owner of the nixpkgs"
+            , ", repo   # The repo of the nixpkgs"
+            , ", rev    # The Git revision of nixpkgs to fetch"
+            , ", sha256 # The SHA256 hash of the unpacked archive"
+            , "}:"
+            , "builtins.fetchTarball {"
+            , "  url = \"https://github.com/${owner}/${repo}/archive/${rev}.tar.gz\";"
+            , "  inherit sha256;"
             , "}"
-            , endLine
             ]
 
         NixPkgSet { npsOwner, npsRepo, npsRev, npsSha } = case settingsNixPkgSet of { Just n -> n; Nothing -> defaultNixPkgSet }
 
         nixpkgsNixT :: Text
-        nixpkgsNixT = T.concat
-            [ "{ compiler ? \"", defaultNixCompiler, "\" }:", endLine, endLine
-            , "with rec {", endLine
-            , "  fetchNixpkgs = import ./fetchNixpkgs.nix;", endLine
-            , "  nixpkgs = fetchNixpkgs {", endLine
-            , "    owner  = \"", npsOwner, "\";", endLine
-            , "    repo   = \"", npsRepo, "\";", endLine
-            , "    rev    = \"", npsRev, "\";", endLine
-            , "    sha256 = \"", npsSha, "\";", endLine
-            , "  };", endLine
-            , "};", endLine, endLine
-            , "import nixpkgs {", endLine
-            , "  config = {", endLine
-            , "    packageOverrides = super: let self = super.pkgs; in {", endLine
-            , "      haskellPackages = super.haskell.packages.${compiler}.override {", endLine
-            , "        overrides = import ./overrides.nix { pkgs = self; };", endLine
-            , "      };", endLine
-            , "    };", endLine
-            , "  };", endLine
-            , "  overlays = [ ];", endLine
+        nixpkgsNixT = T.unlines
+            [ ("{ compiler ? \"" <> defaultNixCompiler <> "\" }:")
+            , "with rec {"
+            , "  fetchNixpkgs = import ./fetchNixpkgs.nix;"
+            , "  nixpkgs = fetchNixpkgs {"
+            , ("    owner  = \"" <> npsOwner <> "\";")
+            , ("    repo   = \"" <> npsRepo <> "\";")
+            , ("    rev    = \"" <> npsRev <> "\";")
+            , ("    sha256 = \"" <> npsSha <> "\";")
+            , "  };"
+            , "};"
+            , "import nixpkgs {"
+            , "  config = {"
+            , "    packageOverrides = super: let self = super.pkgs; in {"
+            , "      haskellPackages = super.haskell.packages.${compiler}.override {"
+            , "        overrides = import ./overrides.nix { pkgs = self; };"
+            , "      };"
+            , "    };"
+            , "  };"
+            , "  overlays = [ ];"
             , "}"
-            , endLine
             ]
 
         overridesNixT :: Text
