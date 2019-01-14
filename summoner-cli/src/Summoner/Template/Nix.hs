@@ -68,7 +68,7 @@ nixFiles Settings{..} =
             , T.intercalate endLine
                 ( map
                   (\ghcV -> let compiler = nixCompiler ghcV
-                            in compiler <> "  = import ./default.nix { compiler = \"" <> compiler <> "\";  };"
+                            in "  " <> compiler <> "  = import ./default.nix { compiler = \"" <> compiler <> "\";  };"
                   )
                   settingsTestedVersions
                 )
