@@ -7,13 +7,14 @@ module Summoner.Default
        , defaultConfigFile
        , defaultDescription
        , currentYear
+       , defaultNixCompiler
        ) where
 
 import Data.Time (getCurrentTime, toGregorian, utctDay)
 import System.Directory (getHomeDirectory)
 import System.FilePath ((</>))
 
-import Summoner.GhcVer (GhcVer)
+import Summoner.GhcVer (GhcVer, nixCompiler)
 
 ----------------------------------------------------------------------------
 -- Default Settings
@@ -41,3 +42,9 @@ currentYear = do
     now <- getCurrentTime
     let (year, _, _) = toGregorian $ utctDay now
     pure $ show year
+
+-- | Default compiler for nix to use.
+defaultNixCompiler :: Text
+defaultNixCompiler = nixCompiler defaultGHC
+
+

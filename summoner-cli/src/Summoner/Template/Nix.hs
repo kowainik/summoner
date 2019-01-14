@@ -7,25 +7,12 @@ module Summoner.Template.Nix
 
 import NeatInterpolation (text)
 
-import Summoner.Default (defaultGHC)
-import Summoner.GhcVer (GhcVer (..))
+import Summoner.Default (defaultNixCompiler)
+import Summoner.GhcVer (nixCompiler)
 import Summoner.Settings (NixPkgSet (..), Settings (..), defaultNixPkgSet)
 import Summoner.Tree (TreeFs (..))
 
 import qualified Data.Text as T
-
-nixCompiler :: GhcVer -> Text
-nixCompiler = \case
-    Ghc7103 -> "ghc7103"
-    Ghc801  -> "ghc802"
-    Ghc802  -> "ghc802"
-    Ghc822  -> "ghc822"
-    Ghc843  -> "ghc844"
-    Ghc844  -> "ghc844"
-    Ghc863  -> "ghc863"
-
-defaultNixCompiler :: Text
-defaultNixCompiler = nixCompiler defaultGHC
 
 nixFiles :: Settings -> [TreeFs]
 nixFiles Settings{..} =

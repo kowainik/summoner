@@ -10,6 +10,7 @@ module Summoner.GhcVer
        , latestLts
        , baseVer
        , cabalBaseVersions
+       , nixCompiler
 
        , oldGhcs
        ) where
@@ -17,7 +18,6 @@ module Summoner.GhcVer
 import Data.List (maximum, minimum)
 
 import qualified Text.Show as Show
-
 
 -- | Represents some selected set of GHC versions.
 data GhcVer
@@ -103,3 +103,16 @@ cabalBaseVersions ghcs = ">= " <> baseVer (minimum ghcs) <> " && < " <> upperBou
     upperBound :: Text
     upperBound = let Pvp{..} = baseVerPvp $ maximum ghcs in
         show pvpFirst <> "." <> show (pvpSecond + 1)
+
+-- | Textual encoding of GHC compiler versions for use in nix.
+nixCompiler :: GhcVer -> Text
+nixCompiler = \case
+    Ghc7103 -> "ghc7103"
+    Ghc801  -> "ghc801"
+    Ghc802  -> "ghc802"
+    Ghc822  -> "ghc822"
+    Ghc843  -> "ghc843"
+    Ghc844  -> "ghc844"
+    Ghc863  -> "ghc863"
+
+
