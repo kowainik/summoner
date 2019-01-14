@@ -117,7 +117,7 @@ data Settings = Settings
     , settingsWarnings       :: ![Text] -- ^ default warnings
     , settingsCabal          :: !Bool -- ^ use cabal build tool
     , settingsStack          :: !Bool -- ^ use stack build tool
-    , settingsNix            :: !Bool -- ^ use nix build tool (currently only available if 'settingsCabal' is 'True')
+    , settingsNix            :: !Bool -- ^ use nix build tool
     , settingsNixPkgSet      :: !(Maybe NixPkgSet) -- ^ pinned nix package set
     , settingsStylish        :: !(Maybe Text) -- ^ @.stylish-haskell.yaml@ file
     , settingsContributing   :: !(Maybe Text) -- ^ @CONTRIBUTING.md@ file
