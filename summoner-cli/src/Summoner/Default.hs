@@ -8,6 +8,7 @@ module Summoner.Default
        , defaultDescription
        , currentYear
        , defaultNixCompiler
+       , defaultNixPkgSet
        ) where
 
 import Data.Time (getCurrentTime, toGregorian, utctDay)
@@ -15,6 +16,7 @@ import System.Directory (getHomeDirectory)
 import System.FilePath ((</>))
 
 import Summoner.GhcVer (GhcVer, nixCompiler)
+import Summoner.Settings (NixPkgSet (..))
 
 ----------------------------------------------------------------------------
 -- Default Settings
@@ -46,3 +48,12 @@ currentYear = do
 -- | Default compiler for nix to use.
 defaultNixCompiler :: Text
 defaultNixCompiler = nixCompiler defaultGHC
+
+-- | The default nix package set.
+defaultNixPkgSet :: NixPkgSet
+defaultNixPkgSet = NixPkgSet
+    { npsOwner    = "NixOS"
+    , npsRepo     = "nixpkgs"
+    , npsRev      = "cecec1f74468766825c2ad32d8388c2ded36225f"
+    , npsSha256   = "1sq538wy0shbakah27b6n4bl5amzwkzjsds77vdd8rsq0d1nys4w"
+    }

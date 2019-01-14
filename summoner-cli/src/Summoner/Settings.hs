@@ -4,7 +4,6 @@ module Summoner.Settings
        , customPreludeT
        , NixPkgSet(..)
        , nixPkgSetT
-       , defaultNixPkgSet
        , showNixPkgSet
        ) where
 
@@ -66,15 +65,6 @@ nixPkgSetT = NixPkgSet
     <*> Toml.text "repo"   .= npsRepo
     <*> Toml.text "rev"    .= npsRev
     <*> Toml.text "sha256" .= npsSha256
-
--- | The default nix package set.
-defaultNixPkgSet :: NixPkgSet
-defaultNixPkgSet = NixPkgSet
-    { npsOwner    = "NixOS"
-    , npsRepo     = "nixpkgs"
-    , npsRev      = "cecec1f74468766825c2ad32d8388c2ded36225f"
-    , npsSha256   = "1sq538wy0shbakah27b6n4bl5amzwkzjsds77vdd8rsq0d1nys4w"
-    }
 
 -- | Show a nix package set as a URL, along with the SHA256.
 showNixPkgSet :: NixPkgSet -> Text

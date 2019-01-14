@@ -7,9 +7,9 @@ module Summoner.Template.Nix
 
 import NeatInterpolation (text)
 
-import Summoner.Default (defaultNixCompiler)
+import Summoner.Default (defaultNixCompiler, defaultNixPkgSet)
 import Summoner.GhcVer (nixCompiler)
-import Summoner.Settings (NixPkgSet (..), Settings (..), defaultNixPkgSet)
+import Summoner.Settings (NixPkgSet (..), Settings (..))
 import Summoner.Tree (TreeFs (..))
 
 import qualified Data.Text as T

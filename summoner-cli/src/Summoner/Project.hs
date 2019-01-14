@@ -15,7 +15,7 @@ import Summoner.Ansi (Color (Green), beautyPrint, bold, errorMessage, infoMessag
                       skipMessage, successMessage, warningMessage)
 import Summoner.Config (Config, ConfigP (..))
 import Summoner.Decision (Decision (..), decisionToBool)
-import Summoner.Default (currentYear, defaultDescription, defaultGHC)
+import Summoner.Default (currentYear, defaultDescription, defaultGHC, defaultNixPkgSet)
 import Summoner.GhcVer (oldGhcs, parseGhcVer, showGhcVer)
 import Summoner.License (LicenseName (..), customizeLicense, fetchLicense, licenseShortDesc,
                          parseLicenseName)
@@ -23,7 +23,7 @@ import Summoner.Process ()
 import Summoner.Question (YesNoPrompt (..), checkUniqueName, choose, falseMessage,
                           mkDefaultYesNoPrompt, query, queryDef, queryManyRepeatOnFail,
                           targetMessageWithText, trueMessage)
-import Summoner.Settings (CustomPrelude (..), NixPkgSet (..), Settings (..), defaultNixPkgSet,
+import Summoner.Settings (CustomPrelude (..), NixPkgSet (..), Settings (..),
                           showNixPkgSet)
 import Summoner.Source (fetchSource)
 import Summoner.Template (createProjectTemplate)
