@@ -39,10 +39,10 @@ customPreludeT = CustomPrelude
 --
 -- @ myNixPkgSet :: NixPkgSet
 --   myNixPkgSet = NixPkgSet
---     { npsOwner = "NixOS"
---     , npsRepo  = "nixpkgs"
---     , npsRev   = "fakeRev"
---     , npsSha   = "fakeSha"
+--     { npsOwner    = "NixOS"
+--     , npsRepo     = "nixpkgs"
+--     , npsRev      = "fakeRev"
+--     , npsSha256   = "fakeSha"
 --     }
 -- @
 --
@@ -53,10 +53,10 @@ customPreludeT = CustomPrelude
 -- where nix would make sure you have the correct SHA256 hash.
 --
 data NixPkgSet = NixPkgSet
-    { npsOwner :: Text
-    , npsRepo  :: Text
-    , npsRev   :: Text
-    , npsSha   :: Text
+    { npsOwner    :: Text
+    , npsRepo     :: Text
+    , npsRev      :: Text
+    , npsSha256   :: Text
     } deriving (Show, Eq)
 
 -- | Parse a 'NixPkgSet' from a .toml file
@@ -65,15 +65,15 @@ nixPkgSetT = NixPkgSet
     <$> Toml.text "owner"  .= npsOwner
     <*> Toml.text "repo"   .= npsRepo
     <*> Toml.text "rev"    .= npsRev
-    <*> Toml.text "sha256" .= npsSha
+    <*> Toml.text "sha256" .= npsSha256
 
 -- | The default nix package set.
 defaultNixPkgSet :: NixPkgSet
 defaultNixPkgSet = NixPkgSet
-    { npsOwner = "NixOS"
-    , npsRepo  = "nixpkgs"
-    , npsRev   = "cecec1f74468766825c2ad32d8388c2ded36225f"
-    , npsSha   = "1sq538wy0shbakah27b6n4bl5amzwkzjsds77vdd8rsq0d1nys4w"
+    { npsOwner    = "NixOS"
+    , npsRepo     = "nixpkgs"
+    , npsRev      = "cecec1f74468766825c2ad32d8388c2ded36225f"
+    , npsSha256   = "1sq538wy0shbakah27b6n4bl5amzwkzjsds77vdd8rsq0d1nys4w"
     }
 
 -- | Show a nix package set as a URL, along with the SHA256.
@@ -87,7 +87,7 @@ showNixPkgSet NixPkgSet{..} = mconcat
     , npsRev
     , ".tar.gz"
     , " (SHA256 is "
-    , npsSha
+    , npsSha256
     , ")"
     ]
 

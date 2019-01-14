@@ -81,7 +81,7 @@ nixFiles Settings{..} =
             , "}"
             ]
 
-        NixPkgSet { npsOwner, npsRepo, npsRev, npsSha } = case settingsNixPkgSet of { Just n -> n; Nothing -> defaultNixPkgSet }
+        NixPkgSet { npsOwner, npsRepo, npsRev, npsSha256 } = case settingsNixPkgSet of { Just n -> n; Nothing -> defaultNixPkgSet }
 
         nixpkgsNixT :: Text
         nixpkgsNixT = T.unlines
@@ -92,7 +92,7 @@ nixFiles Settings{..} =
             , ("    owner  = \"" <> npsOwner <> "\";")
             , ("    repo   = \"" <> npsRepo <> "\";")
             , ("    rev    = \"" <> npsRev <> "\";")
-            , ("    sha256 = \"" <> npsSha <> "\";")
+            , ("    sha256 = \"" <> npsSha256 <> "\";")
             , "  };"
             , "};"
             , "import nixpkgs {"

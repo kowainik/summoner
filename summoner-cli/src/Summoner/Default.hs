@@ -46,5 +46,3 @@ currentYear = do
 -- | Default compiler for nix to use.
 defaultNixCompiler :: Text
 defaultNixCompiler = nixCompiler defaultGHC
-
-
