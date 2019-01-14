@@ -22,7 +22,7 @@ import System.FilePath ((</>))
 import Test.Hspec (Spec, describe, it, shouldReturn)
 
 import Summoner (CustomPrelude (..), GhcVer (..), License (..), LicenseName (..), Settings (..),
-                 defaultGHC)
+                 defaultGHC, defaultNixPkgSet)
 import Summoner.Template (createProjectTemplate)
 import Summoner.Tree (TreeFs (..))
 
@@ -35,7 +35,6 @@ goldenSpec = describe "golden tests" $ do
         checkProject smallProject
   where
     checkProject pr = compareTree "test/golden" (createProjectTemplate pr) `shouldReturn` []
-
 
 -- | Returns the list of the files that don't match the golden ones.
 compareTree :: FilePath -> TreeFs -> IO [FilePath]
@@ -72,6 +71,8 @@ fullProject = Settings
     , settingsWarnings       = ["-Wcompat", "-Widentities"]
     , settingsCabal          = True
     , settingsStack          = True
+    , settingsNix            = True
+    , settingsNixPkgSet      = Just defaultNixPkgSet
     , settingsStylish        = Just "This is stylish-haskell.yaml\n"
     , settingsContributing   = Just "This is contributing guide\n"
     , settingsNoUpload       = True
@@ -128,6 +129,8 @@ smallProject = Settings
     , settingsWarnings       = []
     , settingsCabal          = True
     , settingsStack          = False
+    , settingsNix            = False
+    , settingsNixPkgSet      = Nothing
     , settingsStylish        = Nothing
     , settingsContributing   = Nothing
     , settingsNoUpload       = True

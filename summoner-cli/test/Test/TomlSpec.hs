@@ -8,7 +8,7 @@ import Toml.Bi.Code (decode, encode)
 import Summoner.Config (ConfigP (..), PartialConfig, configT)
 import Summoner.GhcVer (GhcVer)
 import Summoner.License (LicenseName)
-import Summoner.Settings (CustomPrelude (..))
+import Summoner.Settings (CustomPrelude (..), NixPkgSet (..))
 import Summoner.Source (Source (..))
 import Test.DecisionSpec (genDecision)
 
@@ -48,6 +48,9 @@ genSource = do
     s   <- Gen.element [File . toString, Url, Link]
     pure $ s txt
 
+genNixPkgSet :: MonadGen m => m NixPkgSet
+genNixPkgSet = NixPkgSet <$> genText <*> genText <*> genText <*> genText
+
 genPartialConfig :: MonadGen m => m PartialConfig
 genPartialConfig = do
     cOwner      <- Last . Just <$> genText
@@ -57,6 +60,8 @@ genPartialConfig = do
     cGhcVer     <- Last . Just <$> genGhcVerArr
     cCabal      <- genDecision
     cStack      <- genDecision
+    cNix        <- genDecision
+    cNixPkgSet  <- Last . Just <$> genNixPkgSet
     cGitHub     <- genDecision
     cTravis     <- genDecision
     cAppVey     <- genDecision
