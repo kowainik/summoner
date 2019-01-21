@@ -16,6 +16,8 @@ The changelog is available [on GitHub][2].
 * __Important:__ Summoner doesn't add old GHC versions into Travis matrix for
   Stack. See this Stack issue for reasoning:
       https://github.com/commercialhaskell/stack/issues/4488
+* [#286](https://github.com/kowainik/summoner/issues/286):
+  Bump up to `tomland-1.0.0`
 
 ## 1.2.0 — Nov 30, 2018
 
