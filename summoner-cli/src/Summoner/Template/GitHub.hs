@@ -28,7 +28,6 @@ import Summoner.Settings (Settings (..))
 import Summoner.Text (tconcatMap)
 import Summoner.Tree (TreeFs (..))
 
-import qualified Data.Text as T
 
 gitHubFiles :: Settings -> [TreeFs]
 gitHubFiles Settings{..} =
@@ -36,11 +35,6 @@ gitHubFiles Settings{..} =
  ++ [File ".travis.yml" travisYml    | settingsTravis]
  ++ [File "appveyor.yml" appVeyorYml | settingsAppVeyor]
   where
-
-    -- additional .gitignore
-    gitignoreCustom :: Text
-    gitignoreCustom = T.intercalate endLine settingsGitignore <> endLine
-
     -- default .gitignore template
     gitignoreDefault :: Text
     gitignoreDefault =
@@ -100,6 +94,9 @@ gitHubFiles Settings{..} =
         .DS_Store
         |]
 
+    -- additional .gitignore
+    gitignoreCustom :: Text
+    gitignoreCustom = unlines ("\n# User specific" : settingsGitignore)
 
     -- create travis.yml template
     travisYml :: Text
