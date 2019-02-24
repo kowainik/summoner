@@ -42,6 +42,7 @@ By the way, Summoner operates as either CLI or TUI application, so you can choos
     + [File configuration](#file-configuration-)
     + [TUI](#tui-)
     + [CLI](#cli-)
+* [FAQ](#faq-)
 * [For Developers](#for-developers-)
     + [Build](#build-)
     + [Test](#test-)
@@ -474,6 +475,31 @@ If some option is specified via a configuration file or CLI arguments, then the 
 #### CLI show command [↑](#structure)
 
 These commands display the list of supported GHC versions, or Licenses. Also, when the license name is specified, the content of the License is outputted to the terminal.
+
+## FAQ [↑](#structure)
+
+> I want to use HTTPS remote for the created GitHub project, but it creates SSH one. How should I fix this?
+
+We are using `hub` tool to create the projects at GitHub. It uses SSH so that you would get the remote links in the following format:
+
+```
+git@github.com:user/repo.git
+```
+
+We can not change or configure this behaviour, but there are several workarounds in case you _need_ to use HTTPS link for the remote.
+
+1. Change the remote of the repository after its creation:
+   ```
+   git remote set-url origin https://github.com/user/repo.git
+   ```
+2. Change `hub` configurations globally. Simply run the following command:
+   ```shell
+   git config --global hub.protocol https
+   ```
+3. Alternatively, change `hub` configurations for a single session:
+   ```
+   export HUB_PROTOCOL="https"
+   ```
 
 ## For Developers [↑](#structure)
 
