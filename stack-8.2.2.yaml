@@ -15,3 +15,5 @@ extra-deps:
   - parser-combinators-1.0.0    # needed for megaparsec >= 7
   - neat-interpolation-0.3.2.4  # needed because of megaparsec >= 7
   - vty-5.25.1
+
+allow-newer: true
