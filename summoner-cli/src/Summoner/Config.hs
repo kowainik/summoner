@@ -2,11 +2,9 @@
 {-# LANGUAGE DeriveAnyClass       #-}
 {-# LANGUAGE FlexibleContexts     #-}
 {-# LANGUAGE FlexibleInstances    #-}
-{-# LANGUAGE KindSignatures       #-}
 {-# LANGUAGE StandaloneDeriving   #-}
 {-# LANGUAGE TypeFamilies         #-}
 {-# LANGUAGE TypeOperators        #-}
-{-# LANGUAGE TypeSynonymInstances #-}
 {-# LANGUAGE UndecidableInstances #-}
 
 -- | Summoner configurations.
@@ -60,6 +58,7 @@ data ConfigP (p :: Phase) = Config
     , cPrelude      :: Last CustomPrelude
     , cExtensions   :: [Text]
     , cWarnings     :: [Text]
+    , cGitignore    :: [Text]
     , cStylish      :: Last Source
     , cContributing :: Last Source
     } deriving (Generic)
@@ -124,6 +123,7 @@ defaultConfig = Config
     , cPrelude  = Last Nothing
     , cExtensions = []
     , cWarnings = []
+    , cGitignore = []
     , cStylish  = Last Nothing
     , cContributing = Last Nothing
     }
@@ -149,6 +149,7 @@ configT = Config
     <*> lastT preludeT "prelude"      .= cPrelude
     <*> textArr        "extensions"   .= cExtensions
     <*> textArr        "warnings"     .= cWarnings
+    <*> textArr        "gitignore"    .= cGitignore
     <*> lastT sourceT  "stylish"      .= cStylish
     <*> lastT sourceT  "contributing" .= cContributing
   where
@@ -207,6 +208,7 @@ finalise Config{..} = Config
     <*> pure cPrelude
     <*> pure cExtensions
     <*> pure cWarnings
+    <*> pure cGitignore
     <*> pure cStylish
     <*> pure cContributing
   where

@@ -1,6 +1,5 @@
 {-# LANGUAGE FlexibleInstances      #-}
 {-# LANGUAGE FunctionalDependencies #-}
-{-# LANGUAGE MultiParamTypeClasses  #-}
 {-# LANGUAGE Rank2Types             #-}
 {-# LANGUAGE TemplateHaskell        #-}
 
@@ -92,6 +91,7 @@ data SummonKit = SummonKit
     , summonKitGitHub       :: !GitHub
     , summonKitExtensions   :: ![Text]  -- ^ Can be recieved from the config file.
     , summonKitWarnings     :: ![Text]  -- ^ Can be recieved from the config file.
+    , summonKitGitignore    :: ![Text]  -- ^ Received from the config file.
     , summonKitStylish      :: !(Maybe Source)  -- ^ Can be recieved from the config file.
     , summonKitContributing :: !(Maybe Source)  -- ^ Can be recieved from the config file.
     , summonKitOffline      :: !Bool
@@ -177,6 +177,7 @@ summonKitToSettings sk = Settings
     , settingsPrelude        = cP
     , settingsExtensions     = sk ^. extensions
     , settingsWarnings       = sk ^. warnings
+    , settingsGitignore      = sk ^. gitignore
     , settingsCabal          = sk ^. cabal
     , settingsStack          = sk ^. stack
     , settingsStylish        = "" <$ sk ^. stylish
@@ -259,6 +260,7 @@ configToSummonKit cRepo cNoUpload cOffline cConfigFile Config{..} = SummonKit
         }
     , summonKitExtensions   = cExtensions
     , summonKitWarnings     = cWarnings
+    , summonKitGitignore    = cGitignore
     , summonKitStylish      = getLast cStylish
     , summonKitContributing = getLast cContributing
     , summonKitOffline      = cOffline

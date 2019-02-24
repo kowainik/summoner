@@ -31,13 +31,13 @@ import Summoner.Tree (TreeFs (..))
 
 gitHubFiles :: Settings -> [TreeFs]
 gitHubFiles Settings{..} =
-    [File ".gitignore" gitignore     | settingsGitHub]
+    [File ".gitignore" (gitignoreDefault <> gitignoreCustom) | settingsGitHub]
  ++ [File ".travis.yml" travisYml    | settingsTravis]
  ++ [File "appveyor.yml" appVeyorYml | settingsAppVeyor]
   where
-    -- create .gitignore template
-    gitignore :: Text
-    gitignore =
+    -- default .gitignore template
+    gitignoreDefault :: Text
+    gitignoreDefault =
         [text|
         ### Haskell
         dist
@@ -94,6 +94,9 @@ gitHubFiles Settings{..} =
         .DS_Store
         |]
 
+    -- additional .gitignore
+    gitignoreCustom :: Text
+    gitignoreCustom = unlines ("\n# User specific" : settingsGitignore)
 
     -- create travis.yml template
     travisYml :: Text

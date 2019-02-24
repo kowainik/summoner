@@ -320,6 +320,7 @@ Here is the list of the options that can be configured to suit your needs. If op
 | `license`        | License | One of: `MIT`, `BSD2`, `BSD3`, `GPL-2`, `GPL-3`, `LGPL-2.1`, `LGPL-3`, `AGPL-3`, `Apache-2.0`, `MPL-2.0`, `None`.                                                    |
 | `ghcVersions`    | [GHC]   | `summoner` uses default `GHC-8.4.4`. However, additionally you can specify other versions. For each version `x.y.z` the `stack-x.y.z.yaml` will be created.          |
 | `github`         | Bool    | Turn on `GitHub` integration by default?                                                                                                                             |
+| `gitignore`      | [Text]  | List of files you want added to the default `.gitignore`. (Ignored if `github = false`)                                                                              |
 | `private`        | Bool    | Create private repository by default? (Ignored if `github = false`)                                                                                                  |
 | `travis`         | Bool    | Turn on `Travis` integration by default?  (Ignored if `github = false`)                                                                                              |
 | `appveyor`       | Bool    | Turn on `AppVeyor` integration by default?  (Ignored if `github = false`)                                                                                            |
