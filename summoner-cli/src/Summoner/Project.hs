@@ -9,6 +9,7 @@ module Summoner.Project
 
 import Data.List (intersect)
 import NeatInterpolation (text)
+import Shellmet ()
 import System.Directory (setCurrentDirectory)
 
 import Summoner.Ansi (Color (Green), beautyPrint, bold, errorMessage, infoMessage, setColor,
