@@ -28,7 +28,7 @@ import Lens.Micro ((.~), (^.))
 import System.Directory (doesDirectoryExist, doesFileExist, getCurrentDirectory, listDirectory)
 
 import Summoner.Ansi (errorMessage, infoMessage)
-import Summoner.CLI (Command (..), NewOpts (..), ShowOpts (..), getFinalConfig, summon)
+import Summoner.CLI (Command (..), NewOpts (..), ShowOpts (..), getFinalConfig, runScript, summon)
 import Summoner.Decision (Decision (..))
 import Summoner.Default (defaultConfigFile)
 import Summoner.GhcVer (showGhcVer)
@@ -54,6 +54,7 @@ summonTui = summon Meta.version runTuiCommand
 runTuiCommand :: Command -> IO ()
 runTuiCommand = \case
     New opts      -> summonTuiNew opts
+    Script opts   -> runScript opts  -- TODO: implement TUI for script command
     ShowInfo opts -> summonTuiShow opts
 
 ----------------------------------------------------------------------------

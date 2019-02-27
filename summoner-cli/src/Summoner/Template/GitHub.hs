@@ -22,7 +22,7 @@ module Summoner.Template.GitHub
 import Data.List ((\\))
 import NeatInterpolation (text)
 
-import Summoner.Default (defaultCabal, defaultGHC)
+import Summoner.Default (defaultGHC)
 import Summoner.GhcVer (GhcVer (..), oldGhcs, showGhcVer)
 import Summoner.Settings (Settings (..))
 import Summoner.Text (tconcatMap)
@@ -96,7 +96,9 @@ gitHubFiles Settings{..} =
 
     -- additional .gitignore
     gitignoreCustom :: Text
-    gitignoreCustom = unlines ("\n# User specific" : settingsGitignore)
+    gitignoreCustom = if null settingsGitignore
+        then ""
+        else unlines ("\n# User specific" : settingsGitignore)
 
     -- create travis.yml template
     travisYml :: Text
@@ -108,7 +110,7 @@ gitHubFiles Settings{..} =
         git:
           depth: 5
 
-        cabal: "$defaultCabal"
+        cabal: "2.4"
 
         cache:
           directories:
@@ -136,7 +138,9 @@ gitHubFiles Settings{..} =
 
 
     cabalTest :: Text
-    cabalTest = if settingsTest then "cabal new-test" else "echo 'No tests'"
+    cabalTest = if settingsTest
+        then "cabal new-test --enable-tests"
+        else "echo 'No tests'"
 
     travisCabalMtr :: Text
     travisCabalMtr = memptyIfFalse settingsCabal $
@@ -181,12 +185,14 @@ gitHubFiles Settings{..} =
         install:
           - |
             if [ -z "$$STACK_YAML" ]; then
+              ghc --version
+              cabal --version
               cabal new-update
               cabal new-build --enable-tests --enable-benchmarks
             else
               curl -sSL https://get.haskellstack.org/ | sh
               stack --version
-              stack build --system-ghc --test --no-run-tests
+              stack build --system-ghc --test --bench --no-run-tests --no-run-benchmarks --ghc-options=-Werror
             fi
 
         script:
@@ -194,7 +200,7 @@ gitHubFiles Settings{..} =
             if [ -z "$$STACK_YAML" ]; then
                ${cabalTest}
             else
-              stack build --system-ghc --test --bench --no-run-benchmarks --no-terminal --ghc-options=-Werror
+              stack test --system-ghc
             fi
 
           # HLint check
@@ -218,11 +224,11 @@ gitHubFiles Settings{..} =
         install:
           - curl -sSL https://get.haskellstack.org/ | sh
           - stack --version
-          - stack build --system-ghc --test --no-run-tests
-        script:
-          - stack build --system-ghc --test --bench --no-run-benchmarks --no-terminal --ghc-options=-Werror
-        |]
+          - stack build --system-ghc --test --bench --no-run-tests --no-run-benchmarks --ghc-options=-Werror
 
+        script:
+          - stack test --system-ghc
+        |]
 
 
     -- create appveyor.yml template
