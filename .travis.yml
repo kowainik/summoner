@@ -53,7 +53,7 @@ script:
     if [ -z "$STACK_YAML" ]; then
       cabal new-test all
     else
-      stack test --no-terminal
+      stack test --system-ghc --no-terminal
     fi
   - curl https://raw.githubusercontent.com/kowainik/relude/988bbdd3a09df1159917012933780523644880e5/.hlint.yaml -o .hlint-relude.yaml
   - curl -sSL https://raw.github.com/ndmitchell/neil/master/misc/travis.sh | sh -s -- hlint -h .hlint-relude.yaml summoner-cli/src/ summoner-cli/test/ summoner-tui/src/
@@ -63,8 +63,8 @@ after_success:
   - |
     if [ "$DEPLOY" = "yes" ]; then
       echo "Deploy triggered!"
-      mv "$(stack path --local-install-root)/bin/summon"     "summon-cli-${TRAVIS_OS_NAME}"
-      mv "$(stack path --local-install-root)/bin/summon-tui" "summon-tui-${TRAVIS_OS_NAME}"
+      mv "$(stack path --system-ghc --local-install-root)/bin/summon"     "summon-cli-${TRAVIS_OS_NAME}"
+      mv "$(stack path --system-ghc --local-install-root)/bin/summon-tui" "summon-tui-${TRAVIS_OS_NAME}"
       chmod +x "summon-cli-${TRAVIS_OS_NAME}"
       chmod +x "summon-tui-${TRAVIS_OS_NAME}"
       git tag "$(date +'%Y%m%d%H%M%S')"

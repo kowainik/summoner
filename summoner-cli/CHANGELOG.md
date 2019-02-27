@@ -3,7 +3,7 @@
 `summoner` uses [PVP Versioning][1].
 The changelog is available [on GitHub][2].
 
-## Unreleased
+## Unreleased: 1.3.0
 
 * [#151](https://github.com/kowainik/summoner/issues/151):
   Make GHC-8.6.3 default.
@@ -20,6 +20,8 @@ The changelog is available [on GitHub][2].
   Bump up to `tomland-1.0.0`
 * [#282](https://github.com/kowainik/summoner/issues/282):
   Allow users to extend the .gitignore file.
+* [#285](https://github.com/kowainik/summoner/issues/285):
+  Implement `summon script` command.
 
 ## 1.2.0 — Nov 30, 2018
 

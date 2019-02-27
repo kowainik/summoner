@@ -1,7 +1,12 @@
 module Summoner.Settings
        ( Settings (..)
+
        , CustomPrelude (..)
        , customPreludeT
+
+       , Tool (..)
+       , showTool
+       , parseTool
        ) where
 
 import Toml (TomlCodec, (.=))
@@ -53,3 +58,19 @@ data Settings = Settings
     , settingsContributing   :: !(Maybe Text) -- ^ @CONTRIBUTING.md@ file
     , settingsNoUpload       :: !Bool  -- ^ do not upload to GitHub
     } deriving (Show)
+
+-- | Enum for supported build tools.
+data Tool
+    = Cabal
+    | Stack
+    deriving (Show, Eq, Enum, Bounded)
+
+-- | Show 'Tool' in lowercase.
+showTool :: Tool -> Text
+showTool = \case
+    Cabal -> "cabal"
+    Stack -> "stack"
+
+-- | Parse 'Tool' from string. Inverse of 'showTool'.
+parseTool :: Text -> Maybe Tool
+parseTool = inverseMap showTool
