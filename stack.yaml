@@ -1,10 +1,12 @@
-resolver: lts-13.1
+resolver: lts-13.9
 
 packages:
   - summoner-cli/
   - summoner-tui/
 
 extra-deps:
+  - shellmet-0.0.0
+  - tomland-1.0.0
   - brick-0.41.4
   - config-ini-0.2.4.0  # needed for brick
   - data-clist-0.1.2.2  # needed for brick

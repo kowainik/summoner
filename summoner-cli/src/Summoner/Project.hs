@@ -9,6 +9,7 @@ module Summoner.Project
 
 import Data.List (intersect)
 import NeatInterpolation (text)
+import Shellmet ()
 import System.Directory (setCurrentDirectory)
 
 import Summoner.Ansi (Color (Green), beautyPrint, bold, errorMessage, infoMessage, setColor,
@@ -89,6 +90,7 @@ generateProject settingsNoUpload isOffline projectName Config{..} = do
 
     let settingsExtensions = cExtensions
     let settingsWarnings = cWarnings
+    let settingsGitignore = cGitignore
 
     putTextLn $ "The project will be created with GHC-" <> showGhcVer defaultGHC
     settingsTestedVersions <- sortNub . (defaultGHC :) <$> case cGhcVer of
@@ -217,7 +219,6 @@ initializeProject settings@Settings{..} = do
     createProjectDirectory settings
     when settingsGitHub $ doGithubCommands settings
     beautyPrint [bold, setColor Green] "\nJob's done\n"
-
 
 -- | From the given 'Settings' creates the project.
 createProjectDirectory :: Settings -> IO ()

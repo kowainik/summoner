@@ -51,3 +51,6 @@ TAGS
 
 # other
 .DS_Store
+
+# User specific
+.secret

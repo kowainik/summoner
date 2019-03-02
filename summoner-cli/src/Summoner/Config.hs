@@ -2,11 +2,9 @@
 {-# LANGUAGE DeriveAnyClass       #-}
 {-# LANGUAGE FlexibleContexts     #-}
 {-# LANGUAGE FlexibleInstances    #-}
-{-# LANGUAGE KindSignatures       #-}
 {-# LANGUAGE StandaloneDeriving   #-}
 {-# LANGUAGE TypeFamilies         #-}
 {-# LANGUAGE TypeOperators        #-}
-{-# LANGUAGE TypeSynonymInstances #-}
 {-# LANGUAGE UndecidableInstances #-}
 
 -- | Summoner configurations.
@@ -26,7 +24,7 @@ module Summoner.Config
 import Data.List (lookup)
 import Generics.Deriving.Monoid (GMonoid, gmemptydefault)
 import Generics.Deriving.Semigroup (GSemigroup, gsappenddefault)
-import Toml (BiMap (..), Key, TomlCodec, (.=))
+import Toml (Key, TomlBiMap, TomlCodec, (.=))
 
 import Summoner.Decision (Decision (..))
 import Summoner.GhcVer (GhcVer (..), parseGhcVer, showGhcVer)
@@ -61,6 +59,7 @@ data ConfigP (p :: Phase) = Config
     , cPrelude      :: Last CustomPrelude
     , cExtensions   :: [Text]
     , cWarnings     :: [Text]
+    , cGitignore    :: [Text]
     , cStylish      :: Last Source
     , cContributing :: Last Source
     } deriving (Generic)
@@ -127,6 +126,7 @@ defaultConfig = Config
     , cPrelude  = Last Nothing
     , cExtensions = []
     , cWarnings = []
+    , cGitignore = []
     , cStylish  = Last Nothing
     , cContributing = Last Nothing
     }
@@ -154,20 +154,21 @@ configT = Config
     <*> lastT preludeT "prelude"      .= cPrelude
     <*> textArr        "extensions"   .= cExtensions
     <*> textArr        "warnings"     .= cWarnings
+    <*> textArr        "gitignore"    .= cGitignore
     <*> lastT sourceT  "stylish"      .= cStylish
     <*> lastT sourceT  "contributing" .= cContributing
   where
     lastT :: (Key -> TomlCodec a) -> Key -> TomlCodec (Last a)
     lastT codec = Toml.dimap getLast Last . Toml.dioptional . codec
 
-    _GhcVer :: BiMap GhcVer Toml.AnyValue
-    _GhcVer = Toml._TextBy showGhcVer parseGhcVer
+    _GhcVer :: TomlBiMap GhcVer Toml.AnyValue
+    _GhcVer = Toml._TextBy showGhcVer (maybeToRight "Wrong GHC version" . parseGhcVer)
 
     ghcVerArr :: Key -> TomlCodec [GhcVer]
     ghcVerArr = Toml.arrayOf _GhcVer
 
     license :: Key -> TomlCodec LicenseName
-    license = Toml.mdimap show parseLicenseName . Toml.text
+    license = Toml.textBy show (maybeToRight "Wrong license" . parseLicenseName)
 
     textArr :: Key -> TomlCodec [Text]
     textArr = Toml.dimap Just maybeToMonoid . Toml.dioptional . Toml.arrayOf Toml._Text
@@ -216,6 +217,7 @@ finalise Config{..} = Config
     <*> pure cPrelude
     <*> pure cExtensions
     <*> pure cWarnings
+    <*> pure cGitignore
     <*> pure cStylish
     <*> pure cContributing
   where

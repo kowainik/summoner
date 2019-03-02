@@ -10,7 +10,7 @@ import Control.Arrow ((>>>))
 import Control.Exception (catch)
 import NeatInterpolation (text)
 import System.Process (readProcess)
-import Toml (BiMap, Key, TomlCodec)
+import Toml (Key, TomlBiMap, TomlBiMapError (..), TomlCodec)
 
 import Summoner.Ansi (errorMessage, infoMessage)
 
@@ -25,30 +25,36 @@ data Source
     | Link Text
     deriving (Show, Eq)
 
-matchUrl :: Source -> Maybe Text
-matchUrl (Url url) = Just url
-matchUrl _         = Nothing
+showSource :: Source -> Text
+showSource = \case
+    Url _  -> "Url"
+    File _ -> "File"
+    Link _ -> "Link"
 
-matchFile :: Source -> Maybe FilePath
-matchFile (File file) = Just file
-matchFile _           = Nothing
+matchUrl :: Source -> Either TomlBiMapError Text
+matchUrl (Url url) = Right url
+matchUrl e         = Left $ WrongConstructor "Url" $ showSource e
 
-matchLink :: Source -> Maybe Text
-matchLink (Link link) = Just link
-matchLink _           = Nothing
+matchFile :: Source -> Either TomlBiMapError FilePath
+matchFile (File file) = Right file
+matchFile e           = Left $ WrongConstructor "File" $ showSource e
+
+matchLink :: Source -> Either TomlBiMapError Text
+matchLink (Link link) = Right link
+matchLink e           = Left $ WrongConstructor "Link" $ showSource e
 
 sourceT :: Key -> TomlCodec Source
 sourceT nm = Toml.match (_Url  >>> Toml._Text)   (nm <> "url")
          <|> Toml.match (_File >>> Toml._String) (nm <> "file")
          <|> Toml.match (_Link >>> Toml._Text)   (nm <> "link")
   where
-    _Url :: BiMap Source Text
+    _Url :: TomlBiMap Source Text
     _Url = Toml.prism Url matchUrl
 
-    _File :: BiMap Source FilePath
+    _File :: TomlBiMap Source FilePath
     _File = Toml.prism File matchFile
 
-    _Link :: BiMap Source Text
+    _Link :: TomlBiMap Source Text
     _Link = Toml.prism Link matchLink
 
 fetchSource :: Bool -> Source -> IO (Maybe Text)

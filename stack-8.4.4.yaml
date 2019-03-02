@@ -9,7 +9,8 @@ extra-deps:
   - brick-0.41.4
   - config-ini-0.2.4.0
   - relude-0.4.0
-  - tomland-0.5.0
+  - shellmet-0.0.0
+  - tomland-1.0.0
   - megaparsec-7.0.4            # needed for tomland-0.5.0
   - neat-interpolation-0.3.2.4  # needed because of megaparsec >= 7
   - vty-5.25.1

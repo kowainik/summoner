@@ -15,6 +15,9 @@ module Summoner.CLI
        , summon
        , summonCli
 
+         -- * Runners
+       , runScript
+
          -- * Common helper functions
        , getFinalConfig
        ) where
@@ -22,23 +25,27 @@ module Summoner.CLI
 import Data.Version (Version, showVersion)
 import Development.GitRev (gitCommitDate, gitDirty, gitHash)
 import NeatInterpolation (text)
-import Options.Applicative (Parser, ParserInfo, command, execParser, flag, fullDesc, help, helper,
-                            info, infoFooter, infoHeader, infoOption, long, metavar, optional,
-                            progDesc, short, strArgument, strOption, subparser, switch)
+import Options.Applicative (Parser, ParserInfo, argument, command, execParser, flag, fullDesc, help,
+                            helper, info, infoFooter, infoHeader, infoOption, long, maybeReader,
+                            metavar, option, optional, progDesc, short, strArgument, strOption,
+                            subparser, switch, value)
 import Options.Applicative.Help.Chunk (stringChunk)
+import Shellmet ()
 import System.Directory (doesFileExist)
+import System.Info (os)
 
 import Summoner.Ansi (blueCode, boldCode, errorMessage, infoMessage, redCode, resetCode,
-                      warningMessage)
+                      successMessage, warningMessage)
 import Summoner.Config (Config, ConfigP (..), PartialConfig, defaultConfig, finalise,
                         loadFileConfig)
 import Summoner.Decision (Decision (..))
-import Summoner.Default (defaultConfigFile)
-import Summoner.GhcVer (GhcVer, showGhcVer)
+import Summoner.Default (defaultConfigFile, defaultGHC)
+import Summoner.GhcVer (GhcVer, parseGhcVer, showGhcVer)
 import Summoner.License (License (..), LicenseName (..), fetchLicense, parseLicenseName,
                          showLicenseWithDesc)
 import Summoner.Project (generateProject)
-import Summoner.Settings (CustomPrelude (..))
+import Summoner.Settings (CustomPrelude (..), Tool, parseTool)
+import Summoner.Template.Script (scriptFile)
 
 import qualified Data.Text as T
 import qualified Paths_summoner as Meta (version)
@@ -57,6 +64,7 @@ summonCli = summon Meta.version runCliCommand
 runCliCommand :: Command -> IO ()
 runCliCommand = \case
     New opts -> runNew opts
+    Script opts -> runScript opts
     ShowInfo opts -> runShow opts
 
 {- | Runs @show@ command.
@@ -93,6 +101,31 @@ runShow = \case
   where
     showBulletList :: (a -> Text) -> [a] -> IO ()
     showBulletList showT = mapM_ (infoMessage . T.append "➤ " . showT)
+
+{- | Runs @script@ command.
+
+@
+Usage: summon script BUILD_TOOL (-g|--ghc GHC_VERSION) (-n|--name FILE_NAME)
+  Create a new Haskell script
+
+Available options:
+  -h,--help                Show this help text
+  -g,--ghc GHC_VERSION     Version of the compiler to be used for script
+  -n,--name FILE_NAME      Name of the script file
+@
+-}
+runScript :: ScriptOpts -> IO ()
+runScript ScriptOpts{..} = do
+    let pathTxt = toText scriptOptsName
+    whenM (doesFileExist scriptOptsName) $ do
+        errorMessage $ "File already exists: " <> pathTxt
+        exitFailure
+
+    let script = scriptFile scriptOptsGhc scriptOptsTool
+    writeFileText scriptOptsName script
+    unless (os == "mingw32") $
+        "chmod" ["+x", pathTxt]
+    successMessage $ "Successfully created script: " <> pathTxt
 
 {- | Runs @new@ command.
 
@@ -159,6 +192,8 @@ readFileConfig ignoreFile maybeFile = if ignoreFile then pure mempty else do
 data Command
     -- | @new@ command creates a new project
     = New NewOpts
+    -- | @script@ command creates Haskell script
+    | Script ScriptOpts
     -- | @show@ command shows supported licenses or GHC versions
     | ShowInfo ShowOpts
 
@@ -172,8 +207,17 @@ data NewOpts = NewOpts
     , newOptsCliConfig   :: PartialConfig  -- ^ config gathered during CLI
     }
 
+-- | Options parsed with @script@ command
+data ScriptOpts = ScriptOpts
+    { scriptOptsTool :: !Tool      -- ^ Build tool: `cabal` or `stack`
+    , scriptOptsName :: !FilePath  -- ^ File path to the script
+    , scriptOptsGhc  :: !GhcVer    -- ^ GHC version for this script
+    }
+
 -- | Commands parsed with @show@ command
-data ShowOpts = GhcList | LicenseList (Maybe String)
+data ShowOpts
+    = GhcList
+    | LicenseList (Maybe String)
 
 ----------------------------------------------------------------------------
 -- Parsers
@@ -207,10 +251,11 @@ summonerVersion version = toString
 summonerP :: Parser Command
 summonerP = subparser
     $ command "new" (info (helper <*> newP) $ progDesc "Create a new Haskell project")
+   <> command "script" (info (helper <*> scriptP) $ progDesc "Create a new Haskell script")
    <> command "show" (info (helper <*> showP) $ progDesc "Show supported licenses or ghc versions")
 
 ----------------------------------------------------------------------------
--- Show command parsers
+-- @show@ command parsers
 ----------------------------------------------------------------------------
 
 -- | Parses options of the @show@ command.
@@ -225,7 +270,41 @@ licenseText = LicenseList <$> optional
     (strArgument (metavar "LICENSE_NAME" <> help "Show specific license text"))
 
 ----------------------------------------------------------------------------
--- New command parsers
+-- @script@ command parsers
+----------------------------------------------------------------------------
+
+-- | Parses options of the @script@ command.
+scriptP :: Parser Command
+scriptP = do
+    scriptOptsTool <- toolArgP
+    scriptOptsGhc  <- ghcVerP
+    scriptOptsName <- strOption
+         $ long "name"
+        <> short 'n'
+        <> value "my_script"
+        <> metavar "FILE_NAME"
+        <> help "Name of the script file"
+
+    pure $ Script ScriptOpts{..}
+
+-- | Argument parser for 'Tool'.
+toolArgP :: Parser Tool
+toolArgP = argument
+    (maybeReader $ parseTool . toText)
+    (metavar "BUILD_TOOL")
+
+ghcVerP :: Parser GhcVer
+ghcVerP = option
+    (maybeReader $ parseGhcVer . toText)
+    (  long "ghc"
+    <> short 'g'
+    <> value defaultGHC
+    <> metavar "GHC_VERSION"
+    <> help "Version of the compiler to be used for script"
+    )
+
+----------------------------------------------------------------------------
+-- @new@ command parsers
 ----------------------------------------------------------------------------
 
 -- | Parses options of the @new@ command.

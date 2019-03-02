@@ -1,10 +1,15 @@
 module Summoner.Settings
        ( Settings (..)
+
        , CustomPrelude (..)
        , customPreludeT
        , NixPkgSet(..)
        , nixPkgSetT
        , showNixPkgSet
+
+       , Tool (..)
+       , showTool
+       , parseTool
        ) where
 
 import Toml (TomlCodec, (.=))
@@ -105,6 +110,7 @@ data Settings = Settings
     , settingsPrelude        :: !(Maybe CustomPrelude)  -- ^ custom prelude to be used
     , settingsExtensions     :: ![Text] -- ^ default extensions
     , settingsWarnings       :: ![Text] -- ^ default warnings
+    , settingsGitignore      :: ![Text] -- ^ .gitignore file
     , settingsCabal          :: !Bool -- ^ use cabal build tool
     , settingsStack          :: !Bool -- ^ use stack build tool
     , settingsNix            :: !Bool -- ^ use nix build tool
@@ -113,3 +119,19 @@ data Settings = Settings
     , settingsContributing   :: !(Maybe Text) -- ^ @CONTRIBUTING.md@ file
     , settingsNoUpload       :: !Bool  -- ^ do not upload to GitHub
     } deriving (Show)
+
+-- | Enum for supported build tools.
+data Tool
+    = Cabal
+    | Stack
+    deriving (Show, Eq, Enum, Bounded)
+
+-- | Show 'Tool' in lowercase.
+showTool :: Tool -> Text
+showTool = \case
+    Cabal -> "cabal"
+    Stack -> "stack"
+
+-- | Parse 'Tool' from string. Inverse of 'showTool'.
+parseTool :: Text -> Maybe Tool
+parseTool = inverseMap showTool

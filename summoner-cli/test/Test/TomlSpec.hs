@@ -73,6 +73,7 @@ genPartialConfig = do
     cPrelude    <- Last <$> Gen.maybe genCustomPrelude
     cExtensions <- genTextArr
     cWarnings   <- genTextArr
+    cGitignore  <- genTextArr
     cStylish    <- Last <$> Gen.maybe genSource
     cContributing <- Last <$> Gen.maybe genSource
     pure Config{..}
