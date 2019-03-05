@@ -28,7 +28,7 @@ module Summoner.Tui.Kit
        , projectMeta
        , gitHub
        , extensions
-       , warnings
+       , ghcOptions
        , stylish
        , contributing
        , offline
@@ -90,7 +90,7 @@ data SummonKit = SummonKit
     , summonKitProjectMeta  :: !ProjectMeta
     , summonKitGitHub       :: !GitHub
     , summonKitExtensions   :: ![Text]  -- ^ Can be recieved from the config file.
-    , summonKitWarnings     :: ![Text]  -- ^ Can be recieved from the config file.
+    , summonKitGhcOptions   :: ![Text]  -- ^ Can be recieved from the config file.
     , summonKitGitignore    :: ![Text]  -- ^ Received from the config file.
     , summonKitStylish      :: !(Maybe Source)  -- ^ Can be recieved from the config file.
     , summonKitContributing :: !(Maybe Source)  -- ^ Can be recieved from the config file.
@@ -176,7 +176,7 @@ summonKitToSettings sk = Settings
     , settingsBaseType       = baseT
     , settingsPrelude        = cP
     , settingsExtensions     = sk ^. extensions
-    , settingsWarnings       = sk ^. warnings
+    , settingsGhcOptions     = sk ^. ghcOptions
     , settingsGitignore      = sk ^. gitignore
     , settingsCabal          = sk ^. cabal
     , settingsStack          = sk ^. stack
@@ -259,7 +259,7 @@ configToSummonKit cRepo cNoUpload cOffline cConfigFile Config{..} = SummonKit
         , gitHubAppVeyor = toBool cAppVey && kitStack
         }
     , summonKitExtensions   = cExtensions
-    , summonKitWarnings     = cWarnings
+    , summonKitGhcOptions   = cWarnings ++ cGhcOptions
     , summonKitGitignore    = cGitignore
     , summonKitStylish      = getLast cStylish
     , summonKitContributing = getLast cContributing

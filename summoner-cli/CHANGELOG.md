@@ -22,6 +22,8 @@ The changelog is available [on GitHub][2].
   Allow users to extend the .gitignore file.
 * [#285](https://github.com/kowainik/summoner/issues/285):
   Implement `summon script` command.
+* [#269](https://github.com/kowainik/summoner/issues/269):
+  Introduce `ghc-options` configuration parameter. Deprecate `warnings` TOML parameter.
 
 ## 1.2.0 — Nov 30, 2018
 

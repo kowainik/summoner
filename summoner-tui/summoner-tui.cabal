@@ -1,6 +1,6 @@
 cabal-version:       2.0
 name:                summoner-tui
-version:             0.0.0
+version:             0.1.0
 synopsis:            Tool for scaffolding completely configured production Haskell projects using TUI.
 description: :       Tool for scaffolding completely configured production Haskell projects using TUI.
                      See [README.md](https://github.com/kowainik/summoner#-summoner) for details.
@@ -45,7 +45,7 @@ library
                      , microlens ^>= 0.4
                      , microlens-th ^>= 0.4
                      , relude ^>= 0.4.0
-                     , summoner ^>= 1.2.0
+                     , summoner ^>= 1.3.0
                      , text ^>= 1.2.3.0
                      , vty ^>= 5.25
 

@@ -39,6 +39,9 @@ generateProject
     -> Config      -- ^ Given configurations.
     -> IO ()
 generateProject settingsNoUpload isOffline projectName Config{..} = do
+    unless (null cWarnings) $
+        warningMessage "'warnings' field in TOML config is deprecated. Rename it to 'ghc-options'."
+
     settingsRepo <- checkUniqueName projectName
     -- decide cabal stack or both
     (settingsCabal, settingsStack) <- getCabalStack (cCabal, cStack)
@@ -86,8 +89,9 @@ generateProject settingsNoUpload isOffline projectName Config{..} = do
             Just _  -> "base-noprelude"
 
     let settingsExtensions = cExtensions
-    let settingsWarnings = cWarnings
+    let settingsGhcOptions = cWarnings ++ cGhcOptions
     let settingsGitignore = cGitignore
+
 
     putTextLn $ "The project will be created with GHC-" <> showGhcVer defaultGHC
     settingsTestedVersions <- sortNub . (defaultGHC :) <$> case cGhcVer of

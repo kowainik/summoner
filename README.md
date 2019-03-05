@@ -115,7 +115,7 @@ Below you can see highlighted features in different categories.
 + Ability to include your `.stylish-haskell.yaml` file.
 + Usage of the `ghc-options` field with sensible defaults.
 
-  If warnings are not explicitly stated in the configuration file, then the following list of GHC flags is added to all stanzas:
+  If `ghc-options` are not explicitly stated in the configuration file, then the following list of GHC flags is added to all stanzas:
 
   ```
   -Wall
@@ -330,7 +330,7 @@ Here is the list of the options that can be configured to suit your needs. If op
 | `test`           | Bool    | Create `test` folder with simple `Spec.hs` file and test target?                                                                                                     |
 | `bench`          | Bool    | Create `benchmark` folder with `Main.hs` file with [`gauge`](https://hackage.haskell.org/package/gauge) library usage example?                                       |
 | `extensions`     | [Text]  | List of the default extensions to add into `default-extensions` section in the `.cabal`.                                                                             |
-| `warnings`       | [Text]  | List of the default checks and warnings to add into `ghc-options` section in the `.cabal`.                                                                           |
+| `ghc-options`    | [Text]  | List of the default GHC options to add into `ghc-options` section in the `.cabal`.                                                                                   |
 | `stylish.*`      | Text    | `stylish.file` to provide the absolute file path OR `stylish.url` to download the `.stylish-haskell.yaml` file to use in the project.                                |
 | `contributing.*` | Text    | `contributing.file` to provide the absolute file path OR `contributing.url` download OR `contribuint.link` to link the `CONTRIBUTING.md` file to use in the project. |
 |`[prelude]`       |         |                                                                                                                                                                      |
