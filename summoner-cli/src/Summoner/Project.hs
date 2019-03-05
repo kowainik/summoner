@@ -40,7 +40,7 @@ generateProject
     -> IO ()
 generateProject settingsNoUpload isOffline projectName Config{..} = do
     unless (null cWarnings) $
-        warningMessage "'warnings' field in TOML config is deprecated. Rename it to 'ghc-options'."
+        warningMessage "Please, rename 'warings' field if you use one, it will be removed in the very next release. Use 'ghc-options' instead."
 
     settingsRepo <- checkUniqueName projectName
     -- decide cabal stack or both

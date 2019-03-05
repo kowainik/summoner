@@ -1,4 +1,4 @@
-cabal-version:       2.4
+cabal-version:       2.0
 name:                summoner
 version:             1.3.0
 synopsis:            Tool for scaffolding completely configured production Haskell projects.
@@ -16,7 +16,6 @@ build-type:          Simple
 stability:           stable
 extra-doc-files:     README.md
                    , CHANGELOG.md
-extra-source-files:  test/golden/**
 tested-with:         GHC == 8.2.2
                    , GHC == 8.4.4
                    , GHC == 8.6.3
