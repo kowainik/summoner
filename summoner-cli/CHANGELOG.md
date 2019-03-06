@@ -23,7 +23,10 @@ The changelog is available [on GitHub][2].
 * [#285](https://github.com/kowainik/summoner/issues/285):
   Implement `summon script` command.
 * [#269](https://github.com/kowainik/summoner/issues/269):
-  Introduce `ghc-options` configuration parameter. Deprecate `warnings` TOML parameter.
+  __Important:__ Introduce `ghc-options` configuration parameter. Deprecate `warnings` field in TOML file.
+
+  _Migration guide:_ Please, rename `warnings` field if you use one, it will be
+  removed in the very next release. Use `ghc-options` instead.
 
 ## 1.2.0 — Nov 30, 2018
 
