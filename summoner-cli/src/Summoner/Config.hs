@@ -40,27 +40,28 @@ data Phase = Partial | Final
 
 -- | Potentially incomplete configuration.
 data ConfigP (p :: Phase) = Config
-    { cOwner        :: p :- Text
-    , cFullName     :: p :- Text
-    , cEmail        :: p :- Text
-    , cLicense      :: p :- LicenseName
-    , cGhcVer       :: p :- [GhcVer]
-    , cCabal        :: Decision
-    , cStack        :: Decision
-    , cGitHub       :: Decision
-    , cTravis       :: Decision
-    , cAppVey       :: Decision
-    , cPrivate      :: Decision
-    , cLib          :: Decision
-    , cExe          :: Decision
-    , cTest         :: Decision
-    , cBench        :: Decision
-    , cPrelude      :: Last CustomPrelude
-    , cExtensions   :: [Text]
-    , cWarnings     :: [Text]
-    , cGitignore    :: [Text]
-    , cStylish      :: Last Source
-    , cContributing :: Last Source
+    { cOwner        :: !(p :- Text)
+    , cFullName     :: !(p :- Text)
+    , cEmail        :: !(p :- Text)
+    , cLicense      :: !(p :- LicenseName)
+    , cGhcVer       :: !(p :- [GhcVer])
+    , cCabal        :: !Decision
+    , cStack        :: !Decision
+    , cGitHub       :: !Decision
+    , cTravis       :: !Decision
+    , cAppVey       :: !Decision
+    , cPrivate      :: !Decision
+    , cLib          :: !Decision
+    , cExe          :: !Decision
+    , cTest         :: !Decision
+    , cBench        :: !Decision
+    , cPrelude      :: !(Last CustomPrelude)
+    , cExtensions   :: ![Text]
+    , cWarnings     :: ![Text]
+    , cGhcOptions   :: ![Text]  -- ^ GHC options to add every stanza
+    , cGitignore    :: ![Text]
+    , cStylish      :: !(Last Source)
+    , cContributing :: !(Last Source)
     } deriving (Generic)
 
 deriving instance
@@ -123,6 +124,7 @@ defaultConfig = Config
     , cPrelude  = Last Nothing
     , cExtensions = []
     , cWarnings = []
+    , cGhcOptions = []
     , cGitignore = []
     , cStylish  = Last Nothing
     , cContributing = Last Nothing
@@ -149,6 +151,7 @@ configT = Config
     <*> lastT preludeT "prelude"      .= cPrelude
     <*> textArr        "extensions"   .= cExtensions
     <*> textArr        "warnings"     .= cWarnings
+    <*> textArr        "ghc-options"  .= cGhcOptions
     <*> textArr        "gitignore"    .= cGitignore
     <*> lastT sourceT  "stylish"      .= cStylish
     <*> lastT sourceT  "contributing" .= cContributing
@@ -208,6 +211,7 @@ finalise Config{..} = Config
     <*> pure cPrelude
     <*> pure cExtensions
     <*> pure cWarnings
+    <*> pure cGhcOptions
     <*> pure cGitignore
     <*> pure cStylish
     <*> pure cContributing
