@@ -11,6 +11,7 @@ extra-deps:
   - relude-0.4.0
   - shellmet-0.0.0
   - tomland-1.0.0
+  - tree-diff-0.0.2
   - megaparsec-7.0.4            # needed for tomland-0.5.0
   - parser-combinators-1.0.0    # needed for megaparsec >= 7
   - neat-interpolation-0.3.2.4  # needed because of megaparsec >= 7

@@ -11,12 +11,14 @@ import System.Directory (createDirectoryIfMissing, withCurrentDirectory)
 
 import Summoner.Ansi (boldCode, resetCode)
 
+
 -- | Describes simple structure of filesystem tree.
 data TreeFs
       -- | Name of directory (relative) and its containing entries
     = Dir FilePath [TreeFs]
       -- | File name (relative) and file content
     | File FilePath Text
+    deriving (Generic, Show, Eq, Ord)
 
 -- | Walks through directory tree and write file contents, creating all
 -- intermediate directories.

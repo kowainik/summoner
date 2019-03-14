@@ -25,6 +25,8 @@ source-repository head
   location: git@github.com:kowainik/summoner.git
 
 library
+  if os(windows)
+    buildable: False
   hs-source-dirs:      src
   exposed-modules:     Summoner.Tui
                          Summoner.Tui.Field
@@ -69,6 +71,8 @@ library
   default-language:    Haskell2010
 
 executable summon-tui
+  if os(windows)
+    buildable: False
   hs-source-dirs:      app
   main-is:             Tui.hs
   build-depends:       base >= 4.10 && < 4.13
