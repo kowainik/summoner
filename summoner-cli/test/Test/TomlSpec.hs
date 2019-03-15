@@ -53,11 +53,11 @@ genNixPkgSet = NixPkgSet <$> genText <*> genText <*> genText <*> genText
 
 genPartialConfig :: MonadGen m => m PartialConfig
 genPartialConfig = do
-    cOwner      <- Last . Just <$> genText
-    cFullName   <- Last . Just <$> genText
-    cEmail      <- Last . Just <$> genText
-    cLicense    <- Last . Just <$> genLicense
-    cGhcVer     <- Last . Just <$> genGhcVerArr
+    cOwner      <- Last <$> Gen.maybe genText
+    cFullName   <- Last <$> Gen.maybe genText
+    cEmail      <- Last <$> Gen.maybe genText
+    cLicense    <- Last <$> Gen.maybe genLicense
+    cGhcVer     <- Last <$> Gen.maybe genGhcVerArr
     cCabal      <- genDecision
     cStack      <- genDecision
     cNix        <- genDecision
@@ -73,6 +73,7 @@ genPartialConfig = do
     cPrelude    <- Last <$> Gen.maybe genCustomPrelude
     cExtensions <- genTextArr
     cWarnings   <- genTextArr
+    cGhcOptions <- genTextArr
     cGitignore  <- genTextArr
     cStylish    <- Last <$> Gen.maybe genSource
     cContributing <- Last <$> Gen.maybe genSource

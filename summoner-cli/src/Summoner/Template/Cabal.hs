@@ -172,22 +172,22 @@ cabalFile Settings{..} = File (toString settingsRepo ++ ".cabal") cabalFileConte
            <> "\n"
 
     ghcOptions :: Text
-    ghcOptions = case settingsWarnings of
-        [] -> defaultWarnings
+    ghcOptions = case settingsGhcOptions of
+        [] -> defaultGhcOptions
         xs -> T.intercalate "\n" xs
 
-    defaultWarnings :: Text
-    defaultWarnings =
+    defaultGhcOptions :: Text
+    defaultGhcOptions =
         [text|
         -Wincomplete-uni-patterns
         -Wincomplete-record-updates
         -Wcompat
         -Widentities
-        $versionWarnings
+        $versionGhcOptions
         |]
 
-    versionWarnings :: Text
-    versionWarnings
+    versionGhcOptions :: Text
+    versionGhcOptions
         =  memptyIfFalse (settingsTestedVersions `hasLeast` Ghc801)
             "-Wredundant-constraints\n"
         <> memptyIfFalse (settingsTestedVersions `hasLeast` Ghc822)

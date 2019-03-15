@@ -109,7 +109,7 @@ data Settings = Settings
     , settingsBaseType       :: !Text -- ^ Base library to use
     , settingsPrelude        :: !(Maybe CustomPrelude)  -- ^ custom prelude to be used
     , settingsExtensions     :: ![Text] -- ^ default extensions
-    , settingsWarnings       :: ![Text] -- ^ default warnings
+    , settingsGhcOptions     :: ![Text] -- ^ default GHC options
     , settingsGitignore      :: ![Text] -- ^ .gitignore file
     , settingsCabal          :: !Bool -- ^ use cabal build tool
     , settingsStack          :: !Bool -- ^ use stack build tool

@@ -1,3 +1,5 @@
+{-# OPTIONS_GHC -fno-warn-orphans #-}
+
 {-# LANGUAGE QuasiQuotes #-}
 
 {- | Golden tests for @summoner@.
@@ -17,9 +19,11 @@ module Test.Golden
        ( goldenSpec
        ) where
 
+import Data.TreeDiff (ToExpr, ansiWlEditExprCompact, ediff)
 import NeatInterpolation (text)
-import System.FilePath ((</>))
-import Test.Hspec (Spec, describe, it, shouldReturn)
+import System.Directory (doesDirectoryExist, listDirectory)
+import System.FilePath (takeFileName, (</>))
+import Test.Hspec (Spec, describe, expectationFailure, it)
 
 import Summoner (CustomPrelude (..), GhcVer (..), License (..), LicenseName (..), Settings (..),
                  defaultGHC, defaultNixPkgSet)
@@ -30,20 +34,31 @@ import Summoner.Tree (TreeFs (..))
 goldenSpec :: Spec
 goldenSpec = describe "golden tests" $ do
     it "correctly creates full project" $
-        checkProject fullProject
+        checkProject "test/golden/fullProject" fullProject
     it "correctly creates small project" $
-        checkProject smallProject
+        checkProject "test/golden/smallProject" smallProject
   where
-    checkProject pr = compareTree "test/golden" (createProjectTemplate pr) `shouldReturn` []
+    checkProject :: FilePath -> Settings -> IO ()
+    checkProject path settings = do
+        goldenFs  <- sortTree <$> readTreeFs path
+        let testFs = sortTree $ createProjectTemplate settings
+        when (goldenFs /= testFs) $ do
+            putTextLn $ show $ ansiWlEditExprCompact $ ediff goldenFs testFs
+            expectationFailure "Golden and scaffolded project don't match"
 
--- | Returns the list of the files that don't match the golden ones.
-compareTree :: FilePath -> TreeFs -> IO [FilePath]
-compareTree filePath (Dir name children) =
-    foldlM (\l ch -> (l ++) <$> compareTree (filePath </> name) ch) [] children
-compareTree filePath (File name content) = do
-    let curFile = filePath </> name
-    golden <- readFileText curFile
-    pure $ if golden == content then [] else [curFile]
+readTreeFs :: FilePath -> IO TreeFs
+readTreeFs filePath = doesDirectoryExist filePath >>= \case
+    True -> do
+        dirs <- listDirectory filePath
+        Dir (takeFileName filePath) <$> traverse (\dir -> readTreeFs $ filePath </> dir) dirs
+    False -> do
+        content <- readFileText filePath
+        pure $ File (takeFileName filePath) content
+
+sortTree :: TreeFs -> TreeFs
+sortTree = \case
+    file@(File _ _) -> file
+    Dir path fs -> Dir path $ sort $ map sortTree fs
 
 fullProject :: Settings
 fullProject = Settings
@@ -69,7 +84,7 @@ fullProject = Settings
     , settingsPrelude        = Just $ CustomPrelude "relude" "Relude"
     , settingsExtensions     = ["ConstraintKinds", "LambdaCase", "OverloadedStrings"]
     , settingsGitignore      = [".secret"]
-    , settingsWarnings       = ["-Wcompat", "-Widentities"]
+    , settingsGhcOptions     = ["-Wcompat", "-Widentities"]
     , settingsCabal          = True
     , settingsStack          = True
     , settingsNix            = True
@@ -127,7 +142,7 @@ smallProject = Settings
     , settingsBaseType       = "base"
     , settingsPrelude        = Nothing
     , settingsExtensions     = []
-    , settingsWarnings       = []
+    , settingsGhcOptions     = []
     , settingsGitignore      = []
     , settingsCabal          = True
     , settingsStack          = False
@@ -137,3 +152,7 @@ smallProject = Settings
     , settingsContributing   = Nothing
     , settingsNoUpload       = True
     }
+
+-- Orphan instances
+
+instance ToExpr TreeFs
