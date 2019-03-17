@@ -120,14 +120,21 @@ appNew dirs = App
                 withForm ev s (validateForm . ctrlD)
 
             -- Handle active/inactive checkboxes
-            VtyEvent (V.EvKey (V.KChar ' ') []) -> case getCurrentFocus s of
-                Nothing    -> withFormDef ev s
-                Just field -> handleCheckboxActivation ev s field
+            VtyEvent (V.EvKey (V.KChar ' ') []) ->
+              let field = getCurrentFocus s in
+              case field of
+                  Nothing    -> withFormDef ev s
+                  Just prelude@(CustomPreludeName) -> autoFillPreludeModuleName ev s prelude
+                  Just fields -> handleCheckboxActivation ev s fields
             MouseDown n _ _ _ -> handleCheckboxActivation ev s n
 
             -- Handle skip of deactivated checkboxes
             VtyEvent (V.EvKey (V.KChar '\t') []) -> loopWhileInactive ev s
             VtyEvent (V.EvKey V.KBackTab     []) -> loopWhileInactive ev s
+
+            {-VtyEvent (V.EvKey (V.KChar ' ') []) -> case getCurrentFocus s of
+                Nothing    -> withFormDef ev s
+                Just field -> autoFillPreludeModuleName ev s field-}
 
             -- Default action
             _ -> withFormDef ev s
@@ -174,6 +181,17 @@ appNew dirs = App
             Just field -> if not $ isActive (formState newForm) field
                 then loopWhileInactive ev newForm
                 else continue newForm
+
+    -- Handles auto-fill of Prelude module name
+    autoFillPreludeModuleName
+        :: BrickEvent SummonForm e
+        -> KitForm e
+        -> SummonForm
+        -> EventM SummonForm (Next (KitForm e))
+    autoFillPreludeModuleName ev form preludeField = withForm ev (getUpdatedForm form preludeField) mkNewForm
+
+    getUpdatedForm :: KitForm e -> SummonForm -> KitForm e
+    getUpdatedForm form field = form
 
 -- | Draws the form for @new@ command.
 drawNew :: [FilePath] -> KitForm e -> [Widget SummonForm]
