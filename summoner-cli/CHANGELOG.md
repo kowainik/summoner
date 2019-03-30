@@ -27,6 +27,8 @@ The changelog is available [on GitHub][2].
 
   _Migration guide:_ Please, rename `warnings` field if you use one, it will be
   removed in the very next release. Use `ghc-options` instead.
+* [#295](https://github.com/kowainik/summoner/issues/295):
+  Add support for ghc-8.6.4.
 
 ## 1.2.0 — Nov 30, 2018
 
@@ -71,6 +73,11 @@ The changelog is available [on GitHub][2].
 * Remove `tasty` dependencies from tests.
 * Drop support for GHC-8.6.1 on CI. Support GHC-8.6.2 on CI.
 * Drop support for GHC-8.4.3 on CI. Build with GHC-8.4.4 on CI.
+* Use `defaultDescription` for project description if not specified.
+* [#239](https://github.com/kowainik/summoner/issues/239):
+  Make categories not mandatory.
+* [#243](https://github.com/kowainik/summoner/issues/243):
+  Make project name optional in CLI arguments.
 
 ## 1.1.0.1 – Sep 10, 2018
 

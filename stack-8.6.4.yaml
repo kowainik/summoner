@@ -1,0 +1,12 @@
+resolver: lts-13.14
+
+packages:
+  - summoner-cli/
+  - summoner-tui/
+
+# extra-deps:
+#   - brick-0.41.4
+#   - config-ini-0.2.4.0
+#   - data-clist-0.1.2.1
+#   - text-zipper-0.10.1
+#   - word-wrap-0.4.1
