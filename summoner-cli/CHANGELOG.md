@@ -29,6 +29,7 @@ The changelog is available [on GitHub][2].
   removed in the very next release. Use `ghc-options` instead.
 * [#295](https://github.com/kowainik/summoner/issues/295):
   Add support for ghc-8.6.4.
+* Drop support for GHC-8.6.3 on CI. Support GHC-8.6.4 on CI.
 
 ## 1.2.0 — Nov 30, 2018
 
