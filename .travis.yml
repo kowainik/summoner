@@ -17,7 +17,7 @@ matrix:
   # Cabal, linux
   - ghc: 8.2.2
   - ghc: 8.4.4
-  - ghc: 8.6.3
+  - ghc: 8.6.4
 
   # Stack, linux
   - ghc: 8.2.2
@@ -26,7 +26,7 @@ matrix:
   - ghc: 8.4.4
     env: STACK_YAML="$TRAVIS_BUILD_DIR/stack-8.4.4.yaml"
 
-  - ghc: 8.6.3
+  - ghc: 8.6.4
     env: STACK_YAML="$TRAVIS_BUILD_DIR/stack.yaml" DEPLOY=yes
 
 #  Disabled because of Travis bugs

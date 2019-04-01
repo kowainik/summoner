@@ -28,6 +28,7 @@ data GhcVer
     | Ghc843
     | Ghc844
     | Ghc863
+    | Ghc864
     deriving (Eq, Ord, Show, Enum, Bounded)
 
 -- | Converts 'GhcVer' into dot-separated string.
@@ -40,6 +41,7 @@ showGhcVer = \case
     Ghc843  -> "8.4.3"
     Ghc844  -> "8.4.4"
     Ghc863  -> "8.6.3"
+    Ghc864  -> "8.6.4"
 
 -- | These are old GHC versions that are not working with default GHC versions when using Stack.
 oldGhcs :: [GhcVer]
@@ -57,7 +59,8 @@ latestLts = \case
     Ghc822  -> "11.22"
     Ghc843  -> "12.14"
     Ghc844  -> "12.26"
-    Ghc863  -> "13.9"
+    Ghc863  -> "13.11"
+    Ghc864  -> "13.15"
 
 -- | Represents PVP versioning (4 numbers).
 data Pvp = Pvp
@@ -81,6 +84,7 @@ baseVerPvp = \case
     Ghc843  -> Pvp 4 11 1 0
     Ghc844  -> Pvp 4 11 1 0
     Ghc863  -> Pvp 4 12 0 0
+    Ghc864  -> Pvp 4 12 0 0
 
 -- | Returns corresponding @base@ version of the given GHC version.
 baseVer :: GhcVer -> Text
