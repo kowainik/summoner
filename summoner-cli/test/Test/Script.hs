@@ -17,7 +17,7 @@ scriptSpec = describe "script golden tests" $ do
     it "correctly creates cabal script" $
         scriptFile Ghc844 Cabal `shouldBe` cabalScript
     it "correctly creates stack script" $
-        scriptFile Ghc863 Stack `shouldBe` stackScript
+        scriptFile Ghc864 Stack `shouldBe` stackScript
 
 cabalScript :: Text
 cabalScript = [text|
@@ -35,7 +35,7 @@ stackScript :: Text
 stackScript = [text|
 #!/usr/bin/env stack
 {- stack
-  --resolver lts-13.9
+  --resolver lts-13.15
   script
   --package base
 -}

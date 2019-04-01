@@ -1,4 +1,4 @@
-resolver: lts-13.14
+resolver: lts-13.15
 
 packages:
   - summoner-cli/
@@ -8,7 +8,7 @@ extra-deps:
   - brick-0.41.5
   - shellmet-0.0.0
   - tomland-1.0.0
-  - config-ini-0.2.4.0
-  - data-clist-0.1.2.2
-  - text-zipper-0.10.1
-  - word-wrap-0.4.1
+  - config-ini-0.2.4.0  # needed for brick
+  - data-clist-0.1.2.2  # needed for brick
+  - text-zipper-0.10.1  # needed for brick
+  - word-wrap-0.4.1     # needed for brick
