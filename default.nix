@@ -1,4 +1,4 @@
-{ compiler ? "ghc863"
+{ compiler ? "ghc864"
 , nixpkgs ? (import ./nix/nixpkgs.nix { inherit compiler; })
 }:
 
@@ -8,6 +8,7 @@ with rec {
 };
 
 rec {
+  inherit nixpkgs;
   summoner-cli = summoner-cliDrv;
   summoner-tui = summoner-tuiDrv;
 }

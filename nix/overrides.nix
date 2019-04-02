@@ -7,7 +7,7 @@ with { inherit (pkgs.stdenv) lib; };
 with pkgs.haskell.lib;
 
 { 
-  tomland = dontCheck super.tomland;  
+  tomland = dontCheck super.tomland_1_0_0;  
 
   summoner-cli = (
     with rec {

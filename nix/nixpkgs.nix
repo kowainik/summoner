@@ -1,13 +1,14 @@
-{ compiler ? "ghc863" }:
+{ compiler }:
 with rec {
   fetchNixpkgs = import ./fetchNixpkgs.nix;
   nixpkgs = fetchNixpkgs {
     owner  = "NixOS";
     repo   = "nixpkgs";
-    rev    = "cecec1f74468766825c2ad32d8388c2ded36225f";
-    sha256 = "1sq538wy0shbakah27b6n4bl5amzwkzjsds77vdd8rsq0d1nys4w";
+    rev    = "a2187b452a8ccc4ef31a684915025141d34841ec";
+    sha256 = "1hxdv6xmyka47vjlwqni8da9qyncgamxkfzg7nxh14nc72k0fdks";
   };
 };
+
 import nixpkgs {
   config = {
     packageOverrides = super: let self = super.pkgs; in {
