@@ -136,13 +136,12 @@ isActive kit = \case
     GitHubNoUpload -> isGitHubEnabled
     GitHubPrivate  -> isGitHubEnabled && isUploadEnabled
     GitHubTravis   -> isGitHubEnabled
-    GitHubAppVeyor -> isGitHubEnabled && isStack
+    GitHubAppVeyor -> isGitHubEnabled
     _ -> True
   where
-    isGitHubEnabled, isUploadEnabled, isStack :: Bool
+    isGitHubEnabled, isUploadEnabled :: Bool
     isGitHubEnabled = kit ^. gitHub . enabled
     isUploadEnabled = not $ kit ^. gitHub . noUpload
-    isStack = kit ^. stack
 
 -- | Gets current focus of the form.
 getCurrentFocus :: Form s e n -> Maybe n

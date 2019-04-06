@@ -230,10 +230,47 @@ gitHubFiles Settings{..} =
           - stack test --system-ghc
         |]
 
-
-    -- create appveyor.yml template
     appVeyorYml :: Text
     appVeyorYml =
+        if settingsCabal
+        then appVeyorYmlCabal
+        else appVeyorYmlStack
+
+    appVeyorYmlCabal :: Text
+    appVeyorYmlCabal =
+        [text|
+        install:
+          # Using '-y' and 'refreshenv' as a workaround to:
+          # https://github.com/haskell/cabal/issues/3687
+          - choco source add -n mistuke -s https://www.myget.org/F/mistuke/api/v2
+          - choco install -y ghc --ignore-dependencies
+          - choco install -y cabal-head -pre
+          - refreshenv
+          # See http://help.appveyor.com/discussions/problems/6312-curl-command-not-found#comment_42195491
+          # NB: Do this after refreshenv, otherwise it will be clobbered!
+          - set PATH=%APPDATA%\cabal\bin;C:\Program Files\Git\cmd;C:\Program Files\Git\mingw64\bin;C:\msys64\usr\bin;%PATH%
+          - cabal --version
+          - cabal %CABOPTS% new-update
+
+        environment:
+          global:
+            CABOPTS:  "--store-dir=C:\\SR"
+            # Remove cache, there is no button on the web
+            # https://www.appveyor.com/docs/build-cache/#skipping-cache-operations-for-specific-build
+            APPVEYOR_CACHE_SKIP_RESTORE: true
+
+        cache:
+          - dist-newstyle
+          - "C:\\SR"
+
+        build_script:
+          - cabal %CABOPTS% new-build --enable-tests --enable-benchmarks
+          - cabal %CABOPTS% new-test --enable-tests
+        |]
+
+    -- create appveyor.yml template
+    appVeyorYmlStack :: Text
+    appVeyorYmlStack =
         [text|
         build: off
 
