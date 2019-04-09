@@ -11,7 +11,7 @@
 >
 > Christopher Reeve
 
-Summoner is a tool for scaffolding fully configured batteries-included production Haskell projects.
+Summoner is a tool for scaffolding fully configured batteries-included production-level Haskell projects.
 
 Do you want to create a library that is to be uploaded to Hackage/Stackage, that builds with both Cabal and Stack and supports the latest three major GHC versions?
 Or you are building a production application which uses a custom prelude and has CI with Travis Linux and AppVeyors Windows checks?
@@ -110,6 +110,7 @@ Below you can see highlighted features in different categories.
 + Option to include an alternative prelude, if desired. The project would then use [`base-noprelude` technique](http://hackage.haskell.org/package/Prelude), and the `Prelude` module would be added to the library target.
 + Whole Hackage-upload checklist support.
 + Support for multiple GHC versions, with thoughtful reflection on project meta, base versions (e.g. `base >= 4.9 && < 4.12`), etc.
++ Ability to create runnable Haskell scripts.
 + Different license support: MIT, BSD2, BSD3, GPL-2, GPL-3, LGPL-2.1, LGPL-3, AGPL-3, Apache-2.0, MPL-2.0, None (All Rights Reserved license without file).
 + Creation of the `CHANGELOG.md` file with [PVP versioning policy](https://pvp.haskell.org).
 + Ability to include your `.stylish-haskell.yaml` file.
@@ -150,7 +151,8 @@ Below you can see highlighted features in different categories.
 
 ### CI [↑](#structure)
 
-+ Generation of the `.travis.yml` file that runs build and tests on CI under Linux.
++ Generation of the `.travis.yml` file that runs build and tests on CI under Linux using
+  [Dead simple Haskell Travis Settings for Cabal and Stack](https://chshersh.github.io/posts/2019-02-25-haskell-travis).
 + Configuration matrix on CI to build with multiple GHC versions and various build tools.
 + `-Werror` is enabled on CI not to miss any warnings.
 + Run HLint checks on CI.
@@ -324,7 +326,7 @@ Here is the list of the options that can be configured to suit your needs. If op
 | `ghcVersions`    | [GHC]   | `summoner` uses default `GHC-8.6.4`. However, additionally you can specify other versions. For each version `x.y.z` the `stack-x.y.z.yaml` will be created.          |
 | `github`         | Bool    | Turn on `GitHub` integration by default?                                                                                                                             |
 | `gitignore`      | [Text]  | List of files you want added to the default `.gitignore`. (Ignored if `github = false`)                                                                              |
-| `noUpload`       | Bool    | Do not upload to GitHub, but create all GitHub related files if specified (Ignored if `github = false`) |
+| `noUpload`       | Bool    | Do not upload to GitHub, but create all GitHub related files if specified (Ignored if `github = false`)                                                              |
 | `private`        | Bool    | Create private repository by default? (Ignored if `github = false`)                                                                                                  |
 | `travis`         | Bool    | Turn on `Travis` integration by default?  (Ignored if `github = false`)                                                                                              |
 | `appveyor`       | Bool    | Turn on `AppVeyor` integration by default?  (Ignored if `github = false`)                                                                                            |
@@ -353,6 +355,7 @@ Usage:
 
 Available commands:
   new                      Create a new Haskell project
+  script                   Create a new Haskell script
   show                     Show available licenses or ghc versions
 
 Available global options:
@@ -404,6 +407,19 @@ Available command options:
   -e, --exec               Executable target
   -t, --test               Tests
   -b, --benchmark          Benchmarks
+```
+
+#### **summon script** command: [↑](#structure)
+
+```
+Usage:
+  summon script BUILD_TOOL [-g|--ghc GHC_VERSION] [-n|--name FILE_NAME]
+      Create a new Haskell script
+
+Available options:
+  -h,--help                Show this help text
+  -g,--ghc GHC_VERSION     Version of the compiler to be used for script
+  -n,--name FILE_NAME      Name of the script file
 ```
 
 #### **summon show** command: [↑](#structure)
@@ -464,6 +480,10 @@ To help you navigate between the form fields here are the available hotkeys:
 
 Note that the form should be valid in order to be able to go to the Confirm window. If there are some errors in the input, you could see details about these errors in the `Status` section of the form.
 
+#### TUI script command [↑](#structure)
+
+See [CLI description](#cli-script-command-) of the `summon script` command.
+
 #### TUI show command [↑](#structure)
 
 These commands display the list of supported GHC versions or Licenses. Also, when the license name is specified the window with the scrollable content of the License text is shown.
@@ -474,6 +494,37 @@ These commands display the list of supported GHC versions or Licenses. Also, whe
 
 In CLI mode of operation Summoner asks about every project setting. Most of the questions contain a default value, so you can press <kbd>Enter</kbd> to choose the default value.
 If some option is specified via a configuration file or CLI arguments, then the question is skipped and the predefined value is used.
+
+#### CLI script command [↑](#structure)
+
+This command creates minimal `cabal` or `stack` script file which allows you to save some keystrokes and eliminates the need to remember magic words for scripts.
+
+**Cabal example:** `summon script cabal -n Main.hs` generates executable file `Main.hs` with the following content:
+
+```haskell
+#!/usr/bin/env cabal
+{- cabal:
+build-depends:
+  , base ^>= 4.12.0.0
+-}
+
+main :: IO ()
+main = putStrLn "Hello, World!"
+```
+
+**Stack example:** `summon script stack -n Main.hs` generates executable file `Main.hs` with the following content:
+
+```haskell
+#!/usr/bin/env stack
+{- stack
+  --resolver lts-13.16
+  script
+  --package base
+-}
+
+main :: IO ()
+main = putStrLn "Hello, World!"
+```
 
 #### CLI show command [↑](#structure)
 
