@@ -30,7 +30,7 @@ import Options.Applicative (Parser, ParserInfo, argument, command, execParser, f
                             metavar, option, optional, progDesc, short, strArgument, strOption,
                             subparser, switch, value)
 import Options.Applicative.Help.Chunk (stringChunk)
-import Shellmet ()
+import Shellmet (($?), ($|))
 import System.Directory (doesFileExist)
 import System.Info (os)
 
@@ -155,13 +155,28 @@ getFinalConfig NewOpts{..} = do
     -- read config from file
     fileConfig <- readFileConfig newOptsIgnoreFile newOptsConfigFile
 
+    -- guess config from the global ~/.gitconfig file
+    gitConfig <- guessFromGit
+
     -- union all possible configs
-    let unionConfig = defaultConfig <> fileConfig <> newOptsCliConfig
+    let unionConfig = defaultConfig <> gitConfig <> fileConfig <> newOptsCliConfig
 
     -- get the final config
     case finalise unionConfig of
         Success c    -> pure c
         Failure msgs -> for_ msgs errorMessage >> exitFailure
+  where
+    guessFromGit :: IO PartialConfig
+    guessFromGit = do
+       gitOwner <- (Just <$> "git" $| ["config", "user.login"]) $? pure Nothing
+       gitName  <- (Just <$> "git" $| ["config", "user.name"])  $? pure Nothing
+       gitEmail <- (Just <$> "git" $| ["config", "user.email"]) $? pure Nothing
+       pure $ defaultConfig
+           { cOwner = Last gitOwner
+           , cFullName = Last gitName
+           , cEmail = Last gitEmail
+           }
+
 
 -- | Reads and parses the given config file. If no file is provided the default
 -- configuration returned.

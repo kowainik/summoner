@@ -146,6 +146,7 @@ Below you can see highlighted features in different categories.
 + Formation of the `README` file with Hackage, Stackage and CI badges.
 + Linking to the GitHub repository in the `.cabal` file.
 + Ability to include your `CONTRIBUTING.md` file.
++ Guessing user credentials from `.gitconfig`.
 
 ### CI [↑](#structure)
 
@@ -299,9 +300,10 @@ To start `summon`ing projects nothing additional is required. However, to tweak 
 There are several options you can use to set particular configurations for new projects (in increasing order of priority):
 
 1. Default configuration file (`~/.summoner.toml`).
-2. Explicitly specified configuration file by `--file FILENAME` option (used instead of the default one if specified).
-3. Options that are stated by CLI arguments.
-4. User input. It could be
+2. Fields `user.login`, `user.name` and `user.email` from `~/.gitconfig`.
+3. Explicitly specified configuration file by `--file FILENAME` option (used instead of the default one if specified).
+4. Options that are stated by CLI arguments.
+5. User input. It could be
     * **TUI** – User data specified in the window of `summon-tui`.
     * **CLI** – Interactively inputted answers during execution of the `summon` command (for the options that were not specified on previous steps).
 
@@ -319,7 +321,7 @@ Here is the list of the options that can be configured to suit your needs. If op
 | `fullName`       | Text    | Full name.                                                                                                                                                           |
 | `email`          | Text    | E-mail address.                                                                                                                                                      |
 | `license`        | License | One of: `MIT`, `BSD2`, `BSD3`, `GPL-2`, `GPL-3`, `LGPL-2.1`, `LGPL-3`, `AGPL-3`, `Apache-2.0`, `MPL-2.0`, `None`.                                                    |
-| `ghcVersions`    | [GHC]   | `summoner` uses default `GHC-8.4.4`. However, additionally you can specify other versions. For each version `x.y.z` the `stack-x.y.z.yaml` will be created.          |
+| `ghcVersions`    | [GHC]   | `summoner` uses default `GHC-8.6.4`. However, additionally you can specify other versions. For each version `x.y.z` the `stack-x.y.z.yaml` will be created.          |
 | `github`         | Bool    | Turn on `GitHub` integration by default?                                                                                                                             |
 | `gitignore`      | [Text]  | List of files you want added to the default `.gitignore`. (Ignored if `github = false`)                                                                              |
 | `private`        | Bool    | Create private repository by default? (Ignored if `github = false`)                                                                                                  |
