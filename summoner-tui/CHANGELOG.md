@@ -11,6 +11,8 @@ The changelog is available [on GitHub][2].
 * [#280](https://github.com/kowainik/summoner/issues/280):
   AppVeyor CI checkbox is no longer disabled when only `cabal` build tool is
   selected.
+* [#297](https://github.com/kowainik/summoner/issues/297):
+  Strip project description.
 
 ## 0.0.0 — Nov 30, 2018
 
