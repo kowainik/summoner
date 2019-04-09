@@ -34,6 +34,8 @@ The changelog is available [on GitHub][2].
   Support build with `cabal-install` on the AppVeyor CI.
 * [#261](https://github.com/kowainik/summoner/issues/261):
   Guess author login, name and email from `.gitconfig`.
+* [#303](https://github.com/kowainik/summoner/issues/303):
+  Add option 'noUpload' to TOML config file.
 
 ## 1.2.0 — Nov 30, 2018
 

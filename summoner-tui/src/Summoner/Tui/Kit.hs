@@ -223,12 +223,11 @@ finalSettings sk = do
 -- | Gets the initial 'SummonKit' from the given 'Config'.
 configToSummonKit
     :: Text  -- ^ Given project name
-    -> Bool    -- ^ @noUpload@ option (to not upload to @Github@).
     -> Bool    -- ^  @offline@ mode option
     -> Maybe FilePath  -- ^ Configuration file used
     -> Config  -- ^ Given configurations.
     -> SummonKit
-configToSummonKit cRepo cNoUpload cOffline cConfigFile Config{..} = SummonKit
+configToSummonKit cRepo cOffline cConfigFile Config{..} = SummonKit
     { summonKitUser  = User
         { userOwner    = cOwner
         , userFullName = cFullName
@@ -253,7 +252,7 @@ configToSummonKit cRepo cNoUpload cOffline cConfigFile Config{..} = SummonKit
     , summonKitStack = kitStack
     , summonKitGitHub = GitHub
         { gitHubEnabled  = cGitHub /= Nop
-        , gitHubNoUpload = cNoUpload || cOffline
+        , gitHubNoUpload = getAny cNoUpload || cOffline
         , gitHubPrivate  = toBool cPrivate
         , gitHubTravis   = (cGitHub /= Nop) && (cTravis /= Nop)
         , gitHubAppVeyor = toBool cAppVey && kitStack

@@ -147,7 +147,7 @@ runNew newOpts@NewOpts{..} = do
     -- get the final config
     finalConfig <- getFinalConfig newOpts
     -- Generate the project.
-    generateProject newOptsNoUpload newOptsOffline newOptsProjectName finalConfig
+    generateProject newOptsOffline newOptsProjectName finalConfig
 
 -- | By the given 'NewOpts' return the final configurations.
 getFinalConfig :: NewOpts -> IO Config
@@ -216,7 +216,6 @@ data Command
 data NewOpts = NewOpts
     { newOptsProjectName :: Text           -- ^ project name
     , newOptsIgnoreFile  :: Bool           -- ^ ignore all config files if 'True'
-    , newOptsNoUpload    :: Bool           -- ^ don't upload to github
     , newOptsOffline     :: Bool           -- ^ Offline mode
     , newOptsConfigFile  :: Maybe FilePath -- ^ file with custom configuration
     , newOptsCliConfig   :: PartialConfig  -- ^ config gathered during CLI
@@ -327,7 +326,7 @@ newP :: Parser Command
 newP = do
     newOptsProjectName <- strArgument (metavar "PROJECT_NAME")
     newOptsIgnoreFile  <- ignoreFileP
-    newOptsNoUpload    <- noUploadP
+    noUpload           <- noUploadP
     newOptsOffline     <- offlineP
     newOptsConfigFile  <- optional fileP
     cabal <- cabalP
@@ -338,11 +337,11 @@ newP = do
     without <- optional withoutP
 
     pure $ New $ NewOpts
-        { newOptsNoUpload = newOptsNoUpload || newOptsOffline
-        , newOptsCliConfig = (maybeToMonoid $ with <> without)
+        { newOptsCliConfig = (maybeToMonoid $ with <> without)
             { cPrelude = Last $ CustomPrelude <$> preludePack <*> preludeMod
             , cCabal = cabal
             , cStack = stack
+            , cNoUpload = Any $ noUpload || newOptsOffline
             }
         , ..
         }

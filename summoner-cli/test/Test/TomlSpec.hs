@@ -72,4 +72,5 @@ genPartialConfig = do
     cGitignore  <- genTextArr
     cStylish    <- Last <$> Gen.maybe genSource
     cContributing <- Last <$> Gen.maybe genSource
+    cNoUpload   <- Any <$> Gen.bool
     pure Config{..}
