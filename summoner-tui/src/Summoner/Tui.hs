@@ -310,7 +310,9 @@ runTuiShowLicense (toText -> name) = case parseLicenseName name of
 
 -- | Runs brick application with given start state.
 runApp :: Ord n => App s e n -> s -> IO s
-runApp = customMain buildVty Nothing
+runApp app s = do
+    initialVty <- buildVty
+    customMain initialVty buildVty Nothing app s
   where
     buildVty :: IO V.Vty
     buildVty = do
