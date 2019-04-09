@@ -3,40 +3,40 @@
 `summoner` uses [PVP Versioning][1].
 The changelog is available [on GitHub][2].
 
-## Unreleased: 1.3.0
+## 1.3.0 — Apr 9, 2019
 
+* [#285](https://github.com/kowainik/summoner/issues/285):
+  Implement `summon script` command.
 * [#151](https://github.com/kowainik/summoner/issues/151),
   [#295](https://github.com/kowainik/summoner/issues/295):
   Add support for GHC-8.6. Make GHC-8.6.4 default.
-* [#268](https://github.com/kowainik/summoner/issues/268):
-  Simplify process of adding custom prelude in the interactive mode.
-* [#272](https://github.com/kowainik/summoner/issues/272):
-  Simplify Travis config for Cabal.
-* [#275](https://github.com/kowainik/summoner/issues/275):
-  Simplify Travis settings/installation process for Stack.
-* __Important:__ Summoner doesn't add old GHC versions into Travis matrix for
-  Stack. See this Stack issue for reasoning:
-      https://github.com/commercialhaskell/stack/issues/4488
-* [#286](https://github.com/kowainik/summoner/issues/286),
-  [#288](https://github.com/kowainik/summoner/issues/304),
-  [#304](https://github.com/kowainik/summoner/issues/304):
-  Bump up to `tomland-1.0.0`, `relude-0.5.0`, `shellmet-0.0.1`, `brick-0.47`.
-* [#282](https://github.com/kowainik/summoner/issues/282):
-  Allow users to extend the .gitignore file.
-* [#285](https://github.com/kowainik/summoner/issues/285):
-  Implement `summon script` command.
 * [#269](https://github.com/kowainik/summoner/issues/269):
   __Important:__ Introduce `ghc-options` configuration parameter. Deprecate `warnings` field in TOML file.
 
   _Migration guide:_ Please, rename `warnings` field if you use one, it will be
   removed in the very next release. Use `ghc-options` instead.
-* Drop support for GHC-8.6.3 on CI. Support GHC-8.6.4 on CI.
+* [#303](https://github.com/kowainik/summoner/issues/303):
+  Add option `noUpload` to TOML config file.
+* __Important:__ Summoner doesn't add old GHC versions into Travis matrix for
+  Stack anymore. See this Stack issue for reasoning:
+      https://github.com/commercialhaskell/stack/issues/4488
 * [#280](https://github.com/kowainik/summoner/issues/280):
   Support build with `cabal-install` on the AppVeyor CI.
+* [#272](https://github.com/kowainik/summoner/issues/272):
+  Simplify Travis config for Cabal.
+* [#275](https://github.com/kowainik/summoner/issues/275):
+  Simplify Travis settings/installation process for Stack.
 * [#261](https://github.com/kowainik/summoner/issues/261):
   Guess author login, name and email from `.gitconfig`.
-* [#303](https://github.com/kowainik/summoner/issues/303):
-  Add option 'noUpload' to TOML config file.
+* [#268](https://github.com/kowainik/summoner/issues/268):
+  Simplify process of adding custom prelude in the interactive mode.
+* [#282](https://github.com/kowainik/summoner/issues/282):
+  Allow users to extend the `.gitignore` file.
+* [#286](https://github.com/kowainik/summoner/issues/286),
+  [#288](https://github.com/kowainik/summoner/issues/288),
+  [#304](https://github.com/kowainik/summoner/issues/304):
+  Bump up to `tomland-1.0.0`, `relude-0.5.0`, `shellmet-0.0.1`.
+* Drop support for GHC-8.6.3 on CI. Support GHC-8.6.4 on CI.
 
 ## 1.2.0 — Nov 30, 2018
 

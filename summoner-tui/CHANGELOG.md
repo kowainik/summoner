@@ -3,7 +3,7 @@
 `summoner-tui` uses [PVP Versioning][1].
 The changelog is available [on GitHub][2].
 
-## Unreleased: 0.1.0
+## 0.1.0 — Apr 9, 2019
 
 * Upgrade to `summoner-1.3.0`.
 * [#285](https://github.com/kowainik/summoner/issues/285):
@@ -13,6 +13,8 @@ The changelog is available [on GitHub][2].
   selected.
 * [#297](https://github.com/kowainik/summoner/issues/297):
   Strip project description.
+* [#304](https://github.com/kowainik/summoner/issues/304):
+  Bump up to `brick-0.47`.
 
 ## 0.0.0 — Nov 30, 2018
 
