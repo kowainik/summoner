@@ -255,9 +255,6 @@ gitHubFiles Settings{..} =
         environment:
           global:
             CABOPTS:  "--store-dir=C:\\SR"
-            # Remove cache, there is no button on the web
-            # https://www.appveyor.com/docs/build-cache/#skipping-cache-operations-for-specific-build
-            APPVEYOR_CACHE_SKIP_RESTORE: true
 
         cache:
           - dist-newstyle
