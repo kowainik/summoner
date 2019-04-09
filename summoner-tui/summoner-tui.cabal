@@ -1,8 +1,8 @@
 cabal-version:       2.0
 name:                summoner-tui
 version:             0.1.0
-synopsis:            Tool for scaffolding completely configured production Haskell projects using TUI.
-description: :       Tool for scaffolding completely configured production Haskell projects using TUI.
+synopsis:            Tool for scaffolding fully configured batteries-included production-level Haskell projects using TUI.
+description:         Tool for scaffolding fully configured batteries-included production-level Haskell projects using TUI.
                      See [README.md](https://github.com/kowainik/summoner#-summoner) for details.
 homepage:            https://github.com/kowainik/summoner
 bug-reports:         https://github.com/kowainik/summoner/issues
