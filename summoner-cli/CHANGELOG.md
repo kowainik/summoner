@@ -32,6 +32,8 @@ The changelog is available [on GitHub][2].
 * Drop support for GHC-8.6.3 on CI. Support GHC-8.6.4 on CI.
 * [#280](https://github.com/kowainik/summoner/issues/280):
   Support build with `cabal-install` on the AppVeyor CI.
+* [#261](https://github.com/kowainik/summoner/issues/261):
+  Guess author login, name and email from `.gitconfig`.
 
 ## 1.2.0 — Nov 30, 2018
 

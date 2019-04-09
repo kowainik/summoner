@@ -6,7 +6,7 @@ packages:
 
 extra-deps:
   - brick-0.41.5
-  - shellmet-0.0.0
+  - shellmet-0.0.1
   - tomland-1.0.0
   - config-ini-0.2.4.0  # needed for brick
   - data-clist-0.1.2.2  # needed for brick

@@ -9,7 +9,7 @@ extra-deps:
   - brick-0.41.4
   - config-ini-0.2.4.0
   - relude-0.4.0
-  - shellmet-0.0.0
+  - shellmet-0.0.1
   - tomland-1.0.0
   - tree-diff-0.0.2
   - megaparsec-7.0.4            # needed for tomland-0.5.0
