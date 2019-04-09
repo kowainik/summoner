@@ -324,6 +324,7 @@ Here is the list of the options that can be configured to suit your needs. If op
 | `ghcVersions`    | [GHC]   | `summoner` uses default `GHC-8.6.4`. However, additionally you can specify other versions. For each version `x.y.z` the `stack-x.y.z.yaml` will be created.          |
 | `github`         | Bool    | Turn on `GitHub` integration by default?                                                                                                                             |
 | `gitignore`      | [Text]  | List of files you want added to the default `.gitignore`. (Ignored if `github = false`)                                                                              |
+| `noUpload`       | Bool    | Do not upload to GitHub, but create all GitHub related files if specified (Ignored if `github = false`) |
 | `private`        | Bool    | Create private repository by default? (Ignored if `github = false`)                                                                                                  |
 | `travis`         | Bool    | Turn on `Travis` integration by default?  (Ignored if `github = false`)                                                                                              |
 | `appveyor`       | Bool    | Turn on `AppVeyor` integration by default?  (Ignored if `github = false`)                                                                                            |

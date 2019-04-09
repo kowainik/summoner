@@ -33,12 +33,11 @@ import Summoner.Tree (showBoldTree, traverseTree)
 
 -- | Generate the project.
 generateProject
-    :: Bool        -- ^ @noUpload@ option (to not upload to @Github@).
-    -> Bool        -- ^ @offline@ mode option
+    :: Bool        -- ^ @offline@ mode option
     -> Text        -- ^ Given project name.
     -> Config      -- ^ Given configurations.
     -> IO ()
-generateProject settingsNoUpload isOffline projectName Config{..} = do
+generateProject isOffline projectName Config{..} = do
     unless (null cWarnings) $
         warningMessage "Please, rename 'warnings' field if you use one, it will be removed in the very next release. Use 'ghc-options' instead."
 
@@ -70,6 +69,11 @@ generateProject settingsNoUpload isOffline projectName Config{..} = do
 
     settingsGitHub   <- decisionToBool cGitHub
         (YesNoPrompt "GitHub integration" "Do you want to create a GitHub repository?")
+
+    let settingsNoUpload = getAny cNoUpload
+    when settingsNoUpload $ do
+        infoMessage "'No upload' option is selected. The project won't be uploaded to GitHub."
+        infoMessage "Use 'hub' and 'git' commands manually in order to upload the project to GitHub"
     settingsPrivate  <- decisionIf
         (settingsGitHub && not settingsNoUpload)
         (YesNoPrompt "private repository" "Create as a private repository (Requires a GitHub private repo plan)?")

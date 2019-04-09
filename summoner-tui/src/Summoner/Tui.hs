@@ -71,7 +71,6 @@ summonTuiNew newOpts@NewOpts{..} = do
     configFilePath <- findConfigFile
     let initialKit = configToSummonKit
             newOptsProjectName
-            newOptsNoUpload
             newOptsOffline
             configFilePath
             finalConfig

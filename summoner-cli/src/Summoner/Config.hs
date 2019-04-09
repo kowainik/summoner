@@ -62,6 +62,7 @@ data ConfigP (p :: Phase) = Config
     , cGitignore    :: ![Text]
     , cStylish      :: !(Last Source)
     , cContributing :: !(Last Source)
+    , cNoUpload     :: !Any  -- ^ Do not upload to the GitHub (even if enabled)
     } deriving (Generic)
 
 deriving instance
@@ -128,6 +129,7 @@ defaultConfig = Config
     , cGitignore = []
     , cStylish  = Last Nothing
     , cContributing = Last Nothing
+    , cNoUpload = Any False
     }
 
 -- | Identifies how to read 'Config' data from the @.toml@ file.
@@ -155,9 +157,13 @@ configT = Config
     <*> textArr        "gitignore"    .= cGitignore
     <*> lastT sourceT  "stylish"      .= cStylish
     <*> lastT sourceT  "contributing" .= cContributing
+    <*> anyT           "noUpload"     .= cNoUpload
   where
     lastT :: (Key -> TomlCodec a) -> Key -> TomlCodec (Last a)
     lastT codec = Toml.dimap getLast Last . Toml.dioptional . codec
+
+    anyT :: Key -> TomlCodec Any
+    anyT = Toml.dimap (Just . getAny) (Any . fromMaybe False) . Toml.dioptional . Toml.bool
 
     _GhcVer :: TomlBiMap GhcVer Toml.AnyValue
     _GhcVer = Toml._TextBy showGhcVer (maybeToRight "Wrong GHC version" . parseGhcVer)
@@ -215,6 +221,7 @@ finalise Config{..} = Config
     <*> pure cGitignore
     <*> pure cStylish
     <*> pure cContributing
+    <*> pure cNoUpload
   where
     fin name = maybe (Failure ["Missing field: " <> name]) Success . getLast
 
