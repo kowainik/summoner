@@ -3,6 +3,10 @@
 `summoner` uses [PVP Versioning][1].
 The changelog is available [on GitHub][2].
 
+## 1.3.0.1 — Apr 10, 2019
+
+* Include golden test files into `extra-source-files`.
+
 ## 1.3.0 — Apr 9, 2019
 
 * [#285](https://github.com/kowainik/summoner/issues/285):
