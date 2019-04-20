@@ -45,6 +45,8 @@ import qualified Brick (on)
 import qualified Graphics.Vty as V
 import qualified Paths_summoner_tui as Meta (version)
 
+import qualified Data.Text as T
+
 
 -- | Main function that parses @CLI@ arguments and runs @summoner@ in TUI mode.
 summonTui :: IO ()
@@ -191,44 +193,12 @@ appNew dirs = App
     autoFillPreludeModuleName ev form preludeField = withForm ev (getUpdatedForm form preludeField) mkNewForm
 
     getUpdatedForm :: KitForm e -> SummonForm -> KitForm e
-    getUpdatedForm form field = mkForm $ SummonKit {summonKitUser  = User
-                                                            { userOwner    = form ^. user . owner
-                                                            , userFullName = form ^. user . fullName
-                                                            , userEmail    = form ^. user . email
-                                                            }
-                                                        , summonKitProject = Project
-                                                            { projectRepo     = form ^. project . repo
-                                                            , projectDesc     = form ^. project . desc
-                                                            , projectCategory = form ^. project . category
-                                                            , projectLicense  = form ^. project . license
-                                                            }
-                                                        , summonKitProjectMeta = ProjectMeta
-                                                            { projectMetaLib = form ^. projectMeta . lib
-                                                            , projectMetaExe = form ^. projectMeta . exe
-                                                            , projectMetaTest = form ^. projectMeta . test
-                                                            , projectMetaBench = form ^. projectMeta . bench
-                                                            , projectMetaGhcs = form ^. projectMeta . ghcs
-                                                            , projectMetaPreludeName = form ^. projectMeta . preludeName
-                                                            , projectMetaPreludeModule = form ^. projectMeta . preludeName
-                                                            }
-                                                        , summonKitCabal = form ^. cabal
-                                                        , summonKitStack = form ^. stack
-                                                        , summonKitGitHub = GitHub
-                                                            { gitHubEnabled  = form ^. gitHub . enabled
-                                                            , gitHubNoUpload = form ^. gitHub . noUpload
-                                                            , gitHubPrivate  = form ^. gitHub . private
-                                                            , gitHubTravis   = form ^. gitHub . travis
-                                                            , gitHubAppVeyor = form ^. gitHub . appVeyor
-                                                            }
-                                                        , summonKitExtensions   = form ^. extensions
-                                                        , summonKitGhcOptions   = form ^. ghcOptions
-                                                        , summonKitGitignore    = form ^. gitignore
-                                                        , summonKitStylish      = form ^. stylish
-                                                        , summonKitContributing = form ^. contributing
-                                                        , summonKitOffline      = form ^. offline
-                                                        , summonKitShouldSummon = form ^. shouldSummon
-                                                        , summonKitConfigFile   = form ^. configFile
-                                                   }
+    getUpdatedForm f field =
+      let
+        input = f ^. projectMeta . preludeName
+        form = formState f & preludeModule input
+      in
+        mkForm form
 
 -- | Draws the form for @new@ command.
 drawNew :: [FilePath] -> KitForm e -> [Widget SummonForm]
