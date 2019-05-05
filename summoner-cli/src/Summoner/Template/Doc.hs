@@ -1,5 +1,3 @@
-{-# LANGUAGE QuasiQuotes #-}
-
 module Summoner.Template.Doc
        ( docFiles
        ) where
@@ -25,7 +23,7 @@ docFiles Settings{..} =
     licenseName = show settingsLicenseName
 
     readme :: Text
-    readme = T.unlines $
+    readme = unlines $
         [ "# " <> settingsRepo
         , ""
         , hackage
@@ -82,7 +80,7 @@ docFiles Settings{..} =
         makeBadge title shield link = "[![" <> title <> "](" <> shield <> ")](" <> link <> ")"
 
     changelog :: Text
-    changelog = T.unlines $
+    changelog = unlines $
         [ "# Changelog"
         , ""
         , "`" <> settingsRepo <> "` uses [PVP Versioning][1]."
