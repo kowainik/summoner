@@ -2,9 +2,7 @@
 
 `smallProject` uses [PVP Versioning][1].
 
-
-0.0.0
-=====
+## 0.0.0.0
 
 * Initially created.
 

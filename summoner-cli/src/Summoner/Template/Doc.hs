@@ -4,8 +4,6 @@ module Summoner.Template.Doc
        ( docFiles
        ) where
 
-import NeatInterpolation (text)
-
 import Summoner.License (License (..), LicenseName (None))
 import Summoner.Settings (Settings (..))
 import Summoner.Tree (TreeFs (..))
@@ -27,7 +25,7 @@ docFiles Settings{..} =
     licenseName = show settingsLicenseName
 
     readme :: Text
-    readme = T.intercalate "\n" $
+    readme = T.unlines $
         [ "# " <> settingsRepo
         , ""
         , hackage
@@ -42,7 +40,7 @@ docFiles Settings{..} =
         ]
       where
         hackageShield :: Text =
-            "https://img.shields.io/hackage/v/" <> settingsRepo <> ".svg"
+            "https://img.shields.io/hackage/v/" <> settingsRepo <> ".svg?logo=haskell"
         hackageLink :: Text =
             "https://hackage.haskell.org/package/" <> settingsRepo
         hackage :: Text = makeBadge "Hackage" hackageShield hackageLink
@@ -67,7 +65,7 @@ docFiles Settings{..} =
             makeBadge "Stackage Nightly" stackShieldNightly stackLinkNightly
 
         travisShield :: Text =
-            "https://secure.travis-ci.org/" <> settingsOwner <> "/" <> settingsRepo <> ".svg"
+            "https://img.shields.io/travis/" <> settingsOwner <> "/" <> settingsRepo <> ".svg?logo=travis"
         travisLink :: Text =
             "https://travis-ci.org/" <> settingsOwner <> "/" <> settingsRepo
         travisBadge :: Text =
@@ -84,22 +82,21 @@ docFiles Settings{..} =
         makeBadge title shield link = "[![" <> title <> "](" <> shield <> ")](" <> link <> ")"
 
     changelog :: Text
-    changelog = T.stripEnd
-        [text|
-        # Changelog
-
-        `$settingsRepo` uses [PVP Versioning][1].
-        $githubLine
-
-        0.0.0
-        =====
-
-        * Initially created.
-
-        [1]: https://pvp.haskell.org
-        $githubFootNote
-        |]
+    changelog = T.unlines $
+        [ "# Changelog"
+        , ""
+        , "`" <> settingsRepo <> "` uses [PVP Versioning][1]."
+        ] ++
+        [ githubLine | settingsGitHub ] ++
+        [ ""
+        , "## 0.0.0.0"
+        , ""
+        , "* Initially created."
+        , ""
+        , "[1]: https://pvp.haskell.org"
+        ] ++
+        [ githubFootNote | settingsGitHub ]
       where
-        githubLine :: Text = memptyIfFalse settingsGitHub "The changelog is available [on GitHub][2]."
-        githubFootNote :: Text = memptyIfFalse settingsGitHub $
-            "[2]: https://github.com/" <> settingsOwner <> "/" <> settingsRepo <> "/releases"
+        githubLine, githubFootNote :: Text
+        githubLine = "The changelog is available [on GitHub][2]."
+        githubFootNote = "[2]: https://github.com/" <> settingsOwner <> "/" <> settingsRepo <> "/releases"

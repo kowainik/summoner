@@ -1,4 +1,4 @@
-cabal-version:       2.0
+cabal-version:       2.4
 name:                summoner-tui
 version:             0.1.0
 synopsis:            Tool for scaffolding fully configured batteries-included production-level Haskell projects using TUI.
@@ -8,9 +8,9 @@ homepage:            https://github.com/kowainik/summoner
 bug-reports:         https://github.com/kowainik/summoner/issues
 license:             MPL-2.0
 license-file:        LICENSE
-author:              Kowainik
-maintainer:          xrom.xkov@gmail.com
-copyright:           2018 Kowainik
+author:              Veronika Romashkina, Dmitrii Kovanikov
+maintainer:          Kowainik <xrom.xkov@gmail.com>
+copyright:           2018-2019 Kowainik
 category:            TUI, TUI Tool, Development
 build-type:          Simple
 stability:           experimental
@@ -24,7 +24,28 @@ source-repository head
   type:     git
   location: git@github.com:kowainik/summoner.git
 
+common common-options
+  ghc-options:         -Wall
+                       -Wincomplete-uni-patterns
+                       -Wincomplete-record-updates
+                       -Wcompat
+                       -Widentities
+                       -Wredundant-constraints
+                       -fhide-source-paths
+
+  default-extensions:  DeriveGeneric
+                       GeneralizedNewtypeDeriving
+                       InstanceSigs
+                       LambdaCase
+                       OverloadedStrings
+                       RecordWildCards
+                       ScopedTypeVariables
+                       TypeApplications
+
+  default-language:    Haskell2010
+
 library
+  import:              common-options
   if os(windows)
     buildable: False
   hs-source-dirs:      src
@@ -51,26 +72,8 @@ library
                      , text ^>= 1.2.3.0
                      , vty ^>= 5.25
 
-  ghc-options:         -Wall
-                       -Wincomplete-uni-patterns
-                       -Wincomplete-record-updates
-                       -Wcompat
-                       -Widentities
-                       -Wredundant-constraints
-                       -fhide-source-paths
-
-  default-extensions:  DeriveGeneric
-                       GeneralizedNewtypeDeriving
-                       InstanceSigs
-                       LambdaCase
-                       OverloadedStrings
-                       RecordWildCards
-                       ScopedTypeVariables
-                       TypeApplications
-
-  default-language:    Haskell2010
-
 executable summon-tui
+  import:              common-options
   if os(windows)
     buildable: False
   hs-source-dirs:      app
@@ -78,15 +81,6 @@ executable summon-tui
   build-depends:       base >= 4.10 && < 4.13
                      , summoner-tui
 
-  ghc-options:         -Wall
-                       -threaded
+  ghc-options:         -threaded
                        -rtsopts
                        -with-rtsopts=-N
-                       -Wincomplete-uni-patterns
-                       -Wincomplete-record-updates
-                       -Wcompat
-                       -Widentities
-                       -Wredundant-constraints
-                       -fhide-source-paths
-
-  default-language:    Haskell2010

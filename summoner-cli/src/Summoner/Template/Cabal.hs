@@ -34,7 +34,7 @@ cabalFile Settings{..} = File (toString settingsRepo ++ ".cabal") cabalFileConte
     cabalHeader = unlines $
         [ "cabal-version:       " <> defaultCabal
         , "name:                " <> settingsRepo
-        , "version:             0.0.0"
+        , "version:             0.0.0.0"
         , "synopsis:            " <> settingsDescription
         , "description:         " <> settingsDescription ] ++
         [ "homepage:            " <> githubUrl        | settingsGitHub ] ++
