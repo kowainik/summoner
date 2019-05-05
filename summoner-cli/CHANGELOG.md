@@ -3,6 +3,12 @@
 `summoner` uses [PVP Versioning][1].
 The changelog is available [on GitHub][2].
 
+## Unreleased
+
+* [#316](https://github.com/kowainik/summoner/issues/316):
+  Add logos to README bagdes in the generated projects.
+* Generate project of version `0.0.0.0` instead of `0.0.0`.
+
 ## 1.3.0.1 — Apr 10, 2019
 
 * Include golden test files into `extra-source-files`.

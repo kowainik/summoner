@@ -1,6 +1,6 @@
 cabal-version:       2.0
 name:                fullProject
-version:             0.0.0
+version:             0.0.0.0
 synopsis:            Full test project
 description:         Full test project
 homepage:            https://github.com/kowainik/fullProject
