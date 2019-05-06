@@ -6,7 +6,6 @@ module Summoner.Source
        , fetchSource
        ) where
 
-import Control.Arrow ((>>>))
 import Control.Exception (catch)
 import NeatInterpolation (text)
 import System.Process (readProcess)

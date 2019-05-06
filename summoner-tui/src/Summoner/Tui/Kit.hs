@@ -80,6 +80,8 @@ import Summoner.Tree (showTree)
 import qualified Data.List as List (delete)
 import qualified Data.Text as T
 
+import qualified Data.Semigroup as S
+
 
 -- | Global TUI state.
 data SummonKit = SummonKit
@@ -260,8 +262,8 @@ configToSummonKit cRepo cOffline cConfigFile Config{..} = SummonKit
     , summonKitExtensions   = cExtensions
     , summonKitGhcOptions   = cWarnings ++ cGhcOptions
     , summonKitGitignore    = cGitignore
-    , summonKitStylish      = getLast cStylish
-    , summonKitContributing = getLast cContributing
+    , summonKitStylish      = fmap S.getLast cStylish
+    , summonKitContributing = fmap S.getLast cContributing
     , summonKitOffline      = cOffline
     , summonKitShouldSummon = Nop
     , summonKitConfigFile   = cConfigFile
@@ -287,7 +289,7 @@ configToSummonKit cRepo cOffline cConfigFile Config{..} = SummonKit
         Idk -> False
 
     kitPreludeName, kitPreludeModule :: Text
-    (kitPreludeName, kitPreludeModule) = case getLast cPrelude of
+    (kitPreludeName, kitPreludeModule) = case S.getLast <$> cPrelude of
         Nothing                -> ("", "")
         Just CustomPrelude{..} -> (cpPackage, cpModule)
 

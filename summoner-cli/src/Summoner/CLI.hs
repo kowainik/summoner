@@ -27,7 +27,7 @@ import Development.GitRev (gitCommitDate, gitDirty, gitHash)
 import NeatInterpolation (text)
 import Options.Applicative (Parser, ParserInfo, argument, command, execParser, flag, fullDesc, help,
                             helper, info, infoFooter, infoHeader, infoOption, long, maybeReader,
-                            metavar, option, optional, progDesc, short, strArgument, strOption,
+                            metavar, option, progDesc, short, strArgument, strOption,
                             subparser, switch, value)
 import Options.Applicative.Help.Chunk (stringChunk)
 import Shellmet (($?), ($|))
@@ -47,6 +47,7 @@ import Summoner.Project (generateProject)
 import Summoner.Settings (CustomPrelude (..), Tool, parseTool)
 import Summoner.Template.Script (scriptFile)
 
+import qualified Data.Semigroup as S
 import qualified Data.Text as T
 import qualified Paths_summoner as Meta (version)
 
@@ -172,9 +173,9 @@ getFinalConfig NewOpts{..} = do
        gitName  <- (Just <$> "git" $| ["config", "user.name"])  $? pure Nothing
        gitEmail <- (Just <$> "git" $| ["config", "user.email"]) $? pure Nothing
        pure $ defaultConfig
-           { cOwner = Last gitOwner
-           , cFullName = Last gitName
-           , cEmail = Last gitEmail
+           { cOwner = S.Last <$> gitOwner
+           , cFullName = S.Last <$> gitName
+           , cEmail = S.Last <$> gitEmail
            }
 
 
@@ -338,7 +339,7 @@ newP = do
 
     pure $ New $ NewOpts
         { newOptsCliConfig = (maybeToMonoid $ with <> without)
-            { cPrelude = Last $ CustomPrelude <$> preludePack <*> preludeMod
+            { cPrelude = fmap S.Last $ CustomPrelude <$> preludePack <*> preludeMod
             , cCabal = cabal
             , cStack = stack
             , cNoUpload = Any $ noUpload || newOptsOffline

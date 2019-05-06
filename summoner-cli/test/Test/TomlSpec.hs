@@ -2,6 +2,8 @@ module Test.TomlSpec
        ( tomlProp
        ) where
 
+import qualified Data.Semigroup as S
+
 import Hedgehog (MonadGen, Property, forAll, property, tripping)
 import Toml.Bi.Code (decode, encode)
 
@@ -50,11 +52,11 @@ genSource = do
 
 genPartialConfig :: MonadGen m => m PartialConfig
 genPartialConfig = do
-    cOwner      <- Last <$> Gen.maybe genText
-    cFullName   <- Last <$> Gen.maybe genText
-    cEmail      <- Last <$> Gen.maybe genText
-    cLicense    <- Last <$> Gen.maybe genLicense
-    cGhcVer     <- Last <$> Gen.maybe genGhcVerArr
+    cOwner      <- fmap S.Last <$> Gen.maybe genText
+    cFullName   <- fmap S.Last <$> Gen.maybe genText
+    cEmail      <- fmap S.Last <$> Gen.maybe genText
+    cLicense    <- fmap S.Last <$> Gen.maybe genLicense
+    cGhcVer     <- fmap S.Last <$> Gen.maybe genGhcVerArr
     cCabal      <- genDecision
     cStack      <- genDecision
     cGitHub     <- genDecision
@@ -65,12 +67,12 @@ genPartialConfig = do
     cExe        <- genDecision
     cTest       <- genDecision
     cBench      <- genDecision
-    cPrelude    <- Last <$> Gen.maybe genCustomPrelude
+    cPrelude    <- fmap S.Last <$> Gen.maybe genCustomPrelude
     cExtensions <- genTextArr
     cWarnings   <- genTextArr
     cGhcOptions <- genTextArr
     cGitignore  <- genTextArr
-    cStylish    <- Last <$> Gen.maybe genSource
-    cContributing <- Last <$> Gen.maybe genSource
+    cStylish    <- fmap S.Last <$> Gen.maybe genSource
+    cContributing <- fmap S.Last <$> Gen.maybe genSource
     cNoUpload   <- Any <$> Gen.bool
     pure Config{..}

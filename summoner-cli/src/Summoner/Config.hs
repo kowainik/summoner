@@ -34,6 +34,8 @@ import Summoner.Source (Source, sourceT)
 
 import qualified Toml
 
+import qualified Data.Semigroup as S
+
 
 -- | The phase of the configurations.
 data Phase = Partial | Final
@@ -55,13 +57,13 @@ data ConfigP (p :: Phase) = Config
     , cExe          :: !Decision
     , cTest         :: !Decision
     , cBench        :: !Decision
-    , cPrelude      :: !(Last CustomPrelude)
+    , cPrelude      :: !(Maybe (S.Last CustomPrelude))
     , cExtensions   :: ![Text]
     , cWarnings     :: ![Text]
     , cGhcOptions   :: ![Text]  -- ^ GHC options to add every stanza
     , cGitignore    :: ![Text]
-    , cStylish      :: !(Last Source)
-    , cContributing :: !(Last Source)
+    , cStylish      :: !(Maybe (S.Last Source))
+    , cContributing :: !(Maybe (S.Last Source))
     , cNoUpload     :: !Any  -- ^ Do not upload to the GitHub (even if enabled)
     } deriving (Generic)
 
@@ -88,7 +90,7 @@ deriving instance
 
 infixl 3 :-
 type family phase :- field where
-    'Partial :- field = Last field
+    'Partial :- field = Maybe (S.Last field)
     'Final   :- field = field
 
 -- | Incomplete configurations.
@@ -107,11 +109,11 @@ instance Monoid PartialConfig where
 -- | Default 'Config' configurations.
 defaultConfig :: PartialConfig
 defaultConfig = Config
-    { cOwner    = Last (Just "kowainik")
-    , cFullName = Last (Just "Kowainik")
-    , cEmail    = Last (Just "xrom.xkov@gmail.com")
-    , cLicense  = Last (Just MIT)
-    , cGhcVer   = Last (Just [])
+    { cOwner    = Just (S.Last "kowainik")
+    , cFullName = Just (S.Last "Kowainik")
+    , cEmail    = Just (S.Last "xrom.xkov@gmail.com")
+    , cLicense  = Just (S.Last MIT)
+    , cGhcVer   = Just (S.Last [])
     , cCabal    = Idk
     , cStack    = Idk
     , cGitHub   = Idk
@@ -122,13 +124,13 @@ defaultConfig = Config
     , cExe      = Idk
     , cTest     = Idk
     , cBench    = Idk
-    , cPrelude  = Last Nothing
+    , cPrelude  = Nothing
     , cExtensions = []
     , cWarnings = []
     , cGhcOptions = []
     , cGitignore = []
-    , cStylish  = Last Nothing
-    , cContributing = Last Nothing
+    , cStylish  = Nothing
+    , cContributing = Nothing
     , cNoUpload = Any False
     }
 
@@ -159,8 +161,8 @@ configT = Config
     <*> lastT sourceT  "contributing" .= cContributing
     <*> anyT           "noUpload"     .= cNoUpload
   where
-    lastT :: (Key -> TomlCodec a) -> Key -> TomlCodec (Last a)
-    lastT codec = Toml.dimap getLast Last . Toml.dioptional . codec
+    lastT :: (Key -> TomlCodec a) -> Key -> TomlCodec (Maybe (S.Last a))
+    lastT codec = Toml.dimap (fmap S.getLast) (fmap S.Last) . Toml.dioptional . codec
 
     anyT :: Key -> TomlCodec Any
     anyT = Toml.dimap (Just . getAny) (Any . fromMaybe False) . Toml.dioptional . Toml.bool
@@ -223,7 +225,7 @@ finalise Config{..} = Config
     <*> pure cContributing
     <*> pure cNoUpload
   where
-    fin name = maybe (Failure ["Missing field: " <> name]) Success . getLast
+    fin name = maybe (Failure ["Missing field: " <> name]) Success . fmap S.getLast
 
 -- | Read configuration from the given file and return it in data type.
 loadFileConfig :: MonadIO m => FilePath -> m PartialConfig

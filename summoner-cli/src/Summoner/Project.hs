@@ -8,6 +8,7 @@ module Summoner.Project
        ) where
 
 import Data.List (intersect)
+import qualified Data.Semigroup as S
 import NeatInterpolation (text)
 import Shellmet ()
 import System.Directory (setCurrentDirectory)
@@ -111,7 +112,7 @@ generateProject isOffline projectName Config{..} = do
     when (oldGhcIncluded && settingsStack && settingsTravis) $
         warningMessage "Old GHC versions won't be included into Stack matrix at Travis CI because of the Stack issue with newer Cabal versions."
 
-    let fetchLast = maybe (pure Nothing) (fetchSource isOffline) . getLast
+    let fetchLast = maybe (pure Nothing) (fetchSource isOffline) . fmap S.getLast
     settingsStylish      <- fetchLast cStylish
     settingsContributing <- fetchLast cContributing
 
@@ -154,15 +155,15 @@ generateProject isOffline projectName Config{..} = do
         showShort l = "  * " <> show l <> ": " <> licenseShortDesc l
 
     getPrelude :: IO (Maybe CustomPrelude)
-    getPrelude = case cPrelude of
-        Last Nothing -> do
+    getPrelude = case fmap S.getLast cPrelude of
+        Nothing -> do
             p <- query "Custom prelude package (leave empty if no custom prelude is needed): "
             if p == "" then Nothing <$ skipMessage "No custom prelude will be used in the project"
             else do
                 m <- queryDef "Custom prelude module: " (packageToModule p)
                 successMessage $ "Custom prelude " <> p <> " will be used in the project"
                 pure $ Just $ CustomPrelude p m
-        Last prelude@(Just (CustomPrelude p _)) ->
+        prelude@(Just (CustomPrelude p _)) ->
             prelude <$ successMessage ("Custom prelude " <> p <> " will be used in the project")
 
     -- get what build tool to use in the project
