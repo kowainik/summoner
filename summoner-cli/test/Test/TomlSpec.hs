@@ -52,11 +52,11 @@ genSource = do
 
 genPartialConfig :: MonadGen m => m PartialConfig
 genPartialConfig = do
-    cOwner      <- fmap S.Last <$> Gen.maybe genText
-    cFullName   <- fmap S.Last <$> Gen.maybe genText
-    cEmail      <- fmap S.Last <$> Gen.maybe genText
-    cLicense    <- fmap S.Last <$> Gen.maybe genLicense
-    cGhcVer     <- fmap S.Last <$> Gen.maybe genGhcVerArr
+    cOwner      <- Gen.maybe $ S.Last <$> genText
+    cFullName   <- Gen.maybe $ S.Last <$> genText
+    cEmail      <- Gen.maybe $ S.Last <$> genText
+    cLicense    <- Gen.maybe $ S.Last <$> genLicense
+    cGhcVer     <- Gen.maybe $ S.Last <$> genGhcVerArr
     cCabal      <- genDecision
     cStack      <- genDecision
     cGitHub     <- genDecision
@@ -67,12 +67,12 @@ genPartialConfig = do
     cExe        <- genDecision
     cTest       <- genDecision
     cBench      <- genDecision
-    cPrelude    <- fmap S.Last <$> Gen.maybe genCustomPrelude
+    cPrelude    <- Gen.maybe $ S.Last <$> genCustomPrelude
     cExtensions <- genTextArr
     cWarnings   <- genTextArr
     cGhcOptions <- genTextArr
     cGitignore  <- genTextArr
-    cStylish    <- fmap S.Last <$> Gen.maybe genSource
-    cContributing <- fmap S.Last <$> Gen.maybe genSource
+    cStylish    <- Gen.maybe $ S.Last <$> genSource
+    cContributing <- Gen.maybe $ S.Last <$> genSource
     cNoUpload   <- Any <$> Gen.bool
     pure Config{..}
