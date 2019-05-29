@@ -21,4 +21,4 @@ cache:
 
 build_script:
   - cabal %CABOPTS% new-build --enable-tests all
-  - cabal %CABOPTS% new-test all
+  - cabal %CABOPTS% new-test all --enable-tests
