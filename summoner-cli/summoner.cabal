@@ -143,7 +143,7 @@ test-suite summoner-test
                      , neat-interpolation
                      , relude
                      , tomland
-                     , tree-diff ^>= 0.0.2
+                     , tree-diff >= 0.0.2 && < 0.2
                      , summoner
 
   ghc-options:         -threaded
