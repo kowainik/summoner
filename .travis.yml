@@ -53,7 +53,7 @@ install:
 script:
   - |
     if [ -z "$STACK_YAML" ]; then
-      cabal new-test all
+      cabal new-test all --enable-tests
     else
       stack test --system-ghc --no-terminal
     fi
