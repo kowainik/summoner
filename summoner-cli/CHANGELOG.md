@@ -8,6 +8,9 @@ The changelog is available [on GitHub][2].
 * [#316](https://github.com/kowainik/summoner/issues/316):
   Add logos to README bagdes in the generated projects.
 * Generate project of version `0.0.0.0` instead of `0.0.0`.
+* [#322](https://github.com/kowainik/summoner/issues/322):
+  Run HLint check before project build in `.travis.yml` file for
+  the generated projects.
 
 ## 1.3.0.1 — Apr 10, 2019
 
