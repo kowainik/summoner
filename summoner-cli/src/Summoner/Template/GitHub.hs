@@ -183,6 +183,8 @@ gitHubFiles Settings{..} =
     installScriptBoth =
         [text|
         install:
+          $hlintCheck
+
           - |
             if [ -z "$$STACK_YAML" ]; then
               ghc --version
@@ -202,15 +204,14 @@ gitHubFiles Settings{..} =
             else
               stack test --system-ghc
             fi
-
-          # HLint check
-          - curl -sSL https://raw.github.com/ndmitchell/neil/master/misc/travis.sh | sh -s -- hlint .
         |]
 
     installScriptCabal :: Text
     installScriptCabal =
         [text|
         install:
+          $hlintCheck
+
           - cabal new-update
           - cabal new-build --enable-tests --enable-benchmarks
 
@@ -222,12 +223,21 @@ gitHubFiles Settings{..} =
     installScriptStack =
         [text|
         install:
+          $hlintCheck
+
           - curl -sSL https://get.haskellstack.org/ | sh
           - stack --version
           - stack build --system-ghc --test --bench --no-run-tests --no-run-benchmarks --ghc-options=-Werror
 
         script:
           - stack test --system-ghc
+        |]
+
+    hlintCheck :: Text
+    hlintCheck =
+        [text|
+        # HLint check
+        - curl -sSL https://raw.github.com/ndmitchell/neil/master/misc/travis.sh | sh -s -- hlint .
         |]
 
     appVeyorYml :: Text
