@@ -5,5 +5,14 @@ packages:
   - summoner-tui/
 
 extra-deps:
-  - optparse-applicative-0.15
+  - brick-0.47.1
+  - optparse-applicative-0.15.0.0
+  - relude-0.5.0
+  - tomland-1.0.1.0
   - shellmet-0.0.1
+
+  # for brick
+  - config-ini-0.2.4.0
+  - data-clist-0.1.2.2
+  - text-zipper-0.10.1
+  - word-wrap-0.4.1
