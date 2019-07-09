@@ -11,6 +11,9 @@ The changelog is available [on GitHub][2].
 * [#322](https://github.com/kowainik/summoner/issues/322):
   Run HLint check before project build in `.travis.yml` file for
   the generated projects.
+* [#329](https://github.com/kowainik/summoner/issues/329):
+  Bump up to `optparse-applicative-0.15`, use custom `ParserPrefs`.
+* Add `stack.yaml.lock` to `.gitignore` file in the generated project.
 
 ## 1.3.0.1 — Apr 10, 2019
 

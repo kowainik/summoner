@@ -64,6 +64,7 @@ gitHubFiles Settings{..} =
         .HTF/
         # Stack
         .stack-work/
+        stack.yaml.lock
 
         ### IDE/support
         # Vim

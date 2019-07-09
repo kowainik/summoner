@@ -25,10 +25,11 @@ module Summoner.CLI
 import Data.Version (Version, showVersion)
 import Development.GitRev (gitCommitDate, gitDirty, gitHash)
 import NeatInterpolation (text)
-import Options.Applicative (Parser, ParserInfo, argument, command, execParser, flag, fullDesc, help,
-                            helper, info, infoFooter, infoHeader, infoOption, long, maybeReader,
-                            metavar, option, optional, progDesc, short, strArgument, strOption,
-                            subparser, switch, value)
+import Options.Applicative (Parser, ParserInfo, ParserPrefs, argument, command, customExecParser,
+                            flag, fullDesc, help, helpLongEquals, helper, info, infoFooter,
+                            infoHeader, infoOption, long, maybeReader, metavar, option, optional,
+                            prefs, progDesc, short, showHelpOnEmpty, strArgument, strOption,
+                            subparser, subparserInline, switch, value)
 import Options.Applicative.Help.Chunk (stringChunk)
 import Shellmet (($?), ($|))
 import System.Directory (doesFileExist)
@@ -54,7 +55,15 @@ import qualified Paths_summoner as Meta (version)
 -- | Main function that parses @CLI@ commands and runs them using given
 -- 'Command' handler.
 summon :: Version -> (Command -> IO ()) -> IO ()
-summon version performCommand = execParser (cliParser version) >>= performCommand
+summon version performCommand =
+    customExecParser summonerParserPrefs (cliParser version) >>= performCommand
+  where
+    -- To turn on some special options.
+    summonerParserPrefs :: ParserPrefs
+    summonerParserPrefs = prefs
+        $ helpLongEquals
+       <> showHelpOnEmpty
+       <> subparserInline
 
 -- | Runs @summoner@ in CLI mode.
 summonCli :: IO ()
