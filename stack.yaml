@@ -1,8 +1,9 @@
-resolver: nightly-2019-04-09
+resolver: lts-13.19
 
 packages:
   - summoner-cli/
   - summoner-tui/
 
 extra-deps:
+  - optparse-applicative-0.15
   - shellmet-0.0.1
