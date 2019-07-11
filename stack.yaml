@@ -8,7 +8,7 @@ extra-deps:
   - brick-0.47.1
   - optparse-applicative-0.15.0.0
   - relude-0.5.0
-  - tomland-1.0.1.0
+  - tomland-1.1.0.1
   - shellmet-0.0.1
 
   # for brick
