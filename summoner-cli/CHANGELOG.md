@@ -16,6 +16,10 @@ The changelog is available [on GitHub][2].
 * [#328](https://github.com/kowainik/summoner/issues/328):
   Upgrade `tomland` bounds to allow `1.1.0.0`.
 * Add `stack.yaml.lock` to `.gitignore` file in the generated project.
+* [#318](https://github.com/kowainik/summoner/issues/318):
+  Support GHC `8.6.5` in generated projects. Use GHC `8.6.5` in Summoner.
+* Remove support of GHC `8.6.4`, `8.6.3`, `8.4.3`. Leave only the latest
+  versions of each major release.
 
 ## 1.3.0.1 — Apr 10, 2019
 

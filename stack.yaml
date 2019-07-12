@@ -1,4 +1,4 @@
-resolver: lts-13.19
+resolver: lts-13.27
 
 packages:
   - summoner-cli/
