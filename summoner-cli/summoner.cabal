@@ -18,7 +18,7 @@ extra-doc-files:     README.md
                    , CHANGELOG.md
 tested-with:         GHC == 8.2.2
                    , GHC == 8.4.4
-                   , GHC == 8.6.4
+                   , GHC == 8.6.5
 extra-source-files:
     test/golden/fullProject/*.yml
     test/golden/fullProject/*.yaml

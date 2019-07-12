@@ -10,7 +10,7 @@ copyright:           2018 Kowainik
 build-type:          Simple
 extra-doc-files:     README.md
                    , CHANGELOG.md
-tested-with:         GHC == 8.6.4
+tested-with:         GHC == 8.6.5
 
 executable smallProject
   hs-source-dirs:      app

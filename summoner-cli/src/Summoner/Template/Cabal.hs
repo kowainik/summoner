@@ -60,7 +60,10 @@ cabalFile Settings{..} = File (toString settingsRepo ++ ".cabal") cabalFileConte
     libModuleName = packageToModule settingsRepo
 
     testedGhcs :: Text
-    testedGhcs = intercalateMap ", " (mappend "GHC == " . showGhcVer) settingsTestedVersions
+    testedGhcs = intercalateMap
+        ("\n" <> T.replicate 19 " " <> ", ")
+        (mappend "GHC == " . showGhcVer)
+        settingsTestedVersions
 
     sourceRepository :: Text
     sourceRepository =
@@ -188,11 +191,11 @@ cabalFile Settings{..} = File (toString settingsRepo ++ ".cabal") cabalFileConte
 
     versionGhcOptions :: Text
     versionGhcOptions
-        =  memptyIfFalse (settingsTestedVersions `hasLeast` Ghc801)
+        =  memptyIfFalse (settingsTestedVersions `hasLeast` Ghc802)
             "-Wredundant-constraints\n"
         <> memptyIfFalse (settingsTestedVersions `hasLeast` Ghc822)
             "-fhide-source-paths\n"
-        <> memptyIfFalse (settingsTestedVersions `hasLeast` Ghc843)
+        <> memptyIfFalse (settingsTestedVersions `hasLeast` Ghc844)
             [text|
             -Wmissing-export-lists
             -Wpartial-fields

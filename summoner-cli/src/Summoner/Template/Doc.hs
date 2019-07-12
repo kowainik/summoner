@@ -26,13 +26,13 @@ docFiles Settings{..} =
     readme = unlines $
         [ "# " <> settingsRepo
         , ""
-        , hackage
         ]
-     ++ [licenseBadge      | hasLicense]
-     ++ [stackLtsBadge     | settingsStack]
-     ++ [stackNightlyBadge | settingsStack]
      ++ [travisBadge       | settingsTravis]
      ++ [appVeyorBadge     | settingsAppVeyor]
+     ++ [hackage]
+     ++ [stackLtsBadge     | settingsStack]
+     ++ [stackNightlyBadge | settingsStack]
+     ++ [licenseBadge      | hasLicense]
      ++ [""
         , settingsDescription
         ]
