@@ -16,11 +16,22 @@ let
   fetchGitHubArchive = owner: repo: rev:
     builtins.fetchTarball "https://github.com/${owner}/${repo}/archive/${rev}.tar.gz";
 
-  # Summoner project derivation.
-  projectDrv = haskellPackages.extend (pkgs.haskell.lib.packageSourceOverrides {
-    summoner = ./summoner-cli;
-    summoner-tui = ./summoner-tui;
+  # Cabal source dists should not contain symlinks targeting files outside its
+  # directory. We replace such symlinks with their target here.
+  unpackSymlinks = hp: pkgs.haskell.lib.overrideCabal hp (drv: {
+    postUnpack = ''
+      cp --remove-destination ${./README.md} $sourceRoot/README.md
+      cp --remove-destination ${./LICENSE} $sourceRoot/LICENSE
+    '';
+  });
 
+  # Summoner project derivation.
+  projectDrv = (haskellPackages.override {
+    overrides = self: super: with pkgs.haskell.lib; {
+      summoner = unpackSymlinks (self.callCabal2nix "summoner" ./summoner-cli {});
+      summoner-tui = unpackSymlinks (self.callCabal2nix "summoner-tui" ./summoner-tui {});
+    };
+  }).extend (pkgs.haskell.lib.packageSourceOverrides {
     relude = fetchGitHubArchive "kowainik" "relude"
       "55968311244690f5cc8b4484a37a63d988ea2ec4";
     tomland = fetchGitHubArchive "kowainik" "tomland"
