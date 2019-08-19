@@ -633,8 +633,8 @@ stack exec summon-tui -- SOME_COMMAND
 or, if using Nix,
 
 ```shell
-nix-shell --run 'cabal new-exec summon -- SOME_COMMAND'
-nix-shell --run 'cabal new-exec summon-tui -- SOME_COMMAND'
+nix-shell --run 'cabal new-run summon -- SOME_COMMAND'
+nix-shell --run 'cabal new-run summon-tui -- SOME_COMMAND'
 ```
 
 ## Changelog [↑](#structure)
