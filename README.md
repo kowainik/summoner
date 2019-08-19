@@ -630,7 +630,7 @@ stack exec summon -- SOME_COMMAND
 stack exec summon-tui -- SOME_COMMAND
 ```
 
-of, if using Nix,
+or, if using Nix,
 
 ```shell
 nix-shell --run 'cabal new-exec summon -- SOME_COMMAND'
