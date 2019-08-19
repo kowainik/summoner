@@ -24,6 +24,8 @@ cabal.project.local
 # Stack
 .stack-work/
 stack.yaml.lock
+# Nix
+result
 
 ### IDE/support
 # Vim
