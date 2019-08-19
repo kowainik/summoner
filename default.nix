@@ -35,15 +35,15 @@ let
 
   # Summoner project shell.
   projectShell = projectDrv.shellFor {
-    withHoogle = false;
+    withHoogle = true;
     packages = p:
       [ p.summoner
         p.summoner-tui
       ];
-    buildInputs = with projectDrv;
-      [ cabal-install
+    buildInputs =
+      [ projectDrv.cabal-install
         # Dev dependencies below:
-        ghcid
+        projectDrv.ghcid
         # Runtime dependencies below;
         pkgs.curl
         pkgs.git
