@@ -21,12 +21,8 @@ let
     summoner = ./summoner-cli;
     summoner-tui = ./summoner-tui;
 
-    relude = fetchGitHubArchive "kowainik" "relude"
-      "55968311244690f5cc8b4484a37a63d988ea2ec4";
     tomland = fetchGitHubArchive "kowainik" "tomland"
-      "8ef78e5fcfd7055b1db6402713d27a0aa42a82f8";
-    shellmet = fetchGitHubArchive "kowainik" "shellmet"
-      "36149eb0eb2b81916a93cdb92f3cb949d2eb9d23";
+     "8ef78e5fcfd7055b1db6402713d27a0aa42a82f8";
     optparse-applicative = fetchGitHubArchive "pcapriotti" "optparse-applicative"
       "5478fc16cbd3384c19e17348a17991896c724a3c";
     parser-combinators = fetchGitHubArchive "mrkkrp" "parser-combinators"
