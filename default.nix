@@ -42,7 +42,11 @@ let
       ];
     buildInputs = with projectDrv;
       [ cabal-install
+        # Dev dependencies below:
         ghcid
+        # Runtime dependencies below;
+        pkgs.curl
+        pkgs.git
         pkgs.gitAndTools.hub
       ];
   };
