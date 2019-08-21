@@ -46,7 +46,6 @@ let
 
   # Summoner project shell.
   projectShell = projectDrv.shellFor {
-    withHoogle = true;
     packages = p:
       [ p.summoner
         p.summoner-tui
