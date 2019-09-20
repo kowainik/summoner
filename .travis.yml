@@ -24,6 +24,10 @@ matrix:
   - ghc: 8.6.5
     env: STACK_YAML="$TRAVIS_BUILD_DIR/stack.yaml" DEPLOY=yes
 
+  - language: nix
+    install: echo 'Running nix...'
+    script: nix-shell --run 'cabal new-test all --enable-tests'
+
 #  Disabled because of Travis bugs
 #  # macOS build
 #  - env: GHCVER='8.6.3' STACK_YAML="$TRAVIS_BUILD_DIR/stack.yaml" DEPLOY=yes
