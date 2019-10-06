@@ -31,7 +31,7 @@ import Summoner.Ansi (errorMessage, infoMessage)
 import Summoner.CLI (Command (..), NewOpts (..), ShowOpts (..), getFinalConfig, runScript, summon)
 import Summoner.Decision (Decision (..))
 import Summoner.Default (defaultConfigFile)
-import Summoner.GhcVer (showGhcVer)
+import Summoner.GhcVer (showGhcOutput)
 import Summoner.License (License (..), LicenseName, fetchLicense, parseLicenseName,
                          showLicenseWithDesc)
 import Summoner.Project (initializeProject)
@@ -258,7 +258,7 @@ runTuiShowGhcVersions :: IO ()
 runTuiShowGhcVersions = runSimpleApp drawGhcVersions
   where
     drawGhcVersions :: Widget ()
-    drawGhcVersions = listInBorder "Supported GHC versions" 30 0 (map showGhcVer universe)
+    drawGhcVersions = listInBorder "Supported GHC versions" 60 0 (map showGhcOutput universe)
 
 runTuiShowAllLicenses :: IO ()
 runTuiShowAllLicenses = runSimpleApp drawLicenseNames

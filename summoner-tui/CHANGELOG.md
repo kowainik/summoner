@@ -3,6 +3,11 @@
 `summoner-tui` uses [PVP Versioning][1].
 The changelog is available [on GitHub][2].
 
+## Unreleased
+
+* [#314](https://github.com/kowainik/summoner/issues/314):
+  Improve `summon show ghc` output
+
 ## 0.1.0 — Apr 9, 2019
 
 * Upgrade to `summoner-1.3.0`.
