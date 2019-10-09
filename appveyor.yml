@@ -1,24 +1,34 @@
-install:
-  # Using '-y' and 'refreshenv' as a workaround to:
-  # https://github.com/haskell/cabal/issues/3687
-  - choco source add -n mistuke -s https://www.myget.org/F/mistuke/api/v2
-  - choco install -y ghc --version 8.6.5 --ignore-dependencies
-  - choco install -y cabal-head -pre
-  - refreshenv
-  # See http://help.appveyor.com/discussions/problems/6312-curl-command-not-found#comment_42195491
-  # NB: Do this after refreshenv, otherwise it will be clobbered!
-  - set PATH=%APPDATA%\cabal\bin;C:\Program Files\Git\cmd;C:\Program Files\Git\mingw64\bin;C:\msys64\usr\bin;%PATH%
-  - cabal --version
-  - cabal %CABOPTS% new-update
+clone_folder: "c:\\WORK"
+clone_depth: 5
+
+# Do not build feature branch with open Pull Requests
+skip_branch_with_pr: true
+
+platform:
+  - x86_64
+
+cache:
+  - "C:\\SR"
+  - dist-newstyle
 
 environment:
   global:
-    CABOPTS:  "--store-dir=C:\\SR"
+    CABOPTS: --store-dir=C:\\SR
 
-cache:
-  - dist-newstyle
-  - "C:\\SR"
+  matrix:
+    - GHCVER: 8.6.5
+
+install:
+  - choco source add -n mistuke -s https://www.myget.org/F/mistuke/api/v2
+  - choco install -y cabal --version 2.4.1.0
+  - choco install -y ghc --version 8.6.5
+  - refreshenv
+
+before_build:
+  - cabal --version
+  - ghc   --version
+  - cabal %CABOPTS% v2-update
 
 build_script:
-  - cabal %CABOPTS% new-build --enable-tests all
-  - cabal %CABOPTS% new-test all --enable-tests
+  - cabal %CABOPTS% v2-build all --enable-tests
+  - cabal %CABOPTS% v2-test  all --enable-tests
