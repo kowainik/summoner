@@ -27,6 +27,7 @@ import Brick.Widgets.List (listSelectedAttr, listSelectedFocusedAttr)
 import Lens.Micro ((.~), (^.))
 import System.Directory (doesDirectoryExist, doesFileExist, getCurrentDirectory, listDirectory)
 
+import Summoner.Text (alignTable)
 import Summoner.Ansi (errorMessage, infoMessage)
 import Summoner.CLI (Command (..), NewOpts (..), ShowOpts (..), getFinalConfig, runScript, summon)
 import Summoner.Decision (Decision (..))
@@ -258,7 +259,7 @@ runTuiShowGhcVersions :: IO ()
 runTuiShowGhcVersions = runSimpleApp drawGhcVersions
   where
     drawGhcVersions :: Widget ()
-    drawGhcVersions = listInBorder "Supported GHC versions" 60 0 (map showGhcOutput universe)
+    drawGhcVersions = listInBorder "Supported GHC versions" 60 0 $ alignTable (map showGhcOutput universe)
 
 runTuiShowAllLicenses :: IO ()
 runTuiShowAllLicenses = runSimpleApp drawLicenseNames

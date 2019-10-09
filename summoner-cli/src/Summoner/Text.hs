@@ -3,7 +3,10 @@ module Summoner.Text
        , intercalateMap
        , headToUpper
        , tconcatMap
+       , alignTable
        ) where
+
+import Data.List (maximum)
 
 import qualified Data.Char as C
 import qualified Data.Text as T
@@ -26,3 +29,20 @@ headToUpper t = case T.uncons t of
 -- | Convert every element of a list into text, and squash the results
 tconcatMap :: (a -> Text) -> [a] -> Text
 tconcatMap f = T.concat . map f
+
+-- | Aligns a list of texts by their columns
+alignTable :: [[Text]] -> [Text]
+alignTable ghcOutputs = map (T.intercalate " ") $
+    transpose $ zipWith padRow (transpose ghcOutputs) maxWordLengths 
+    where 
+      maxWordLengths :: [Int]
+      maxWordLengths = getMaxLengths ghcOutputs 
+
+padRow :: [Text] -> Int -> [Text] 
+padRow row maxWordLength = map (padWord maxWordLength) row
+
+padWord :: Int -> Text -> Text
+padWord maxWordLength word = word <> T.replicate (maxWordLength - T.length word) " "
+
+getMaxLengths :: [[Text]] -> [Int]
+getMaxLengths rows = map maximum $ map (map T.length) (transpose rows)

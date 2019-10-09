@@ -17,8 +17,6 @@ module Summoner.GhcVer
 
 import Data.List (maximum, minimum)
 
-import Summoner.Text (intercalateMap)
-
 import qualified Text.Show as Show
 
 
@@ -31,11 +29,12 @@ data GhcVer
     | Ghc865
     deriving (Eq, Ord, Show, Enum, Bounded)
 
-showGhcOutput :: GhcVer -> Text
-showGhcOutput ghcVer = intercalateMap " " ($ ghcVer) [ showGhcVer
-                                                     , ("base-" <>) . baseVer
-                                                     , ("lts-" <>) . latestLts
-                                                     ]
+showGhcOutput :: GhcVer -> [Text]
+showGhcOutput ghcVer = 
+    [showGhcVer ghcVer
+    ,"base-" <> baseVer ghcVer
+    ," lts-" <> latestLts ghcVer
+    ]
 
 -- | Converts 'GhcVer' into dot-separated string.
 showGhcVer :: GhcVer -> Text

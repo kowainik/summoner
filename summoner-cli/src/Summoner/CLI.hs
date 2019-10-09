@@ -47,6 +47,7 @@ import Summoner.License (License (..), LicenseName (..), fetchLicense, parseLice
 import Summoner.Project (generateProject)
 import Summoner.Settings (CustomPrelude (..), Tool, parseTool)
 import Summoner.Template.Script (scriptFile)
+import Summoner.Text (alignTable)
 
 import qualified Data.Text as T
 import qualified Paths_summoner as Meta (version)
@@ -93,7 +94,7 @@ Available commands:
 runShow :: ShowOpts -> IO ()
 runShow = \case
     -- show list of all available GHC versions
-    GhcList -> showBulletList @GhcVer showGhcOutput (reverse universe)
+    GhcList -> showAlignedBulletList @GhcVer showGhcOutput (reverse universe)
     -- show a list of all available licenses
     LicenseList Nothing -> showBulletList @LicenseName showLicenseWithDesc universe
     -- show a specific license
@@ -108,6 +109,8 @@ runShow = \case
                 fetchedLicense <- fetchLicense licenseName
                 putTextLn $ unLicense fetchedLicense
   where
+    showAlignedBulletList :: (a -> [Text]) -> [a] -> IO()
+    showAlignedBulletList showT lst = mapM_ (infoMessage . T.append "➤ ") $ alignTable $ map showT lst
     showBulletList :: (a -> Text) -> [a] -> IO ()
     showBulletList showT = mapM_ (infoMessage . T.append "➤ " . showT)
 
