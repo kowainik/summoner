@@ -45,4 +45,4 @@ padWord :: Int -> Text -> Text
 padWord maxWordLength word = word <> T.replicate (maxWordLength - T.length word) " "
 
 getMaxLengths :: [[Text]] -> [Int]
-getMaxLengths rows = map maximum $ map (map T.length) (transpose rows)
+getMaxLengths rows = map (maximum . map T.length) (transpose rows)
