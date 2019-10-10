@@ -6,7 +6,7 @@ module Summoner.Text
        , alignTable
        ) where
 
-import Data.List (maximum)
+import Data.Semigroup (Max (Max), getMax)
 
 import qualified Data.Char as C
 import qualified Data.Text as T
@@ -31,18 +31,21 @@ tconcatMap :: (a -> Text) -> [a] -> Text
 tconcatMap f = T.concat . map f
 
 -- | Aligns a list of texts by their columns
-alignTable :: [[Text]] -> [Text]
-alignTable ghcOutputs = map (T.intercalate " ") $
-    transpose $ zipWith padRow (transpose ghcOutputs) maxWordLengths 
+alignTable :: [(Text, Text, Text)] -> [Text]
+alignTable metas = map (formatTriple maxLengths) metas
     where 
-      maxWordLengths :: [Int]
-      maxWordLengths = getMaxLengths ghcOutputs 
+      maxLengths :: (Max Int, Max Int, Max Int)
+      maxLengths = getMaxLengths metas 
 
-padRow :: [Text] -> Int -> [Text] 
-padRow row maxWordLength = map (padWord maxWordLength) row
+formatTriple :: (Max Int, Max Int, Max Int) -> (Text, Text, Text) -> Text
+formatTriple (lenA, lenB, lenC) (a, b, c) = 
+    padWord lenA a <> " " <> padWord lenB b <> " " <> padWord lenC c
 
-padWord :: Int -> Text -> Text
-padWord maxWordLength word = word <> T.replicate (maxWordLength - T.length word) " "
+padWord :: Max Int -> Text -> Text
+padWord maxWordLength word = word <> T.replicate (getMax maxWordLength - T.length word) " "
 
-getMaxLengths :: [[Text]] -> [Int]
-getMaxLengths rows = map (maximum . map T.length) (transpose rows)
+getMaxLengths :: [(Text, Text, Text)] -> (Max Int, Max Int, Max Int)
+getMaxLengths = foldMap (mapTriple (Max . T.length))
+
+mapTriple :: (a -> b) -> (a, a, a) -> (b, b, b)
+mapTriple fn (a, b, c) = (fn a, fn b, fn c)

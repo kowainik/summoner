@@ -5,7 +5,7 @@ and some useful functions for manipulation with them.
 module Summoner.GhcVer
        ( GhcVer (..)
        , Pvp (..)
-       , showGhcOutput
+       , showGhcMeta
        , showGhcVer
        , parseGhcVer
        , latestLts
@@ -29,12 +29,13 @@ data GhcVer
     | Ghc865
     deriving (Eq, Ord, Show, Enum, Bounded)
 
-showGhcOutput :: GhcVer -> [Text]
-showGhcOutput ghcVer = 
-    [showGhcVer ghcVer
-    ,"base-" <> baseVer ghcVer
-    ," lts-" <> latestLts ghcVer
-    ]
+-- | This function shows GHC along with corresponding base and lts versions
+showGhcMeta :: GhcVer -> (Text, Text, Text)
+showGhcMeta ghcVer =
+    ( "ghc-"  <> showGhcVer ghcVer
+    , "base-" <> baseVer ghcVer
+    , "lts-"  <> latestLts ghcVer
+    )
 
 -- | Converts 'GhcVer' into dot-separated string.
 showGhcVer :: GhcVer -> Text
