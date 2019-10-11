@@ -31,10 +31,12 @@ By the way, Summoner operates as either CLI or TUI application, so you can choos
     + [Installation](#installation-)
         + [Summon-TUI](#summon-tui-)
           + [TUI: download binary](#tui-download-binary-)
+          + [TUI: from Scarf](#tui-from-scarf-)
           + [TUI: from source](#tui-from-source-)
         + [Summon-CLI](#summon-cli-)
           + [CLI: download binary](#cli-download-binary-)
           + [CLI: from Hackage/Stackage](#cli-from-hackagestackage-)
+          + [TUI: from Scarf](#cli-from-scarf-)
           + [CLI: from source](#cli-from-source-)
     + [Setup](#setup-)
 * [Usage](#usage-)
@@ -196,6 +198,14 @@ chmod +x summon-cli-linux
 mv summon-cli-linux ~/.local/bin/summon
 ```
 
+##### TUI: from Scarf [↑](#structure)
+
+Summoner binaries can be installed with [Scarf](https://scarf.sh).
+
+```shell
+scarf install summoner
+```
+
 ##### TUI: from source [↑](#structure)
 
 Fetch the repo using `cabal`:
@@ -254,6 +264,14 @@ Using `stack`:
 
 ```shell
 stack install summoner
+```
+
+##### CLI: from Scarf [↑](#structure)
+
+Summoner binaries can be installed with [Scarf](https://scarf.sh).
+
+```shell
+scarf install summoner
 ```
 
 ##### CLI: from source [↑](#structure)
