@@ -5,6 +5,8 @@ The changelog is available [on GitHub][2].
 
 ## Unreleased
 
+* [#314](https://github.com/kowainik/summoner/issues/314):
+  Improve `summon show ghc` output
 * [#316](https://github.com/kowainik/summoner/issues/316):
   Add logos to README bagdes in the generated projects.
 * Generate project of version `0.0.0.0` instead of `0.0.0`.
