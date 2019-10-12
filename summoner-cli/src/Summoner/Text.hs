@@ -6,7 +6,7 @@ module Summoner.Text
        , alignTable
        ) where
 
-import Data.Semigroup (Max (Max), getMax)
+import Data.Semigroup (Max (..))
 
 import qualified Data.Char as C
 import qualified Data.Text as T
@@ -34,15 +34,22 @@ tconcatMap f = T.concat . map f
 alignTable :: [(Text, Text, Text)] -> [Text]
 alignTable metas = map (formatTriple maxLengths) metas
     where 
-      maxLengths :: (Max Int, Max Int, Max Int)
-      maxLengths = getMaxLengths metas 
+      maxLengths :: (Int, Int, Int)
+      maxLengths = mapTriple getMax $ getMaxLengths metas 
 
-formatTriple :: (Max Int, Max Int, Max Int) -> (Text, Text, Text) -> Text
+formatTriple :: (Int, Int, Int) -> (Text, Text, Text) -> Text
 formatTriple (lenA, lenB, lenC) (a, b, c) = 
-    padWord lenA a <> " " <> padWord lenB b <> " " <> padWord lenC c
+    padRight lenA a <> " " <> padRight lenB b <> " " <> padRight lenC c
 
-padWord :: Max Int -> Text -> Text
-padWord maxWordLength word = word <> T.replicate (getMax maxWordLength - T.length word) " "
+{- |
+@padRight n t@ pads the text 't' with spaces on the right until it reaches length 'n'.
+@
+padRight 10 "hello"' ≡ "hello     "
+padRight  3 "hello"' ≡ "hello"
+@
+-}
+padRight :: Int -> Text -> Text
+padRight n t = t <> T.replicate (n - T.length t) " "
 
 getMaxLengths :: [(Text, Text, Text)] -> (Max Int, Max Int, Max Int)
 getMaxLengths = foldMap (mapTriple (Max . T.length))
