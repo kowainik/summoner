@@ -36,5 +36,4 @@ stackFiles Settings{..} = map createStackYaml settingsTestedVersions
             $endLine
 
             ghc-options:
-              "$$locals": -fhide-source-paths
             |]
