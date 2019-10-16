@@ -39,7 +39,8 @@ import Summoner.Text (alignTable)
 import Summoner.Tui.Field (disabledAttr)
 import Summoner.Tui.Form (KitForm, SummonForm (..), getCurrentFocus, isActive, mkForm, recreateForm)
 import Summoner.Tui.Kit
-import Summoner.Tui.Validation (ctrlD, formErrorMessages, handleAutofill, summonFormValidation)
+import Summoner.Tui.Validation (ctrlD, formErrorMessages, handleAutofill, newLine,
+                                summonFormValidation)
 import Summoner.Tui.Widget (borderLabel, listInBorder)
 
 import qualified Brick (on)
@@ -111,6 +112,8 @@ appNew dirs = App
             _                              -> continue s
         else case ev of
             VtyEvent V.EvResize {} -> continue s
+            VtyEvent (V.EvKey V.KEnter [V.MMeta]) ->
+                withForm ev s (validateForm . newLine)
             VtyEvent (V.EvKey V.KEnter []) ->
                 if allFieldsValid s
                 then withForm ev s (changeShouldSummon Idk)
@@ -250,10 +253,11 @@ drawNew dirs kitForm = case kit ^. shouldSummon of
     help, helpBody :: Widget SummonForm
     help     = borderLabel "Help" (helpBody <+> fill ' ')
     helpBody = vBox
-        [ str "• Enter  : create the project"
-        , str "• Esc    : quit"
-        , str "• Ctrl+d : remove input of the text field"
-        , str "• Arrows : up/down arrows to choose license"
+        [ str "• Enter     : create the project"
+        , str "• Esc       : quit"
+        , str "• Ctrl+d    : remove input of the text field"
+        , str "• Arrows    : up/down arrows to choose license"
+        , str "• Alt+Enter : switch to new line"
         ]
 
 ----------------------------------------------------------------------------

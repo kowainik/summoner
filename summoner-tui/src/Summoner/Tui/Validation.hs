@@ -7,10 +7,11 @@ module Summoner.Tui.Validation
        , summonFormValidation
        , formErrorMessages
        , handleAutofill
+       , newLine
        ) where
 
 import Brick.Forms (formState, invalidFields, setFieldValid, setFormFocus)
-import Lens.Micro (Lens', (.~), (^.))
+import Lens.Micro (Lens', (%~), (.~), (^.))
 
 import Summoner.Text (packageToModule)
 import Summoner.Tui.Form (KitForm, SummonForm (..), getCurrentFocus, mkForm)
@@ -48,6 +49,12 @@ handleAutofill f =
           setFormFocus CustomPreludeName $ mkForm new_state
     _ -> f
 
+-- | Adds a newline for text fields.
+newLine :: KitForm e -> KitForm e
+newLine f = case getCurrentFocus f of
+    Nothing        -> f
+    Just formField ->
+      setFormFocus formField $ mkForm $ formState f & project . desc %~ (<> "\n\n")
 
 -- | Validates the main @new@ command form.
 summonFormValidation :: forall e . [FilePath] -> KitForm e -> KitForm e
