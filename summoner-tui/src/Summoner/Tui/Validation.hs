@@ -6,11 +6,13 @@ module Summoner.Tui.Validation
        ( ctrlD
        , summonFormValidation
        , formErrorMessages
+       , handleAutofill
        ) where
 
 import Brick.Forms (formState, invalidFields, setFieldValid, setFormFocus)
 import Lens.Micro (Lens', (.~), (^.))
 
+import Summoner.Text (packageToModule)
 import Summoner.Tui.Form (KitForm, SummonForm (..), getCurrentFocus, mkForm)
 import Summoner.Tui.Kit
 
@@ -35,6 +37,17 @@ ctrlD =
         if getCurrentFocus f == Just formField
         then setFormFocus formField $ mkForm $ formState f & fieldLens .~ nil
         else f
+
+handleAutofill :: KitForm e -> KitForm e
+handleAutofill f =
+  case getCurrentFocus f of
+    Just CustomPreludeName ->
+      let prelude_name = formState f ^. projectMeta . preludeName
+          new_state = formState f & projectMeta . preludeModule .~ packageToModule prelude_name
+      in
+          setFormFocus CustomPreludeName $ mkForm new_state
+    _ -> f
+
 
 -- | Validates the main @new@ command form.
 summonFormValidation :: forall e . [FilePath] -> KitForm e -> KitForm e
