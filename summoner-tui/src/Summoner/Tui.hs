@@ -181,6 +181,7 @@ appNew dirs = App
                 then loopWhileInactive ev newForm
                 else continue newForm
 
+    -- Autofill is only triggered on characters and backspace keys.
     keyTriggersAutofill :: V.Key -> Bool
     keyTriggersAutofill (V.KChar _) = True
     keyTriggersAutofill V.KBS       = True
