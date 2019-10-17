@@ -10,14 +10,13 @@ module Summoner.Tui.Validation
        ) where
 
 import Brick.Forms (formState, invalidFields, setFieldValid, setFormFocus)
+import qualified Data.Char as C
+import qualified Data.Text as T
 import Lens.Micro (Lens', (.~), (^.))
 
 import Summoner.Text (packageToModule)
 import Summoner.Tui.Form (KitForm, SummonForm (..), getCurrentFocus, mkForm)
 import Summoner.Tui.Kit
-
-import qualified Data.Text as T
-
 
 -- | Clears the 'Text' fields by @Ctrl + d@ key combination.
 ctrlD :: KitForm e -> KitForm e
@@ -77,6 +76,9 @@ data FormError
     | CabalOrStack
     -- | At least library or executable should be selected.
     | LibOrExe
+    -- | Prelude package name should only contain letters, numbers
+    -- and hyphens.
+    | PreludePackageValid
 
 -- | Show 'FormError' to display later in TUI.
 showFormError :: FormError -> String
@@ -86,6 +88,7 @@ showFormError = \case
     LibOrExe     -> "Choose at least one: Library or Executable"
     EmptyFields fields -> "These fields must not be empty: " ++ joinFields fields
     OneWord fields -> "These fields should contain exactly one word: " ++ joinFields fields
+    PreludePackageValid -> "Prelude package should only contain letters, numbers and hyphens"
   where
     joinFields :: NonEmpty SummonForm -> String
     joinFields = intercalate ", " . mapMaybe showField . toList
@@ -105,15 +108,21 @@ showFormError = \case
 -- | Returns list of all invalid fields according to the error.
 errorToInvalidFields :: FormError -> NonEmpty SummonForm
 errorToInvalidFields = \case
-    EmptyFields fields -> fields
-    OneWord fields     -> fields
-    ProjectExist       -> one ProjectName
-    CabalOrStack       -> CabalField :| [StackField]
-    LibOrExe           -> Lib :| [Exe]
+    EmptyFields fields  -> fields
+    OneWord fields      -> fields
+    ProjectExist        -> one ProjectName
+    CabalOrStack        -> CabalField :| [StackField]
+    LibOrExe            -> Lib :| [Exe]
+    PreludePackageValid -> one CustomPreludeName
 
 -- | Takes boolean value and error and returns error if predicate 'True'.
 toError :: Bool -> e -> Validation (NonEmpty e) ()
 toError p e = if p then Failure (one e) else Success ()
+
+-- | Decides whether the given text is a valid package name. Spec is here:
+-- https://www.haskell.org/cabal/users-guide/developing-packages.html#package-names-and-versions
+packageNameValid :: Text -> Bool
+packageNameValid = T.all (\c -> c == '-' || C.isAlphaNum c)
 
 -- | Validates 'SummonKit' and returns list of all possible errors or success.
 validateKit :: [FilePath] -> SummonKit -> Validation (NonEmpty FormError) ()
@@ -123,6 +132,7 @@ validateKit dirs kit =
     *> validateProjectExist
     *> validateBuildTools
     *> validateLibOrExe
+    *> validatePreludePackage
   where
     liftValidation
         :: (e -> FormError)
@@ -181,6 +191,13 @@ validateKit dirs kit =
     validateLibOrExe = toError
         (not $ kit ^. projectMeta . lib  || kit ^. projectMeta . exe)
         LibOrExe
+
+    validatePreludePackage :: Validation (NonEmpty FormError) ()
+    validatePreludePackage =
+      let packageName = kit ^. projectMeta . preludeName in
+      toError
+        (not $ T.null packageName || packageNameValid packageName)
+        PreludePackageValid
 
 -- | Returns list of error messages according to all invalid fields.
 formErrorMessages :: [FilePath] -> KitForm e -> [String]
