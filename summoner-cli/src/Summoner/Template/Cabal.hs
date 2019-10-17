@@ -42,7 +42,8 @@ cabalFile Settings{..} = File (toString settingsRepo ++ ".cabal") cabalFileConte
         , "version:             0.0.0.0"
         , "synopsis:            " <> NE.head settingsDescriptionLines ] ++
         [ "                     " <> desc | desc <- NE.tail settingsDescriptionLines ] ++
-        [ "description:         " <> settingsDescription ] ++
+        [ "description:         " <> NE.head settingsDescriptionLines ] ++
+        [ "                     " <> desc | desc <- NE.tail settingsDescriptionLines ] ++
         [ "homepage:            " <> githubUrl        | settingsGitHub ] ++
         [ "bug-reports:         " <> githubBugReports | settingsGitHub ] ++
         ( "license:             " <> licenseName) :
