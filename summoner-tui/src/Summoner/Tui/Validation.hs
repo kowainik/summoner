@@ -78,7 +78,7 @@ data FormError
     | LibOrExe
     -- | Prelude package name should only contain letters, numbers
     -- and hyphens.
-    | PreludePackageValid
+    | PreludePackage
 
 -- | Show 'FormError' to display later in TUI.
 showFormError :: FormError -> String
@@ -88,7 +88,7 @@ showFormError = \case
     LibOrExe     -> "Choose at least one: Library or Executable"
     EmptyFields fields -> "These fields must not be empty: " ++ joinFields fields
     OneWord fields -> "These fields should contain exactly one word: " ++ joinFields fields
-    PreludePackageValid -> "Prelude package should only contain letters, numbers and hyphens"
+    PreludePackage -> "Prelude package should only contain letters, numbers and hyphens"
   where
     joinFields :: NonEmpty SummonForm -> String
     joinFields = intercalate ", " . mapMaybe showField . toList
@@ -108,12 +108,12 @@ showFormError = \case
 -- | Returns list of all invalid fields according to the error.
 errorToInvalidFields :: FormError -> NonEmpty SummonForm
 errorToInvalidFields = \case
-    EmptyFields fields  -> fields
-    OneWord fields      -> fields
-    ProjectExist        -> one ProjectName
-    CabalOrStack        -> CabalField :| [StackField]
-    LibOrExe            -> Lib :| [Exe]
-    PreludePackageValid -> one CustomPreludeName
+    EmptyFields fields -> fields
+    OneWord fields     -> fields
+    ProjectExist       -> one ProjectName
+    CabalOrStack       -> CabalField :| [StackField]
+    LibOrExe           -> Lib :| [Exe]
+    PreludePackage     -> one CustomPreludeName
 
 -- | Takes boolean value and error and returns error if predicate 'True'.
 toError :: Bool -> e -> Validation (NonEmpty e) ()
@@ -197,7 +197,7 @@ validateKit dirs kit =
       let packageName = kit ^. projectMeta . preludeName in
       toError
         (not $ T.null packageName || packageNameValid packageName)
-        PreludePackageValid
+        PreludePackage
 
 -- | Returns list of error messages according to all invalid fields.
 formErrorMessages :: [FilePath] -> KitForm e -> [String]
