@@ -54,6 +54,7 @@ newLine :: KitForm e -> KitForm e
 newLine =
   handleNewLine ProjectDesc (project . desc)
   where
+    handleNewLine :: SummonForm -> Lens' SummonKit Text -> KitForm e -> KitForm e
     handleNewLine formField fieldLens f =
       if getCurrentFocus  f == Just formField
       then setFormFocus formField $ mkForm $ formState f & fieldLens %~ (<> "\n\n")
