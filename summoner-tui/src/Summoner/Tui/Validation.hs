@@ -195,8 +195,9 @@ validateKit dirs kit =
     validatePreludePackage :: Validation (NonEmpty FormError) ()
     validatePreludePackage =
       let packageName = kit ^. projectMeta . preludeName in
+      let isPreludePackageInvalid = not $ T.null packageName || packageNameValid packageName in
       toError
-        (not $ T.null packageName || packageNameValid packageName)
+        isPreludePackageInvalid
         PreludePackage
 
 -- | Returns list of error messages according to all invalid fields.
