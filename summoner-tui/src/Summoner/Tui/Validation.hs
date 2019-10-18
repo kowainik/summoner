@@ -51,10 +51,13 @@ handleAutofill f =
 
 -- | Adds a newline for text fields.
 newLine :: KitForm e -> KitForm e
-newLine f = case getCurrentFocus f of
-    Nothing        -> f
-    Just formField ->
-      setFormFocus formField $ mkForm $ formState f & project . desc %~ (<> "\n\n")
+newLine =
+  handleNewLine ProjectDesc (project . desc)
+  where
+    handleNewLine formField fieldLens f =
+      if getCurrentFocus  f == Just formField
+      then setFormFocus formField $ mkForm $ formState f & fieldLens %~ (<> "\n\n")
+      else f
 
 -- | Validates the main @new@ command form.
 summonFormValidation :: forall e . [FilePath] -> KitForm e -> KitForm e
