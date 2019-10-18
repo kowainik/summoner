@@ -7,7 +7,7 @@ module Summoner.Tui.Validation
        , summonFormValidation
        , formErrorMessages
        , handleAutofill
-       , newLine
+       , projectDescNewLine
        ) where
 
 import Brick.Forms (formState, invalidFields, setFieldValid, setFormFocus)
@@ -49,16 +49,12 @@ handleAutofill f =
           setFormFocus CustomPreludeName $ mkForm new_state
     _ -> f
 
--- | Adds a newline for text fields.
-newLine :: KitForm e -> KitForm e
-newLine =
-  handleNewLine ProjectDesc (project . desc)
-  where
-    handleNewLine :: SummonForm -> Lens' SummonKit Text -> KitForm e -> KitForm e
-    handleNewLine formField fieldLens f =
-      if getCurrentFocus  f == Just formField
-      then setFormFocus formField $ mkForm $ formState f & fieldLens %~ (<> "\n\n")
-      else f
+-- | Adds a newline for project description.
+projectDescNewLine :: KitForm e -> KitForm e
+projectDescNewLine f =
+  if getCurrentFocus  f == Just ProjectDesc
+  then setFormFocus ProjectDesc $ mkForm $ formState f & project . desc %~ (<> "\n\n")
+  else f
 
 -- | Validates the main @new@ command form.
 summonFormValidation :: forall e . [FilePath] -> KitForm e -> KitForm e

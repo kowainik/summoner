@@ -39,7 +39,7 @@ import Summoner.Text (alignTable)
 import Summoner.Tui.Field (disabledAttr)
 import Summoner.Tui.Form (KitForm, SummonForm (..), getCurrentFocus, isActive, mkForm, recreateForm)
 import Summoner.Tui.Kit
-import Summoner.Tui.Validation (ctrlD, formErrorMessages, handleAutofill, newLine,
+import Summoner.Tui.Validation (ctrlD, formErrorMessages, handleAutofill, projectDescNewLine,
                                 summonFormValidation)
 import Summoner.Tui.Widget (borderLabel, listInBorder)
 
@@ -113,7 +113,7 @@ appNew dirs = App
         else case ev of
             VtyEvent V.EvResize {} -> continue s
             VtyEvent (V.EvKey V.KEnter [V.MMeta]) ->
-                withForm ev s (validateForm . newLine)
+                withForm ev s (validateForm . projectDescNewLine)
             VtyEvent (V.EvKey V.KEnter []) ->
                 if allFieldsValid s
                 then withForm ev s (changeShouldSummon Idk)
