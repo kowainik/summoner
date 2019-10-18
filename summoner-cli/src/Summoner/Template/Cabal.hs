@@ -13,7 +13,6 @@ import Summoner.Settings (CustomPrelude (..), Settings (..))
 import Summoner.Text (intercalateMap, packageToModule)
 import Summoner.Tree (TreeFs (..))
 
-import qualified Data.List.NonEmpty as NE
 import qualified Data.Text as T
 
 
@@ -30,20 +29,14 @@ cabalFile Settings{..} = File (toString settingsRepo ++ ".cabal") cabalFileConte
         , memptyIfFalse settingsBench $ benchmarkStanza  $ memptyIfFalse settingsIsLib $ ", " <> settingsRepo
         ]
 
-    settingsDescriptionLines :: NonEmpty Text
-    settingsDescriptionLines =
-      fromMaybe (settingsDescription NE.:| []) (nonEmpty (lines settingsDescription))
-
     -- TODO: do something to not have empty lines
     cabalHeader :: Text
     cabalHeader = unlines $
         [ "cabal-version:       " <> defaultCabal
         , "name:                " <> settingsRepo
         , "version:             0.0.0.0"
-        , "synopsis:            " <> NE.head settingsDescriptionLines ] ++
-        [ "                     " <> desc | desc <- NE.tail settingsDescriptionLines ] ++
-        [ "description:         " <> NE.head settingsDescriptionLines ] ++
-        [ "                     " <> desc | desc <- NE.tail settingsDescriptionLines ] ++
+        , "synopsis:            " <> (unwords . lines) settingsDescription
+        , "description:         " <> (unwords . lines) settingsDescription ] ++
         [ "homepage:            " <> githubUrl        | settingsGitHub ] ++
         [ "bug-reports:         " <> githubBugReports | settingsGitHub ] ++
         ( "license:             " <> licenseName) :

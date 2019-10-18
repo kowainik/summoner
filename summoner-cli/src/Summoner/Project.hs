@@ -8,7 +8,6 @@ module Summoner.Project
        ) where
 
 import Data.List (intersect)
-import qualified Data.Text as T
 import NeatInterpolation (text)
 import Shellmet ()
 import System.Directory (setCurrentDirectory)
@@ -210,7 +209,7 @@ doGithubCommands Settings{..} = do
     "git" ["add", "."]
     "git" ["commit", "-m", "Create the project"]
     unless settingsNoUpload $ do
-        "hub" $ ["create", "-d", (T.intercalate " " . lines) settingsDescription, settingsOwner <> "/" <> settingsRepo]
+        "hub" $ ["create", "-d", (unwords . lines) settingsDescription, settingsOwner <> "/" <> settingsRepo]
              ++ ["-p" | settingsPrivate]  -- Create private repository if asked so
          -- Upload repository to GitHub.
         "git" ["push", "-u", "origin", "master"]
