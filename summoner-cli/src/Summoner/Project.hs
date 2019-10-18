@@ -209,7 +209,7 @@ doGithubCommands Settings{..} = do
     "git" ["add", "."]
     "git" ["commit", "-m", "Create the project"]
     unless settingsNoUpload $ do
-        "hub" $ ["create", "-d", (unwords . lines) settingsDescription, settingsOwner <> "/" <> settingsRepo]
+        "hub" $ ["create", "-d", settingsDescription, settingsOwner <> "/" <> settingsRepo]
              ++ ["-p" | settingsPrivate]  -- Create private repository if asked so
          -- Upload repository to GitHub.
         "git" ["push", "-u", "origin", "master"]

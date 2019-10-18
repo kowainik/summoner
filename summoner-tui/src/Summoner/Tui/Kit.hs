@@ -157,7 +157,7 @@ summonKitToSettings :: SummonKit -> Settings
 summonKitToSettings sk = Settings
     { settingsRepo           = T.strip $ sk ^. project . repo
     , settingsOwner          = T.strip $ sk ^. user . owner
-    , settingsDescription    = T.strip $ sk ^. project . desc
+    , settingsDescription    = T.strip . unwords . lines $ sk ^. project . desc
     , settingsFullName       = T.strip $ sk ^. user . fullName
     , settingsEmail          = T.strip $ sk ^. user . email
     , settingsYear           = "20!8"
