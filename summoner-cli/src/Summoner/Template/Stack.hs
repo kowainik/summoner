@@ -34,6 +34,4 @@ stackFiles Settings{..} = map createStackYaml settingsTestedVersions
         ghcOpts = memptyIfFalse (ghcV > Ghc802)
             [text|
             $endLine
-
-            ghc-options:
             |]
