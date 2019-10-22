@@ -11,11 +11,10 @@ module Summoner.Tui.Validation
        ) where
 
 import Brick.Forms (formState, invalidFields, setFieldValid, setFormFocus)
-import qualified Data.Char as C
 import qualified Data.Text as T
 import Lens.Micro (Lens', (%~), (.~), (^.))
 
-import Summoner.Text (packageToModule)
+import Summoner.Text (packageNameValid, packageToModule)
 import Summoner.Tui.Form (KitForm, SummonForm (..), getCurrentFocus, mkForm)
 import Summoner.Tui.Kit
 
@@ -125,11 +124,6 @@ errorToInvalidFields = \case
 -- | Takes boolean value and error and returns error if predicate 'True'.
 toError :: Bool -> e -> Validation (NonEmpty e) ()
 toError p e = if p then Failure (one e) else Success ()
-
--- | Decides whether the given text is a valid package name. Spec is here:
--- https://www.haskell.org/cabal/users-guide/developing-packages.html#package-names-and-versions
-packageNameValid :: Text -> Bool
-packageNameValid = T.all (\c -> c == '-' || C.isAlphaNum c)
 
 -- | Validates 'SummonKit' and returns list of all possible errors or success.
 validateKit :: [FilePath] -> SummonKit -> Validation (NonEmpty FormError) ()
