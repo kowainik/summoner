@@ -9,6 +9,8 @@ The changelog is available [on GitHub][2].
   Improve `summon show ghc` output
 * [#255](https://github.com/kowainik/summoner/issues/255)
   Autofill custom prelude module name when package name is being typed.
+* [#354](https://github.com/kowainik/summoner/issues/354):
+  Validate custom prelude package name
 * [#253](https://github.com/kowainik/summoner/issues/253):
   Fix new line in the Description field of the form.
 
