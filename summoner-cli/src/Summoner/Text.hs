@@ -1,6 +1,7 @@
 module Summoner.Text
        ( packageToModule
        , packageNameValid
+       , moduleNameValid
        , intercalateMap
        , headToUpper
        , tconcatMap
@@ -21,6 +22,21 @@ packageToModule = tconcatMap headToUpper . T.splitOn "-"
 -- https://www.haskell.org/cabal/users-guide/developing-packages.html#package-names-and-versions
 packageNameValid :: Text -> Bool
 packageNameValid = T.all (\c -> c == '-' || C.isAlphaNum c)
+
+{- | Validate module name. It should be in the following formatTriple
+
+@
+Part1[.PartN]
+@
+-}
+moduleNameValid :: Text -> Bool
+moduleNameValid = all isValidFragment . T.split (== '.')
+  where
+    isValidFragment :: Text -> Bool
+    isValidFragment s =
+           s /= ""
+        && T.all C.isAlphaNum s
+        && C.isUpper (T.head s)
 
 -- | Converts every element of list into 'Text' and then joins every element
 -- into single 'Text' like 'T.intercalate'.

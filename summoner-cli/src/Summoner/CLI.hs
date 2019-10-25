@@ -39,13 +39,14 @@ import Summoner.Ansi (blueCode, boldCode, errorMessage, infoMessage, redCode, re
                       successMessage, warningMessage)
 import Summoner.Config (Config, ConfigP (..), PartialConfig, defaultConfig, finalise,
                         loadFileConfig)
+import Summoner.CustomPrelude (CustomPrelude (..))
 import Summoner.Decision (Decision (..))
 import Summoner.Default (defaultConfigFile, defaultGHC)
 import Summoner.GhcVer (GhcVer, parseGhcVer, showGhcMeta)
 import Summoner.License (License (..), LicenseName (..), fetchLicense, parseLicenseName,
                          showLicenseWithDesc)
 import Summoner.Project (generateProject)
-import Summoner.Settings (CustomPrelude (..), Tool, parseTool)
+import Summoner.Settings (Tool, parseTool)
 import Summoner.Template.Script (scriptFile)
 import Summoner.Text (alignTable)
 

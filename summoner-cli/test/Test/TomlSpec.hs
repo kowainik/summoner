@@ -6,12 +6,13 @@ import Hedgehog (MonadGen, Property, forAll, property, tripping)
 import Toml.Bi.Code (decode, encode)
 
 import Summoner.Config (ConfigP (..), PartialConfig, configT)
+import Summoner.CustomPrelude (CustomPrelude (..))
 import Summoner.GhcVer (GhcVer)
 import Summoner.License (LicenseName)
-import Summoner.Settings (CustomPrelude (..))
 import Summoner.Source (Source (..))
 import Test.DecisionSpec (genDecision)
 
+import qualified Data.Text as T
 import qualified Hedgehog.Gen as Gen
 import qualified Hedgehog.Range as Range
 
@@ -25,10 +26,16 @@ tomlProp = property $ do
 -- Generators
 ----------------------------------------------------------------------------
 
+genTextWithSeparator :: MonadGen m => Char -> m Text
+genTextWithSeparator s = do
+    x <- T.toUpper <$> genText
+    y <- T.toUpper <$> genText
+    Gen.element [x, x <> T.cons s y]
+
 genText :: MonadGen m => m Text
 genText = Gen.text
-    (Range.constant 0 10)
-    (Gen.frequency [ (1, Gen.element ['.','-']), (10, Gen.alphaNum) ])
+    (Range.constant 1 11)
+    Gen.alpha
 
 genTextArr :: MonadGen m => m [Text]
 genTextArr = Gen.list (Range.constant 0 10) genText
@@ -37,7 +44,10 @@ genGhcVerArr :: MonadGen m => m [GhcVer]
 genGhcVerArr = Gen.list (Range.constant 0 10) Gen.enumBounded
 
 genCustomPrelude :: MonadGen m => m CustomPrelude
-genCustomPrelude = CustomPrelude <$> genText <*> genText
+genCustomPrelude = do
+    cpPackage <- genTextWithSeparator '-'
+    cpModule <- genTextWithSeparator '.'
+    pure CustomPrelude{..}
 
 genLicense :: MonadGen m => m LicenseName
 genLicense = Gen.element universe
