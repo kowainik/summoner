@@ -26,10 +26,10 @@ import Generics.Deriving.Monoid (GMonoid, gmemptydefault)
 import Generics.Deriving.Semigroup (GSemigroup, gsappenddefault)
 import Toml (Key, TomlBiMap, TomlCodec, (.=))
 
+import Summoner.CustomPrelude (CustomPrelude (..), customPreludeT)
 import Summoner.Decision (Decision (..))
 import Summoner.GhcVer (GhcVer (..), parseGhcVer, showGhcVer)
 import Summoner.License (LicenseName (..), parseLicenseName)
-import Summoner.Settings (CustomPrelude (..), customPreludeT)
 import Summoner.Source (Source, sourceT)
 
 import qualified Toml
