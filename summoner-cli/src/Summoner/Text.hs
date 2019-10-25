@@ -30,10 +30,13 @@ Part1[.PartN]
 @
 -}
 moduleNameValid :: Text -> Bool
-moduleNameValid = all (\s -> s /= "" && validFragment s) . T.split (== '.')
+moduleNameValid = all isValidFragment . T.split (== '.')
   where
-    validFragment :: Text -> Bool
-    validFragment s = T.all C.isAlphaNum s && C.isUpper (T.head s)
+    isValidFragment :: Text -> Bool
+    isValidFragment s =
+           s /= ""
+        && T.all C.isAlphaNum s
+        && C.isUpper (T.head s)
 
 -- | Converts every element of list into 'Text' and then joins every element
 -- into single 'Text' like 'T.intercalate'.
