@@ -68,11 +68,12 @@ import Lens.Micro (Lens', lens, (.~), (^.))
 import Lens.Micro.TH (makeFields)
 
 import Summoner.Config (Config, ConfigP (..))
+import Summoner.CustomPrelude (CustomPrelude (..))
 import Summoner.Decision (Decision (..))
 import Summoner.Default (currentYear, defaultDescription, defaultGHC)
 import Summoner.GhcVer (GhcVer)
 import Summoner.License (LicenseName (..), customizeLicense, fetchLicense)
-import Summoner.Settings (CustomPrelude (..), Settings (..))
+import Summoner.Settings (Settings (..))
 import Summoner.Source (Source, fetchSource)
 import Summoner.Template (createProjectTemplate)
 import Summoner.Tree (showTree)
@@ -157,7 +158,7 @@ summonKitToSettings :: SummonKit -> Settings
 summonKitToSettings sk = Settings
     { settingsRepo           = T.strip $ sk ^. project . repo
     , settingsOwner          = T.strip $ sk ^. user . owner
-    , settingsDescription    = T.strip $ sk ^. project . desc
+    , settingsDescription    = T.strip . unwords . lines $ sk ^. project . desc
     , settingsFullName       = T.strip $ sk ^. user . fullName
     , settingsEmail          = T.strip $ sk ^. user . email
     , settingsYear           = "20!8"

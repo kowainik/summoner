@@ -6,7 +6,8 @@ module Summoner.Template.Haskell
 
 import NeatInterpolation (text)
 
-import Summoner.Settings (CustomPrelude (..), Settings (..))
+import Summoner.CustomPrelude (CustomPrelude (..))
+import Summoner.Settings (Settings (..))
 import Summoner.Text (packageToModule)
 import Summoner.Tree (TreeFs (..))
 

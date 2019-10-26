@@ -71,6 +71,7 @@ library
                          Summoner.Ansi
                          Summoner.CLI
                          Summoner.Config
+                         Summoner.CustomPrelude
                          Summoner.Decision
                          Summoner.Default
                          Summoner.GhcVer
@@ -128,7 +129,8 @@ test-suite summoner-test
   hs-source-dirs:      test
 
   main-is:             Spec.hs
-  other-modules:       Test.DecisionSpec
+  other-modules:       Test.CustomPrelude
+                       Test.DecisionSpec
                        Test.Golden
                        Test.Script
                        Test.TomlSpec
@@ -142,6 +144,7 @@ test-suite summoner-test
                      , hspec >= 2.4.8
                      , neat-interpolation
                      , relude
+                     , text
                      , tomland
                      , tree-diff >= 0.0.2 && < 0.2
                      , summoner

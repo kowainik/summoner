@@ -6,10 +6,11 @@ module Summoner.Template.Cabal
 
 import NeatInterpolation (text)
 
+import Summoner.CustomPrelude (CustomPrelude (..))
 import Summoner.Default (defaultCabal)
 import Summoner.GhcVer (GhcVer (..), cabalBaseVersions, showGhcVer)
 import Summoner.License (LicenseName (..), cabalLicense)
-import Summoner.Settings (CustomPrelude (..), Settings (..))
+import Summoner.Settings (Settings (..))
 import Summoner.Text (intercalateMap, packageToModule)
 import Summoner.Tree (TreeFs (..))
 

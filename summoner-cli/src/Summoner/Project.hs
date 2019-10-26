@@ -15,6 +15,7 @@ import System.Directory (setCurrentDirectory)
 import Summoner.Ansi (Color (Green), beautyPrint, bold, errorMessage, infoMessage, setColor,
                       skipMessage, successMessage, warningMessage)
 import Summoner.Config (Config, ConfigP (..))
+import Summoner.CustomPrelude (CustomPrelude (..))
 import Summoner.Decision (Decision (..), decisionToBool)
 import Summoner.Default (currentYear, defaultDescription, defaultGHC)
 import Summoner.GhcVer (oldGhcs, parseGhcVer, showGhcVer)
@@ -24,7 +25,7 @@ import Summoner.Process ()
 import Summoner.Question (YesNoPrompt (..), checkUniqueName, choose, falseMessage,
                           mkDefaultYesNoPrompt, query, queryDef, queryManyRepeatOnFail,
                           targetMessageWithText, trueMessage)
-import Summoner.Settings (CustomPrelude (..), Settings (..))
+import Summoner.Settings (Settings (..))
 import Summoner.Source (fetchSource)
 import Summoner.Template (createProjectTemplate)
 import Summoner.Text (intercalateMap, packageToModule)

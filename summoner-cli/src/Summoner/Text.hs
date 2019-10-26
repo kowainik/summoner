@@ -1,5 +1,7 @@
 module Summoner.Text
        ( packageToModule
+       , packageNameValid
+       , moduleNameValid
        , intercalateMap
        , headToUpper
        , tconcatMap
@@ -15,6 +17,26 @@ import qualified Data.Text as T
 -- Ex: @my-lovely-project@ — @MyLovelyProject@
 packageToModule :: Text -> Text
 packageToModule = tconcatMap headToUpper . T.splitOn "-"
+
+-- | Decides whether the given text is a valid package name. Spec is here:
+-- https://www.haskell.org/cabal/users-guide/developing-packages.html#package-names-and-versions
+packageNameValid :: Text -> Bool
+packageNameValid = T.all (\c -> c == '-' || C.isAlphaNum c)
+
+{- | Validate module name. It should be in the following formatTriple
+
+@
+Part1[.PartN]
+@
+-}
+moduleNameValid :: Text -> Bool
+moduleNameValid = all isValidFragment . T.split (== '.')
+  where
+    isValidFragment :: Text -> Bool
+    isValidFragment s =
+           s /= ""
+        && T.all C.isAlphaNum s
+        && C.isUpper (T.head s)
 
 -- | Converts every element of list into 'Text' and then joins every element
 -- into single 'Text' like 'T.intercalate'.
@@ -33,12 +55,12 @@ tconcatMap f = T.concat . map f
 -- | Aligns a list of texts by their columns
 alignTable :: [(Text, Text, Text)] -> [Text]
 alignTable metas = map (formatTriple maxLengths) metas
-    where 
+    where
       maxLengths :: (Int, Int, Int)
-      maxLengths = mapTriple getMax $ getMaxLengths metas 
+      maxLengths = mapTriple getMax $ getMaxLengths metas
 
 formatTriple :: (Int, Int, Int) -> (Text, Text, Text) -> Text
-formatTriple (lenA, lenB, lenC) (a, b, c) = 
+formatTriple (lenA, lenB, lenC) (a, b, c) =
     padRight lenA a <> " " <> padRight lenB b <> " " <> padRight lenC c
 
 {- |

@@ -39,7 +39,8 @@ import Summoner.Text (alignTable)
 import Summoner.Tui.Field (disabledAttr)
 import Summoner.Tui.Form (KitForm, SummonForm (..), getCurrentFocus, isActive, mkForm, recreateForm)
 import Summoner.Tui.Kit
-import Summoner.Tui.Validation (ctrlD, formErrorMessages, summonFormValidation)
+import Summoner.Tui.Validation (ctrlD, formErrorMessages, handleAutofill, projectDescNewLine,
+                                summonFormValidation)
 import Summoner.Tui.Widget (borderLabel, listInBorder)
 
 import qualified Brick (on)
@@ -111,6 +112,8 @@ appNew dirs = App
             _                              -> continue s
         else case ev of
             VtyEvent V.EvResize {} -> continue s
+            VtyEvent (V.EvKey V.KEnter [V.MMeta]) ->
+                withForm ev s (validateForm . projectDescNewLine)
             VtyEvent (V.EvKey V.KEnter []) ->
                 if allFieldsValid s
                 then withForm ev s (changeShouldSummon Idk)
@@ -123,6 +126,12 @@ appNew dirs = App
             VtyEvent (V.EvKey (V.KChar ' ') []) -> case getCurrentFocus s of
                 Nothing    -> withFormDef ev s
                 Just field -> handleCheckboxActivation ev s field
+
+            -- Run handler for autofill actions
+            VtyEvent (V.EvKey key [])
+                | keyTriggersAutofill key
+                -> withForm ev s (validateForm . handleAutofill)
+
             MouseDown n _ _ _ -> handleCheckboxActivation ev s n
 
             -- Handle skip of deactivated checkboxes
@@ -174,6 +183,12 @@ appNew dirs = App
             Just field -> if not $ isActive (formState newForm) field
                 then loopWhileInactive ev newForm
                 else continue newForm
+
+    -- Autofill is only triggered on characters and backspace keys.
+    keyTriggersAutofill :: V.Key -> Bool
+    keyTriggersAutofill (V.KChar _) = True
+    keyTriggersAutofill V.KBS       = True
+    keyTriggersAutofill _           = False
 
 -- | Draws the form for @new@ command.
 drawNew :: [FilePath] -> KitForm e -> [Widget SummonForm]
@@ -238,10 +253,11 @@ drawNew dirs kitForm = case kit ^. shouldSummon of
     help, helpBody :: Widget SummonForm
     help     = borderLabel "Help" (helpBody <+> fill ' ')
     helpBody = vBox
-        [ str "• Enter  : create the project"
-        , str "• Esc    : quit"
-        , str "• Ctrl+d : remove input of the text field"
-        , str "• Arrows : up/down arrows to choose license"
+        [ str "• Enter     : create the project"
+        , str "• Esc       : quit"
+        , str "• Ctrl+d    : remove input of the text field"
+        , str "• Arrows    : up/down arrows to choose license"
+        , str "• Alt+Enter : switch to new line"
         ]
 
 ----------------------------------------------------------------------------

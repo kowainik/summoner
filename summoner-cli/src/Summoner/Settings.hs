@@ -1,31 +1,15 @@
 module Summoner.Settings
        ( Settings (..)
 
-       , CustomPrelude (..)
-       , customPreludeT
-
        , Tool (..)
        , showTool
        , parseTool
        ) where
 
-import Toml (TomlCodec, (.=))
-
+import Summoner.CustomPrelude (CustomPrelude)
 import Summoner.GhcVer (GhcVer)
 import Summoner.License (License, LicenseName)
 
-import qualified Toml
-
-
-data CustomPrelude = CustomPrelude
-    { cpPackage :: Text
-    , cpModule  :: Text
-    } deriving (Show, Eq)
-
-customPreludeT :: TomlCodec CustomPrelude
-customPreludeT = CustomPrelude
-    <$> Toml.text "package" .= cpPackage
-    <*> Toml.text "module"  .= cpModule
 
 -- | Data needed for project creation.
 data Settings = Settings

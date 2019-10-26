@@ -3,6 +3,7 @@ module Main where
 import Hedgehog (Group (..), checkParallel)
 import Test.Hspec (hspec)
 
+import Test.CustomPrelude (customPreludeSpec)
 import Test.DecisionSpec (decisionMonoidMempty, decisionSemigroupAssoc)
 import Test.Golden (goldenSpec)
 import Test.QuestionSpec (yesNoPromptSpec)
@@ -16,6 +17,7 @@ main = do
         yesNoPromptSpec
         scriptSpec
         goldenSpec
+        customPreludeSpec
     ifM (checkParallel hedgehogTests) exitSuccess exitFailure
 
 hedgehogTests :: Group
