@@ -1,10 +1,6 @@
-{-# LANGUAGE QuasiQuotes #-}
-
 module Summoner.Template.Stack
        ( stackFiles
        ) where
-
-import NeatInterpolation (text)
 
 import Summoner.Default (defaultGHC)
 import Summoner.GhcVer (GhcVer (..), baseVer, latestLts, showGhcVer)
@@ -18,7 +14,7 @@ stackFiles Settings{..} = map createStackYaml settingsTestedVersions
     -- create @stack.yaml@ file with LTS corresponding to specified ghc version
     createStackYaml :: GhcVer -> TreeFs
     createStackYaml ghcV = File (toString $ "stack" <> ver <> ".yaml")
-        $ "resolver: lts-" <> latestLts ghcV <> extraDeps <> ghcOpts
+        $ "resolver: lts-" <> latestLts ghcV <> extraDeps
       where
         ver :: Text
         ver = if ghcV == defaultGHC
@@ -29,12 +25,3 @@ stackFiles Settings{..} = map createStackYaml settingsTestedVersions
         extraDeps = case settingsPrelude of
             Nothing -> ""
             Just _  -> "\n\nextra-deps: [base-noprelude-" <> baseVer ghcV <> "]"
-
-        ghcOpts :: Text
-        ghcOpts = memptyIfFalse (ghcV > Ghc802)
-            [text|
-            $endLine
-
-            ghc-options:
-              "$$locals": -fhide-source-paths
-            |]
