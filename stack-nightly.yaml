@@ -1,0 +1,11 @@
+resolver: nightly-2019-10-31
+
+packages:
+  - summoner-cli/
+  - summoner-tui/
+
+extra-deps:
+  - base-noprelude-4.13.0.0
+  - brick-0.50
+  - relude-0.6.0.0
+  - vty-5.26

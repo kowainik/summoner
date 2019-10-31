@@ -12,8 +12,11 @@ import Summoner.Question (YesNoPrompt (..), chooseYesNoBool, falseMessage, trueM
 
 
 -- | Used for detecting the user decision during CLI input.
-data Decision = Idk | Nop | Yes
-    deriving (Show, Eq, Enum, Bounded, Generic)
+data Decision
+    = Idk
+    | Nop
+    | Yes
+    deriving stock (Show, Eq, Enum, Bounded, Generic)
 
 instance Semigroup Decision where
     (<>) :: Decision -> Decision -> Decision

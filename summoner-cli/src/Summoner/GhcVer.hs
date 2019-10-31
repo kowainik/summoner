@@ -27,7 +27,7 @@ data GhcVer
     | Ghc822
     | Ghc844
     | Ghc865
-    deriving (Eq, Ord, Show, Enum, Bounded)
+    deriving stock (Eq, Ord, Show, Enum, Bounded)
 
 -- | This function shows GHC along with corresponding base and lts versions
 showGhcMeta :: GhcVer -> (Text, Text, Text)

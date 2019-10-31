@@ -36,7 +36,9 @@ import qualified Toml
 
 
 -- | The phase of the configurations.
-data Phase = Partial | Final
+data Phase
+    = Partial
+    | Final
 
 -- | Potentially incomplete configuration.
 data ConfigP (p :: Phase) = Config
@@ -63,24 +65,27 @@ data ConfigP (p :: Phase) = Config
     , cStylish      :: !(Last Source)
     , cContributing :: !(Last Source)
     , cNoUpload     :: !Any  -- ^ Do not upload to the GitHub (even if enabled)
-    } deriving (Generic)
+    } deriving stock (Generic)
 
-deriving instance
+deriving anyclass instance
     ( GSemigroup (p :- Text)
     , GSemigroup (p :- LicenseName)
     , GSemigroup (p :- [GhcVer])
     ) => GSemigroup (ConfigP p)
-deriving instance
+
+deriving anyclass instance
     ( GMonoid (p :- Text)
     , GMonoid (p :- LicenseName)
     , GMonoid (p :- [GhcVer])
     ) => GMonoid (ConfigP p)
-deriving instance
+
+deriving stock instance
     ( Eq (p :- Text)
     , Eq (p :- LicenseName)
     , Eq (p :- [GhcVer])
     ) => Eq (ConfigP p)
-deriving instance
+
+deriving stock instance
     ( Show (p :- Text)
     , Show (p :- LicenseName)
     , Show (p :- [GhcVer])

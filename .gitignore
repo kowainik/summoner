@@ -24,6 +24,7 @@ cabal.project.local
 # Stack
 .stack-work/
 stack.yaml.lock
+stack-nightly.yaml.lock
 # Nix
 result
 

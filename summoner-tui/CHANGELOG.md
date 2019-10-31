@@ -13,6 +13,8 @@ The changelog is available [on GitHub][2].
   Validate custom prelude package name
 * [#253](https://github.com/kowainik/summoner/issues/253):
   Fix new line in the Description field of the form.
+* [#338](https://github.com/kowainik/summoner/issues/338):
+  Build Summoner with GHC-8.8.1.
 
 ## 0.1.0 — Apr 9, 2019
 

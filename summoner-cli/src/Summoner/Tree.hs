@@ -18,7 +18,7 @@ data TreeFs
     = Dir FilePath [TreeFs]
       -- | File name (relative) and file content
     | File FilePath Text
-    deriving (Generic, Show, Eq, Ord)
+    deriving stock (Generic, Show, Eq, Ord)
 
 -- | Walks through directory tree and write file contents, creating all
 -- intermediate directories.
