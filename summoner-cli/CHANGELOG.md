@@ -13,6 +13,14 @@ The changelog is available [on GitHub][2].
 * [#322](https://github.com/kowainik/summoner/issues/322):
   Run HLint check before project build in `.travis.yml` file for
   the generated projects.
+* [#255](https://github.com/kowainik/summoner/issues/255):
+  Autofill prelude module name when package name is typed.
+* [#354](https://github.com/kowainik/summoner/issues/354):
+  Validate prelude package name and module name in config file.
+  Validate prelude package name and module name in CLI.
+* [#315](https://github.com/kowainik/summoner/issues/315):
+  Remove `-fhide-source-paths` from generated `stack.yaml` file
+  as it is implied by the newer version of Stack.
 * [#329](https://github.com/kowainik/summoner/issues/329):
   Bump up to `optparse-applicative-0.15`, use custom `ParserPrefs`.
 * [#328](https://github.com/kowainik/summoner/issues/328):
@@ -24,6 +32,8 @@ The changelog is available [on GitHub][2].
   versions of each major release.
 * [#338](https://github.com/kowainik/summoner/issues/338):
   Build Summoner with GHC-8.8.1.
+* [#337](https://github.com/kowainik/summoner/issues/337):
+  Allow `generic-deriving-1.13`.
 
 ## 1.3.0.1 — Apr 10, 2019
 
