@@ -34,7 +34,7 @@ data LicenseName
     | Apache20
     | MPL20
     | None
-    deriving (Eq, Ord, Enum, Bounded, Generic)
+    deriving stock (Eq, Ord, Enum, Bounded, Generic)
 
 instance Show LicenseName where
     show MIT      = "MIT"
@@ -49,8 +49,10 @@ instance Show LicenseName where
     show MPL20    = "MPL-2.0"
     show None     = "None"
 
-newtype License = License { unLicense :: Text }
-    deriving (IsString, Show, Generic)
+newtype License = License
+    { unLicense :: Text
+    } deriving stock (Show, Generic)
+      deriving newtype (IsString)
 
 instance FromJSON License where
     parseJSON = withObject "License" $ \o -> License <$> o .: "body"

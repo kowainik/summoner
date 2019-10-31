@@ -41,13 +41,13 @@ data Settings = Settings
     , settingsStylish        :: !(Maybe Text) -- ^ @.stylish-haskell.yaml@ file
     , settingsContributing   :: !(Maybe Text) -- ^ @CONTRIBUTING.md@ file
     , settingsNoUpload       :: !Bool  -- ^ do not upload to GitHub
-    } deriving (Show)
+    } deriving stock (Show)
 
 -- | Enum for supported build tools.
 data Tool
     = Cabal
     | Stack
-    deriving (Show, Eq, Enum, Bounded)
+    deriving stock (Show, Eq, Enum, Bounded)
 
 -- | Show 'Tool' in lowercase.
 showTool :: Tool -> Text

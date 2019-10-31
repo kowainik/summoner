@@ -16,14 +16,16 @@ import Summoner.Ansi (errorMessage, infoMessage)
 
 import qualified Toml
 
+
+-- | Type of the source resource.
 data Source
     -- | URL link to the source file.
-    = Url Text
+    = Url !Text
     -- | File path to the local source file.
-    | File FilePath
+    | File !FilePath
     -- | Link to external file.
-    | Link Text
-    deriving (Show, Eq)
+    | Link !Text
+    deriving stock (Show, Eq)
 
 showSource :: Source -> Text
 showSource = \case

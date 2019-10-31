@@ -61,7 +61,7 @@ data SummonForm
     | GitHubPrivate
     | GitHubTravis
     | GitHubAppVeyor
-    deriving (Show, Eq, Ord, Enum, Bounded)
+    deriving stock (Show, Eq, Ord, Enum, Bounded)
 
 -- | Alias for type of the @summoner@ form.
 type KitForm e = Form SummonKit e SummonForm

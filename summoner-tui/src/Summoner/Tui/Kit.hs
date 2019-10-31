@@ -98,14 +98,14 @@ data SummonKit = SummonKit
     , summonKitOffline      :: !Bool
     , summonKitShouldSummon :: !Decision  -- ^ Check if project needs to be created.
     , summonKitConfigFile   :: !(Maybe FilePath)  -- ^ Just if configuration file was used.
-    } deriving (Show)
+    } deriving stock (Show)
 
 -- | User information.
 data User = User
     { userOwner    :: !Text  -- ^ GitHub user or organization name.
     , userFullName :: !Text
     , userEmail    :: !Text
-    } deriving (Show)
+    } deriving stock (Show)
 
 -- | Project related information
 data Project = Project
@@ -113,7 +113,7 @@ data Project = Project
     , projectDesc     :: !Text  -- ^ Short project description.
     , projectCategory :: !Text  -- ^ Comma-separated. See @Hackage@ for existing category list.
     , projectLicense  :: !LicenseName
-    } deriving (Show)
+    } deriving stock (Show)
 
 -- | Project meta information.
 data ProjectMeta = ProjectMeta
@@ -124,7 +124,7 @@ data ProjectMeta = ProjectMeta
     , projectMetaGhcs          :: ![GhcVer]  -- ^ Default GHC version is always added.
     , projectMetaPreludeName   :: !Text
     , projectMetaPreludeModule :: !Text
-    } deriving (Show)
+    } deriving stock (Show)
 
 -- | Github specific information.
 data GitHub = GitHub
@@ -133,7 +133,7 @@ data GitHub = GitHub
     , gitHubPrivate  :: !Bool
     , gitHubTravis   :: !Bool
     , gitHubAppVeyor :: !Bool
-    } deriving (Show)
+    } deriving stock (Show)
 
 makeFields ''SummonKit
 makeFields ''User

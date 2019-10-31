@@ -59,8 +59,8 @@ Do you want to add a cabal integration? [y]/n
 
 -}
 data YesNoPrompt = YesNoPrompt
-    { yesNoTarget :: Text -- ^ target (e.g., __TARGET will be added to the project__)
-    , yesNoPrompt :: Text -- ^ prompt (e.g., __PROMPT [y]/n__)
+    { yesNoTarget :: !Text -- ^ target (e.g., __TARGET will be added to the project__)
+    , yesNoPrompt :: !Text -- ^ prompt (e.g., __PROMPT [y]/n__)
     }
 
 {- | Build a prompt with the TARGET name only
@@ -78,7 +78,9 @@ mkDefaultYesNoPrompt
 mkDefaultYesNoPrompt target = YesNoPrompt target ("Add " <> target <> "?")
 
 -- | Represents a user's answer
-data Answer = Y | N
+data Answer
+    = Y
+    | N
 
 -- | Parse an answer to 'Answer'
 yesOrNo :: Text -> Maybe Answer

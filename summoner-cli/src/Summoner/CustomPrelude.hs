@@ -11,9 +11,9 @@ import qualified Toml
 
 
 data CustomPrelude = CustomPrelude
-    { cpPackage :: Text
-    , cpModule  :: Text
-    } deriving (Show, Eq)
+    { cpPackage :: !Text
+    , cpModule  :: !Text
+    } deriving stock (Show, Eq)
 
 customPreludeT :: TomlCodec CustomPrelude
 customPreludeT = CustomPrelude
