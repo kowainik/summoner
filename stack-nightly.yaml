@@ -7,6 +7,5 @@ packages:
 extra-deps:
   - base-noprelude-4.13.0.0
   - brick-0.50
-  - generic-deriving-1.12.4
   - relude-0.6.0.0
   - vty-5.26

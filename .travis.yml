@@ -25,7 +25,7 @@ matrix:
   - ghc: 8.6.5
     env: STACK_YAML="$TRAVIS_BUILD_DIR/stack.yaml" DEPLOY=yes
   - ghc: 8.8.1
-    env: STACK_YAML="$TRAVIS_BUILD_DIR/stack-nightly.yaml" DEPLOY=yes
+    env: STACK_YAML="$TRAVIS_BUILD_DIR/stack-nightly.yaml" DEPLOY=no
 
 #  Disabled because of Travis bugs
 #  # macOS build
