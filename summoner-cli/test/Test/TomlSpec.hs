@@ -5,7 +5,7 @@ module Test.TomlSpec
 import Hedgehog (MonadGen, Property, forAll, property, tripping)
 import Toml.Bi.Code (decode, encode)
 
-import Summoner.Config (ConfigP (..), PartialConfig, configT)
+import Summoner.Config (ConfigP (..), PartialConfig, configCodec)
 import Summoner.CustomPrelude (CustomPrelude (..))
 import Summoner.GhcVer (GhcVer)
 import Summoner.License (LicenseName)
@@ -20,7 +20,7 @@ import qualified Hedgehog.Range as Range
 tomlProp :: Property
 tomlProp = property $ do
     configToml <- forAll genPartialConfig
-    tripping configToml (encode configT) (decode configT)
+    tripping configToml (encode configCodec) (decode configCodec)
 
 ----------------------------------------------------------------------------
 -- Generators
@@ -36,6 +36,9 @@ genText :: MonadGen m => m Text
 genText = Gen.text
     (Range.constant 1 11)
     Gen.alpha
+
+genString :: MonadGen m => m String
+genString = Gen.list (Range.constant 0 100) Gen.alphaNum
 
 genTextArr :: MonadGen m => m [Text]
 genTextArr = Gen.list (Range.constant 0 10) genText
@@ -83,4 +86,5 @@ genPartialConfig = do
     cStylish    <- Last <$> Gen.maybe genSource
     cContributing <- Last <$> Gen.maybe genSource
     cNoUpload   <- Any <$> Gen.bool
+    cFiles <- Gen.map (Range.constant 0 10) (liftA2 (,) genString genSource)
     pure Config{..}
