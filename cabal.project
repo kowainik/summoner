@@ -1,3 +1,8 @@
 packages: summoner-cli/ summoner-tui/
 
 tests: true
+
+source-repository-package
+    type: git
+    location: https://github.com/kowainik/tomland
+    tag: f06fa1c72a4c4cf5dd6fbc988d920f62d1eb30af
