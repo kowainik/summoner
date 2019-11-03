@@ -1,3 +1,5 @@
+{-# OPTIONS_GHC -fno-warn-orphans #-}
+
 {-# LANGUAGE DataKinds            #-}
 {-# LANGUAGE DeriveAnyClass       #-}
 {-# LANGUAGE FlexibleContexts     #-}
@@ -14,7 +16,7 @@ module Summoner.Config
 
        , PartialConfig
        , Config
-       , configT
+       , configCodec
        , defaultConfig
        , finalise
 
@@ -22,15 +24,15 @@ module Summoner.Config
        ) where
 
 import Data.List (lookup)
-import Generics.Deriving.Monoid (GMonoid, gmemptydefault)
-import Generics.Deriving.Semigroup (GSemigroup, gsappenddefault)
+import Generics.Deriving.Monoid (GMonoid (..), gmemptydefault)
+import Generics.Deriving.Semigroup (GSemigroup (..), gsappenddefault)
 import Toml (Key, TomlBiMap, TomlCodec, (.=))
 
 import Summoner.CustomPrelude (CustomPrelude (..), customPreludeT)
 import Summoner.Decision (Decision (..))
 import Summoner.GhcVer (GhcVer (..), parseGhcVer, showGhcVer)
 import Summoner.License (LicenseName (..), parseLicenseName)
-import Summoner.Source (Source, sourceT)
+import Summoner.Source (Source, sourceT, sourceCodec)
 
 import qualified Toml
 
@@ -59,12 +61,13 @@ data ConfigP (p :: Phase) = Config
     , cBench        :: !Decision
     , cPrelude      :: !(Last CustomPrelude)
     , cExtensions   :: ![Text]
-    , cWarnings     :: ![Text]
-    , cGhcOptions   :: ![Text]  -- ^ GHC options to add every stanza
+    , cWarnings     :: ![Text]  -- ^ DEPRECATED: TODO: remove in 1.4.
+    , cGhcOptions   :: ![Text]  -- ^ GHC options to add to each stanza
     , cGitignore    :: ![Text]
-    , cStylish      :: !(Last Source)
-    , cContributing :: !(Last Source)
+    , cStylish      :: !(Last Source)  -- ^ DEPRECATED: source to .stylish-haskell.yaml
+    , cContributing :: !(Last Source)  -- ^ DEPRECATED: source to CONTRIBUTING.md
     , cNoUpload     :: !Any  -- ^ Do not upload to the GitHub (even if enabled)
+    , cFiles        :: !(Map FilePath Source)  -- ^ Custom files
     } deriving stock (Generic)
 
 deriving anyclass instance
@@ -109,6 +112,13 @@ instance Monoid PartialConfig where
     mempty = gmemptydefault
     mappend = (<>)
 
+instance Ord k => GSemigroup (Map k v) where
+    gsappend = (<>)
+
+instance Ord k => GMonoid (Map k v) where
+    gmempty = mempty
+    gmappend = (<>)
+
 -- | Default 'Config' configurations.
 defaultConfig :: PartialConfig
 defaultConfig = Config
@@ -135,11 +145,12 @@ defaultConfig = Config
     , cStylish  = Last Nothing
     , cContributing = Last Nothing
     , cNoUpload = Any False
+    , cFiles = mempty
     }
 
 -- | Identifies how to read 'Config' data from the @.toml@ file.
-configT :: TomlCodec PartialConfig
-configT = Config
+configCodec :: TomlCodec PartialConfig
+configCodec = Config
     <$> lastT Toml.text "owner"       .= cOwner
     <*> lastT Toml.text "fullName"    .= cFullName
     <*> lastT Toml.text "email"       .= cEmail
@@ -163,6 +174,7 @@ configT = Config
     <*> lastT sourceT  "stylish"      .= cStylish
     <*> lastT sourceT  "contributing" .= cContributing
     <*> anyT           "noUpload"     .= cNoUpload
+    <*> filesCodec     "files"        .= cFiles
   where
     lastT :: (Key -> TomlCodec a) -> Key -> TomlCodec (Last a)
     lastT codec = Toml.dimap getLast Last . Toml.dioptional . codec
@@ -200,6 +212,8 @@ configT = Config
     preludeT :: Key -> TomlCodec CustomPrelude
     preludeT = Toml.table customPreludeT
 
+    filesCodec :: Key -> TomlCodec (Map FilePath Source)
+    filesCodec = Toml.map (Toml.string "path") sourceCodec
 
 -- | Make sure that all the required configurations options were specified.
 finalise :: PartialConfig -> Validation [Text] Config
@@ -227,9 +241,11 @@ finalise Config{..} = Config
     <*> pure cStylish
     <*> pure cContributing
     <*> pure cNoUpload
+    <*> pure cFiles
   where
+    fin :: Text -> Last a -> Validation [Text] a
     fin name = maybe (Failure ["Missing field: " <> name]) Success . getLast
 
 -- | Read configuration from the given file and return it in data type.
 loadFileConfig :: MonadIO m => FilePath -> m PartialConfig
-loadFileConfig = Toml.decodeFile configT
+loadFileConfig = Toml.decodeFile configCodec
