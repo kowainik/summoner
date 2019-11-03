@@ -11,12 +11,14 @@ module Summoner.Tui.Validation
        ) where
 
 import Brick.Forms (formState, invalidFields, setFieldValid, setFormFocus)
-import qualified Data.Text as T
 import Lens.Micro (Lens', (%~), (.~), (^.))
 
-import Summoner.Text (packageNameValid, packageToModule)
+import Summoner.Text (moduleNameValid, packageNameValid, packageToModule)
 import Summoner.Tui.Form (KitForm, SummonForm (..), getCurrentFocus, mkForm)
 import Summoner.Tui.Kit
+
+import qualified Data.Text as T
+
 
 -- | Clears the 'Text' fields by @Ctrl + d@ key combination.
 ctrlD :: KitForm e -> KitForm e
@@ -84,7 +86,9 @@ data FormError
     | LibOrExe
     -- | Prelude package name should only contain letters, numbers
     -- and hyphens.
-    | PreludePackage
+    | PreludePackageError
+    -- | Prelude module name restrictions check. See 'moduleNameValid'.
+    | PreludeModuleError
 
 -- | Show 'FormError' to display later in TUI.
 showFormError :: FormError -> String
@@ -94,7 +98,8 @@ showFormError = \case
     LibOrExe     -> "Choose at least one: Library or Executable"
     EmptyFields fields -> "These fields must not be empty: " ++ joinFields fields
     OneWord fields -> "These fields should contain exactly one word: " ++ joinFields fields
-    PreludePackage -> "Prelude package should only contain letters, numbers and hyphens"
+    PreludePackageError -> "Prelude package should only contain letters, numbers and hyphens"
+    PreludeModuleError -> "Prelude module name could only contain dot-separated capitalized letter/numeral fragments. Ex: This.Is.Valid1"
   where
     joinFields :: NonEmpty SummonForm -> String
     joinFields = intercalate ", " . mapMaybe showField . toList
@@ -114,12 +119,13 @@ showFormError = \case
 -- | Returns list of all invalid fields according to the error.
 errorToInvalidFields :: FormError -> NonEmpty SummonForm
 errorToInvalidFields = \case
-    EmptyFields fields -> fields
-    OneWord fields     -> fields
-    ProjectExist       -> one ProjectName
-    CabalOrStack       -> CabalField :| [StackField]
-    LibOrExe           -> Lib :| [Exe]
-    PreludePackage     -> one CustomPreludeName
+    EmptyFields fields  -> fields
+    OneWord fields      -> fields
+    ProjectExist        -> one ProjectName
+    CabalOrStack        -> CabalField :| [StackField]
+    LibOrExe            -> Lib :| [Exe]
+    PreludePackageError -> one CustomPreludeName
+    PreludeModuleError  -> one CustomPreludeModule
 
 -- | Takes boolean value and error and returns error if predicate 'True'.
 toError :: Bool -> e -> Validation (NonEmpty e) ()
@@ -134,6 +140,7 @@ validateKit dirs kit =
     *> validateBuildTools
     *> validateLibOrExe
     *> validatePreludePackage
+    *> validatePreludeModule
   where
     liftValidation
         :: (e -> FormError)
@@ -194,12 +201,20 @@ validateKit dirs kit =
         LibOrExe
 
     validatePreludePackage :: Validation (NonEmpty FormError) ()
-    validatePreludePackage =
-      let packageName = kit ^. projectMeta . preludeName in
-      let isPreludePackageInvalid = not $ T.null packageName || packageNameValid packageName in
-      toError
-        isPreludePackageInvalid
-        PreludePackage
+    validatePreludePackage = toError
+        (not $ T.null packageName || packageNameValid packageName)
+        PreludePackageError
+      where
+        packageName :: Text
+        packageName = kit ^. projectMeta . preludeName
+
+    validatePreludeModule :: Validation (NonEmpty FormError) ()
+    validatePreludeModule = toError
+        (not $ T.null moduleName || moduleNameValid moduleName)
+        PreludeModuleError
+      where
+        moduleName :: Text
+        moduleName  = kit ^. projectMeta . preludeModule
 
 -- | Returns list of error messages according to all invalid fields.
 formErrorMessages :: [FilePath] -> KitForm e -> [String]
