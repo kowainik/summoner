@@ -195,9 +195,7 @@ initializeProject isOffline settings@Settings{..} = do
     createProjectDirectory settings
     for_ (Map.toList settingsFiles) $ \(path, source) -> do
         infoMessage $ "Creating extra file: " <> toText path
-        fetchSource isOffline source >>= \case
-            Nothing -> pass
-            Just content -> createFileWithParents path content
+        whenJustM (fetchSource isOffline source) (createFileWithParents path)
 
     when settingsGitHub $ doGithubCommands settings
     beautyPrint [bold, setColor Green] "\nJob's done\n"
