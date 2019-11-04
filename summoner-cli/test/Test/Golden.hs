@@ -91,8 +91,9 @@ fullProject = Settings
     , settingsStylish        = Just "This is stylish-haskell.yaml\n"
     , settingsContributing   = Just "This is contributing guide\n"
     , settingsNoUpload       = True
-    , settingsFiles          = mempty
---    , settingsFiles          = Map.fromList [("extra.txt", Link "@github")]
+    , settingsFiles          =
+        [ File "extra.txt" [text|See full content of the file [here](@github)|]
+        ]
     }
   where
     mitLicense :: License

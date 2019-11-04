@@ -29,12 +29,13 @@ import System.Directory (doesDirectoryExist, doesFileExist, getCurrentDirectory,
 
 import Summoner.Ansi (errorMessage, infoMessage)
 import Summoner.CLI (Command (..), NewOpts (..), ShowOpts (..), getFinalConfig, runScript, summon)
+import Summoner.Config (ConfigP (cFiles))
 import Summoner.Decision (Decision (..))
 import Summoner.Default (defaultConfigFile)
 import Summoner.GhcVer (showGhcMeta)
 import Summoner.License (License (..), LicenseName, fetchLicense, parseLicenseName,
                          showLicenseWithDesc)
-import Summoner.Project (initializeProject)
+import Summoner.Project (fetchSources, initializeProject)
 import Summoner.Text (alignTable)
 import Summoner.Tui.Field (disabledAttr)
 import Summoner.Tui.Form (KitForm, SummonForm (..), getCurrentFocus, isActive, mkForm, recreateForm)
@@ -70,11 +71,13 @@ summonTuiNew :: NewOpts -> IO ()
 summonTuiNew newOpts@NewOpts{..} = do
     -- configure initial state for TUI application
     finalConfig <- getFinalConfig newOpts
+    files <- fetchSources newOptsOffline (cFiles finalConfig)
     configFilePath <- findConfigFile
     let initialKit = configToSummonKit
             newOptsProjectName
             newOptsOffline
             configFilePath
+            files
             finalConfig
 
     -- run TUI app
@@ -83,7 +86,7 @@ summonTuiNew newOpts@NewOpts{..} = do
     -- perform actions depending on the final state
     let kit = formState skForm
     if allFieldsValid skForm && (kit ^. shouldSummon == Yes)
-    then finalSettings kit >>= initializeProject newOptsOffline
+    then finalSettings kit >>= initializeProject
     else errorMessage "Aborting summoner"
   where
     findConfigFile :: IO (Maybe FilePath)
