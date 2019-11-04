@@ -91,6 +91,7 @@ fullProject = Settings
     , settingsStylish        = Just "This is stylish-haskell.yaml\n"
     , settingsContributing   = Just "This is contributing guide\n"
     , settingsNoUpload       = True
+    , settingsFiles          = mempty
     }
   where
     mitLicense :: License
@@ -148,6 +149,7 @@ smallProject = Settings
     , settingsStylish        = Nothing
     , settingsContributing   = Nothing
     , settingsNoUpload       = True
+    , settingsFiles          = mempty
     }
 
 -- Orphan instances

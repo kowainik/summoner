@@ -21,7 +21,7 @@ import Summoner.Default (currentYear, defaultDescription, defaultGHC)
 import Summoner.GhcVer (oldGhcs, parseGhcVer, showGhcVer)
 import Summoner.License (LicenseName (..), customizeLicense, fetchLicense, licenseShortDesc,
                          parseLicenseName)
-import Summoner.Process ()
+import Summoner.Process (createFileWithParents)
 import Summoner.Question (YesNoPrompt (..), checkUniqueName, choose, falseMessage,
                           mkDefaultYesNoPrompt, query, queryDef, queryManyRepeatOnFail,
                           targetMessageWithText, trueMessage)
@@ -30,6 +30,8 @@ import Summoner.Source (fetchSource)
 import Summoner.Template (createProjectTemplate)
 import Summoner.Text (intercalateMap, packageToModule)
 import Summoner.Tree (showBoldTree, traverseTree)
+
+import qualified Data.Map.Strict as Map
 
 
 -- | Generate the project.
@@ -115,10 +117,11 @@ generateProject isOffline projectName Config{..} = do
     let fetchLast = maybe (pure Nothing) (fetchSource isOffline) . getLast
     settingsStylish      <- fetchLast cStylish
     settingsContributing <- fetchLast cContributing
+    let settingsFiles = cFiles
 
     -- Create project data from all variables in scope
     -- and make a project from it.
-    initializeProject Settings{..}
+    initializeProject isOffline Settings{..}
  where
     decisionIf :: Bool -> YesNoPrompt -> Decision -> IO Bool
     decisionIf p ynPrompt decision = if p
@@ -187,9 +190,15 @@ generateProject isOffline projectName Config{..} = do
         stackMsg c = targetMessageWithText c "Stack" "used in this project"
 
 -- | Creates the directory and run GitHub commands.
-initializeProject :: Settings -> IO ()
-initializeProject settings@Settings{..} = do
+initializeProject :: Bool -> Settings -> IO ()
+initializeProject isOffline settings@Settings{..} = do
     createProjectDirectory settings
+    for_ (Map.toList settingsFiles) $ \(path, source) -> do
+        infoMessage $ "Creating extra file: " <> toText path
+        fetchSource isOffline source >>= \case
+            Nothing -> pass
+            Just content -> createFileWithParents path content
+
     when settingsGitHub $ doGithubCommands settings
     beautyPrint [bold, setColor Green] "\nJob's done\n"
 
