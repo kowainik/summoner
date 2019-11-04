@@ -227,6 +227,7 @@ drawNew dirs kitForm = case kit ^. shouldSummon of
             [ informationBlock
             , validationBlock
             , configBlock
+            , deprecationBlock
             , fill ' '
             ]
       where
@@ -240,6 +241,9 @@ drawNew dirs kitForm = case kit ^. shouldSummon of
         infoTxt :: Text -> Widget SummonForm
         infoTxt = withAttr "blue-fg" . txtWrap . (<>) " ⓘ  "
 
+        deprecationTxt :: Text -> Widget SummonForm
+        deprecationTxt = withAttr "yellow-fg" . txtWrap . (<>) " ⚠  "
+
         validationBlock :: Widget SummonForm
         validationBlock = vBox $ case formErrorMessages dirs kitForm of
             []     -> [withAttr "green-fg" $ str " ✔  Project configuration is valid"]
@@ -249,6 +253,13 @@ drawNew dirs kitForm = case kit ^. shouldSummon of
         configBlock = case kit ^. configFile of
             Nothing   -> emptyWidget
             Just file -> infoTxt $ toText file <> " file is used"
+
+        deprecationBlock :: Widget SummonForm
+        deprecationBlock = case (kit ^. stylish, kit ^. contributing) of
+            (Nothing, Nothing) -> emptyWidget
+            (s, c) -> vBox $
+                [ deprecationTxt "Option 'stylish' is deprecated, use 'files'" | isJust s ]
+             ++ [ deprecationTxt "Option 'contributing' is deprecated, use 'files'" | isJust c]
 
     help, helpBody :: Widget SummonForm
     help     = borderLabel "Help" (helpBody <+> fill ' ')
@@ -353,11 +364,12 @@ theMap = attrMap V.defAttr
     , (editFocusedAttr,         V.black `Brick.on` V.white)
     , (invalidFormInputAttr,    V.white `Brick.on` V.red)
     , (focusedFormInputAttr,    V.black `Brick.on` V.yellow)
-    , (listSelectedAttr,        V.black  `Brick.on` V.cyan)
+    , (listSelectedAttr,        V.black `Brick.on` V.cyan)
     , (listSelectedFocusedAttr, V.black `Brick.on` V.white)
     , (disabledAttr,            fg V.brightBlack)
     , ("blue-fg",               fg V.blue)
     , ("green-fg",              fg V.green)
+    , ("yellow-fg",             fg V.yellow)
     , ("red-fg",                fg V.brightRed)
     , (borderAttr,              fg V.cyan)
     , ("tree",                  fg V.cyan)
