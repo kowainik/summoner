@@ -24,11 +24,11 @@ import Summoner.License (LicenseName (..), customizeLicense, fetchLicense, licen
 import Summoner.Process ()
 import Summoner.Question (YesNoPrompt (..), checkUniqueName, choose, falseMessage,
                           mkDefaultYesNoPrompt, query, queryDef, queryManyRepeatOnFail,
-                          targetMessageWithText, trueMessage)
+                          queryWithPredicate, targetMessageWithText, trueMessage)
 import Summoner.Settings (Settings (..))
 import Summoner.Source (fetchSource)
 import Summoner.Template (createProjectTemplate)
-import Summoner.Text (intercalateMap, packageToModule)
+import Summoner.Text (intercalateMap, moduleNameValid, packageNameValid, packageToModule)
 import Summoner.Tree (showBoldTree, traverseTree)
 
 
@@ -157,10 +157,20 @@ generateProject isOffline projectName Config{..} = do
     getPrelude :: IO (Maybe CustomPrelude)
     getPrelude = case cPrelude of
         Last Nothing -> do
-            p <- query "Custom prelude package (leave empty if no custom prelude is needed): "
+            p <- queryWithPredicate
+                "Custom prelude package (leave empty if no custom prelude is needed): "
+                []
+                "Name can contain letters/numbers/'-'"
+                packageNameValid
             if p == "" then Nothing <$ skipMessage "No custom prelude will be used in the project"
             else do
-                m <- queryDef "Custom prelude module: " (packageToModule p)
+                let defModule = packageToModule p
+                input <- queryWithPredicate
+                    "Custom prelude module: "
+                    [defModule]
+                    "Name can contain dot-separated capitalized letter/numeral fragments. Ex: This.Is.Valid1"
+                    moduleNameValid
+                let m = if input == "" then defModule else input
                 successMessage $ "Custom prelude " <> p <> " will be used in the project"
                 pure $ Just $ CustomPrelude p m
         Last prelude@(Just (CustomPrelude p _)) ->

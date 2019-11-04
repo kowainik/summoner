@@ -16,6 +16,7 @@ module Summoner.Question
 
          -- * Queries
        , query
+       , queryWithPredicate
        , queryNotNull
        , queryDef
        , queryManyRepeatOnFail
@@ -108,10 +109,12 @@ printQuestion
     -> IO ()
 printQuestion question [] = putTextLn question
 printQuestion question (def:rest) = do
-    let restSlash = T.intercalate "/" rest
     putStrFlush question
     boldDefault def
-    putTextLn $ "/" <> restSlash
+    let restSlash = T.intercalate "/" rest
+    if restSlash == ""
+    then putTextLn ""
+    else putTextLn $ "/" <> restSlash
 
 -- | Allows users to choose one of the given options.
 -- It asks the question until the appropriate answer is received.
@@ -184,6 +187,20 @@ falseMessage = targetMessage False
 -}
 query :: Text -> IO Text
 query question = putTextLn question >> prompt
+
+{- | Queries for the answer that should satisfy the given predicate, or be empty.
+-}
+queryWithPredicate :: Text -> [Text] -> Text -> (Text -> Bool) -> IO Text
+queryWithPredicate question options instruction p = loop
+  where
+    loop :: IO Text
+    loop = do
+        printQuestion question options
+        beautyPrint [italic] $ instruction <> "\n"
+        input <- prompt
+        if input /= "" && not (p input)
+        then errorMessage ("'" <> input <> "' doesn't satisfy the requirements.") >> loop
+        else pure input
 
 
 -- | Queries for an non-empty answer.
