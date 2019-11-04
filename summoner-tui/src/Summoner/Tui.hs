@@ -83,7 +83,7 @@ summonTuiNew newOpts@NewOpts{..} = do
     -- perform actions depending on the final state
     let kit = formState skForm
     if allFieldsValid skForm && (kit ^. shouldSummon == Yes)
-    then finalSettings kit >>= initializeProject
+    then finalSettings kit >>= initializeProject newOptsOffline
     else errorMessage "Aborting summoner"
   where
     findConfigFile :: IO (Maybe FilePath)

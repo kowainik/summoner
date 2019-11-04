@@ -98,6 +98,7 @@ data SummonKit = SummonKit
     , summonKitOffline      :: !Bool
     , summonKitShouldSummon :: !Decision  -- ^ Check if project needs to be created.
     , summonKitConfigFile   :: !(Maybe FilePath)  -- ^ Just if configuration file was used.
+    , summonKitExtraFiles   :: !(Map FilePath Source)
     } deriving stock (Show)
 
 -- | User information.
@@ -184,6 +185,7 @@ summonKitToSettings sk = Settings
     , settingsStylish        = "" <$ sk ^. stylish
     , settingsContributing   = "" <$ sk ^. contributing
     , settingsNoUpload       = sk ^. gitHub . noUpload
+    , settingsFiles          = sk ^. extraFiles
     }
   where
     isGitHub :: Bool
@@ -266,6 +268,7 @@ configToSummonKit cRepo cOffline cConfigFile Config{..} = SummonKit
     , summonKitOffline      = cOffline
     , summonKitShouldSummon = Nop
     , summonKitConfigFile   = cConfigFile
+    , summonKitExtraFiles   = cFiles
     }
   where
     kitCabal, kitStack, kitLib, kitExe :: Bool

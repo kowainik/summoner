@@ -8,6 +8,7 @@ module Summoner.Settings
 
 import Summoner.CustomPrelude (CustomPrelude)
 import Summoner.GhcVer (GhcVer)
+import Summoner.Source (Source)
 import Summoner.License (License, LicenseName)
 
 
@@ -41,6 +42,7 @@ data Settings = Settings
     , settingsStylish        :: !(Maybe Text) -- ^ @.stylish-haskell.yaml@ file
     , settingsContributing   :: !(Maybe Text) -- ^ @CONTRIBUTING.md@ file
     , settingsNoUpload       :: !Bool  -- ^ do not upload to GitHub
+    , settingsFiles          :: !(Map FilePath Source)  -- ^ Extra files
     } deriving stock (Show)
 
 -- | Enum for supported build tools.
