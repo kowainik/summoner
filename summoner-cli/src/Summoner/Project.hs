@@ -206,7 +206,7 @@ initializeProject settings@Settings{..} = do
 {- | This function fetches contents of extra file sources.
 -}
 fetchSources :: Bool -> Map FilePath Source -> IO [TreeFs]
-fetchSources isOffline = mapMaybeM sourceToTree .  Map.toList
+fetchSources isOffline = mapMaybeM sourceToTree . Map.toList
   where
     sourceToTree :: (FilePath, Source) -> IO (Maybe TreeFs)
     sourceToTree (path, source) = do
