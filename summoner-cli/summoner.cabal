@@ -81,10 +81,10 @@ library
                          Summoner.Default
                          Summoner.GhcVer
                          Summoner.License
-                         Summoner.Process
                          Summoner.Project
                          Summoner.Question
                          Summoner.Settings
+                         Summoner.Shell
                          Summoner.Source
                          Summoner.Template
                            Summoner.Template.Cabal

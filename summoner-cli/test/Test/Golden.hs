@@ -92,6 +92,7 @@ fullProject = Settings
     , settingsContributing   = Just "This is contributing guide\n"
     , settingsNoUpload       = True
     , settingsFiles          = mempty
+--    , settingsFiles          = Map.fromList [("extra.txt", Link "@github")]
     }
   where
     mitLicense :: License

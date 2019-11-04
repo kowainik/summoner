@@ -21,11 +21,11 @@ import Summoner.Default (currentYear, defaultDescription, defaultGHC)
 import Summoner.GhcVer (oldGhcs, parseGhcVer, showGhcVer)
 import Summoner.License (LicenseName (..), customizeLicense, fetchLicense, licenseShortDesc,
                          parseLicenseName)
-import Summoner.Process (createFileWithParents)
 import Summoner.Question (YesNoPrompt (..), checkUniqueName, choose, falseMessage,
                           mkDefaultYesNoPrompt, query, queryDef, queryManyRepeatOnFail,
                           targetMessageWithText, trueMessage)
 import Summoner.Settings (Settings (..))
+import Summoner.Shell (createFileWithParents)
 import Summoner.Source (fetchSource)
 import Summoner.Template (createProjectTemplate)
 import Summoner.Text (intercalateMap, packageToModule)

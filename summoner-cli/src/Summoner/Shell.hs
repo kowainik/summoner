@@ -1,9 +1,8 @@
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE TypeFamilies      #-}
 
--- QUESTION: should we rename this module to Summoner.Shell?
 -- | This module contains various function to work with commands.
-module Summoner.Process
+module Summoner.Shell
        ( createFileWithParents
        , deleteFile
        ) where
