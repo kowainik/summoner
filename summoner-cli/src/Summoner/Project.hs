@@ -26,7 +26,7 @@ import Summoner.Question (YesNoPrompt (..), checkUniqueName, choose, falseMessag
                           queryWithPredicate, targetMessageWithText, trueMessage)
 import Summoner.Settings (Settings (..))
 import Summoner.Shell (createFileWithParents)
-import Summoner.Source (fetchSource)
+import Summoner.Source (Source, fetchSource)
 import Summoner.Template (createProjectTemplate)
 import Summoner.Text (intercalateMap, moduleNameValid, packageNameValid, packageToModule)
 import Summoner.Tree (showBoldTree, traverseTree)
@@ -114,9 +114,16 @@ generateProject isOffline projectName Config{..} = do
     when (oldGhcIncluded && settingsStack && settingsTravis) $
         warningMessage "Old GHC versions won't be included into Stack matrix at Travis CI because of the Stack issue with newer Cabal versions."
 
-    let fetchLast = maybe (pure Nothing) (fetchSource isOffline) . getLast
-    settingsStylish      <- fetchLast cStylish
-    settingsContributing <- fetchLast cContributing
+    let fetchLast :: Text -> Last Source -> IO (Maybe Text)
+        fetchLast option (Last mSource) = case mSource of
+            Nothing -> pure Nothing
+            Just source -> do
+                let msg = [text|The option '${option}' is deprecated. Use 'files' instead.|]
+                warningMessage msg
+                fetchSource isOffline source
+
+    settingsStylish      <- fetchLast "stylish.{url,file,link}" cStylish
+    settingsContributing <- fetchLast "contributing.{url,file,link}" cContributing
     let settingsFiles = cFiles
 
     -- Create project data from all variables in scope
