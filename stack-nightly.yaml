@@ -5,7 +5,6 @@ packages:
   - summoner-tui/
 
 extra-deps:
-  - base-noprelude-4.13.0.0
   - brick-0.50
   - vty-5.26
 

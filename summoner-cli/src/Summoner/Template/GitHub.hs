@@ -25,7 +25,8 @@ import NeatInterpolation (text)
 import Summoner.Default (defaultGHC)
 import Summoner.GhcVer (GhcVer (..), oldGhcs, showGhcVer)
 import Summoner.Settings (Settings (..))
-import Summoner.Text (tconcatMap)
+import Summoner.Template.Mempty (memptyIfFalse)
+import Summoner.Text (endLine, tconcatMap)
 import Summoner.Tree (TreeFs (..))
 
 

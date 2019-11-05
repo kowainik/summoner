@@ -31,6 +31,8 @@ import Options.Applicative (Parser, ParserInfo, ParserPrefs, argument, command, 
                             prefs, progDesc, short, showHelpOnEmpty, strArgument, strOption,
                             subparser, subparserInline, switch, value)
 import Options.Applicative.Help.Chunk (stringChunk)
+import Relude.Extra.Enum (universe)
+import Relude.Extra.Validation (Validation (..))
 import Shellmet (($?), ($|))
 import System.Directory (doesFileExist)
 import System.Info (os)
@@ -48,7 +50,7 @@ import Summoner.License (License (..), LicenseName (..), fetchLicense, parseLice
 import Summoner.Project (generateProject)
 import Summoner.Settings (Tool, parseTool)
 import Summoner.Template.Script (scriptFile)
-import Summoner.Text (alignTable)
+import Summoner.Text (alignTable, endLine)
 
 import qualified Data.Text as T
 import qualified Paths_summoner as Meta (version)

@@ -46,6 +46,16 @@ source-repository head
   location: git@github.com:kowainik/summoner.git
 
 common common-options
+  build-depends:       base >= 4.10 && < 4.14
+                     , relude ^>= 0.6.0.0
+
+  mixins:              base hiding (Prelude)
+                     , relude (Relude as Prelude
+                              , Relude.Extra.Enum
+                              , Relude.Extra.Validation
+                              , Relude.Unsafe
+                              )
+
   ghc-options:         -Wall
                        -Wincomplete-uni-patterns
                        -Wincomplete-record-updates
@@ -90,6 +100,7 @@ library
                            Summoner.Template.Doc
                            Summoner.Template.GitHub
                            Summoner.Template.Haskell
+                           Summoner.Template.Mempty
                            Summoner.Template.Script
                            Summoner.Template.Stack
                          Summoner.Text
@@ -97,10 +108,8 @@ library
 
   autogen-modules:     Paths_summoner
   other-modules:       Paths_summoner
-                       Prelude
 
-  build-depends:       base-noprelude >= 4.10 && < 4.14
-                     , aeson >= 1.2.4.0 && < 1.5
+  build-depends:       aeson >= 1.2.4.0 && < 1.5
                      , ansi-terminal >= 0.8 && < 0.11
                      , bytestring ^>= 0.10.8.2
                      , containers
@@ -111,7 +120,6 @@ library
                      , neat-interpolation ^>= 0.3.2.2
                      , optparse-applicative ^>= 0.15
                      , process ^>= 1.6.1.0
-                     , relude ^>= 0.6.0.0
                      , shellmet >= 0.0.1 && < 0.1
                      , text ^>= 1.2.3.0
                      , time >= 1.8 && < 1.10
@@ -121,8 +129,7 @@ executable summon
   import:              common-options
   hs-source-dirs:      app
   main-is:             Cli.hs
-  build-depends:       base >= 4.10 && < 4.14
-                     , summoner
+  build-depends:       summoner
 
   ghc-options:         -threaded
                        -rtsopts
@@ -140,15 +147,12 @@ test-suite summoner-test
                        Test.Script
                        Test.TomlSpec
                        Test.QuestionSpec
-                       Prelude
 
-  build-depends:       base-noprelude >= 4.10 && < 4.14
-                     , directory
+  build-depends:       directory
                      , filepath
                      , hedgehog >= 0.5.3 && < 1.1
                      , hspec >= 2.4.8
                      , neat-interpolation
-                     , relude
                      , text
                      , tomland
                      , tree-diff >= 0.0.2 && < 0.2

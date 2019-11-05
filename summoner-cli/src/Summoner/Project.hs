@@ -10,6 +10,7 @@ module Summoner.Project
 
 import Data.List (intersect)
 import NeatInterpolation (text)
+import Relude.Extra.Enum (universe)
 import Shellmet ()
 import System.Directory (setCurrentDirectory)
 

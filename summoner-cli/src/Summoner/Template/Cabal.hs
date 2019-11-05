@@ -1,5 +1,7 @@
 {-# LANGUAGE QuasiQuotes #-}
 
+{- | `.cabal` file template. -}
+
 module Summoner.Template.Cabal
        ( cabalFile
        ) where
@@ -11,12 +13,14 @@ import Summoner.Default (defaultCabal)
 import Summoner.GhcVer (GhcVer (..), cabalBaseVersions, showGhcVer)
 import Summoner.License (LicenseName (..), cabalLicense)
 import Summoner.Settings (Settings (..))
-import Summoner.Text (intercalateMap, packageToModule)
+import Summoner.Template.Mempty (memptyIfFalse)
+import Summoner.Text (endLine, intercalateMap, packageToModule)
 import Summoner.Tree (TreeFs (..))
 
 import qualified Data.Text as T
 
 
+-- | Creates a `.cabal` file from the given 'Settings'.
 cabalFile :: Settings -> TreeFs
 cabalFile Settings{..} = File (toString settingsRepo ++ ".cabal") cabalFileContent
   where

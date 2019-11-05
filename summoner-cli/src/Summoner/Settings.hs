@@ -6,6 +6,8 @@ module Summoner.Settings
        , parseTool
        ) where
 
+import Relude.Extra.Enum (inverseMap)
+
 import Summoner.CustomPrelude (CustomPrelude)
 import Summoner.GhcVer (GhcVer)
 import Summoner.License (License, LicenseName)

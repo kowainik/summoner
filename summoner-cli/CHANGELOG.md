@@ -57,6 +57,8 @@ The changelog is available [on GitHub][2].
         }
       ]
   ```
+* [#360](https://github.com/kowainik/summoner/issues/360):
+  Use mixins with `base` and `relude`. Drop `base-noprelude` trick.
 
 ## 1.3.0.1 — Apr 10, 2019
 

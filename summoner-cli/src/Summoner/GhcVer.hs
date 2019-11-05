@@ -16,6 +16,7 @@ module Summoner.GhcVer
        ) where
 
 import Data.List (maximum, minimum)
+import Relude.Extra.Enum (inverseMap)
 
 import qualified Text.Show as Show
 
