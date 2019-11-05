@@ -15,9 +15,6 @@ import System.FilePath ((</>))
 
 import Summoner.GhcVer (GhcVer)
 
-----------------------------------------------------------------------------
--- Default Settings
-----------------------------------------------------------------------------
 
 -- | Default GHC version is the latest available.
 defaultGHC :: GhcVer
