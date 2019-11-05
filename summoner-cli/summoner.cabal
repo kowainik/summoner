@@ -84,7 +84,6 @@ library
                          Summoner.Project
                          Summoner.Question
                          Summoner.Settings
-                         Summoner.Shell
                          Summoner.Source
                          Summoner.Template
                            Summoner.Template.Cabal
@@ -112,7 +111,7 @@ library
                      , neat-interpolation ^>= 0.3.2.2
                      , optparse-applicative ^>= 0.15
                      , process ^>= 1.6.1.0
-                     , relude >= 0.5.0 && < 0.7
+                     , relude ^>= 0.6.0.0
                      , shellmet >= 0.0.1 && < 0.1
                      , text ^>= 1.2.3.0
                      , time >= 1.8 && < 1.10

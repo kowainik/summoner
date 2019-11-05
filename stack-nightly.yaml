@@ -1,4 +1,4 @@
-resolver: nightly-2019-10-31
+resolver: nightly-2019-11-04
 
 packages:
   - summoner-cli/
@@ -7,7 +7,6 @@ packages:
 extra-deps:
   - base-noprelude-4.13.0.0
   - brick-0.50
-  - relude-0.6.0.0
   - vty-5.26
 
   - github: kowainik/tomland

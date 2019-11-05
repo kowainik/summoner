@@ -76,7 +76,7 @@ import Summoner.License (LicenseName (..), customizeLicense, fetchLicense)
 import Summoner.Settings (Settings (..))
 import Summoner.Source (Source, fetchSource)
 import Summoner.Template (createProjectTemplate)
-import Summoner.Tree (showTree)
+import Summoner.Tree (TreeFs, showTree)
 
 import qualified Data.List as List (delete)
 import qualified Data.Text as T
@@ -98,7 +98,7 @@ data SummonKit = SummonKit
     , summonKitOffline      :: !Bool
     , summonKitShouldSummon :: !Decision  -- ^ Check if project needs to be created.
     , summonKitConfigFile   :: !(Maybe FilePath)  -- ^ Just if configuration file was used.
-    , summonKitExtraFiles   :: !(Map FilePath Source)
+    , summonKitExtraFiles   :: ![TreeFs]  -- ^ Extra files
     } deriving stock (Show)
 
 -- | User information.
@@ -228,9 +228,10 @@ configToSummonKit
     :: Text  -- ^ Given project name
     -> Bool    -- ^  @offline@ mode option
     -> Maybe FilePath  -- ^ Configuration file used
+    -> [TreeFs]  -- ^ Extra files
     -> Config  -- ^ Given configurations.
     -> SummonKit
-configToSummonKit cRepo cOffline cConfigFile Config{..} = SummonKit
+configToSummonKit cRepo cOffline cConfigFile files Config{..} = SummonKit
     { summonKitUser  = User
         { userOwner    = cOwner
         , userFullName = cFullName
@@ -268,7 +269,7 @@ configToSummonKit cRepo cOffline cConfigFile Config{..} = SummonKit
     , summonKitOffline      = cOffline
     , summonKitShouldSummon = Nop
     , summonKitConfigFile   = cConfigFile
-    , summonKitExtraFiles   = cFiles
+    , summonKitExtraFiles   = files
     }
   where
     kitCabal, kitStack, kitLib, kitExe :: Bool

@@ -12,6 +12,6 @@ import Summoner.License as Summoner
 import Summoner.Project as Summoner
 import Summoner.Question as Summoner
 import Summoner.Settings as Summoner
-import Summoner.Shell as Summoner
 import Summoner.Template as Summoner
 import Summoner.Text as Summoner
+import Summoner.Tree as Summoner

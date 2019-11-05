@@ -72,7 +72,7 @@ library
                      , filepath ^>= 1.4.1.2
                      , microlens ^>= 0.4
                      , microlens-th ^>= 0.4
-                     , relude >= 0.5.0 && < 0.7
+                     , relude ^>= 0.6.0.0
                      , summoner ^>= 1.3.0
                      , text ^>= 1.2.3.0
                      , vty >= 5.25 && < 5.27

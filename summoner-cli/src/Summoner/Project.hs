@@ -5,6 +5,7 @@
 module Summoner.Project
        ( generateProject
        , initializeProject
+       , fetchSources
        ) where
 
 import Data.List (intersect)
@@ -25,11 +26,10 @@ import Summoner.Question (YesNoPrompt (..), checkUniqueName, choose, falseMessag
                           mkDefaultYesNoPrompt, query, queryDef, queryManyRepeatOnFail,
                           queryWithPredicate, targetMessageWithText, trueMessage)
 import Summoner.Settings (Settings (..))
-import Summoner.Shell (createFileWithParents)
 import Summoner.Source (Source, fetchSource)
 import Summoner.Template (createProjectTemplate)
 import Summoner.Text (intercalateMap, moduleNameValid, packageNameValid, packageToModule)
-import Summoner.Tree (showBoldTree, traverseTree)
+import Summoner.Tree (TreeFs, pathToTree, showBoldTree, traverseTree)
 
 import qualified Data.Map.Strict as Map
 
@@ -124,11 +124,11 @@ generateProject isOffline projectName Config{..} = do
 
     settingsStylish      <- fetchLast "stylish.{url,file,link}" cStylish
     settingsContributing <- fetchLast "contributing.{url,file,link}" cContributing
-    let settingsFiles = cFiles
+    settingsFiles <- fetchSources isOffline cFiles
 
     -- Create project data from all variables in scope
     -- and make a project from it.
-    initializeProject isOffline Settings{..}
+    initializeProject Settings{..}
  where
     decisionIf :: Bool -> YesNoPrompt -> Decision -> IO Bool
     decisionIf p ynPrompt decision = if p
@@ -207,15 +207,25 @@ generateProject isOffline projectName Config{..} = do
         stackMsg c = targetMessageWithText c "Stack" "used in this project"
 
 -- | Creates the directory and run GitHub commands.
-initializeProject :: Bool -> Settings -> IO ()
-initializeProject isOffline settings@Settings{..} = do
+initializeProject :: Settings -> IO ()
+initializeProject settings@Settings{..} = do
     createProjectDirectory settings
-    for_ (Map.toList settingsFiles) $ \(path, source) -> do
-        infoMessage $ "Creating extra file: " <> toText path
-        whenJustM (fetchSource isOffline source) (createFileWithParents path)
-
     when settingsGitHub $ doGithubCommands settings
     beautyPrint [bold, setColor Green] "\nJob's done\n"
+
+{- | This function fetches contents of extra file sources.
+-}
+fetchSources :: Bool -> Map FilePath Source -> IO [TreeFs]
+fetchSources isOffline = mapMaybeM sourceToTree . Map.toList
+  where
+    sourceToTree :: (FilePath, Source) -> IO (Maybe TreeFs)
+    sourceToTree (path, source) = do
+        infoMessage $ "Fetching content of the extra file: " <> toText path
+        fetchSource isOffline source >>= \case
+            Nothing -> do
+                errorMessage $ "Error fetching: " <> toText path
+                pure Nothing
+            Just content -> pure $ Just $ pathToTree path content
 
 -- | From the given 'Settings' creates the project.
 createProjectDirectory :: Settings -> IO ()
