@@ -12,6 +12,8 @@ module Summoner.Tui.Validation
 
 import Brick.Forms (formState, invalidFields, setFieldValid, setFormFocus)
 import Lens.Micro (Lens', (%~), (.~), (^.))
+import Relude.Extra.Enum (universe)
+import Relude.Extra.Validation (Validation (..))
 
 import Summoner.Text (moduleNameValid, packageNameValid, packageToModule)
 import Summoner.Tui.Form (KitForm, SummonForm (..), getCurrentFocus, mkForm)

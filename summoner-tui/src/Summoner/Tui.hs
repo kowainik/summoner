@@ -25,6 +25,7 @@ import Brick.Widgets.Core (emptyWidget, fill, hLimit, hLimitPercent, padTopBotto
 import Brick.Widgets.Edit (editAttr, editFocusedAttr)
 import Brick.Widgets.List (listSelectedAttr, listSelectedFocusedAttr)
 import Lens.Micro ((.~), (^.))
+import Relude.Extra.Enum (universe)
 import System.Directory (doesDirectoryExist, doesFileExist, getCurrentDirectory, listDirectory)
 
 import Summoner.Ansi (errorMessage, infoMessage)

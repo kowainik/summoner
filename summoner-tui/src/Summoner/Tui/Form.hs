@@ -14,6 +14,7 @@ import Brick.Focus (focusGetCurrent)
 import Brick.Forms (Form, editField, editTextField, formFocus, formState, listField, newForm,
                     setFieldConcat, setFormConcat, setFormFocus, (@@=))
 import Lens.Micro ((^.))
+import Relude.Extra.Enum (universe)
 
 import Summoner.Default (defaultGHC)
 import Summoner.GhcVer (parseGhcVer, showGhcVer)

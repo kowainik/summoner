@@ -1,5 +1,9 @@
+{- | Various helpful functions to work with 'Text'
+-}
+
 module Summoner.Text
-       ( packageToModule
+       ( endLine
+       , packageToModule
        , packageNameValid
        , moduleNameValid
        , intercalateMap
@@ -12,6 +16,11 @@ import Data.Semigroup (Max (..))
 
 import qualified Data.Char as C
 import qualified Data.Text as T
+
+
+-- | Endline symbol to use with @neat-interpolation@.
+endLine :: Text
+endLine = "\n"
 
 -- | Creates module name from the name of the package
 -- Ex: @my-lovely-project@ — @MyLovelyProject@

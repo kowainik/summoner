@@ -35,7 +35,7 @@ matrix:
 install:
   # HLint
   - curl https://raw.githubusercontent.com/kowainik/relude/v0.6.0.0/.hlint.yaml -o .hlint-relude.yaml
-  - curl -sSL https://raw.github.com/ndmitchell/neil/master/misc/travis.sh | sh -s -- hlint -h .hlint-relude.yaml summoner-cli/src/ summoner-tui/src/
+  - curl -sSL https://raw.github.com/ndmitchell/neil/master/misc/travis.sh | sh -s -- hlint -h .hlint-relude.yaml summoner-cli/src/ summoner-cli/test/ summoner-cli/app/ summoner-tui/src/ summoner-tui/app/
 
   - |
     if [ -z "$STACK_YAML" ]; then

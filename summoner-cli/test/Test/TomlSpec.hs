@@ -3,6 +3,7 @@ module Test.TomlSpec
        ) where
 
 import Hedgehog (MonadGen, Property, forAll, property, tripping)
+import Relude.Extra.Enum (universe)
 import Toml.Bi.Code (decode, encode)
 
 import Summoner.Config (ConfigP (..), PartialConfig, configCodec)

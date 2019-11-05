@@ -1,3 +1,6 @@
+{- HLINT ignore "Monoid law, right identity" -}
+{- HLINT ignore "Monoid law, left identity" -}
+
 module Test.DecisionSpec
        ( decisionSemigroupAssoc
        , decisionMonoidMempty

@@ -9,6 +9,7 @@ import Summoner.Template.Cabal (cabalFile)
 import Summoner.Template.Doc (docFiles)
 import Summoner.Template.GitHub (gitHubFiles)
 import Summoner.Template.Haskell (haskellFiles)
+import Summoner.Template.Mempty (memptyIfFalse)
 import Summoner.Template.Stack (stackFiles)
 import Summoner.Tree (TreeFs (..), insertTree)
 

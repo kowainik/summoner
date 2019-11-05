@@ -16,6 +16,7 @@ module Summoner.License
 import Data.Aeson (FromJSON (..), decodeStrict, withObject, (.:))
 import Data.ByteString.Char8 (pack)
 import System.Process (readProcess)
+import Relude.Extra.Enum (inverseMap)
 
 import qualified Data.Text as T
 import qualified Text.Show as TS
