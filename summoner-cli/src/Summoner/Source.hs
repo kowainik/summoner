@@ -3,6 +3,7 @@
 module Summoner.Source
        ( Source (..)
        , sourceT
+       , sourceCodec
        , fetchSource
        ) where
 
@@ -33,18 +34,22 @@ showSource = \case
     File _ -> "File"
     Link _ -> "Link"
 
+-- TODO: return Maybe
 matchUrl :: Source -> Either TomlBiMapError Text
 matchUrl (Url url) = Right url
 matchUrl e         = Left $ WrongConstructor "Url" $ showSource e
 
+-- TODO: return Maybe
 matchFile :: Source -> Either TomlBiMapError FilePath
 matchFile (File file) = Right file
 matchFile e           = Left $ WrongConstructor "File" $ showSource e
 
+-- TODO: return Maybe
 matchLink :: Source -> Either TomlBiMapError Text
 matchLink (Link link) = Right link
 matchLink e           = Left $ WrongConstructor "Link" $ showSource e
 
+-- DEPRECATED: To be removed in 2.0
 sourceT :: Key -> TomlCodec Source
 sourceT nm = Toml.match (_Url  >>> Toml._Text)   (nm <> "url")
          <|> Toml.match (_File >>> Toml._String) (nm <> "file")
@@ -58,6 +63,16 @@ sourceT nm = Toml.match (_Url  >>> Toml._Text)   (nm <> "url")
 
     _Link :: TomlBiMap Source Text
     _Link = Toml.prism Link matchLink
+
+{- | This 'TomlCodec' is used in the @files@ field of config. It decodes
+corresponding constructor from the top-level key.
+-}
+sourceCodec :: TomlCodec Source
+sourceCodec = asum
+    [ Toml.dimatch (rightToMaybe . matchUrl) Url (Toml.text "url")
+    , Toml.dimatch (rightToMaybe . matchFile) File (Toml.string "file")
+    , Toml.dimatch (rightToMaybe . matchLink) Link (Toml.text "link")
+    ]
 
 fetchSource :: Bool -> Source -> IO (Maybe Text)
 fetchSource isOffline = \case

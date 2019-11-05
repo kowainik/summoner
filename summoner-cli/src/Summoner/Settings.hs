@@ -9,6 +9,7 @@ module Summoner.Settings
 import Summoner.CustomPrelude (CustomPrelude)
 import Summoner.GhcVer (GhcVer)
 import Summoner.License (License, LicenseName)
+import Summoner.Tree (TreeFs)
 
 
 -- | Data needed for project creation.
@@ -41,6 +42,7 @@ data Settings = Settings
     , settingsStylish        :: !(Maybe Text) -- ^ @.stylish-haskell.yaml@ file
     , settingsContributing   :: !(Maybe Text) -- ^ @CONTRIBUTING.md@ file
     , settingsNoUpload       :: !Bool  -- ^ do not upload to GitHub
+    , settingsFiles          :: ![TreeFs]  -- ^ Tree nodes of extra files
     } deriving stock (Show)
 
 -- | Enum for supported build tools.

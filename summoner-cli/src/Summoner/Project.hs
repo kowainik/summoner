@@ -5,6 +5,7 @@
 module Summoner.Project
        ( generateProject
        , initializeProject
+       , fetchSources
        ) where
 
 import Data.List (intersect)
@@ -21,15 +22,16 @@ import Summoner.Default (currentYear, defaultDescription, defaultGHC)
 import Summoner.GhcVer (oldGhcs, parseGhcVer, showGhcVer)
 import Summoner.License (LicenseName (..), customizeLicense, fetchLicense, licenseShortDesc,
                          parseLicenseName)
-import Summoner.Process ()
 import Summoner.Question (YesNoPrompt (..), checkUniqueName, choose, falseMessage,
                           mkDefaultYesNoPrompt, query, queryDef, queryManyRepeatOnFail,
                           queryWithPredicate, targetMessageWithText, trueMessage)
 import Summoner.Settings (Settings (..))
-import Summoner.Source (fetchSource)
+import Summoner.Source (Source, fetchSource)
 import Summoner.Template (createProjectTemplate)
 import Summoner.Text (intercalateMap, moduleNameValid, packageNameValid, packageToModule)
-import Summoner.Tree (showBoldTree, traverseTree)
+import Summoner.Tree (TreeFs, pathToTree, showBoldTree, traverseTree)
+
+import qualified Data.Map.Strict as Map
 
 
 -- | Generate the project.
@@ -112,9 +114,17 @@ generateProject isOffline projectName Config{..} = do
     when (oldGhcIncluded && settingsStack && settingsTravis) $
         warningMessage "Old GHC versions won't be included into Stack matrix at Travis CI because of the Stack issue with newer Cabal versions."
 
-    let fetchLast = maybe (pure Nothing) (fetchSource isOffline) . getLast
-    settingsStylish      <- fetchLast cStylish
-    settingsContributing <- fetchLast cContributing
+    let fetchLast :: Text -> Last Source -> IO (Maybe Text)
+        fetchLast option (Last mSource) = case mSource of
+            Nothing -> pure Nothing
+            Just source -> do
+                let msg = [text|The option '${option}' is deprecated. Use 'files' instead.|]
+                warningMessage msg
+                fetchSource isOffline source
+
+    settingsStylish      <- fetchLast "stylish.{url,file,link}" cStylish
+    settingsContributing <- fetchLast "contributing.{url,file,link}" cContributing
+    settingsFiles <- fetchSources isOffline cFiles
 
     -- Create project data from all variables in scope
     -- and make a project from it.
@@ -202,6 +212,20 @@ initializeProject settings@Settings{..} = do
     createProjectDirectory settings
     when settingsGitHub $ doGithubCommands settings
     beautyPrint [bold, setColor Green] "\nJob's done\n"
+
+{- | This function fetches contents of extra file sources.
+-}
+fetchSources :: Bool -> Map FilePath Source -> IO [TreeFs]
+fetchSources isOffline = mapMaybeM sourceToTree . Map.toList
+  where
+    sourceToTree :: (FilePath, Source) -> IO (Maybe TreeFs)
+    sourceToTree (path, source) = do
+        infoMessage $ "Fetching content of the extra file: " <> toText path
+        fetchSource isOffline source >>= \case
+            Nothing -> do
+                errorMessage $ "Error fetching: " <> toText path
+                pure Nothing
+            Just content -> pure $ Just $ pathToTree path content
 
 -- | From the given 'Settings' creates the project.
 createProjectDirectory :: Settings -> IO ()

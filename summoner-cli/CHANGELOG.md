@@ -34,6 +34,29 @@ The changelog is available [on GitHub][2].
   Build Summoner with GHC-8.8.1.
 * [#337](https://github.com/kowainik/summoner/issues/337):
   Allow `generic-deriving-1.13`.
+* [#333](https://github.com/kowainik/summoner/issues/333):
+  Introduce `files` option in the TOML configuration which allows to specify
+  custom files. Deprecate `stylish` and `contributing` options.
+
+  _Migration guide:_ Instead of
+
+  ```toml
+  stylish.url = "some url"
+  contributing.link = "some link"
+  ```
+
+  specify them like this:
+
+  ```toml
+  files =
+      [ { path = ".stylish-haskell.yaml"
+        , url  = "some url"
+        }
+      , { path = "CONTRIBUTING.md"
+        , link = "some link"
+        }
+      ]
+  ```
 
 ## 1.3.0.1 — Apr 10, 2019
 

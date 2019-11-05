@@ -9,9 +9,9 @@ import Summoner.CustomPrelude as Summoner
 import Summoner.Default as Summoner
 import Summoner.GhcVer as Summoner
 import Summoner.License as Summoner
-import Summoner.Process as Summoner
 import Summoner.Project as Summoner
 import Summoner.Question as Summoner
 import Summoner.Settings as Summoner
 import Summoner.Template as Summoner
 import Summoner.Text as Summoner
+import Summoner.Tree as Summoner

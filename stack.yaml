@@ -6,3 +6,7 @@ packages:
 
 extra-deps:
   - optparse-applicative-0.15.0.0
+  - relude-0.6.0.0
+
+  - github: kowainik/tomland
+    commit: f06fa1c72a4c4cf5dd6fbc988d920f62d1eb30af
