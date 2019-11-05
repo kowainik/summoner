@@ -174,6 +174,13 @@ To start using Summoner make sure that you have the following tools installed on
 * [`hub`](https://github.com/github/hub) – to upload the project to GitHub.
 * [`curl`](https://curl.haxx.se) – to download licenses.
 
+We also have minimal version requirements for build tools:
+
+* [Cabal >= 2.0](https://www.haskell.org/cabal/)
+* [Stack >= 2.1](http://haskellstack.org)
+
+However, it is always recommended to use the newest versions of build tools.
+
 ### Installation [↑](#structure)
 
 Summon contains two executables:
