@@ -67,7 +67,10 @@ The changelog is available [on GitHub][2].
 
   _Migration guide:_ Rename `warnings` field to `ghc-options` instead.
 * [#367](https://github.com/kowainik/summoner/issues/367):
-  Add `raw` type of custom extra files.
+  Add `raw` type of custom extra files. Remove `link` type of file.
+
+  _Migration guide:_ Replace `link` with `raw` and specify any custom text you
+  want.
 
 ## 1.3.0.1 — Apr 10, 2019
 
