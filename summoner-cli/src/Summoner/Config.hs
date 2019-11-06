@@ -152,37 +152,31 @@ defaultConfig = Config
 -- | Identifies how to read 'Config' data from the @.toml@ file.
 configCodec :: TomlCodec PartialConfig
 configCodec = Config
-    <$> lastT Toml.text "owner"       .= cOwner
-    <*> lastT Toml.text "fullName"    .= cFullName
-    <*> lastT Toml.text "email"       .= cEmail
-    <*> lastT license   "license"     .= cLicense
-    <*> lastT ghcVerArr "ghcVersions" .= cGhcVer
-    <*> decision        "cabal"       .= cCabal
-    <*> decision        "stack"       .= cStack
-    <*> decision        "github"      .= cGitHub
-    <*> decision        "travis"      .= cTravis
-    <*> decision        "appveyor"    .= cAppVey
-    <*> decision        "private"     .= cPrivate
-    <*> decision        "lib"         .= cLib
-    <*> decision        "exe"         .= cExe
-    <*> decision        "test"        .= cTest
-    <*> decision        "bench"       .= cBench
-    <*> lastT preludeT "prelude"      .= cPrelude
-    <*> textArr        "extensions"   .= cExtensions
-    <*> textArr        "warnings"     .= cWarnings
-    <*> textArr        "ghc-options"  .= cGhcOptions
-    <*> textArr        "gitignore"    .= cGitignore
-    <*> lastT sourceT  "stylish"      .= cStylish
-    <*> lastT sourceT  "contributing" .= cContributing
-    <*> anyT           "noUpload"     .= cNoUpload
-    <*> filesCodec     "files"        .= cFiles
+    <$> Toml.last Toml.text "owner"       .= cOwner
+    <*> Toml.last Toml.text "fullName"    .= cFullName
+    <*> Toml.last Toml.text "email"       .= cEmail
+    <*> Toml.last license   "license"     .= cLicense
+    <*> Toml.last ghcVerArr "ghcVersions" .= cGhcVer
+    <*> decision            "cabal"       .= cCabal
+    <*> decision            "stack"       .= cStack
+    <*> decision            "github"      .= cGitHub
+    <*> decision            "travis"      .= cTravis
+    <*> decision            "appveyor"    .= cAppVey
+    <*> decision            "private"     .= cPrivate
+    <*> decision            "lib"         .= cLib
+    <*> decision            "exe"         .= cExe
+    <*> decision            "test"        .= cTest
+    <*> decision            "bench"       .= cBench
+    <*> Toml.last preludeT  "prelude"     .= cPrelude
+    <*> textArr             "extensions"  .= cExtensions
+    <*> textArr             "warnings"    .= cWarnings
+    <*> textArr             "ghc-options" .= cGhcOptions
+    <*> textArr             "gitignore"   .= cGitignore
+    <*> Toml.last sourceT  "stylish"      .= cStylish
+    <*> Toml.last sourceT  "contributing" .= cContributing
+    <*> Toml.any           "noUpload"     .= cNoUpload
+    <*> filesCodec         "files"        .= cFiles
   where
-    lastT :: (Key -> TomlCodec a) -> Key -> TomlCodec (Last a)
-    lastT codec = Toml.dimap getLast Last . Toml.dioptional . codec
-
-    anyT :: Key -> TomlCodec Any
-    anyT = Toml.dimap (Just . getAny) (Any . fromMaybe False) . Toml.dioptional . Toml.bool
-
     _GhcVer :: TomlBiMap GhcVer Toml.AnyValue
     _GhcVer = Toml._TextBy showGhcVer (maybeToRight "Wrong GHC version" . parseGhcVer)
 

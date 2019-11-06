@@ -59,6 +59,9 @@ The changelog is available [on GitHub][2].
   ```
 * [#360](https://github.com/kowainik/summoner/issues/360):
   Use mixins with `base` and `relude`. Drop `base-noprelude` trick.
+* [#373](https://github.com/kowainik/summoner/issues/373):
+  Bump up to `tomldnd-1.2.1.0`.
+* Bump up to `relude-0.6.0.0`.
 
 ## 1.3.0.1 — Apr 10, 2019
 
