@@ -1,5 +1,3 @@
-{-# LANGUAGE QuasiQuotes #-}
-
 module Summoner.Source
        ( Source (..)
        , sourceT
