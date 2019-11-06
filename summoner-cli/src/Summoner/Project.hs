@@ -42,9 +42,6 @@ generateProject
     -> Config      -- ^ Given configurations.
     -> IO ()
 generateProject isOffline projectName Config{..} = do
-    unless (null cWarnings) $
-        warningMessage "Please, rename 'warnings' field if you use one, it will be removed in the very next release. Use 'ghc-options' instead."
-
     settingsRepo <- checkUniqueName projectName
     -- decide cabal stack or both
     (settingsCabal, settingsStack) <- getCabalStack (cCabal, cStack)
@@ -97,7 +94,7 @@ generateProject isOffline projectName Config{..} = do
             Just _  -> "base-noprelude"
 
     let settingsExtensions = cExtensions
-    let settingsGhcOptions = cWarnings ++ cGhcOptions
+    let settingsGhcOptions = cGhcOptions
     let settingsGitignore = cGitignore
 
 

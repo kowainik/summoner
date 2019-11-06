@@ -62,7 +62,6 @@ data ConfigP (p :: Phase) = Config
     , cBench        :: !Decision
     , cPrelude      :: !(Last CustomPrelude)
     , cExtensions   :: ![Text]
-    , cWarnings     :: ![Text]  -- ^ DEPRECATED: TODO: remove in 1.4.
     , cGhcOptions   :: ![Text]  -- ^ GHC options to add to each stanza
     , cGitignore    :: ![Text]
     , cStylish      :: !(Last Source)  -- ^ DEPRECATED: source to .stylish-haskell.yaml
@@ -140,7 +139,6 @@ defaultConfig = Config
     , cBench    = Idk
     , cPrelude  = Last Nothing
     , cExtensions = []
-    , cWarnings = []
     , cGhcOptions = []
     , cGitignore = []
     , cStylish  = Last Nothing
@@ -152,30 +150,29 @@ defaultConfig = Config
 -- | Identifies how to read 'Config' data from the @.toml@ file.
 configCodec :: TomlCodec PartialConfig
 configCodec = Config
-    <$> Toml.last Toml.text "owner"       .= cOwner
-    <*> Toml.last Toml.text "fullName"    .= cFullName
-    <*> Toml.last Toml.text "email"       .= cEmail
-    <*> Toml.last license   "license"     .= cLicense
-    <*> Toml.last ghcVerArr "ghcVersions" .= cGhcVer
-    <*> decision            "cabal"       .= cCabal
-    <*> decision            "stack"       .= cStack
-    <*> decision            "github"      .= cGitHub
-    <*> decision            "travis"      .= cTravis
-    <*> decision            "appveyor"    .= cAppVey
-    <*> decision            "private"     .= cPrivate
-    <*> decision            "lib"         .= cLib
-    <*> decision            "exe"         .= cExe
-    <*> decision            "test"        .= cTest
-    <*> decision            "bench"       .= cBench
-    <*> Toml.last preludeT  "prelude"     .= cPrelude
-    <*> textArr             "extensions"  .= cExtensions
-    <*> textArr             "warnings"    .= cWarnings
-    <*> textArr             "ghc-options" .= cGhcOptions
-    <*> textArr             "gitignore"   .= cGitignore
-    <*> Toml.last sourceT  "stylish"      .= cStylish
-    <*> Toml.last sourceT  "contributing" .= cContributing
-    <*> Toml.any           "noUpload"     .= cNoUpload
-    <*> filesCodec         "files"        .= cFiles
+    <$> Toml.last Toml.text "owner"        .= cOwner
+    <*> Toml.last Toml.text "fullName"     .= cFullName
+    <*> Toml.last Toml.text "email"        .= cEmail
+    <*> Toml.last license   "license"      .= cLicense
+    <*> Toml.last ghcVerArr "ghcVersions"  .= cGhcVer
+    <*> decision            "cabal"        .= cCabal
+    <*> decision            "stack"        .= cStack
+    <*> decision            "github"       .= cGitHub
+    <*> decision            "travis"       .= cTravis
+    <*> decision            "appveyor"     .= cAppVey
+    <*> decision            "private"      .= cPrivate
+    <*> decision            "lib"          .= cLib
+    <*> decision            "exe"          .= cExe
+    <*> decision            "test"         .= cTest
+    <*> decision            "bench"        .= cBench
+    <*> Toml.last preludeT  "prelude"      .= cPrelude
+    <*> textArr             "extensions"   .= cExtensions
+    <*> textArr             "ghc-options"  .= cGhcOptions
+    <*> textArr             "gitignore"    .= cGitignore
+    <*> Toml.last sourceT   "stylish"      .= cStylish
+    <*> Toml.last sourceT   "contributing" .= cContributing
+    <*> Toml.any            "noUpload"     .= cNoUpload
+    <*> filesCodec          "files"        .= cFiles
   where
     _GhcVer :: TomlBiMap GhcVer Toml.AnyValue
     _GhcVer = Toml._TextBy showGhcVer (maybeToRight "Wrong GHC version" . parseGhcVer)
@@ -230,7 +227,6 @@ finalise Config{..} = Config
     <*> pure cBench
     <*> pure cPrelude
     <*> pure cExtensions
-    <*> pure cWarnings
     <*> pure cGhcOptions
     <*> pure cGitignore
     <*> pure cStylish

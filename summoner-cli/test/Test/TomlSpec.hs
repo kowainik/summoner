@@ -81,7 +81,6 @@ genPartialConfig = do
     cBench      <- genDecision
     cPrelude    <- Last <$> Gen.maybe genCustomPrelude
     cExtensions <- genTextArr
-    cWarnings   <- genTextArr
     cGhcOptions <- genTextArr
     cGitignore  <- genTextArr
     cStylish    <- Last <$> Gen.maybe genSource
