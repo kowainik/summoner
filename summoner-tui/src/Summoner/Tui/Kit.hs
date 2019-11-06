@@ -262,7 +262,7 @@ configToSummonKit cRepo cOffline cConfigFile files Config{..} = SummonKit
         , gitHubAppVeyor = toBool cAppVey && kitStack
         }
     , summonKitExtensions   = cExtensions
-    , summonKitGhcOptions   = cWarnings ++ cGhcOptions
+    , summonKitGhcOptions   = cGhcOptions
     , summonKitGitignore    = cGitignore
     , summonKitStylish      = getLast cStylish
     , summonKitContributing = getLast cContributing
