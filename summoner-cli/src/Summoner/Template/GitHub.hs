@@ -31,10 +31,11 @@ import Summoner.Tree (TreeFs (..))
 
 
 gitHubFiles :: Settings -> [TreeFs]
-gitHubFiles Settings{..} =
-    [File ".gitignore" (gitignoreDefault <> gitignoreCustom) | settingsGitHub]
- ++ [File ".travis.yml" travisYml    | settingsTravis]
- ++ [File "appveyor.yml" appVeyorYml | settingsAppVeyor]
+gitHubFiles Settings{..} = concat
+    [ [File ".gitignore" (gitignoreDefault <> gitignoreCustom) | settingsGitHub]
+    , [File ".travis.yml" travisYml    | settingsTravis]
+    , [File "appveyor.yml" appVeyorYml | settingsAppVeyor]
+    ]
   where
     -- default .gitignore template
     gitignoreDefault :: Text
@@ -249,55 +250,76 @@ gitHubFiles Settings{..} =
         else appVeyorYmlStack
 
     appVeyorYmlCabal :: Text
-    appVeyorYmlCabal =
+    appVeyorYmlCabal = let defGhc = showGhcVer defaultGHC in
         [text|
-        install:
-          # Using '-y' and 'refreshenv' as a workaround to:
-          # https://github.com/haskell/cabal/issues/3687
-          - choco source add -n mistuke -s https://www.myget.org/F/mistuke/api/v2
-          - choco install -y ghc --ignore-dependencies
-          - choco install -y cabal-head -pre
-          - refreshenv
-          # See http://help.appveyor.com/discussions/problems/6312-curl-command-not-found#comment_42195491
-          # NB: Do this after refreshenv, otherwise it will be clobbered!
-          - set PATH=%APPDATA%\cabal\bin;C:\Program Files\Git\cmd;C:\Program Files\Git\mingw64\bin;C:\msys64\usr\bin;%PATH%
-          - cabal --version
-          - cabal %CABOPTS% new-update
+        clone_folder: "c:\\WORK"
+        clone_depth: 5
+
+        # Do not build feature branch with open Pull Requests
+        skip_branch_with_pr: true
+
+        platform:
+          - x86_64
+
+        cache:
+          - "C:\\SR"
+          - dist-newstyle
 
         environment:
           global:
-            CABOPTS:  "--store-dir=C:\\SR"
+            CABOPTS: --store-dir=C:\\SR
 
-        cache:
-          - dist-newstyle
-          - "C:\\SR"
+          matrix:
+            - GHCVER: $defGhc
+
+        install:
+          - choco source add -n mistuke -s https://www.myget.org/F/mistuke/api/v2
+          - choco install -y cabal --version 2.4.1.0
+          - choco install -y ghc   --version $defGhc
+          - refreshenv
+
+        before_build:
+          - cabal --version
+          - ghc   --version
+          - cabal %CABOPTS% v2-update
 
         build_script:
-          - cabal %CABOPTS% new-build --enable-tests --enable-benchmarks
-          - cabal %CABOPTS% new-test --enable-tests
+          - cabal %CABOPTS% v2-build --enable-tests
+          - cabal %CABOPTS% v2-test  --enable-tests
         |]
 
     -- create appveyor.yml template
     appVeyorYmlStack :: Text
     appVeyorYmlStack =
         [text|
-        build: off
+        clone_depth: 5
 
-        before_test:
-        # http://help.appveyor.com/discussions/problems/6312-curl-command-not-found
-        - set PATH=C:\Program Files\Git\mingw64\bin;%PATH%
+        # Do not build feature branch with open Pull Requests
+        skip_branch_with_pr: true
 
-        - curl -sS -ostack.zip -L --insecure http://www.stackage.org/stack/windows-x86_64
-        - 7z x stack.zip stack.exe
-
-        clone_folder: "c:\\stack"
         environment:
-          global:
-            STACK_ROOT: "c:\\sr"
+          STACK_ROOT: C:\sr
+          STACK_VERSION: 2.1.1
+
+          # Workaround a gnarly bug https://github.com/haskell/cabal/issues/5386
+          # See: https://www.fpcomplete.com/blog/2018/06/sed-a-debugging-story
+          # TODO: check if it's fixed once we switch to lst-13 and GHC 8.6
+          TMP: "c:\\tmp"
+
+          matrix:
+            - STACK_YAML: stack.yaml
+
+        cache:
+          - "%STACK_ROOT% -> %STACK_YAML%, appveyor.yml"
+          - ".stack-work -> %STACK_YAML%, appveyor.yml"
+
+        install:
+          - choco install -y haskell-stack --version %STACK_VERSION%
+          - stack setup > nul
+
+        build_script:
+          - stack build --test --bench --no-run-tests --no-run-benchmarks
 
         test_script:
-        - stack setup > nul
-        # The ugly echo "" hack is to avoid complaints about 0 being an invalid file
-        # descriptor
-        - echo "" | stack --arch x86_64 --no-terminal build --bench --no-run-benchmarks --test
+          - stack test
         |]

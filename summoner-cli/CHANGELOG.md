@@ -71,6 +71,8 @@ The changelog is available [on GitHub][2].
 
   _Migration guide:_ Replace `link` with `raw` and specify any custom text you
   want.
+* [#327](https://github.com/kowainik/summoner/issues/327):
+  Better AppVeyor CI configuration for both `cabal` and `stack`.
 
 ## 1.3.0.1 — Apr 10, 2019
 
