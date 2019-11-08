@@ -1,6 +1,12 @@
 {-# LANGUAGE Rank2Types #-}
 
--- | This module contains function to validate Form fields.
+{- |
+Copyright: (c) 2018-2019 Kowainik
+SPDX-License-Identifier: MPL-2.0
+Maintainer: Kowainik <xrom.xkov@gmail.com>
+
+This module contains function to validate Form fields.
+-}
 
 module Summoner.Tui.Validation
        ( ctrlD
@@ -42,21 +48,20 @@ ctrlD =
         else f
 
 handleAutofill :: KitForm e -> KitForm e
-handleAutofill f =
-  case getCurrentFocus f of
+handleAutofill f = case getCurrentFocus f of
     Just CustomPreludeName ->
-      let prelude_name = formState f ^. projectMeta . preludeName
-          new_state = formState f & projectMeta . preludeModule .~ packageToModule prelude_name
-      in
-          setFormFocus CustomPreludeName $ mkForm new_state
+        let curPreludeName = formState f ^. projectMeta . preludeName
+            newState = formState f
+                & projectMeta . preludeModule .~ packageToModule curPreludeName
+        in setFormFocus CustomPreludeName $ mkForm newState
     _ -> f
 
 -- | Adds a newline for project description.
 projectDescNewLine :: KitForm e -> KitForm e
 projectDescNewLine f =
-  if getCurrentFocus  f == Just ProjectDesc
-  then setFormFocus ProjectDesc $ mkForm $ formState f & project . desc %~ (<> "\n\n")
-  else f
+    if getCurrentFocus f == Just ProjectDesc
+    then setFormFocus ProjectDesc $ mkForm $ formState f & project . desc %~ (<> "\n\n")
+    else f
 
 -- | Validates the main @new@ command form.
 summonFormValidation :: forall e . [FilePath] -> KitForm e -> KitForm e

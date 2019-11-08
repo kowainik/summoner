@@ -1,7 +1,12 @@
 {-# LANGUAGE QuasiQuotes  #-}
 {-# LANGUAGE ViewPatterns #-}
 
-{-| This module contains template for GitHub related docs:
+{-|
+Copyright: (c) 2017-2019 Kowainik
+SPDX-License-Identifier: MPL-2.0
+Maintainer: Kowainik <xrom.xkov@gmail.com>
+
+This module contains template for GitHub related docs:
 
  * @.gitignore@ — static file with all Haskell related ignored files.
  * @appveyor.yml@ — Appveyor CI for Stack project only.
@@ -12,7 +17,6 @@
    track the problem:
 
     + https://github.com/commercialhaskell/stack/issues/4488
-
 -}
 
 module Summoner.Template.GitHub

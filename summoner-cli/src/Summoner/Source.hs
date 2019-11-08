@@ -1,3 +1,11 @@
+{- |
+Copyright: (c) 2017-2019 Kowainik
+SPDX-License-Identifier: MPL-2.0
+Maintainer: Kowainik <xrom.xkov@gmail.com>
+
+This module contains the 'Source' data that describes how to fetch custom files.
+-}
+
 module Summoner.Source
        ( Source (..)
        , sourceT

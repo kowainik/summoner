@@ -1,6 +1,12 @@
 {-# LANGUAGE QuasiQuotes #-}
 
--- | This module introduces functions for the project creation.
+{- |
+Copyright: (c) 2017-2019 Kowainik
+SPDX-License-Identifier: MPL-2.0
+Maintainer: Kowainik <xrom.xkov@gmail.com>
+
+This module introduces functions for the project creation.
+-}
 
 module Summoner.Project
        ( generateProject
