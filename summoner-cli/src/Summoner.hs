@@ -21,8 +21,7 @@ import Summoner.License as Summoner
 import Summoner.Project as Summoner
 import Summoner.Question as Summoner
 import Summoner.Settings as Summoner
--- QUESION: Conflicting imports with Tree (File); should we rename something?
-import Summoner.Source as Summoner hiding (Source (File))
+import Summoner.Source as Summoner
 import Summoner.Template as Summoner
 import Summoner.Text as Summoner
 import Summoner.Tree as Summoner

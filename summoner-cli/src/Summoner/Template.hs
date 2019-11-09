@@ -3,7 +3,7 @@ Copyright: (c) 2017-2019 Kowainik
 SPDX-License-Identifier: MPL-2.0
 Maintainer: Kowainik <xrom.xkov@gmail.com>
 
-This module contains functions for stack template creation.
+This module contains functions for the Haskell project template creation.
 -}
 
 module Summoner.Template
