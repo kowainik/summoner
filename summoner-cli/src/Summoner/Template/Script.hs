@@ -1,6 +1,12 @@
 {-# LANGUAGE QuasiQuotes #-}
 
--- | File templates for @cabal@ and @stack@ scripts.
+{- |
+Copyright: (c) 2017-2019 Kowainik
+SPDX-License-Identifier: MPL-2.0
+Maintainer: Kowainik <xrom.xkov@gmail.com>
+
+File templates for @cabal@ and @stack@ scripts.
+-}
 
 module Summoner.Template.Script
        ( scriptFile

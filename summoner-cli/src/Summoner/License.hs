@@ -1,5 +1,11 @@
--- | Data types that represent license names and license content and functions
--- to work with them.
+{- |
+Copyright: (c) 2017-2019 Kowainik
+SPDX-License-Identifier: MPL-2.0
+Maintainer: Kowainik <xrom.xkov@gmail.com>
+
+Data types that represent license names and license content and functions
+to work with them.
+-}
 
 module Summoner.License
        ( LicenseName(..)

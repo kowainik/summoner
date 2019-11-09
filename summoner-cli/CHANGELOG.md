@@ -73,6 +73,7 @@ The changelog is available [on GitHub][2].
   want.
 * [#327](https://github.com/kowainik/summoner/issues/327):
   Better AppVeyor CI configuration for both `cabal` and `stack`.
+* Rename `file` confing file of `source` to `local`.
 
 ## 1.3.0.1 — Apr 10, 2019
 

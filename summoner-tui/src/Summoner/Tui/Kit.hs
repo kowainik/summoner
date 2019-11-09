@@ -3,9 +3,13 @@
 {-# LANGUAGE Rank2Types             #-}
 {-# LANGUAGE TemplateHaskell        #-}
 
-{- | This module contains data types to work with application form.
-'SummonKit' is the data type containing the values manipulated by the fields
-in the form.
+{- |
+Copyright: (c) 2018-2019 Kowainik
+SPDX-License-Identifier: MPL-2.0
+Maintainer: Kowainik <xrom.xkov@gmail.com>
+
+This module contains data types to work with application form. 'SummonKit' is
+the data type containing the values manipulated by the fields in the form.
 -}
 
 module Summoner.Tui.Kit

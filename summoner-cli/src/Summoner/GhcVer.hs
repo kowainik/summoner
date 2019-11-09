@@ -1,4 +1,9 @@
-{- | Contains data type for GHC versions supported by Summoner
+{- |
+Copyright: (c) 2017-2019 Kowainik
+SPDX-License-Identifier: MPL-2.0
+Maintainer: Kowainik <xrom.xkov@gmail.com>
+
+Contains data type for GHC versions supported by Summoner
 and some useful functions for manipulation with them.
 -}
 

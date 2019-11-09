@@ -1,9 +1,12 @@
 {-# LANGUAGE Rank2Types   #-}
 {-# LANGUAGE ViewPatterns #-}
 
-{- | This is experimental module.
+{- |
+Copyright: (c) 2018-2019 Kowainik
+SPDX-License-Identifier: MPL-2.0
+Maintainer: Kowainik <xrom.xkov@gmail.com>
 
-We are trying to make the TUI app for summoner, but it's WIP.
+TUI for the Summoner tool. See demo in the README.md file.
 -}
 
 module Summoner.Tui

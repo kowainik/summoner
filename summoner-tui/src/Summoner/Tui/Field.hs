@@ -1,6 +1,11 @@
 {-# LANGUAGE Rank2Types #-}
 
-{- | This modules adds necessary functions for Forms and Form fields
+{- |
+Copyright: (c) 2018-2019 Kowainik
+SPDX-License-Identifier: MPL-2.0
+Maintainer: Kowainik <xrom.xkov@gmail.com>
+
+This modules adds necessary functions for Forms and Form fields
 that are not covered in @brick@ library.
 -}
 

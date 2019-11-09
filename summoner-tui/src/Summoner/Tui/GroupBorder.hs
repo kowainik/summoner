@@ -1,10 +1,13 @@
 {- |
+Copyright: (c) 2018-2019 Kowainik
+SPDX-License-Identifier: MPL-2.0
+Maintainer: Kowainik <xrom.xkov@gmail.com>
+
 @Brick@ library helper functions to group checkbox elements inside the form.
 This is not going to be the part of the library itself, so we will have it in
 our own libraries. See relevant discussion under the corresponding issue:
 
 * https://github.com/jtdaugherty/brick/issues/190
-
 -}
 
 module Summoner.Tui.GroupBorder
@@ -30,7 +33,9 @@ infix 4 |>
 This function unites any amount of the form elements under the one group in
 bourders with the given group name. Intended to be used for joining check-boxes
 together, but any other elemens of the form will work the same way.
+
 __Example:__
+
 @
 ┌─────────────────Form───────────────────┐
 │                                        │
@@ -40,6 +45,7 @@ __Example:__
 │└──────────────────────────────────────┘│
 └────────────────────────────────────────┘
 @
+
 **Note:** on an empty list it doesn't create any group or border.
 -}
 groupBorder :: String -> [(Int, s -> FormFieldState s e n)] -> [s -> FormFieldState s e n]

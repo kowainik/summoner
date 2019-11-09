@@ -1,3 +1,11 @@
+{- |
+Copyright: (c) 2017-2019 Kowainik
+SPDX-License-Identifier: MPL-2.0
+Maintainer: Kowainik <xrom.xkov@gmail.com>
+
+This module contains the 'Source' data that describes how to fetch custom files.
+-}
+
 module Summoner.Source
        ( Source (..)
        , sourceT
@@ -24,7 +32,7 @@ data Source
 
     {- | File path to the local source file.
     -}
-    | File !FilePath
+    | Local !FilePath
 
     {- | Raw file text content.
     -}
@@ -33,9 +41,9 @@ data Source
 
 showSource :: Source -> Text
 showSource = \case
-    Url  _ -> "Url"
-    File _ -> "File"
-    Raw  _ -> "Raw"
+    Url _ -> "Url"
+    Local _ -> "Local"
+    Raw _ -> "Raw"
 
 -- TODO: return Maybe
 matchUrl :: Source -> Either TomlBiMapError Text
@@ -43,9 +51,9 @@ matchUrl (Url url) = Right url
 matchUrl e         = Left $ WrongConstructor "Url" $ showSource e
 
 -- TODO: return Maybe
-matchFile :: Source -> Either TomlBiMapError FilePath
-matchFile (File file) = Right file
-matchFile e           = Left $ WrongConstructor "File" $ showSource e
+matchLocal :: Source -> Either TomlBiMapError FilePath
+matchLocal (Local file) = Right file
+matchLocal e            = Left $ WrongConstructor "Local" $ showSource e
 
 -- TODO: return Maybe
 matchRaw :: Source -> Either TomlBiMapError Text
@@ -54,15 +62,15 @@ matchRaw e         = Left $ WrongConstructor "Raw" $ showSource e
 
 -- DEPRECATED: To be removed in 2.0
 sourceT :: Key -> TomlCodec Source
-sourceT nm = Toml.match (_Url  >>> Toml._Text)   (nm <> "url")
-         <|> Toml.match (_File >>> Toml._String) (nm <> "file")
-         <|> Toml.match (_Raw  >>> Toml._Text)   (nm <> "raw")
+sourceT nm = Toml.match (_Url  >>> Toml._Text) (nm <> "url")
+         <|> Toml.match (_Local >>> Toml._String) (nm <> "Local")
+         <|> Toml.match (_Raw  >>> Toml._Text) (nm <> "raw")
   where
     _Url :: TomlBiMap Source Text
     _Url = Toml.prism Url matchUrl
 
-    _File :: TomlBiMap Source FilePath
-    _File = Toml.prism File matchFile
+    _Local :: TomlBiMap Source FilePath
+    _Local = Toml.prism Local matchLocal
 
     _Raw :: TomlBiMap Source Text
     _Raw = Toml.prism Raw matchRaw
@@ -73,20 +81,20 @@ corresponding constructor from the top-level key.
 sourceCodec :: TomlCodec Source
 sourceCodec = asum
     [ Toml.dimatch (rightToMaybe . matchUrl) Url (Toml.text "url")
-    , Toml.dimatch (rightToMaybe . matchFile) File (Toml.string "file")
+    , Toml.dimatch (rightToMaybe . matchLocal) Local (Toml.string "local")
     , Toml.dimatch (rightToMaybe . matchRaw) Raw (Toml.text "raw")
     ]
 
 fetchSource :: Bool -> Source -> IO (Maybe Text)
 fetchSource isOffline = \case
-    File path -> catch (Just <$> readFileText path) (fileError path)
+    Local path -> catch (Just <$> readFileText path) (localError path)
     Url url -> if isOffline
         then Nothing <$ infoMessage ("Ignoring fetching from URL in offline mode from source: " <> url)
         else fetchUrl url `catch` urlError url
     Raw raw -> pure $ Just raw
   where
-    fileError :: FilePath -> SomeException -> IO (Maybe Text)
-    fileError path _ = errorMessage ("Couldn't read file: " <> toText path)
+    localError :: FilePath -> SomeException -> IO (Maybe Text)
+    localError path _ = errorMessage ("Couldn't read file: " <> toText path)
                     >> pure Nothing
 
     urlError :: Text -> SomeException -> IO (Maybe Text)

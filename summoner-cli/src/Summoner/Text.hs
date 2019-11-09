@@ -1,4 +1,9 @@
-{- | Various helpful functions to work with 'Text'
+{- |
+Copyright: (c) 2017-2019 Kowainik
+SPDX-License-Identifier: MPL-2.0
+Maintainer: Kowainik <xrom.xkov@gmail.com>
+
+Various helpful functions to work with 'Text'
 -}
 
 module Summoner.Text
@@ -64,9 +69,9 @@ tconcatMap f = T.concat . map f
 -- | Aligns a list of texts by their columns
 alignTable :: [(Text, Text, Text)] -> [Text]
 alignTable metas = map (formatTriple maxLengths) metas
-    where
-      maxLengths :: (Int, Int, Int)
-      maxLengths = mapTriple getMax $ getMaxLengths metas
+  where
+    maxLengths :: (Int, Int, Int)
+    maxLengths = mapTriple getMax $ getMaxLengths metas
 
 formatTriple :: (Int, Int, Int) -> (Text, Text, Text) -> Text
 formatTriple (lenA, lenB, lenC) (a, b, c) =

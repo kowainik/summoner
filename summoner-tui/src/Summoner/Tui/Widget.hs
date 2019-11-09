@@ -1,4 +1,9 @@
-{- | This module contains useful helpers to work with 'Widget's
+{- |
+Copyright: (c) 2018-2019 Kowainik
+SPDX-License-Identifier: MPL-2.0
+Maintainer: Kowainik <xrom.xkov@gmail.com>
+
+This module contains useful helpers to work with 'Widget's
 -}
 
 module Summoner.Tui.Widget
