@@ -18,6 +18,7 @@ tested-with:         GHC == 8.0.2
                    , GHC == 8.2.2
                    , GHC == 8.4.4
                    , GHC == 8.6.5
+                   , GHC == 8.8.1
 
 source-repository head
   type:                git
@@ -28,7 +29,7 @@ library
   exposed-modules:     FullProject
                        Prelude
 
-  build-depends:       base-noprelude >= 4.9.1.0 && < 4.13
+  build-depends:       base-noprelude >= 4.9.1.0 && < 4.14
                      , relude
 
   ghc-options:         -Wall
@@ -44,7 +45,7 @@ executable fullProject
   hs-source-dirs:      app
   main-is:             Main.hs
 
-  build-depends:       base-noprelude >= 4.9.1.0 && < 4.13
+  build-depends:       base-noprelude >= 4.9.1.0 && < 4.14
                      , fullProject
                      , relude
 
@@ -65,7 +66,7 @@ test-suite fullProject-test
   hs-source-dirs:      test
   main-is:             Spec.hs
 
-  build-depends:       base-noprelude >= 4.9.1.0 && < 4.13
+  build-depends:       base-noprelude >= 4.9.1.0 && < 4.14
                      , fullProject
                      , relude
 
@@ -86,7 +87,7 @@ benchmark fullProject-benchmark
   hs-source-dirs:      benchmark
   main-is:             Main.hs
 
-  build-depends:       base-noprelude >= 4.9.1.0 && < 4.13
+  build-depends:       base-noprelude >= 4.9.1.0 && < 4.14
                      , gauge
                      , fullProject
                      , relude

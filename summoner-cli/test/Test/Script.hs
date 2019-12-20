@@ -35,7 +35,7 @@ stackScript :: Text
 stackScript = [text|
 #!/usr/bin/env stack
 {- stack
-  --resolver lts-13.27
+  --resolver lts-14.17
   script
   --package base
 -}
