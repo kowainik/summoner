@@ -41,7 +41,7 @@ showGhcMeta :: GhcVer -> (Text, Text, Text)
 showGhcMeta ghcVer =
     ( "ghc-"  <> showGhcVer ghcVer
     , "base-" <> baseVer ghcVer
-    , "lts-"  <> latestLts ghcVer
+    , latestLts ghcVer
     )
 
 -- | Converts 'GhcVer' into dot-separated string.
@@ -64,11 +64,11 @@ parseGhcVer = inverseMap showGhcVer
 -- | Returns latest known LTS resolver for all GHC versions except default one.
 latestLts :: GhcVer -> Text
 latestLts = \case
-    Ghc7103 -> "6.35"
-    Ghc802  -> "9.21"
-    Ghc822  -> "11.22"
-    Ghc844  -> "12.26"
-    Ghc865  -> "14.17"
+    Ghc7103 -> "lts-6.35"
+    Ghc802  -> "lts-9.21"
+    Ghc822  -> "lts-11.22"
+    Ghc844  -> "lts-12.26"
+    Ghc865  -> "lts-14.17"
     Ghc881  -> "nightly-2019-12-20"
 
 -- | Represents PVP versioning (4 numbers).

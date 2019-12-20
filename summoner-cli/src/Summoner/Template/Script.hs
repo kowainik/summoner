@@ -36,7 +36,7 @@ scriptFile ghcVer = \case
         [text|
         #!/usr/bin/env stack
         {- stack
-          --resolver lts-${ltsVersion}
+          --resolver ${ltsVersion}
           script
           --package base
         -}
