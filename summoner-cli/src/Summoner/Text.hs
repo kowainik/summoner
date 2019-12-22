@@ -75,7 +75,7 @@ alignTable metas = map (formatTriple maxLengths) metas
 
 formatTriple :: (Int, Int, Int) -> (Text, Text, Text) -> Text
 formatTriple (lenA, lenB, lenC) (a, b, c) =
-    padRight lenA a <> " " <> padRight lenB b <> " " <> padRight lenC c
+    padRight lenA a <> "  " <> padRight lenB b <> "  " <> padRight lenC c
 
 {- |
 @padRight n t@ pads the text 't' with spaces on the right until it reaches length 'n'.

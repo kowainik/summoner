@@ -211,6 +211,8 @@ cabalFile Settings{..} = File (toString settingsRepo ++ ".cabal") cabalFileConte
             -Wmissing-export-lists
             -Wpartial-fields
             |]
+        <> memptyIfFalse (settingsTestedVersions `hasLeast` Ghc881)
+            "-Wmissing-deriving-strategies\n"
       where
         hasLeast :: [GhcVer] -> GhcVer -> Bool
         hasLeast list el = all (>= el) list

@@ -30,6 +30,11 @@ The changelog is available [on GitHub][2].
   Support GHC `8.6.5` in generated projects. Use GHC `8.6.5` in Summoner.
 * Remove support of GHC `8.6.4`, `8.6.3`, `8.4.3`. Leave only the latest
   versions of each major release.
+* [#318](https://github.com/kowainik/summoner/issues/318):
+  Support GHC `8.8.1` in generated projects.
+  __Note:__ Stack projects will use `nightly` resolver as the stable one is not
+  out at the moment of this issue is implemented.
+* Add `-Wmissing-deriving-strategies` option to GHC version `8.8.1` and upper.
 * [#338](https://github.com/kowainik/summoner/issues/338):
   Build Summoner with GHC-8.8.1.
 * [#337](https://github.com/kowainik/summoner/issues/337):

@@ -22,7 +22,7 @@ stackFiles Settings{..} = map createStackYaml settingsTestedVersions
     -- create @stack.yaml@ file with LTS corresponding to specified ghc version
     createStackYaml :: GhcVer -> TreeFs
     createStackYaml ghcV = File (toString $ "stack" <> ver <> ".yaml")
-        $ "resolver: lts-" <> latestLts ghcV <> extraDeps
+        $ "resolver: " <> latestLts ghcV <> extraDeps
       where
         ver :: Text
         ver = if ghcV == defaultGHC
