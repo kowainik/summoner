@@ -57,9 +57,9 @@ script:
 
       echo "Testing that generated projects are built with cabal..."
       cd "$TRAVIS_BUILD_DIR/summoner-cli/test/golden/smallProject/"
-      cabal v2-build --enable-tests --enable-benchmarks
+      cabal v2-build all
       cd "$TRAVIS_BUILD_DIR/summoner-cli/test/golden/fullProject/"
-      cabal v2-build --enable-tests --enable-benchmarks
+      cabal v2-build all
     else
       stack test --system-ghc --no-terminal
 
