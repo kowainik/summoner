@@ -54,8 +54,18 @@ script:
   - |
     if [ -z "$STACK_YAML" ]; then
       cabal new-test all --enable-tests
+
+      echo "Testing that generated projects are built with cabal..."
+      cd "$TRAVIS_BUILD_DIR/summoner-cli/test/golden/smallProject/"
+      cabal v2-build --enable-tests --enable-benchmarks
+      cd "$TRAVIS_BUILD_DIR/summoner-cli/test/golden/fullProject/"
+      cabal v2-build --enable-tests --enable-benchmarks
     else
       stack test --system-ghc --no-terminal
+
+      echo "Testing that generated projects are built with stack..."
+      cd "$TRAVIS_BUILD_DIR/summoner-cli/test/golden/fullProject/"
+      stack build --system-ghc --test --bench
     fi
 
 after_success:
