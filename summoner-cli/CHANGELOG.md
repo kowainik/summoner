@@ -79,6 +79,8 @@ The changelog is available [on GitHub][2].
 * [#327](https://github.com/kowainik/summoner/issues/327):
   Better AppVeyor CI configuration for both `cabal` and `stack`.
 * Rename `file` confing file of `source` to `local`.
+* [#385](https://github.com/kowainik/summoner/issues/385):
+  Add golden tests for `summon show ghc` command.
 
 ## 1.3.0.1 — Apr 10, 2019
 

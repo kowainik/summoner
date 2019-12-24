@@ -9,21 +9,23 @@ and some useful functions for manipulation with them.
 
 module Summoner.GhcVer
        ( GhcVer (..)
+       , GhcMeta (..)
        , Pvp (..)
-       , showGhcMeta
        , showGhcVer
        , parseGhcVer
        , latestLts
        , baseVer
        , cabalBaseVersions
+       , ghcTable
 
        , oldGhcs
        ) where
 
 import Data.List (maximum, minimum)
-import Relude.Extra.Enum (inverseMap)
+import Relude.Extra.Enum (inverseMap, universe)
 
 import qualified Text.Show as Show
+import qualified Data.Text as T
 
 
 -- | Represents some selected set of GHC versions.
@@ -35,14 +37,6 @@ data GhcVer
     | Ghc865
     | Ghc881
     deriving stock (Eq, Ord, Show, Enum, Bounded)
-
--- | This function shows GHC along with corresponding base and lts versions
-showGhcMeta :: GhcVer -> (Text, Text, Text)
-showGhcMeta ghcVer =
-    ( "ghc-"  <> showGhcVer ghcVer
-    , "base-" <> baseVer ghcVer
-    , latestLts ghcVer
-    )
 
 -- | Converts 'GhcVer' into dot-separated string.
 showGhcVer :: GhcVer -> Text
@@ -114,3 +108,40 @@ cabalBaseVersions ghcs = ">= " <> baseVer (minimum ghcs) <> " && < " <> upperBou
     upperBound :: Text
     upperBound = let Pvp{..} = baseVerPvp $ maximum ghcs in
         show pvpFirst <> "." <> show (pvpSecond + 1)
+
+-- | Data type to keep meta information for every 'GhcVer'.
+data GhcMeta = GhcMeta
+    { gmGhc      :: !Text
+    , gmBase     :: !Text
+    , gmResolver :: !Text
+    }
+
+-- | Create corresponding 'GhcMeta' from the given 'GhcVer'.
+toGhcMeta :: GhcVer -> GhcMeta
+toGhcMeta ghcVer = GhcMeta
+    { gmGhc      = "GHC-" <> showGhcVer ghcVer
+    , gmBase     = "base-" <> baseVer ghcVer
+    , gmResolver = latestLts ghcVer
+    }
+
+ghcTable :: [Text]
+ghcTable = map (formatGhcMeta . toGhcMeta) universe
+
+{- Formats 'GhcMeta' in a special way.
+It aligns the meta to the left, filling on the right with the spaces.
+
+As the pad number it takes the maximum possible length of the data manually.
+
+Example:
+
+@
+GHC-8.6.5     base-4.12.0.0   lts-14.17
+@
+-}
+formatGhcMeta :: GhcMeta -> Text
+formatGhcMeta GhcMeta{..} =
+       T.justifyLeft 12 ' ' gmGhc
+    <> "  "
+    <> T.justifyLeft 14 ' ' gmBase
+    <> "  "
+    <> T.justifyLeft 18 ' ' gmResolver
