@@ -36,11 +36,10 @@ import Summoner.CLI (Command (..), NewOpts (..), ShowOpts (..), getFinalConfig, 
 import Summoner.Config (ConfigP (cFiles))
 import Summoner.Decision (Decision (..))
 import Summoner.Default (defaultConfigFile)
-import Summoner.GhcVer (showGhcMeta)
+import Summoner.GhcVer (ghcTable)
 import Summoner.License (License (..), LicenseName, fetchLicense, parseLicenseName,
                          showLicenseWithDesc)
 import Summoner.Project (fetchSources, initializeProject)
-import Summoner.Text (alignTable)
 import Summoner.Tui.Field (disabledAttr)
 import Summoner.Tui.Form (KitForm, SummonForm (..), getCurrentFocus, isActive, mkForm, recreateForm)
 import Summoner.Tui.Kit
@@ -293,7 +292,7 @@ runTuiShowGhcVersions :: IO ()
 runTuiShowGhcVersions = runSimpleApp drawGhcVersions
   where
     drawGhcVersions :: Widget ()
-    drawGhcVersions = listInBorder "Supported GHC versions" 60 0 $ alignTable (map showGhcMeta universe)
+    drawGhcVersions = listInBorder "Supported GHC versions" 60 0 ghcTable
 
 runTuiShowAllLicenses :: IO ()
 runTuiShowAllLicenses = runSimpleApp drawLicenseNames

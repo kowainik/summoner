@@ -8,6 +8,7 @@ import Test.DecisionSpec (decisionMonoidMempty, decisionSemigroupAssoc)
 import Test.Golden (goldenSpec)
 import Test.QuestionSpec (yesNoPromptSpec)
 import Test.Script (scriptSpec)
+import Test.Show (showCommandSpec)
 import Test.TomlSpec (tomlProp)
 
 
@@ -16,6 +17,7 @@ main = do
     hspec $ do
         yesNoPromptSpec
         scriptSpec
+        showCommandSpec
         goldenSpec
         customPreludeSpec
     ifM (checkParallel hedgehogTests) exitSuccess exitFailure

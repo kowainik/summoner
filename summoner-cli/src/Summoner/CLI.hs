@@ -50,13 +50,13 @@ import Summoner.Config (Config, ConfigP (..), PartialConfig, defaultConfig, fina
 import Summoner.CustomPrelude (CustomPrelude (..))
 import Summoner.Decision (Decision (..))
 import Summoner.Default (defaultConfigFile, defaultGHC)
-import Summoner.GhcVer (GhcVer, parseGhcVer, showGhcMeta)
+import Summoner.GhcVer (GhcVer, ghcTable, parseGhcVer)
 import Summoner.License (License (..), LicenseName (..), fetchLicense, parseLicenseName,
                          showLicenseWithDesc)
 import Summoner.Project (generateProject)
 import Summoner.Settings (Tool, parseTool)
 import Summoner.Template.Script (scriptFile)
-import Summoner.Text (alignTable, endLine)
+import Summoner.Text (endLine)
 
 import qualified Data.Text as T
 import qualified Paths_summoner as Meta (version)
@@ -103,7 +103,7 @@ Available commands:
 runShow :: ShowOpts -> IO ()
 runShow = \case
     -- show list of all available GHC versions
-    GhcList -> showBulletList id $ alignTable $ map showGhcMeta $ reverse universe
+    GhcList -> showBulletList id ghcTable
     -- show a list of all available licenses
     LicenseList Nothing -> showBulletList @LicenseName showLicenseWithDesc universe
     -- show a specific license

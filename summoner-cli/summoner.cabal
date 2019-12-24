@@ -145,6 +145,7 @@ test-suite summoner-test
                        Test.DecisionSpec
                        Test.Golden
                        Test.Script
+                       Test.Show
                        Test.TomlSpec
                        Test.QuestionSpec
 
