@@ -9,34 +9,48 @@ The changelog is available [on GitHub][2].
   Support GHC `8.8.1` in generated projects.
   __Note:__ Stack projects will use `nightly` resolver as the stable one is not
   out at the moment of this issue is implemented.
+  (by [@vrom911](https://github.com/vrom911))
 * Add `-Wmissing-deriving-strategies` option to GHC version `8.8.1` and upper
   in the generated projects.
+  (by [@vrom911](https://github.com/vrom911))
 * [#314](https://github.com/kowainik/summoner/issues/314):
   __#CLI__ __#TUI__ Improve `summon(-tui) show ghc` output.
+  (by [@gableh](https://github.com/gableh), [@vrom911](https://github.com/vrom911))
 * [#316](https://github.com/kowainik/summoner/issues/316):
   Add logos to README bagdes in the generated projects.
+  (by [@vrom911](https://github.com/vrom911))
 * Generate project of version `0.0.0.0` instead of `0.0.0`.
+  (by [@vrom911](https://github.com/vrom911))
 * [#322](https://github.com/kowainik/summoner/issues/322):
   Run HLint check before project build in `.travis.yml` file for
   the generated projects.
+  (by [@vrom911](https://github.com/vrom911))
 * [#382](https://github.com/kowainik/summoner/issues/382):
   Improve error logging when fetching the license from GitHub while generating
   the project.
+  (by [@chshersh](https://github.com/chshersh))
 * [#255](https://github.com/kowainik/summoner/issues/255):
   __#CLI__ __#TUI__ Autofill prelude module name when package name is typed.
+  (by [@yigitozkavci](https://github.com/yigitozkavci))
 * [#354](https://github.com/kowainik/summoner/issues/354):
   __#CLI__ __#TUI__ Validate prelude package name and module name in config file, CLI, TUI.
+  (by [@yigitozkavci](https://github.com/yigitozkavci), [@vrom911](https://github.com/vrom911))
 * [#315](https://github.com/kowainik/summoner/issues/315):
   Remove `-fhide-source-paths` from generated `stack.yaml` file
   as it is implied by the newer version of Stack.
+  (by [@bangng](https://github.com/chshersh), [@chshersh](https://github.com/chshersh))
 * Add `stack.yaml.lock` to `.gitignore` file in the generated project.
+  (by [@vrom911](https://github.com/vrom911))
 * [#318](https://github.com/kowainik/summoner/issues/318):
   Support GHC `8.6.5` in generated projects.
+  (by [@vrom911](https://github.com/vrom911))
 * Remove support of GHC `8.6.4`, `8.6.3`, `8.4.3`. Leave only the latest
   versions of each major release for generated projects.
+  (by [@vrom911](https://github.com/vrom911))
 * [#333](https://github.com/kowainik/summoner/issues/333):
   Introduce `files` option in the TOML configuration which allows to specify
   custom files. Deprecate `stylish` and `contributing` options.
+  (by [@chshersh](https://github.com/chshersh))
 
   _Migration guide:_ Instead of
 
@@ -59,45 +73,63 @@ The changelog is available [on GitHub][2].
   ```
 * [#374](https://github.com/kowainik/summoner/issues/374):
   Remove `warnings` field in the TOML configuration which was deprecated in the previous release.
+  (by [@chshersh](https://github.com/chshersh))
 
   _Migration guide:_ Rename `warnings` field to `ghc-options` instead.
 * [#367](https://github.com/kowainik/summoner/issues/367):
   Add `raw` type of custom extra files in the TOML configuration.
   Remove `link` type of file.
+  (by [@chshersh](https://github.com/chshersh))
 
   _Migration guide:_ Replace `link` with `raw` and specify any custom text you
   want.
 * Rename `file` config field of `source` to `local` in the TOML configuration.
+  (by [@chshersh](https://github.com/chshersh))
 * [#327](https://github.com/kowainik/summoner/issues/327):
   Better AppVeyor CI configuration for both `cabal` and `stack` in the generated
   project.
+  (by [@chshersh](https://github.com/chshersh))
 * [#253](https://github.com/kowainik/summoner/issues/253):
   __#TUI__ Fix new line in the Description field of the form.
+  (by [@yigitozkavci](https://github.com/yigitozkavci))
 * [#385](https://github.com/kowainik/summoner/issues/385):
   Add golden tests for `summon show ghc` command's output.
+  (by [@vrom911](https://github.com/vrom911))
 * [#384](https://github.com/kowainik/summoner/issues/384):
   Test golden project build's success.
+  (by [@chshersh](https://github.com/chshersh))
 * [#318](https://github.com/kowainik/summoner/issues/318):
   Build Summoner multipackage project with GHC `8.6.5`.
+  (by [@vrom911](https://github.com/vrom911))
 * [#338](https://github.com/kowainik/summoner/issues/338):
   Build Summoner multipackage project with GHC-8.8.1.
+  (by [@vrom911](https://github.com/vrom911))
 * [#360](https://github.com/kowainik/summoner/issues/360):
   Use mixins with `base` and `relude` in Summoner. Drop `base-noprelude` trick.
+  (by [@vrom911](https://github.com/vrom911))
 * [#329](https://github.com/kowainik/summoner/issues/329):
   Bump up to `optparse-applicative-0.15`, use custom `ParserPrefs`.
+  (by [@vrom911](https://github.com/vrom911))
 * [#328](https://github.com/kowainik/summoner/issues/328):
   Upgrade `tomland` bounds to allow `1.1.0.0`.
+  (by [@vrom911](https://github.com/vrom911))
 * [#373](https://github.com/kowainik/summoner/issues/373):
   Bump up to `tomland-1.2.1.0`.
+  (by [@vrom911](https://github.com/vrom911))
 * Bump up to `relude-0.6.0.0`.
+  (by [@vrom911](https://github.com/vrom911))
 * [#337](https://github.com/kowainik/summoner/issues/337):
   Allow `generic-deriving-1.13`.
+  (by [@chshersh](https://github.com/chshersh))
 * [#341](https://github.com/kowainik/summoner/issues/341):
   Allow `ansi-terminal-0.10`.
+  (by [@mpilgrem](https://github.com/mpilgrem))
 * [#323](https://github.com/kowainik/summoner/issues/323):
   Allow `tree-diff-0.1`.
+  (by [@vrom911](https://github.com/vrom911))
 * [#320](https://github.com/kowainik/summoner/issues/320):
   Allow `hedgehog-1.0`.
+  (by [@vrom911](https://github.com/vrom911))
 
 ## 1.3.0.1 — Apr 10, 2019
 
