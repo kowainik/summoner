@@ -20,9 +20,10 @@ module Summoner.License
        ) where
 
 import Data.Aeson (FromJSON (..), decodeStrict, withObject, (.:))
-import Data.ByteString.Char8 (pack)
-import System.Process (readProcess)
 import Relude.Extra.Enum (inverseMap)
+import Shellmet (($|))
+
+import Summoner.Ansi (errorMessage)
 
 import qualified Data.Text as T
 import qualified Text.Show as TS
@@ -90,10 +91,11 @@ parseLicenseName = inverseMap show
 -- | Replaces name/year placeholders with the actual data.
 customizeLicense :: LicenseName -> License -> Text -> Text -> License
 customizeLicense l license@(License licenseText) nm year
-    | l `elem` [MIT, BSD2, BSD3] = License updateLicenseText
+    | l `elem` [MIT, BSD2, BSD3] = License updatedLicenseText
     | otherwise                  = license
   where
-    updateLicenseText =
+    updatedLicenseText :: Text
+    updatedLicenseText =
         let (beforeY, withY) = T.span (/= '[') licenseText
             afterY           = T.tail $ T.dropWhile (/= ']') withY
             (beforeN, withN) = T.span (/= '[') afterY
@@ -104,9 +106,16 @@ fetchLicense :: LicenseName -> IO License
 fetchLicense None = pure $ License $ licenseShortDesc None
 fetchLicense name = do
     let licenseLink = "https://api.github.com/licenses/" <> githubLicenseQueryNames name
-    licenseJson <- readProcess
-        "curl" [ toString licenseLink, "-H", "Accept: application/vnd.github.drax-preview+json"] ""
-    pure $ fromMaybe (error "Broken predefined license list") (decodeStrict $ pack licenseJson)
+    licenseJson <- "curl" $|
+        [ licenseLink
+        , "-H"
+        , "Accept: application/vnd.github.drax-preview+json"
+        ]
+
+    whenNothing (decodeStrict @License $ encodeUtf8 licenseJson) $ do
+        errorMessage $ "Error downloading license: " <> show name
+        putTextLn $ "Fetched content:\n" <> licenseJson
+        exitFailure
 
 -- | Show short information for the 'LicenseName'.
 licenseShortDesc :: LicenseName -> Text

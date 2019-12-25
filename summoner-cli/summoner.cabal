@@ -120,7 +120,7 @@ library
                      , neat-interpolation ^>= 0.3.2.2
                      , optparse-applicative ^>= 0.15
                      , process ^>= 1.6.1.0
-                     , shellmet >= 0.0.1 && < 0.1
+                     , shellmet ^>= 0.0.3.0
                      , text ^>= 1.2.3.0
                      , time >= 1.8 && < 1.10
                      , tomland ^>= 1.2.1.0
