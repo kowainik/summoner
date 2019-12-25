@@ -5,7 +5,7 @@ The changelog is available [on GitHub][2].
 
 ## 1.4.0.0 – Dec 25, 2019 🎅
 
-* [#318](https://github.com/kowainik/summoner/issues/318):
+* [#339](https://github.com/kowainik/summoner/issues/339):
   Support GHC `8.8.1` in generated projects.
   __Note:__ Stack projects will use `nightly` resolver as the stable one is not
   out at the moment of this issue is implemented.
@@ -75,6 +75,8 @@ The changelog is available [on GitHub][2].
   __#TUI__ Fix new line in the Description field of the form.
 * [#385](https://github.com/kowainik/summoner/issues/385):
   Add golden tests for `summon show ghc` command's output.
+* [#384](https://github.com/kowainik/summoner/issues/384):
+  Test golden project build's success.
 * [#318](https://github.com/kowainik/summoner/issues/318):
   Build Summoner multipackage project with GHC `8.6.5`.
 * [#338](https://github.com/kowainik/summoner/issues/338):
@@ -90,6 +92,12 @@ The changelog is available [on GitHub][2].
 * Bump up to `relude-0.6.0.0`.
 * [#337](https://github.com/kowainik/summoner/issues/337):
   Allow `generic-deriving-1.13`.
+* [#341](https://github.com/kowainik/summoner/issues/341):
+  Allow `ansi-terminal-0.10`.
+* [#323](https://github.com/kowainik/summoner/issues/323):
+  Allow `tree-diff-0.1`.
+* [#320](https://github.com/kowainik/summoner/issues/320):
+  Allow `hedgehog-1.0`.
 
 ## 1.3.0.1 — Apr 10, 2019
 
