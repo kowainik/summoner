@@ -14,7 +14,8 @@
 Summoner is a tool for scaffolding fully configured batteries-included production-level Haskell projects.
 
 Do you want to create a library that is to be uploaded to Hackage/Stackage, that builds with both Cabal and Stack and supports the latest three major GHC versions?
-Or you are building a production application which uses a custom prelude and has CI with Travis Linux and AppVeyors Windows checks?
+Or are you building a production application which uses a custom prelude and has CI with Travis Linux and AppVeyors Windows checks?
+Maybe do you want to play with your idea in a single module without introducing the whole complexity of the Haskell projects?
 Summoner can help you do all that with minimal effort from you - it can even upload the project to GitHub if you wish!
 
 By the way, Summoner operates as either CLI or TUI application, so you can choose what you're more comfortable with and install only the required one.
@@ -24,19 +25,18 @@ By the way, Summoner operates as either CLI or TUI application, so you can choos
 * [Demo](#demo-)
     + [TUI demo](#tui-demo-)
     + [CLI demo](#cli-demo-)
-    + [Scaffolded project structure](#scaffolded-project-structure-)
+    + [Examples](#examples-)
 * [Features](#features-)
 * [Get started](#get-started-)
     + [Prerequisites](#prerequisites-)
     + [Installation](#installation-)
         + [Summon-TUI](#summon-tui-)
           + [TUI: download binary](#tui-download-binary-)
-          + [TUI: from Scarf](#tui-from-scarf-)
+          + [TUI: from Hackage/Stackage](#tui-from-hackagestackage-)
           + [TUI: from source](#tui-from-source-)
         + [Summon-CLI](#summon-cli-)
           + [CLI: download binary](#cli-download-binary-)
           + [CLI: from Hackage/Stackage](#cli-from-hackagestackage-)
-          + [TUI: from Scarf](#cli-from-scarf-)
           + [CLI: from source](#cli-from-source-)
     + [Setup](#setup-)
 * [Usage](#usage-)
@@ -49,7 +49,6 @@ By the way, Summoner operates as either CLI or TUI application, so you can choos
     + [Build](#build-)
     + [Test](#test-)
     + [Run](#run-)
-* [Changelog](#changelog-)
 * [Acknowledgments](#acknowledgments-)
 
 ## Demo [↑](#structure)
@@ -62,60 +61,38 @@ By the way, Summoner operates as either CLI or TUI application, so you can choos
 
 [![CLI demo](https://asciinema.org/a/214433.png)](https://asciinema.org/a/214433)
 
-### Scaffolded project structure [↑](#structure)
-
-This is an example of the project hierarchy you can get if you're running Summoner with all options enabled:
-
-```
-project-name/
-├── app/
-│   └── Main.hs
-├── benchmark/
-│   └── Main.hs
-├── src/
-│   ├── ProjectName.hs
-│   └── Prelude.hs
-├── test/
-│   └── Spec.hs
-├── CHANGELOG.md
-├── CONTRIBUTING.md
-├── LICENSE
-├── project-name.cabal
-├── README.md
-├── Setup.hs
-├── stack.yaml
-├── appveyor.yml
-├── .git
-├── .gitignore
-├── .stylish-haskell.yaml
-└── .travis.yml
-```
+### Examples
 
 You can also see complete examples in the following folder:
 
 * [`summon-cli/tests/golden`: Examples of scaffolded projects](https://github.com/kowainik/summoner/tree/master/summoner-cli/test/golden)
 
-Directory `smallProject` contains an example of the straightforward package, and `fullProject` shows a generated project with more advanced structure and more features.
+Directory `smallProject` contains an example of the straightforward package,
+and `fullProject` shows a generated project with more advanced structure and more features.
 
 ## Features [↑](#structure)
 
 Summoner is a tool that combines predefined configurations, command-line arguments and a chosen interface.
 
-To fully understand the power in your hands with the help of Summoner, please check out this section.
+To fully understand the power in your hands with the help of Summoner, please read this section.
 
 Below you can see highlighted features in different categories.
 
 ### Project [↑](#structure)
 
+Features related to the structure and content of the generated projects.
+
 + Support for Cabal and Stack build tools.
 + Ability to pick stanzas (library, executable, test-suite, benchmark).
-+ Option to include an alternative prelude, if desired. The project would then use [`base-noprelude` technique](http://hackage.haskell.org/package/Prelude), and the `Prelude` module would be added to the library target.
-+ Whole Hackage-upload checklist support.
++ Option to include an alternative prelude, if desired. The project would then
+  use [`base-noprelude` technique](http://hackage.haskell.org/package/Prelude),
+  and the `Prelude` module would be added to the library target.
++ Whole Hackage-upload checklist support (exhaustive `.cabal` file, PVP versioning, GHC options, conventional meta files).
 + Support for multiple GHC versions, with thoughtful reflection on project meta, base versions (e.g. `base >= 4.9 && < 4.12`), etc.
 + Ability to create runnable Haskell scripts.
 + Different license support: MIT, BSD2, BSD3, GPL-2, GPL-3, LGPL-2.1, LGPL-3, AGPL-3, Apache-2.0, MPL-2.0, None (All Rights Reserved license without file).
 + Creation of the `CHANGELOG.md` file with [PVP versioning policy](https://pvp.haskell.org).
-+ Ability to include your `.stylish-haskell.yaml` file.
++ Ability to include any custom files (including `.stylish-haskell.yaml`, `CONTRIBUTING.md`, `CODEOWNERS`, etc.).
 + Usage of the `ghc-options` field with sensible defaults.
 
   If `ghc-options` are not explicitly stated in the configuration file, then the following list of GHC flags is added to all stanzas:
@@ -149,21 +126,54 @@ Below you can see highlighted features in different categories.
 + Exhaustive `.gitignore` file.
 + Formation of the `README` file with Hackage, Stackage and CI badges.
 + Linking to the GitHub repository in the `.cabal` file.
-+ Ability to include your `CONTRIBUTING.md` file.
-+ Guessing user credentials from `.gitconfig`.
++ Ability to include your custom GitHub meta files: `CONTRIBUTING.md`, `CODEOWNERS`, `.github/pull_request_template.md`, etc.
++ Guessing user credentials from the local `.gitconfig` file.
 
 ### CI [↑](#structure)
 
 + Generation of the `.travis.yml` file that runs build and tests on CI under Linux using
   [Dead simple Haskell Travis Settings for Cabal and Stack](https://chshersh.github.io/posts/2019-02-25-haskell-travis).
++ Generation of the `appveyor.yaml` file which runs build and tests on CI under Windows.
 + Configuration matrix on CI to build with multiple GHC versions and various build tools.
 + `-Werror` is enabled on CI not to miss any warnings.
 + Run HLint checks on CI.
-+ Generation of the `appveyor.yaml` file which runs build and tests on CI under Windows.
 
 ### Others [↑](#structure)
 
-+ Ability to create a project in offline mode.
++ Ability to create a project in the offline mode.
++ Ability to check GHC-specific versions of the corresponding `base` library
+  and Stackage snapshot resolver via `summon show ghc` command.
++ Carefully collected Haskell project best practices gathered in your projects' scaffold.
+
+### Project structure example [↑](#structure)
+
+This is an example of the project hierarchy you can get if you are running Summoner's `new` command with all options enabled:
+
+```
+project-name/
+├── app/
+│   └── Main.hs
+├── benchmark/
+│   └── Main.hs
+├── src/
+│   ├── ProjectName.hs
+│   └── Prelude.hs
+├── test/
+│   └── Spec.hs
+├── CHANGELOG.md
+├── CONTRIBUTING.md
+├── LICENSE
+├── project-name.cabal
+├── README.md
+├── Setup.hs
+├── stack.yaml
+├── stack-8.6.5.yaml
+├── appveyor.yml
+├── .git
+├── .gitignore
+├── .stylish-haskell.yaml
+└── .travis.yml
+```
 
 ## Get started [↑](#structure)
 
@@ -206,12 +216,19 @@ chmod +x summon-cli-linux
 mv summon-cli-linux ~/.local/bin/summon
 ```
 
-##### TUI: from Scarf [↑](#structure)
+##### TUI: from Hackage/Stackage [↑](#structure)
 
-Summoner binaries can be installed with [Scarf](https://scarf.sh).
+Using `cabal`:
 
 ```shell
-scarf install summoner
+cabal new-update
+cabal new-install summoner-tui
+```
+
+Using `stack`:
+
+```shell
+stack install summoner-tui
 ```
 
 ##### TUI: from source [↑](#structure)
@@ -272,14 +289,6 @@ Using `stack`:
 
 ```shell
 stack install summoner
-```
-
-##### CLI: from Scarf [↑](#structure)
-
-Summoner binaries can be installed with [Scarf](https://scarf.sh).
-
-```shell
-scarf install summoner
 ```
 
 ##### CLI: from source [↑](#structure)
@@ -532,7 +541,7 @@ This command creates minimal `cabal` or `stack` script file which allows you to 
 #!/usr/bin/env cabal
 {- cabal:
 build-depends:
-  , base ^>= 4.12.0.0
+  , base ^>= 4.13.0.0
 -}
 
 main :: IO ()
@@ -544,7 +553,7 @@ main = putStrLn "Hello, World!"
 ```haskell
 #!/usr/bin/env stack
 {- stack
-  --resolver lts-13.16
+  --resolver lts-14.18
   script
   --package base
 -}
@@ -663,13 +672,6 @@ or, if using Nix,
 nix-shell --run 'cabal new-run summon -- SOME_COMMAND'
 nix-shell --run 'cabal new-run summon-tui -- SOME_COMMAND'
 ```
-
-## Changelog [↑](#structure)
-
-Each package has its own changelog:
-
-* [Summoner changelog](https://github.com/kowainik/summoner/blob/master/summoner-cli/CHANGELOG.md#changelog).
-* [Summoner-TUI changelog](https://github.com/kowainik/summoner/blob/master/summoner-tui/CHANGELOG.md#changelog).
 
 ## Acknowledgments [↑](#structure)
 
