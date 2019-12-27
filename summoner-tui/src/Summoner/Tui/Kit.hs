@@ -136,6 +136,7 @@ data GitHub = GitHub
     { gitHubEnabled  :: !Bool
     , gitHubNoUpload :: !Bool  -- ^ Do not upload to GitHub, only local initialization.
     , gitHubPrivate  :: !Bool
+    , gitHubActions  :: !Bool
     , gitHubTravis   :: !Bool
     , gitHubAppVeyor :: !Bool
     } deriving stock (Show)
@@ -171,6 +172,7 @@ summonKitToSettings sk = Settings
     , settingsLicenseName    = sk ^. project . license
     , settingsLicenseText    = ""
     , settingsGitHub         = isGitHub
+    , settingsGhActions      = isGitHub && sk ^. gitHub . actions
     , settingsPrivate        = isGitHub && sk ^. gitHub . private
     , settingsTravis         = isGitHub && sk ^. gitHub . travis
     , settingsAppVeyor       = isGitHub && sk ^. gitHub . appVeyor && sk ^. stack
@@ -262,6 +264,7 @@ configToSummonKit cRepo cOffline cConfigFile files Config{..} = SummonKit
         { gitHubEnabled  = cGitHub /= Nop
         , gitHubNoUpload = getAny cNoUpload || cOffline
         , gitHubPrivate  = toBool cPrivate
+        , gitHubActions  = (cGitHub /= Nop) && (cGhActions /= Nop)
         , gitHubTravis   = (cGitHub /= Nop) && (cTravis /= Nop)
         , gitHubAppVeyor = toBool cAppVey && kitStack
         }
