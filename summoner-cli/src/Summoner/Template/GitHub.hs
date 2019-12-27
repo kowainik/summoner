@@ -25,6 +25,7 @@ module Summoner.Template.GitHub
 
 import Data.List ((\\))
 import NeatInterpolation (text)
+import qualified Data.Text as T (intercalate)
 
 import Summoner.Default (defaultGHC)
 import Summoner.GhcVer (GhcVer (..), oldGhcs, showGhcVer)
@@ -110,8 +111,69 @@ gitHubFiles Settings{..} = concat
 
     ghActionsYml :: Text
     ghActionsYml = [text|
-        x
+        name: Haskell CI
+
+        on:
+          # Trigger the workflow on push or pull request,
+          # but only for the master branch
+          push:
+            branches:
+              - master
+          pull_request:
+
+        jobs:
+          build:
+            name: ghc ${{ matrix.ghc }}
+            runs-on: ubuntu-16.04
+            strategy:
+              matrix:
+                ghc: ${ghActionsVersions}
+                cabal: ["3.0"]
+
+            steps:
+            - uses: actions/checkout@v2
+              if: github.event.action == 'opened' || github.event.action == 'synchronize' || github.event.ref == 'refs/heads/master'
+
+            - uses: actions/setup-haskell@v1
+              name: Setup Haskell
+              with:
+                ghc-version: ${{ matrix.ghc }}
+                cabal-version: ${{ matrix.cabal }}
+
+            - uses: actions/cache@v1
+              name: Cache ~/.cabal/packages
+              with:
+                path: ~/.cabal/packages
+                key: ${{ runner.os }}-${{ matrix.ghc }}-cabal-packages
+            - uses: actions/cache@v1
+              name: Cache ~/.cabal/store
+              with:
+                path: ~/.cabal/store
+                key: ${{ runner.os }}-${{ matrix.ghc }}-cabal-store
+            - uses: actions/cache@v1
+              name: Cache dist-newstyle
+              with:
+                path: dist-newstyle
+                key: ${{ runner.os }}-${{ matrix.ghc }}-fused-effects-dist
+
+            - name: Install dependencies
+              run: |
+                cabal new-update
+                cabal new-configure --enable-tests --write-ghc-environment-files=always -j2
+                cabal new-build --only-dependencies
+            - name: Build & test
+              run: |
+                cabal v2-build
+                ${cabalTest}
         |]
+
+
+    ghActionsVersions :: Text
+    ghActionsVersions = memptyIfFalse settingsGhActions $
+      "[" <> T.intercalate ", " (fmap ghActionsMatrixItem settingsTestedVersions) <> "]"
+
+    ghActionsMatrixItem :: GhcVer -> Text
+    ghActionsMatrixItem v = "\"" <> showGhcVer v <> "\""
 
     -- create travis.yml template
     travisYml :: Text
