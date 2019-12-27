@@ -140,6 +140,10 @@ gitHubFiles Settings{..} = concat
                 ghc-version: ${{ matrix.ghc }}
                 cabal-version: ${{ matrix.cabal }}
 
+            # We cache the elements of the Cabal store separately,
+            # as the entirety of ~/.cabal can grow very large
+            # for projects with many dependencies.
+
             - uses: actions/cache@v1
               name: Cache ~/.cabal/packages
               with:
