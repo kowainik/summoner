@@ -59,6 +59,7 @@ data ConfigP (p :: Phase) = Config
     , cCabal        :: !Decision
     , cStack        :: !Decision
     , cGitHub       :: !Decision
+    , cGhActions    :: !Decision
     , cTravis       :: !Decision
     , cAppVey       :: !Decision
     , cPrivate      :: !Decision
@@ -128,29 +129,30 @@ instance Ord k => GMonoid (Map k v) where
 -- | Default 'Config' configurations.
 defaultConfig :: PartialConfig
 defaultConfig = Config
-    { cOwner    = Last (Just "kowainik")
-    , cFullName = Last (Just "Kowainik")
-    , cEmail    = Last (Just "xrom.xkov@gmail.com")
-    , cLicense  = Last (Just MIT)
-    , cGhcVer   = Last (Just [])
-    , cCabal    = Idk
-    , cStack    = Idk
-    , cGitHub   = Idk
-    , cTravis   = Idk
-    , cAppVey   = Idk
-    , cPrivate  = Idk
-    , cLib      = Idk
-    , cExe      = Idk
-    , cTest     = Idk
-    , cBench    = Idk
-    , cPrelude  = Last Nothing
-    , cExtensions = []
-    , cGhcOptions = []
-    , cGitignore = []
-    , cStylish  = Last Nothing
+    { cOwner        = Last (Just "kowainik")
+    , cFullName     = Last (Just "Kowainik")
+    , cEmail        = Last (Just "xrom.xkov@gmail.com")
+    , cLicense      = Last (Just MIT)
+    , cGhcVer       = Last (Just [])
+    , cCabal        = Idk
+    , cStack        = Idk
+    , cGitHub       = Idk
+    , cGhActions    = Idk
+    , cTravis       = Idk
+    , cAppVey       = Idk
+    , cPrivate      = Idk
+    , cLib          = Idk
+    , cExe          = Idk
+    , cTest         = Idk
+    , cBench        = Idk
+    , cPrelude      = Last Nothing
+    , cExtensions   = []
+    , cGhcOptions   = []
+    , cGitignore    = []
+    , cStylish      = Last Nothing
     , cContributing = Last Nothing
-    , cNoUpload = Any False
-    , cFiles = mempty
+    , cNoUpload     = Any False
+    , cFiles        = mempty
     }
 
 -- | Identifies how to read 'Config' data from the @.toml@ file.
@@ -164,6 +166,7 @@ configCodec = Config
     <*> decision            "cabal"        .= cCabal
     <*> decision            "stack"        .= cStack
     <*> decision            "github"       .= cGitHub
+    <*> decision            "ghActions"    .= cGhActions
     <*> decision            "travis"       .= cTravis
     <*> decision            "appveyor"     .= cAppVey
     <*> decision            "private"      .= cPrivate
@@ -224,6 +227,7 @@ finalise Config{..} = Config
     <*> pure cCabal
     <*> pure cStack
     <*> pure cGitHub
+    <*> pure cGhActions
     <*> pure cTravis
     <*> pure cAppVey
     <*> pure cPrivate
