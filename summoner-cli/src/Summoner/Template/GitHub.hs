@@ -37,6 +37,7 @@ import Summoner.Tree (TreeFs (..))
 gitHubFiles :: Settings -> [TreeFs]
 gitHubFiles Settings{..} = concat
     [ [File ".gitignore" (gitignoreDefault <> gitignoreCustom) | settingsGitHub]
+    , [Dir ".github" [ Dir "workflows" [ File "haskell.yml" ghActionsYml ]] | settingsGhActions ]
     , [File ".travis.yml" travisYml    | settingsTravis]
     , [File "appveyor.yml" appVeyorYml | settingsAppVeyor]
     ]
@@ -106,6 +107,11 @@ gitHubFiles Settings{..} = concat
     gitignoreCustom = if null settingsGitignore
         then ""
         else unlines ("\n# User specific" : settingsGitignore)
+
+    ghActionsYml :: Text
+    ghActionsYml = [text|
+        x
+        |]
 
     -- create travis.yml template
     travisYml :: Text
