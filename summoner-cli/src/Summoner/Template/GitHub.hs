@@ -25,13 +25,12 @@ module Summoner.Template.GitHub
 
 import Data.List ((\\))
 import NeatInterpolation (text)
-import qualified Data.Text as T (intercalate)
 
 import Summoner.Default (defaultGHC)
 import Summoner.GhcVer (GhcVer (..), oldGhcs, showGhcVer)
 import Summoner.Settings (Settings (..))
 import Summoner.Template.Mempty (memptyIfFalse)
-import Summoner.Text (endLine, tconcatMap)
+import Summoner.Text (endLine, intercalateMap, tconcatMap)
 import Summoner.Tree (TreeFs (..))
 
 
@@ -174,7 +173,7 @@ gitHubFiles Settings{..} = concat
 
     ghActionsVersions :: Text
     ghActionsVersions = memptyIfFalse settingsGhActions $
-      "[" <> T.intercalate ", " (fmap ghActionsMatrixItem settingsTestedVersions) <> "]"
+      "[" <> intercalateMap ", " ghActionsMatrixItem settingsTestedVersions <> "]"
 
     ghActionsMatrixItem :: GhcVer -> Text
     ghActionsMatrixItem v = "\"" <> showGhcVer v <> "\""
