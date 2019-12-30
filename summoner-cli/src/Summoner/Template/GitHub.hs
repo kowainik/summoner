@@ -158,12 +158,12 @@ gitHubFiles Settings{..} = concat
               name: Cache dist-newstyle
               with:
                 path: dist-newstyle
-                key: ${{ runner.os }}-${{ matrix.ghc }}-fused-effects-dist
+                key: ${{ runner.os }}-${{ matrix.ghc }}-dist
 
             - name: Install dependencies
               run: |
                 cabal new-update
-                cabal new-configure --enable-tests --write-ghc-environment-files=always -j2
+                cabal new-configure --enable-tests --enable-benchmarks --write-ghc-environment-files=always -j2
                 cabal new-build --only-dependencies
             - name: Build & test
               run: |
