@@ -86,7 +86,7 @@ generateProject isOffline projectName Config{..} = do
         (YesNoPrompt "private repository" "Create as a private repository (Requires a GitHub private repo plan)?")
         cPrivate
     settingsGhActions <- decisionIf (settingsCabal && settingsGitHub) (mkDefaultYesNoPrompt "GitHub Actions CI integration") cGhActions
-    settingsTravis    <- decisionIf (settingsGitHub && not settingsGhActions) (mkDefaultYesNoPrompt "Travis CI integration") cTravis
+    settingsTravis    <- decisionIf settingsGitHub (mkDefaultYesNoPrompt "Travis CI integration") cTravis
     settingsAppVeyor  <- decisionIf settingsGitHub (mkDefaultYesNoPrompt "AppVeyor CI integration") cAppVey
     settingsIsLib     <- decisionToBool cLib (mkDefaultYesNoPrompt "library target")
     settingsIsExe     <- let target = "executable target" in
