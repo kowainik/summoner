@@ -32,14 +32,14 @@ module Summoner.Config
 import Data.List (lookup)
 import Generics.Deriving.Monoid (GMonoid (..), gmemptydefault)
 import Generics.Deriving.Semigroup (GSemigroup (..), gsappenddefault)
-import Toml (Key, TomlBiMap, TomlCodec, (.=))
 import Relude.Extra.Validation (Validation (..))
+import Toml (Key, TomlBiMap, TomlCodec, (.=))
 
 import Summoner.CustomPrelude (CustomPrelude (..), customPreludeT)
 import Summoner.Decision (Decision (..))
 import Summoner.GhcVer (GhcVer (..), parseGhcVer, showGhcVer)
 import Summoner.License (LicenseName (..), parseLicenseName)
-import Summoner.Source (Source, sourceT, sourceCodec)
+import Summoner.Source (Source, sourceCodec, sourceT)
 
 import qualified Toml
 
@@ -158,30 +158,30 @@ defaultConfig = Config
 -- | Identifies how to read 'Config' data from the @.toml@ file.
 configCodec :: TomlCodec PartialConfig
 configCodec = Config
-    <$> Toml.last Toml.text "owner"        .= cOwner
-    <*> Toml.last Toml.text "fullName"     .= cFullName
-    <*> Toml.last Toml.text "email"        .= cEmail
-    <*> Toml.last license   "license"      .= cLicense
-    <*> Toml.last ghcVerArr "ghcVersions"  .= cGhcVer
-    <*> decision            "cabal"        .= cCabal
-    <*> decision            "stack"        .= cStack
-    <*> decision            "github"       .= cGitHub
+    <$> Toml.last Toml.text "owner"         .= cOwner
+    <*> Toml.last Toml.text "fullName"      .= cFullName
+    <*> Toml.last Toml.text "email"         .= cEmail
+    <*> Toml.last license   "license"       .= cLicense
+    <*> Toml.last ghcVerArr "ghcVersions"   .= cGhcVer
+    <*> decision            "cabal"         .= cCabal
+    <*> decision            "stack"         .= cStack
+    <*> decision            "github"        .= cGitHub
     <*> decision            "githubActions" .= cGhActions
-    <*> decision            "travis"       .= cTravis
-    <*> decision            "appveyor"     .= cAppVey
-    <*> decision            "private"      .= cPrivate
-    <*> decision            "lib"          .= cLib
-    <*> decision            "exe"          .= cExe
-    <*> decision            "test"         .= cTest
-    <*> decision            "bench"        .= cBench
-    <*> Toml.last preludeT  "prelude"      .= cPrelude
-    <*> textArr             "extensions"   .= cExtensions
-    <*> textArr             "ghc-options"  .= cGhcOptions
-    <*> textArr             "gitignore"    .= cGitignore
-    <*> Toml.last sourceT   "stylish"      .= cStylish
-    <*> Toml.last sourceT   "contributing" .= cContributing
-    <*> Toml.any            "noUpload"     .= cNoUpload
-    <*> filesCodec          "files"        .= cFiles
+    <*> decision            "travis"        .= cTravis
+    <*> decision            "appveyor"      .= cAppVey
+    <*> decision            "private"       .= cPrivate
+    <*> decision            "lib"           .= cLib
+    <*> decision            "exe"           .= cExe
+    <*> decision            "test"          .= cTest
+    <*> decision            "bench"         .= cBench
+    <*> Toml.last preludeT  "prelude"       .= cPrelude
+    <*> textArr             "extensions"    .= cExtensions
+    <*> textArr             "ghc-options"   .= cGhcOptions
+    <*> textArr             "gitignore"     .= cGitignore
+    <*> Toml.last sourceT   "stylish"       .= cStylish
+    <*> Toml.last sourceT   "contributing"  .= cContributing
+    <*> Toml.any            "noUpload"      .= cNoUpload
+    <*> filesCodec          "files"         .= cFiles
   where
     _GhcVer :: TomlBiMap GhcVer Toml.AnyValue
     _GhcVer = Toml._TextBy showGhcVer (maybeToRight "Wrong GHC version" . parseGhcVer)
