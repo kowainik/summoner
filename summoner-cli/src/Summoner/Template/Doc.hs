@@ -40,12 +40,13 @@ docFiles Settings{..} =
         [ "# " <> settingsRepo
         , ""
         ]
-     ++ [travisBadge       | settingsTravis]
-     ++ [appVeyorBadge     | settingsAppVeyor]
+     ++ [githubActionsBadge | settingsGhActions]
+     ++ [travisBadge        | settingsTravis]
+     ++ [appVeyorBadge      | settingsAppVeyor]
      ++ [hackage]
-     ++ [stackLtsBadge     | settingsStack]
-     ++ [stackNightlyBadge | settingsStack]
-     ++ [licenseBadge      | hasLicense]
+     ++ [stackLtsBadge      | settingsStack]
+     ++ [stackNightlyBadge  | settingsStack]
+     ++ [licenseBadge       | hasLicense]
      ++ [""
         , settingsDescription
         ]
@@ -75,22 +76,30 @@ docFiles Settings{..} =
         stackNightlyBadge :: Text =
             makeBadge "Stackage Nightly" stackShieldNightly stackLinkNightly
 
+        githubActionsShield, githubActionsLink, githubActionsBadge :: Text
+        githubActionsShield = "https://github.com/" <> ownerRepo <> "/workflows/CI/badge.svg"
+        githubActionsLink   = "https://github.com/" <> ownerRepo <> "/actions"
+        githubActionsBadge  = makeBadge "GitHub CI" githubActionsShield githubActionsLink
+
         travisShield :: Text =
-            "https://img.shields.io/travis/" <> settingsOwner <> "/" <> settingsRepo <> ".svg?logo=travis"
+            "https://img.shields.io/travis/" <> ownerRepo <> ".svg?logo=travis"
         travisLink :: Text =
-            "https://travis-ci.org/" <> settingsOwner <> "/" <> settingsRepo
+            "https://travis-ci.org/" <> ownerRepo
         travisBadge :: Text =
             makeBadge "Build status" travisShield travisLink
 
         appVeyorShield :: Text =
-            "https://ci.appveyor.com/api/projects/status/github/" <> settingsOwner <> "/" <> settingsRepo <> "?branch=master&svg=true"
+            "https://ci.appveyor.com/api/projects/status/github/" <> ownerRepo <> "?branch=master&svg=true"
         appVeyorLink :: Text =
-            "https://ci.appveyor.com/project/" <> settingsOwner <> "/" <> settingsRepo
+            "https://ci.appveyor.com/project/" <> ownerRepo
         appVeyorBadge :: Text =
             makeBadge "Windows build status" appVeyorShield appVeyorLink
 
         makeBadge :: Text -> Text -> Text -> Text
         makeBadge title shield link = "[![" <> title <> "](" <> shield <> ")](" <> link <> ")"
+
+        ownerRepo :: Text
+        ownerRepo = settingsOwner <> "/" <> settingsRepo
 
     changelog :: Text
     changelog = unlines $

@@ -64,6 +64,7 @@ module Summoner.Tui.Kit
        , enabled
        , noUpload
        , private
+       , actions
        , travis
        , appVeyor
        ) where
@@ -172,10 +173,10 @@ summonKitToSettings sk = Settings
     , settingsLicenseName    = sk ^. project . license
     , settingsLicenseText    = ""
     , settingsGitHub         = isGitHub
-    , settingsGhActions      = isGitHub && sk ^. gitHub . actions
+    , settingsGhActions      = isGitHub && sk ^. gitHub . actions && sk ^. cabal
     , settingsPrivate        = isGitHub && sk ^. gitHub . private
     , settingsTravis         = isGitHub && sk ^. gitHub . travis
-    , settingsAppVeyor       = isGitHub && sk ^. gitHub . appVeyor && sk ^. stack
+    , settingsAppVeyor       = isGitHub && sk ^. gitHub . appVeyor
     , settingsIsLib          = sk ^. projectMeta . lib
     , settingsIsExe          = sk ^. projectMeta . exe
     , settingsTest           = sk ^. projectMeta . test
@@ -264,9 +265,9 @@ configToSummonKit cRepo cOffline cConfigFile files Config{..} = SummonKit
         { gitHubEnabled  = cGitHub /= Nop
         , gitHubNoUpload = getAny cNoUpload || cOffline
         , gitHubPrivate  = toBool cPrivate
-        , gitHubActions  = (cGitHub /= Nop) && (cGhActions /= Nop)
+        , gitHubActions  = (cGitHub /= Nop) && (cGhActions /= Nop) && kitCabal
         , gitHubTravis   = (cGitHub /= Nop) && (cTravis /= Nop)
-        , gitHubAppVeyor = toBool cAppVey && kitStack
+        , gitHubAppVeyor = toBool cAppVey
         }
     , summonKitExtensions   = cExtensions
     , summonKitGhcOptions   = cGhcOptions

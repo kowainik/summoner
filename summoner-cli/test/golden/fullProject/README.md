@@ -1,5 +1,6 @@
 # fullProject
 
+[![GitHub CI](https://github.com/kowainik/fullProject/workflows/CI/badge.svg)](https://github.com/kowainik/fullProject/actions)
 [![Build status](https://img.shields.io/travis/kowainik/fullProject.svg?logo=travis)](https://travis-ci.org/kowainik/fullProject)
 [![Windows build status](https://ci.appveyor.com/api/projects/status/github/kowainik/fullProject?branch=master&svg=true)](https://ci.appveyor.com/project/kowainik/fullProject)
 [![Hackage](https://img.shields.io/hackage/v/fullProject.svg?logo=haskell)](https://hackage.haskell.org/package/fullProject)
