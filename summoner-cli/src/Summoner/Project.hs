@@ -85,16 +85,17 @@ generateProject isOffline projectName Config{..} = do
         (settingsGitHub && not settingsNoUpload)
         (YesNoPrompt "private repository" "Create as a private repository (Requires a GitHub private repo plan)?")
         cPrivate
-    settingsTravis   <- decisionIf settingsGitHub (mkDefaultYesNoPrompt "Travis CI integration") cTravis
-    settingsAppVeyor <- decisionIf settingsGitHub (mkDefaultYesNoPrompt "AppVeyor CI integration") cAppVey
-    settingsIsLib    <- decisionToBool cLib (mkDefaultYesNoPrompt "library target")
-    settingsIsExe    <- let target = "executable target" in
+    settingsGhActions <- decisionIf (settingsCabal && settingsGitHub) (mkDefaultYesNoPrompt "GitHub Actions CI integration") cGhActions
+    settingsTravis    <- decisionIf settingsGitHub (mkDefaultYesNoPrompt "Travis CI integration") cTravis
+    settingsAppVeyor  <- decisionIf settingsGitHub (mkDefaultYesNoPrompt "AppVeyor CI integration") cAppVey
+    settingsIsLib     <- decisionToBool cLib (mkDefaultYesNoPrompt "library target")
+    settingsIsExe     <- let target = "executable target" in
         if settingsIsLib
         then decisionToBool cExe (mkDefaultYesNoPrompt target)
         else trueMessage target
-    settingsTest     <- decisionToBool cTest (mkDefaultYesNoPrompt "tests")
-    settingsBench    <- decisionToBool cBench (mkDefaultYesNoPrompt "benchmarks")
-    settingsPrelude  <- if settingsIsLib then getPrelude else pure Nothing
+    settingsTest      <- decisionToBool cTest (mkDefaultYesNoPrompt "tests")
+    settingsBench     <- decisionToBool cBench (mkDefaultYesNoPrompt "benchmarks")
+    settingsPrelude   <- if settingsIsLib then getPrelude else pure Nothing
     let settingsBaseType = case settingsPrelude of
             Nothing -> "base"
             Just _  -> "base-noprelude"

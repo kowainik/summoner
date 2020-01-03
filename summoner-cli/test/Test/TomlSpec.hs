@@ -72,6 +72,7 @@ genPartialConfig = do
     cCabal      <- genDecision
     cStack      <- genDecision
     cGitHub     <- genDecision
+    cGhActions  <- genDecision
     cTravis     <- genDecision
     cAppVey     <- genDecision
     cPrivate    <- genDecision

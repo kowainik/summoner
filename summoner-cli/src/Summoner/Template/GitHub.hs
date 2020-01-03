@@ -30,13 +30,14 @@ import Summoner.Default (defaultGHC)
 import Summoner.GhcVer (GhcVer (..), oldGhcs, showGhcVer)
 import Summoner.Settings (Settings (..))
 import Summoner.Template.Mempty (memptyIfFalse)
-import Summoner.Text (endLine, tconcatMap)
+import Summoner.Text (endLine, intercalateMap, tconcatMap)
 import Summoner.Tree (TreeFs (..))
 
 
 gitHubFiles :: Settings -> [TreeFs]
 gitHubFiles Settings{..} = concat
     [ [File ".gitignore" (gitignoreDefault <> gitignoreCustom) | settingsGitHub]
+    , [Dir ".github" [ Dir "workflows" [ File "ci.yml" ghActionsYml ]] | settingsGhActions ]
     , [File ".travis.yml" travisYml    | settingsTravis]
     , [File "appveyor.yml" appVeyorYml | settingsAppVeyor]
     ]
@@ -106,6 +107,76 @@ gitHubFiles Settings{..} = concat
     gitignoreCustom = if null settingsGitignore
         then ""
         else unlines ("\n# User specific" : settingsGitignore)
+
+    ghActionsYml :: Text
+    ghActionsYml = [text|
+        name: Haskell CI
+
+        on:
+          # Trigger the workflow on push or pull request,
+          # but only for the master branch
+          push:
+            branches:
+              - master
+          pull_request:
+
+        jobs:
+          build:
+            name: ghc ${{ matrix.ghc }}
+            runs-on: ubuntu-16.04
+            strategy:
+              matrix:
+                ghc: ${ghActionsVersions}
+                cabal: ["3.0"]
+
+            steps:
+            - uses: actions/checkout@v2
+              if: github.event.action == 'opened' || github.event.action == 'synchronize' || github.event.ref == 'refs/heads/master'
+
+            - uses: actions/setup-haskell@v1
+              name: Setup Haskell
+              with:
+                ghc-version: ${{ matrix.ghc }}
+                cabal-version: ${{ matrix.cabal }}
+
+            # We cache the elements of the Cabal store separately,
+            # as the entirety of ~/.cabal can grow very large
+            # for projects with many dependencies.
+
+            - uses: actions/cache@v1
+              name: Cache ~/.cabal/packages
+              with:
+                path: ~/.cabal/packages
+                key: ${{ runner.os }}-${{ matrix.ghc }}-cabal-packages
+            - uses: actions/cache@v1
+              name: Cache ~/.cabal/store
+              with:
+                path: ~/.cabal/store
+                key: ${{ runner.os }}-${{ matrix.ghc }}-cabal-store
+            - uses: actions/cache@v1
+              name: Cache dist-newstyle
+              with:
+                path: dist-newstyle
+                key: ${{ runner.os }}-${{ matrix.ghc }}-dist
+
+            - name: Install dependencies
+              run: |
+                cabal new-update
+                cabal new-configure --enable-tests --enable-benchmarks --write-ghc-environment-files=always -j2
+                cabal new-build --only-dependencies
+            - name: Build & test
+              run: |
+                cabal v2-build
+                ${cabalTest}
+        |]
+
+
+    ghActionsVersions :: Text
+    ghActionsVersions = memptyIfFalse settingsGhActions $
+      "[" <> intercalateMap ", " ghActionsMatrixItem settingsTestedVersions <> "]"
+
+    ghActionsMatrixItem :: GhcVer -> Text
+    ghActionsMatrixItem v = "\"" <> showGhcVer v <> "\""
 
     -- create travis.yml template
     travisYml :: Text

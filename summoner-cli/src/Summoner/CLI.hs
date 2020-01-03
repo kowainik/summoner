@@ -367,23 +367,25 @@ newP = do
 
 targetsP ::  Decision -> Parser PartialConfig
 targetsP d = do
-    cGitHub  <- githubP    d
-    cTravis  <- travisP    d
-    cAppVey  <- appVeyorP  d
-    cPrivate <- privateP   d
-    cLib     <- libraryP   d
-    cExe     <- execP      d
-    cTest    <- testP      d
-    cBench   <- benchmarkP d
+    cGitHub    <- githubP    d
+    cGhActions <- ghActionsP d
+    cTravis    <- travisP    d
+    cAppVey    <- appVeyorP  d
+    cPrivate   <- privateP   d
+    cLib       <- libraryP   d
+    cExe       <- execP      d
+    cTest      <- testP      d
+    cBench     <- benchmarkP d
     pure mempty
-        { cGitHub = cGitHub
-        , cTravis = cTravis
-        , cAppVey = cAppVey
-        , cPrivate= cPrivate
-        , cLib    = cLib
-        , cExe    = cExe
-        , cTest   = cTest
-        , cBench  = cBench
+        { cGitHub    = cGitHub
+        , cGhActions = cGhActions
+        , cTravis    = cTravis
+        , cAppVey    = cAppVey
+        , cPrivate   = cPrivate
+        , cLib       = cLib
+        , cExe       = cExe
+        , cTest      = cTest
+        , cBench     = cBench
         }
 
 githubP :: Decision -> Parser Decision
@@ -391,6 +393,12 @@ githubP d = flag Idk d
           $ long "github"
          <> short 'g'
          <> help "GitHub integration"
+
+ghActionsP :: Decision -> Parser Decision
+ghActionsP d = flag Idk d
+             $ long "actions"
+         <> short 'a'
+         <> help "GitHub Actions CI"
 
 travisP :: Decision -> Parser Decision
 travisP d = flag Idk d

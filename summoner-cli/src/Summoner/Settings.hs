@@ -35,6 +35,7 @@ data Settings = Settings
     , settingsLicenseText    :: !License -- ^ license text
     , settingsGitHub         :: !Bool   -- ^ GitHub repository
     , settingsPrivate        :: !Bool   -- ^ private repository
+    , settingsGhActions      :: !Bool   -- ^ GitHub Actions CI integration
     , settingsTravis         :: !Bool   -- ^ Travis CI integration
     , settingsAppVeyor       :: !Bool   -- ^ AppVeyor CI integration
     , settingsIsLib          :: !Bool   -- ^ is library
