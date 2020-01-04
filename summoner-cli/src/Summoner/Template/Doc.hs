@@ -43,7 +43,7 @@ docFiles Settings{..} =
      ++ [githubActionsBadge | settingsGhActions]
      ++ [travisBadge        | settingsTravis]
      ++ [appVeyorBadge      | settingsAppVeyor]
-     ++ [hackage]
+     ++ [hackageBadge]
      ++ [stackLtsBadge      | settingsStack]
      ++ [stackNightlyBadge  | settingsStack]
      ++ [licenseBadge       | hasLicense]
@@ -51,49 +51,44 @@ docFiles Settings{..} =
         , settingsDescription
         ]
       where
-        hackageShield :: Text =
-            "https://img.shields.io/hackage/v/" <> settingsRepo <> ".svg?logo=haskell"
-        hackageLink :: Text =
-            "https://hackage.haskell.org/package/" <> settingsRepo
-        hackage :: Text = makeBadge "Hackage" hackageShield hackageLink
+        shieldsIo :: Text
+        shieldsIo = "https://img.shields.io/"
 
-        licenseShield :: Text =
-            "https://img.shields.io/badge/license-" <> T.replace "-" "--" licenseName <> "-blue.svg"
-        licenseBadge :: Text =
-            makeBadge (licenseName <> " license") licenseShield "LICENSE"
+        hackageShield, hackageLink, hackageBadge :: Text
+        hackageShield = shieldsIo <> "hackage/v/" <> settingsRepo <> ".svg?logo=haskell"
+        hackageLink   = "https://hackage.haskell.org/package/" <> settingsRepo
+        hackageBadge  = makeBadge "Hackage" hackageShield hackageLink
 
-        stackShieldLts :: Text =
-            "http://stackage.org/package/" <> settingsRepo <> "/badge/lts"
-        stackLinkLts :: Text =
-            "http://stackage.org/lts/package/" <> settingsRepo
+        licenseShield, licenseBadge :: Text
+        licenseShield = shieldsIo <> "badge/license-" <> T.replace "-" "--" licenseName <> "-blue.svg"
+        licenseBadge  = makeBadge (licenseName <> " license") licenseShield "LICENSE"
 
-        stackShieldNightly :: Text =
-            "http://stackage.org/package/" <> settingsRepo <> "/badge/nightly"
-        stackLinkNightly :: Text =
-            "http://stackage.org/nightly/package/" <> settingsRepo
-        stackLtsBadge :: Text =
-            makeBadge "Stackage Lts" stackShieldLts stackLinkLts
-        stackNightlyBadge :: Text =
-            makeBadge "Stackage Nightly" stackShieldNightly stackLinkNightly
+        stackOrg, stackLtsShield, stackLtsLink, stackLtsBadge :: Text
+        stackOrg       = "http://stackage.org/"
+        stackLtsShield = stackOrg <> "package/" <> settingsRepo <> "/badge/lts"
+        stackLtsLink   = stackOrg <> "lts/package/" <> settingsRepo
+        stackLtsBadge  = makeBadge "Stackage Lts" stackLtsShield stackLtsLink
+
+        stackNightlyShield, stackNightlyLink, stackNightlyBadge :: Text
+        stackNightlyShield = stackOrg <> "package/" <> settingsRepo <> "/badge/nightly"
+        stackNightlyLink   = stackOrg <> "nightly/package/" <> settingsRepo
+        stackNightlyBadge  = makeBadge "Stackage Nightly" stackNightlyShield stackNightlyLink
 
         githubActionsShield, githubActionsLink, githubActionsBadge :: Text
         githubActionsShield = "https://github.com/" <> ownerRepo <> "/workflows/CI/badge.svg"
         githubActionsLink   = "https://github.com/" <> ownerRepo <> "/actions"
         githubActionsBadge  = makeBadge "GitHub CI" githubActionsShield githubActionsLink
 
-        travisShield :: Text =
-            "https://img.shields.io/travis/" <> ownerRepo <> ".svg?logo=travis"
-        travisLink :: Text =
-            "https://travis-ci.org/" <> ownerRepo
-        travisBadge :: Text =
-            makeBadge "Build status" travisShield travisLink
+        travisShield, travisLink, travisBadge :: Text
+        travisShield = shieldsIo <> "travis/" <> ownerRepo <> ".svg?logo=travis"
+        travisLink   = "https://travis-ci.org/" <> ownerRepo
+        travisBadge  = makeBadge "Build status" travisShield travisLink
 
-        appVeyorShield :: Text =
-            "https://ci.appveyor.com/api/projects/status/github/" <> ownerRepo <> "?branch=master&svg=true"
-        appVeyorLink :: Text =
-            "https://ci.appveyor.com/project/" <> ownerRepo
-        appVeyorBadge :: Text =
-            makeBadge "Windows build status" appVeyorShield appVeyorLink
+        appVeyorCom, appVeyorShield, appVeyorLink, appVeyorBadge :: Text
+        appVeyorCom    = "https://ci.appveyor.com/"
+        appVeyorShield = appVeyorCom <> "api/projects/status/github/" <> ownerRepo <> "?branch=master&svg=true"
+        appVeyorLink   = appVeyorCom <> "project/" <> ownerRepo
+        appVeyorBadge  = makeBadge "Windows build status" appVeyorShield appVeyorLink
 
         makeBadge :: Text -> Text -> Text -> Text
         makeBadge title shield link = "[![" <> title <> "](" <> shield <> ")](" <> link <> ")"

@@ -171,6 +171,7 @@ appNew dirs = App
         -> SummonForm
         -> EventM SummonForm (Next (KitForm e))
     handleCheckboxActivation ev form = \case
+        CabalField     -> withForm ev form mkNewForm
         StackField     -> withForm ev form mkNewForm
         GitHubEnable   -> withForm ev form mkNewForm
         GitHubDisable  -> withForm ev form mkNewForm
