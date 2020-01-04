@@ -365,7 +365,7 @@ Here is the list of the options that can be configured to suit your needs. If op
 | `gitignore`      | [Text]  | List of files you want added to the default `.gitignore`. (Ignored if `github = false`)                                                                              |
 | `noUpload`       | Bool    | Do not upload to GitHub, but create all GitHub related files if specified (Ignored if `github = false`)                                                              |
 | `private`        | Bool    | Create private repository by default? (Ignored if `github = false`)                                                                                                  |
-| `gitHubActions`  | Bool    | Turn on `GitHub Actions` integration by default?  (Currently working with `Cabal` only. Ignored if `github = false`)                                                 |
+| `githubActions`  | Bool    | Turn on `GitHub Actions` integration by default?  (Currently working with `Cabal` only. Ignored if `github = false`)                                                 |
 | `travis`         | Bool    | Turn on `Travis` integration by default?  (Ignored if `github = false`)                                                                                              |
 | `appveyor`       | Bool    | Turn on `AppVeyor` integration by default?  (Ignored if `github = false`)                                                                                            |
 | `lib`            | Bool    | Create `src` folder with simple `ProjectName.hs` file and library target?                                                                                            |
