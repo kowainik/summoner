@@ -14,7 +14,7 @@
 Summoner is a tool for scaffolding fully configured batteries-included production-level Haskell projects.
 
 Do you want to create a library that is to be uploaded to Hackage/Stackage, that builds with both Cabal and Stack and supports the latest three major GHC versions?
-Or are you building a production application which uses a custom prelude and has CI with Travis Linux and AppVeyors Windows checks?
+Or are you building a production application which uses a custom prelude and has CI with  GitHub Actions or Travis Linux and AppVeyors Windows checks?
 Maybe do you want to play with your idea in a single module without introducing the whole complexity of the Haskell projects?
 Summoner can help you do all that with minimal effort from you - it can even upload the project to GitHub if you wish!
 
@@ -134,6 +134,8 @@ Features related to the structure and content of the generated projects.
 + Generation of the `.travis.yml` file that runs build and tests on CI under Linux using
   [Dead simple Haskell Travis Settings for Cabal and Stack](https://chshersh.github.io/posts/2019-02-25-haskell-travis).
 + Generation of the `appveyor.yaml` file which runs build and tests on CI under Windows.
++ Generation of the `.github/workflows/ci.yml` file that runs build and tests on
+  GitHub ACtuions CI under Linux using Cabal.
 + Configuration matrix on CI to build with multiple GHC versions and various build tools.
 + `-Werror` is enabled on CI not to miss any warnings.
 + Run HLint checks on CI.
@@ -363,6 +365,7 @@ Here is the list of the options that can be configured to suit your needs. If op
 | `gitignore`      | [Text]  | List of files you want added to the default `.gitignore`. (Ignored if `github = false`)                                                                              |
 | `noUpload`       | Bool    | Do not upload to GitHub, but create all GitHub related files if specified (Ignored if `github = false`)                                                              |
 | `private`        | Bool    | Create private repository by default? (Ignored if `github = false`)                                                                                                  |
+| `githubActions`  | Bool    | Turn on `GitHub Actions` integration by default?  (Currently working with `Cabal` only. Ignored if `github = false`)                                                 |
 | `travis`         | Bool    | Turn on `Travis` integration by default?  (Ignored if `github = false`)                                                                                              |
 | `appveyor`       | Bool    | Turn on `AppVeyor` integration by default?  (Ignored if `github = false`)                                                                                            |
 | `lib`            | Bool    | Create `src` folder with simple `ProjectName.hs` file and library target?                                                                                            |
@@ -437,6 +440,7 @@ Available command options:
   -h, --help               Show this help text
   -g, --github             Github integration
   -p, --private            Create private GitHub repository
+  -a, --actions            GitHub Actions CI integration
   -c, --travis             Travis CI integration
   -w, --app-veyor          AppVeyor CI integration
   -l, --library            Library target
@@ -474,10 +478,13 @@ Available options:
   -h, --help               Show this help text
 ```
 
-For example, the following command preconfigures the project settings with the custom prelude `relude`, included library, executable, test stanzas (but without benchmarks), creates a private repository on GitHub with the Travis CI and AppVeyor CI integrated.
+For example, the following command preconfigures the project settings with the
+custom prelude `relude`, included library, executable, test stanzas (but without
+benchmarks), creates a private repository on GitHub with the GitHub Actions CI,
+Travis CI and AppVeyor CI integrated.
 
 ```shell
-summon new my-project with -letgcpw without -b --prelude-package relude --prelude-module Relude
+summon new my-project with -letgcpwa without -b --prelude-package relude --prelude-module Relude
 ```
 
 ### TUI [↑](#structure)

@@ -33,9 +33,9 @@ import Development.GitRev (gitCommitDate, gitDirty, gitHash)
 import NeatInterpolation (text)
 import Options.Applicative (Parser, ParserInfo, ParserPrefs, argument, command, customExecParser,
                             flag, fullDesc, help, helpLongEquals, helper, info, infoFooter,
-                            infoHeader, infoOption, long, maybeReader, metavar, option, optional,
-                            prefs, progDesc, short, showHelpOnEmpty, strArgument, strOption,
-                            subparser, subparserInline, switch, value)
+                            infoHeader, infoOption, long, maybeReader, metavar, option, prefs,
+                            progDesc, short, showHelpOnEmpty, strArgument, strOption, subparser,
+                            subparserInline, switch, value)
 import Options.Applicative.Help.Chunk (stringChunk)
 import Relude.Extra.Enum (universe)
 import Relude.Extra.Validation (Validation (..))

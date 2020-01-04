@@ -66,6 +66,7 @@ data SummonForm
     | GitHubDisable
     | GitHubNoUpload
     | GitHubPrivate
+    | GitHubActions
     | GitHubTravis
     | GitHubAppVeyor
     deriving stock (Show, Eq, Ord, Enum, Bounded)
@@ -121,6 +122,7 @@ mkForm sk = setFormConcat arrangeColumns $ newForm
             ]
         , 1 |> activeCheckboxField (gitHub . noUpload) isActive GitHubNoUpload "No upload"
         , 1 |> activeCheckboxField (gitHub . private)  isActive GitHubPrivate  "Private"
+        , 1 |> activeCheckboxField (gitHub . actions)  isActive GitHubActions  "GitHub Actions"
         , 1 |> activeCheckboxField (gitHub . travis)   isActive GitHubTravis   "Travis"
         , 2 |> activeCheckboxField (gitHub . appVeyor) isActive GitHubAppVeyor "AppVeyor"
         ]
@@ -142,6 +144,7 @@ isActive :: SummonKit -> SummonForm -> Bool
 isActive kit = \case
     GitHubNoUpload -> isGitHubEnabled
     GitHubPrivate  -> isGitHubEnabled && isUploadEnabled
+    GitHubActions  -> isGitHubEnabled && (kit ^. cabal)
     GitHubTravis   -> isGitHubEnabled
     GitHubAppVeyor -> isGitHubEnabled
     _ -> True

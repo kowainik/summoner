@@ -3,6 +3,20 @@
 `summoner` uses [PVP Versioning][1].
 The changelog is available [on GitHub][2].
 
+## 2.0.0.0 – Unreleased
+
+* [#351](https://github.com/kowainik/summoner/issues/351)
+  [#395](https://github.com/kowainik/summoner/issues/395):
+  __#CLI__ __#TUI__
+  Add GitHub Actions CI check as an option for the generated
+  project.
+
+  Add `-a` or `--actions` CLI option for GitHub actions.
+  Add `GitHub Actions` entry into interactive CLI mode.
+  Add `GitHub Actions` button into TUI.
+  Add `githubActions` to the TOML configs.
+  (by [patrickt](https://github.com/patrickt), [@vrom911](https://github.com/vrom911))
+
 ## 1.4.0.0 – Dec 25, 2019 🎅
 
 * [#339](https://github.com/kowainik/summoner/issues/339):

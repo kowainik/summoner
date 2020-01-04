@@ -171,6 +171,7 @@ appNew dirs = App
         -> SummonForm
         -> EventM SummonForm (Next (KitForm e))
     handleCheckboxActivation ev form = \case
+        CabalField     -> withForm ev form mkNewForm
         StackField     -> withForm ev form mkNewForm
         GitHubEnable   -> withForm ev form mkNewForm
         GitHubDisable  -> withForm ev form mkNewForm
@@ -221,7 +222,7 @@ drawNew dirs kitForm = case kit ^. shouldSummon of
     form = borderLabel "Summon new project" (renderForm kitForm)
 
     tree :: Widget SummonForm
-    tree = hLimitPercent 25 $ vLimit 21 $ borderLabel "Project Structure" $ vBox
+    tree = hLimitPercent 25 $ vLimit 22 $ borderLabel "Project Structure" $ vBox
         [ withAttr "tree" $ txt $ renderWidgetTree kit
         -- to fill all the space that widget should take.
         , fill ' '
