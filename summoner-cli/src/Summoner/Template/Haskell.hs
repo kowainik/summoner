@@ -85,7 +85,7 @@ haskellFiles Settings{..} = concat
         module Main (main) where
 
         main :: IO ()
-        main = putStrLn ("Test suite not yet implemented" :: String)
+        main = putStrLn ("Test suite is not implemented" :: String)
         |]
 
     benchmarkFile :: TreeFs
