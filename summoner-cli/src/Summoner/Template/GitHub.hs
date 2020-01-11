@@ -110,7 +110,7 @@ gitHubFiles Settings{..} = concat
 
     ghActionsYml :: Text
     ghActionsYml = [text|
-        name: Haskell CI
+        name: CI
 
         on:
           # Trigger the workflow on push or pull request,
