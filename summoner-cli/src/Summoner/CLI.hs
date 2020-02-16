@@ -28,8 +28,9 @@ module Summoner.CLI
        , getFinalConfig
        ) where
 
+import Colourista (blue, bold, formatWith)
 import Data.Version (Version, showVersion)
-import Development.GitRev (gitCommitDate, gitDirty, gitHash)
+import Development.GitRev (gitCommitDate, gitHash)
 import NeatInterpolation (text)
 import Options.Applicative (Parser, ParserInfo, ParserPrefs, argument, command, customExecParser,
                             flag, fullDesc, help, helpLongEquals, helper, info, infoFooter,
@@ -43,8 +44,7 @@ import Shellmet (($?), ($|))
 import System.Directory (doesFileExist)
 import System.Info (os)
 
-import Summoner.Ansi (blueCode, boldCode, errorMessage, infoMessage, redCode, resetCode,
-                      successMessage, warningMessage)
+import Summoner.Ansi (errorMessage, infoMessage, successMessage, warningMessage)
 import Summoner.Config (Config, ConfigP (..), PartialConfig, defaultConfig, finalise,
                         loadFileConfig)
 import Summoner.CustomPrelude (CustomPrelude (..))
@@ -271,14 +271,12 @@ versionP version = infoOption (summonerVersion version)
    <> help "Show summoner's version"
 
 summonerVersion :: Version -> String
-summonerVersion version = toString
-    $ intercalate "\n"
-    $ [sVersion, sHash, sDate] ++ [sDirty | $(gitDirty)]
+summonerVersion version = intercalate "\n" [sVersion, sHash, sDate]
   where
-    sVersion = blueCode <> boldCode <> "Summoner " <> "v" <>  showVersion version <> resetCode
-    sHash = " ➤ " <> blueCode <> boldCode <> "Git revision: " <> resetCode <> $(gitHash)
-    sDate = " ➤ " <> blueCode <> boldCode <> "Commit date:  " <> resetCode <> $(gitCommitDate)
-    sDirty = redCode <> "There are non-committed files." <> resetCode
+    sVersion, sHash, sDate :: String
+    sVersion = formatWith [blue, bold] $ "Summoner " <> "v" <>  showVersion version
+    sHash = " ➤ " <> formatWith [blue, bold] "Git revision: " <> $(gitHash)
+    sDate = " ➤ " <> formatWith [blue, bold] "Commit date:  " <> $(gitCommitDate)
 
 -- All possible commands.
 summonerP :: Parser Command

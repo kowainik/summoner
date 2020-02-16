@@ -1,3 +1,8 @@
-packages: summoner-cli/ summoner-tui/
+packages:
+    summoner-cli/
+    summoner-tui/
 
-tests: True
+source-repository-package
+    type: git
+    location: https://github.com/kowainik/colourista.git
+    tag: 2af9bd20144333d75ea2e472e60e078c8df32094

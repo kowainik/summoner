@@ -13,7 +13,6 @@ module Summoner.Source
        , fetchSource
        ) where
 
-import Control.Arrow ((>>>))
 import Control.Exception (catch)
 import System.Process (readProcess)
 import Toml (Key, TomlBiMap, TomlBiMapError (..), TomlCodec)
