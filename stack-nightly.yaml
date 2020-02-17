@@ -6,5 +6,6 @@ packages:
 
 extra-deps:
   - brick-0.50
+  - colourista-0.0.0.0
   - vty-5.26
   - tomland-1.2.1.0
