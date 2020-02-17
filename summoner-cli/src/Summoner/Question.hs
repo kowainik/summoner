@@ -46,6 +46,8 @@ import qualified Data.Text as T
 import qualified Relude.Unsafe as Unsafe
 
 
+{- HLINT ignore "Redundant multi-way if" -}
+
 {- | Build a prompt
 
 For example,
