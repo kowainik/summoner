@@ -21,6 +21,7 @@ let
   unpackSymlinks = hp: pkgs.haskell.lib.overrideCabal hp (drv: {
     postUnpack = ''
       cp --remove-destination ${./README.md} $sourceRoot/README.md
+      cp --remove-destination ${./CHANGELOG.md} $sourceRoot/CHANGELOG.md
       cp --remove-destination ${./LICENSE} $sourceRoot/LICENSE
     '';
   });

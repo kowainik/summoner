@@ -265,6 +265,12 @@ Build and install using `stack`:
 stack install summoner-tui:exe:summon-tui
 ```
 
+Build and install using `nix`:
+
+```shell
+nix-env --install --file default.nix -A summoner-tui
+```
+
 #### Summon-CLI [↑](#structure)
 
 ##### CLI: download binary [↑](#structure)
@@ -323,6 +329,12 @@ Build and install using `stack`:
 
 ```shell
 stack install summoner:exe:summon
+```
+
+Build and install using `nix`:
+
+```shell
+nix-env --install --file default.nix -A summoner
 ```
 
 ### Setup [↑](#structure)
