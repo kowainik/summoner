@@ -2,7 +2,7 @@
   # the time of this writing has GHC 8.6.5 as the default compiler (matching the
   # one used by stack.yaml). Use https://howoldis.herokuapp.com/ to determine
   # the current rev.
-  pkgs ? import (builtins.fetchTarball "https://github.com/nixos/nixpkgs/archive/ed07403382c.tar.gz") {}
+  pkgs ? import (builtins.fetchTarball "https://github.com/nixos/nixpkgs/archive/d5bf8b23592.tar.gz") {}
   # Which GHC compiler to use.
   # To determine the list of compilers available run:
   #   nix-env -f "<nixpkgs>" -qaP -A haskell.compiler
@@ -33,13 +33,13 @@ let
     };
   }).extend (pkgs.haskell.lib.packageSourceOverrides {
     relude = fetchGitHubArchive "kowainik" "relude"
-      "55968311244690f5cc8b4484a37a63d988ea2ec4";
+    "4518c2a87fc2966e7922cef0c78eea1026582dc4";
     tomland = fetchGitHubArchive "kowainik" "tomland"
-      "8ef78e5fcfd7055b1db6402713d27a0aa42a82f8";
+    "d906bd9e6d63b8063955fa7382da6fe7f10f6461";
     shellmet = fetchGitHubArchive "kowainik" "shellmet"
-      "36149eb0eb2b81916a93cdb92f3cb949d2eb9d23";
+    "db4507020f17dc6c7253cf94ffc0bab8ab10bcd8";
     optparse-applicative = fetchGitHubArchive "pcapriotti" "optparse-applicative"
-      "5478fc16cbd3384c19e17348a17991896c724a3c";
+      "b861da1e6b021d6abd75ff7e9a4277939aa7a541";
   });
 
   # Summoner project shell.
