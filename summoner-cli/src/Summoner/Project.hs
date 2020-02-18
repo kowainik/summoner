@@ -14,14 +14,14 @@ module Summoner.Project
        , fetchSources
        ) where
 
+import Colourista (bold, formattedMessage, green)
 import Data.List (intersect)
 import NeatInterpolation (text)
 import Relude.Extra.Enum (universe)
 import Shellmet ()
 import System.Directory (setCurrentDirectory)
 
-import Summoner.Ansi (Color (Green), beautyPrint, bold, errorMessage, infoMessage, setColor,
-                      skipMessage, successMessage, warningMessage)
+import Summoner.Ansi (errorMessage, infoMessage, skipMessage, successMessage, warningMessage)
 import Summoner.Config (Config, ConfigP (..))
 import Summoner.CustomPrelude (CustomPrelude (..))
 import Summoner.Decision (Decision (..), decisionToBool)
@@ -216,7 +216,7 @@ initializeProject :: Settings -> IO ()
 initializeProject settings@Settings{..} = do
     createProjectDirectory settings
     when settingsGitHub $ doGithubCommands settings
-    beautyPrint [bold, setColor Green] "\nJob's done\n"
+    formattedMessage [bold, green] "\nJob's done"
 
 {- | This function fetches contents of extra file sources.
 -}

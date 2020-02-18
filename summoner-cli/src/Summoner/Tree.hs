@@ -17,10 +17,9 @@ module Summoner.Tree
        , showTree
        ) where
 
+import Colourista (bold, reset)
 import System.Directory (createDirectoryIfMissing, withCurrentDirectory)
 import System.FilePath (splitDirectories)
-
-import Summoner.Ansi (boldCode, resetCode)
 
 
 -- | Describes simple structure of filesystem tree.
@@ -55,11 +54,11 @@ pathToTree :: FilePath -> Text -> TreeFs
 pathToTree path content =
     let pathParts = splitDirectories path
     in case pathParts of
-        [] -> Dir path []  -- shouldn't happen
+        []   -> Dir path []  -- shouldn't happen
         x:xs -> go x xs
   where
     go :: FilePath -> [FilePath] -> TreeFs
-    go p [] = File p content
+    go p []     = File p content
     go p (x:xs) = Dir p [go x xs]
 
 {- | This functions inserts given 'TreeFs' node into the list of existing
@@ -103,7 +102,7 @@ showTree isBold = unlines . showOne "  " "" ""
             boldDir :: FilePath -> Text
             boldDir str = toText $
                 if isBold
-                then boldCode <> str <> resetCode
+                then bold <> str <> reset
                 else str
 
         extension :: Text

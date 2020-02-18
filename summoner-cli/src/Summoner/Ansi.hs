@@ -7,20 +7,9 @@ This module contains functions for colorful printing into terminal.
 -}
 
 module Summoner.Ansi
-       ( Color (..)
+       ( boldDefault
        , putStrFlush
-       , beautyPrint
-       , boldCode
-       , blueCode
-       , bold
-       , boldText
-       , boldDefault
-       , italic
-       , redCode
-       , reset
-       , resetCode
        , prompt
-       , setColor
        , successMessage
        , warningMessage
        , errorMessage
@@ -28,10 +17,10 @@ module Summoner.Ansi
        , skipMessage
        ) where
 
-import System.Console.ANSI (Color (..), ColorIntensity (Vivid), ConsoleIntensity (BoldIntensity),
-                            ConsoleLayer (Foreground), SGR (..), setSGR, setSGRCode)
+import Colourista (blue, bold, formatWith)
 import System.IO (hFlush)
 
+import qualified Colourista
 import qualified Data.Text as T
 
 
@@ -41,57 +30,23 @@ putStrFlush msg = do
     putText msg
     hFlush stdout
 
-setColor :: Color -> IO ()
-setColor color = setSGR [SetColor Foreground Vivid color]
-
--- | Starts bold printing.
-bold :: IO ()
-bold = setSGR [SetConsoleIntensity BoldIntensity]
-
-italic :: IO ()
-italic = setSGR [SetItalicized True]
-
--- | Resets all previous settings.
-reset :: IO ()
-reset = do
-    setSGR [Reset]
-    hFlush stdout
-
--- | Takes list of formatting options, prints text using this format options.
-beautyPrint :: [IO ()] -> Text -> IO ()
-beautyPrint formats msg = do
-    sequence_ formats
-    putText msg
-    reset
-
+{- | Read 'Text' from standard input after arrow prompt.
+-}
 prompt :: IO Text
 prompt = do
-    setColor Blue
-    putStrFlush "  ->   "
-    reset
+    putStrFlush $ formatWith [blue] "  ->   "
     T.strip <$> getLine
 
-boldText :: Text -> IO ()
-boldText message = bold >> putStrFlush message >> reset
-
-boldDefault :: Text -> IO ()
-boldDefault message = boldText (" [" <> message <> "]")
-
-colorMessage :: Color -> Text -> IO ()
-colorMessage color message = do
-    setColor color
-    putTextLn $ "  " <> message
-    reset
+boldDefault :: Text -> Text
+boldDefault message = formatWith [bold] $ " [" <> message <> "]"
 
 errorMessage, warningMessage, successMessage, infoMessage, skipMessage :: Text -> IO ()
-errorMessage   = colorMessage Red
-warningMessage = colorMessage Yellow
-successMessage = colorMessage Green
-infoMessage    = colorMessage Blue
-skipMessage    = colorMessage Cyan
+errorMessage   = Colourista.errorMessage   . indent
+warningMessage = Colourista.warningMessage . indent
+successMessage = Colourista.successMessage . indent
+infoMessage    = Colourista.infoMessage    . indent
+skipMessage    = Colourista.skipMessage    . indent
 
-blueCode, boldCode, redCode, resetCode :: String
-redCode   = setSGRCode [SetColor Foreground Vivid Red]
-blueCode  = setSGRCode [SetColor Foreground Vivid Blue]
-boldCode  = setSGRCode [SetConsoleIntensity BoldIntensity]
-resetCode = setSGRCode [Reset]
+-- | Add 2 spaces in front.
+indent :: Text -> Text
+indent = ("  " <>)

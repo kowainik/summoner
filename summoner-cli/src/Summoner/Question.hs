@@ -35,16 +35,18 @@ module Summoner.Question
        , falseMessage
        ) where
 
+import Colourista (bold, cyan, formatWith, formattedMessage, green, italic)
 import System.Directory (doesPathExist, getCurrentDirectory)
 import System.FilePath ((</>))
 
-import Summoner.Ansi (Color (..), beautyPrint, bold, boldDefault, errorMessage, italic, prompt,
-                      putStrFlush, setColor, warningMessage)
+import Summoner.Ansi (boldDefault, errorMessage, prompt, putStrFlush, warningMessage)
 import Summoner.Text (headToUpper, intercalateMap)
 
 import qualified Data.Text as T
 import qualified Relude.Unsafe as Unsafe
 
+
+{- HLINT ignore "Redundant multi-way if" -}
 
 {- | Build a prompt
 
@@ -115,8 +117,7 @@ printQuestion
     -> IO ()
 printQuestion question [] = putTextLn question
 printQuestion question (def:rest) = do
-    putStrFlush question
-    boldDefault def
+    putStrFlush $ question <> boldDefault def
     let restSlash = T.intercalate "/" rest
     if restSlash == ""
     then putTextLn ""
@@ -166,13 +167,13 @@ chooseYesNoBool ynPrompt = chooseYesNo ynPrompt (pure True) (pure False)
 targetMessageWithText :: Bool -> Text -> Text -> IO Bool
 targetMessageWithText result target text = do
     let (color, actionResult) = if result
-          then (Green, " will be "  <> text)
-          else (Cyan,  " won't be " <> text)
+          then (green, " will be "  <> text)
+          else (cyan,  " won't be " <> text)
 
-    beautyPrint [italic, bold, setColor color] $ "  " <> headToUpper target
-    beautyPrint [setColor color] actionResult
-    putTextLn ""
-
+    putTextLn $ mconcat
+            [ formatWith [italic, bold, color] $ "  " <> headToUpper target
+            , formatWith [color] actionResult
+            ]
     pure result
 
 -- | Like 'targetMessageWithText' but the text is "added to the project"
@@ -202,7 +203,7 @@ queryWithPredicate question options instruction p = loop
     loop :: IO Text
     loop = do
         printQuestion question options
-        beautyPrint [italic] $ instruction <> "\n"
+        formattedMessage [italic] instruction
         input <- prompt
         if input /= "" && not (p input)
         then errorMessage ("'" <> input <> "' doesn't satisfy the requirements.") >> loop
@@ -222,9 +223,7 @@ queryNotNull question = do
 -- | Like 'query' but has the default answer if no answer is specified.
 queryDef :: Text -> Text -> IO Text
 queryDef question defAnswer = do
-    putStrFlush question
-    boldDefault defAnswer
-    putTextLn ""
+    putTextLn $ question <> boldDefault defAnswer
     answer <- prompt
     if | T.null answer -> pure defAnswer
        | otherwise     -> pure answer

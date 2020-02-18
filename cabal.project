@@ -1,3 +1,3 @@
-packages: summoner-cli/ summoner-tui/
-
-tests: True
+packages:
+    summoner-cli/
+    summoner-tui/
