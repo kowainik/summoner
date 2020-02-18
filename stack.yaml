@@ -5,6 +5,7 @@ packages:
   - summoner-tui/
 
 extra-deps:
+  - ansi-terminal-0.10.3
   - colourista-0.0.0.0
   - optparse-applicative-0.15.0.0
   - relude-0.6.0.0
