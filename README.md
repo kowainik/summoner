@@ -626,14 +626,7 @@ for Cabal and
 stack build
 ```
 
-for Stack and
-
-```shell=
-nix-build -A summoner     # To build the CLI only
-nix-build -A summoner-tui # To build the TUI
-```
-
-for Nix.
+for Stack.
 
 ### Test [↑](#structure)
 
