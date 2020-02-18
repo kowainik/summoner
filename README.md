@@ -638,16 +638,10 @@ To actually run tests you need to run:
 cabal new-test all
 ```
 
-or, if using Stack,
+or, if using Stack
 
 ```shell
 stack test
-```
-
-or, if using Nix,
-
-```shell
-nix-shell --run 'cabal new-test all'
 ```
 
 ### Run [↑](#structure)
@@ -659,18 +653,11 @@ cabal new-exec summon -- SOME_COMMAND
 cabal new-exec summon-tui -- SOME_COMMAND
 ```
 
-or, if using Stack,
+or, if using Stack
 
 ```shell
 stack exec summon -- SOME_COMMAND
 stack exec summon-tui -- SOME_COMMAND
-```
-
-or, if using Nix,
-
-```shell
-nix-shell --run 'cabal new-run summon -- SOME_COMMAND'
-nix-shell --run 'cabal new-run summon-tui -- SOME_COMMAND'
 ```
 
 ## Acknowledgments [↑](#structure)
