@@ -16,6 +16,9 @@ The changelog is available [on GitHub][2].
   Add `GitHub Actions` button into TUI.
   Add `githubActions` to the TOML configs.
   (by [patrickt](https://github.com/patrickt), [@vrom911](https://github.com/vrom911))
+* [#401](https://github.com/kowainik/summoner/issues/401):
+  Support GHC-8.8.2 in the project.
+  Make GHC-8.8.2 default for the generated projects.
 
 ## 1.4.0.0 – Dec 25, 2019 🎅
 
