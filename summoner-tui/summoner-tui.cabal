@@ -74,7 +74,7 @@ library
   autogen-modules:     Paths_summoner_tui
   other-modules:       Paths_summoner_tui
 
-  build-depends:       brick >= 0.47 && < 0.51
+  build-depends:       brick >= 0.47 && < 0.53
                      , directory ^>= 1.3.0.2
                      , filepath ^>= 1.4.1.2
                      , microlens ^>= 0.4

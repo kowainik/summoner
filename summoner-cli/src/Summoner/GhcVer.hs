@@ -62,7 +62,7 @@ latestLts = \case
     Ghc802  -> "lts-9.21"
     Ghc822  -> "lts-11.22"
     Ghc844  -> "lts-12.26"
-    Ghc865  -> "lts-14.18"
+    Ghc865  -> "lts-14.27"
     Ghc882  -> "lts-15.0"
 
 -- | Represents PVP versioning (4 numbers).
@@ -144,4 +144,4 @@ formatGhcMeta GhcMeta{..} =
     <> "  "
     <> T.justifyLeft 14 ' ' gmBase
     <> "  "
-    <> T.justifyLeft 18 ' ' gmResolver
+    <> gmResolver
