@@ -15,12 +15,20 @@ The changelog is available [on GitHub][2].
   Add `GitHub Actions` entry into interactive CLI mode.
   Add `GitHub Actions` button into TUI.
   Add `githubActions` to the TOML configs.
-  (by [patrickt](https://github.com/patrickt), [@vrom911](https://github.com/vrom911))
+  (by [@patrickt](https://github.com/patrickt), [@vrom911](https://github.com/vrom911))
 * [#401](https://github.com/kowainik/summoner/issues/401):
   Support GHC-8.8.2 in the project.
   Make GHC-8.8.2 default for the generated projects.
+  (by [@vrom911](https://github.com/vrom911))
 * Upgrade GHC-8.6.5 LTS to `14.27`.
+  (by [@vrom911](https://github.com/vrom911))
+* [#363](https://github.com/kowainik/summoner/issues/363):
+  Move from `generic-deriving` to `generic-data`.
+  (by [@chshersh](https://github.com/chshersh))
+* Use `colourista` for pretty terminal formatting.
+  (by [@chshersh](https://github.com/chshersh))
 * __#TUI__ Allow `brick-0.52`.
+  (by [@vrom911](https://github.com/vrom911))
 
 ## 1.4.0.0 – Dec 25, 2019 🎅
 

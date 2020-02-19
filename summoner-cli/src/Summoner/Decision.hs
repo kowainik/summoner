@@ -11,9 +11,6 @@ module Summoner.Decision
        , decisionToBool
        ) where
 
-import Generics.Deriving.Monoid (GMonoid (..))
-import Generics.Deriving.Semigroup (GSemigroup (..))
-
 import Summoner.Question (YesNoPrompt (..), chooseYesNoBool, falseMessage, trueMessage)
 
 
@@ -33,13 +30,6 @@ instance Semigroup Decision where
 instance Monoid Decision where
     mempty  = Idk
     mappend = (<>)
-
-instance GSemigroup Decision where
-    gsappend = (<>)
-
-instance GMonoid Decision where
-    gmempty = mempty
-    gmappend = (<>)
 
 decisionToBool :: Decision -> YesNoPrompt -> IO Bool
 decisionToBool decision target@YesNoPrompt {..} = case decision of
