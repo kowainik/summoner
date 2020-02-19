@@ -1,5 +1,3 @@
-{-# OPTIONS_GHC -fno-warn-orphans #-}
-
 {-# LANGUAGE DataKinds            #-}
 {-# LANGUAGE DeriveAnyClass       #-}
 {-# LANGUAGE FlexibleContexts     #-}
@@ -30,8 +28,7 @@ module Summoner.Config
        ) where
 
 import Data.List (lookup)
-import Generics.Deriving.Monoid (GMonoid (..), gmemptydefault)
-import Generics.Deriving.Semigroup (GSemigroup (..), gsappenddefault)
+import Generic.Data (gmappend, gmempty)
 import Relude.Extra.Validation (Validation (..))
 import Toml (Key, TomlBiMap, TomlCodec, (.=))
 
@@ -48,6 +45,14 @@ import qualified Toml
 data Phase
     = Partial
     | Final
+
+{- | Type family to map 'Phase' to the corresponding field. This is a
+Higher-Kinded Data approach specialised to custom enumeration.
+-}
+infixl 3 :-
+type family phase :- field where
+    'Partial :- field = Last field
+    'Final   :- field = field
 
 -- | Potentially incomplete configuration.
 data ConfigP (p :: Phase) = Config
@@ -77,18 +82,6 @@ data ConfigP (p :: Phase) = Config
     , cFiles        :: !(Map FilePath Source)  -- ^ Custom files
     } deriving stock (Generic)
 
-deriving anyclass instance
-    ( GSemigroup (p :- Text)
-    , GSemigroup (p :- LicenseName)
-    , GSemigroup (p :- [GhcVer])
-    ) => GSemigroup (ConfigP p)
-
-deriving anyclass instance
-    ( GMonoid (p :- Text)
-    , GMonoid (p :- LicenseName)
-    , GMonoid (p :- [GhcVer])
-    ) => GMonoid (ConfigP p)
-
 deriving stock instance
     ( Eq (p :- Text)
     , Eq (p :- LicenseName)
@@ -101,30 +94,18 @@ deriving stock instance
     , Show (p :- [GhcVer])
     ) => Show (ConfigP p)
 
-infixl 3 :-
-type family phase :- field where
-    'Partial :- field = Last field
-    'Final   :- field = field
+instance Semigroup PartialConfig where
+    (<>) = gmappend
+
+instance Monoid PartialConfig where
+    mempty  = gmempty
+    mappend = (<>)
 
 -- | Incomplete configurations.
 type PartialConfig = ConfigP 'Partial
 
 -- | Complete configurations.
 type Config = ConfigP 'Final
-
-instance Semigroup PartialConfig where
-    (<>) = gsappenddefault
-
-instance Monoid PartialConfig where
-    mempty = gmemptydefault
-    mappend = (<>)
-
-instance Ord k => GSemigroup (Map k v) where
-    gsappend = (<>)
-
-instance Ord k => GMonoid (Map k v) where
-    gmempty = mempty
-    gmappend = (<>)
 
 -- | Default 'Config' configurations.
 defaultConfig :: PartialConfig
