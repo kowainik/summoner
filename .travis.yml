@@ -18,14 +18,12 @@ matrix:
   - ghc: 8.2.2
   - ghc: 8.4.4
   - ghc: 8.6.5
-  - ghc: 8.8.1
+  - ghc: 8.8.2
 
   # Stack, linux
 
-  - ghc: 8.6.5
+  - ghc: 8.8.2
     env: STACK_YAML="$TRAVIS_BUILD_DIR/stack.yaml" DEPLOY=yes
-  - ghc: 8.8.1
-    env: STACK_YAML="$TRAVIS_BUILD_DIR/stack-nightly.yaml" DEPLOY=no
 
 #  Disabled because of Travis bugs
 #  # macOS build
@@ -39,8 +37,8 @@ install:
 
   - |
     if [ -z "$STACK_YAML" ]; then
-      cabal new-update
-      cabal new-build all --enable-tests --enable-benchmarks
+      cabal v2-update
+      cabal v2-build all --enable-tests --enable-benchmarks
     else
       # install stack
       curl -sSL https://get.haskellstack.org/ | sh
@@ -53,7 +51,7 @@ install:
 script:
   - |
     if [ -z "$STACK_YAML" ]; then
-      cabal new-test all --enable-tests
+      cabal v2-test all --enable-tests
 
       echo "Testing that generated projects are built with cabal..."
       cd "$TRAVIS_BUILD_DIR/summoner-cli/test/golden/smallProject/"
@@ -95,8 +93,3 @@ deploy:
 
 notifications:
   email: false
-  slack:
-    rooms:
-      - kowainik:n60CMbB0kfJHRmYKIPmjf7Tp
-    on_success: change
-    on_failure: always
