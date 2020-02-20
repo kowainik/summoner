@@ -32,6 +32,9 @@ The changelog is available [on GitHub][2].
 * [#246](https://github.com/kowainik/summoner/issues/246):
    Put common fields into common stanza `common-options`.
 * Bump default `cabal` version to `2.4` in the generated project.
+* [#394](https://github.com/kowainik/summoner/issues/394):
+  Do not crush when `hub` is not installed. Instead, print descriptive warning
+  message.
 
 ## 1.4.0.0 – Dec 25, 2019 🎅
 
