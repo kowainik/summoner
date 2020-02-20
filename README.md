@@ -190,7 +190,7 @@ To start using Summoner make sure that you have the following tools installed on
 
 We also have minimal version requirements for build tools:
 
-* [Cabal >= 2.2](https://www.haskell.org/cabal/)
+* [Cabal >= 2.4](https://www.haskell.org/cabal/)
 * [Stack >= 2.1](http://haskellstack.org)
 
 However, it is always recommended to use the newest versions of build tools.
