@@ -35,9 +35,9 @@ cabalFile Settings{..} = File (toString settingsRepo ++ ".cabal") cabalFileConte
         [ cabalHeader
         , memptyIfFalse settingsGitHub sourceRepository
         , commonStanza
-        , memptyIfFalse settingsIsLib   libraryStanza
-        , memptyIfFalse settingsIsExe $ executableStanza
-        , memptyIfFalse settingsTest  $ testSuiteStanza
+        , memptyIfFalse settingsIsLib libraryStanza
+        , memptyIfFalse settingsIsExe executableStanza
+        , memptyIfFalse settingsTest  testSuiteStanza
         , memptyIfFalse settingsBench $ benchmarkStanza $ memptyIfFalse settingsIsLib $ ", " <> settingsRepo
         ]
 
