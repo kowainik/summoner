@@ -34,10 +34,11 @@ cabalFile Settings{..} = File (toString settingsRepo ++ ".cabal") cabalFileConte
     cabalFileContent = T.concat
         [ cabalHeader
         , memptyIfFalse settingsGitHub sourceRepository
+        , commonStanza
         , memptyIfFalse settingsIsLib   libraryStanza
-        , memptyIfFalse settingsIsExe $ executableStanza $ memptyIfFalse settingsIsLib $ ", " <> settingsRepo
-        , memptyIfFalse settingsTest  $ testSuiteStanza  $ memptyIfFalse settingsIsLib $ ", " <> settingsRepo
-        , memptyIfFalse settingsBench $ benchmarkStanza  $ memptyIfFalse settingsIsLib $ ", " <> settingsRepo
+        , memptyIfFalse settingsIsExe $ executableStanza
+        , memptyIfFalse settingsTest  $ testSuiteStanza
+        , memptyIfFalse settingsBench $ benchmarkStanza $ memptyIfFalse settingsIsLib $ ", " <> settingsRepo
         ]
 
     -- TODO: do something to not have empty lines
@@ -58,7 +59,7 @@ cabalFile Settings{..} = File (toString settingsRepo ++ ".cabal") cabalFileConte
         [ "category:            " <> settingsCategories | "" /= settingsCategories ] ++
         [ "build-type:          Simple"
         , "extra-doc-files:     README.md"
-        , "                   , CHANGELOG.md"
+        , "                     CHANGELOG.md"
         , "tested-with:         " <> testedGhcs
         ]
 
@@ -72,7 +73,7 @@ cabalFile Settings{..} = File (toString settingsRepo ++ ".cabal") cabalFileConte
 
     testedGhcs :: Text
     testedGhcs = intercalateMap
-        ("\n" <> T.replicate 19 " " <> ", ")
+        ("\n" <> T.replicate 21 " ")
         (mappend "GHC == " . showGhcVer)
         settingsTestedVersions
 
@@ -85,6 +86,21 @@ cabalFile Settings{..} = File (toString settingsRepo ++ ".cabal") cabalFileConte
           location:            ${githubUrl}.git
         |]
 
+
+    commonStanza :: Text
+    commonStanza =
+        [text|
+        $endLine
+        common common-options
+          build-depends:       $settingsBaseType $baseBounds
+                             $commaPreludeLibrary
+
+          ghc-options:         -Wall
+                               $ghcOptions
+
+          default-language:    Haskell2010
+    |] <> defaultExtensions
+
     baseBounds :: Text
     baseBounds = cabalBaseVersions settingsTestedVersions
 
@@ -93,85 +109,65 @@ cabalFile Settings{..} = File (toString settingsRepo ++ ".cabal") cabalFileConte
         [text|
         $endLine
         library
+          import:              common-options
           hs-source-dirs:      src
           exposed-modules:     $libModuleName
                                $preludeMod
+        |]
 
-          build-depends:       $settingsBaseType $baseBounds
-                             $commaPreludeLibrary
-
-          ghc-options:         -Wall
-                               $ghcOptions
-
-          default-language:    Haskell2010
-        |] <> defaultExtensions
-
-    executableStanza :: Text -> Text
-    executableStanza commaRepo =
+    executableStanza :: Text
+    executableStanza =
         [text|
         $endLine
         executable $settingsRepo
+          import:              common-options
           hs-source-dirs:      app
           main-is:             Main.hs
+          $buildDepends
+          $rtsOptions
+        |]
 
-          build-depends:       $settingsBaseType $baseBounds
-                             $commaRepo
-                             $commaPreludeLibrary
-
-          ghc-options:         -Wall
-                               -threaded
-                               -rtsopts
-                               -with-rtsopts=-N
-                               $ghcOptions
-
-          default-language:    Haskell2010
-        |] <> defaultExtensions
-
-    testSuiteStanza :: Text -> Text
-    testSuiteStanza commaRepo =
+    testSuiteStanza :: Text
+    testSuiteStanza =
         [text|
         $endLine
         test-suite ${settingsRepo}-test
+          import:              common-options
           type:                exitcode-stdio-1.0
           hs-source-dirs:      test
           main-is:             Spec.hs
-
-          build-depends:       $settingsBaseType $baseBounds
-                             $commaRepo
-                             $commaPreludeLibrary
-
-          ghc-options:         -Wall
-                               -threaded
-                               -rtsopts
-                               -with-rtsopts=-N
-                               $ghcOptions
-
-          default-language:    Haskell2010
-        |] <> defaultExtensions
+          $buildDepends
+          $rtsOptions
+        |]
 
     benchmarkStanza :: Text -> Text
     benchmarkStanza commaRepo =
         [text|
         $endLine
         benchmark ${settingsRepo}-benchmark
+          import:              common-options
           type:                exitcode-stdio-1.0
           hs-source-dirs:      benchmark
           main-is:             Main.hs
-
-          build-depends:       $settingsBaseType $baseBounds
-                             , gauge
+          build-depends:       gauge
                              $commaRepo
-                             $commaPreludeLibrary
+          $rtsOptions
+          |]
 
-          ghc-options:         -Wall
-                               -threaded
-                               -rtsopts
-                               -with-rtsopts=-N
-                               $ghcOptions
+    -- | @build-depends@ for the repo, only if the library is on.
+    buildDepends :: Text
+    buildDepends =
+        if settingsIsLib
+        then "build-depends:       " <> settingsRepo
+        else ""
 
-          default-language:    Haskell2010
-        |] <> defaultExtensions
-
+    rtsOptions :: Text
+    rtsOptions =
+        [text|
+        ghc-options:         -threaded
+                             -rtsopts
+                             -with-rtsopts=-N
+        |]
 
     preludeMod, commaPreludeLibrary :: Text
     (preludeMod, commaPreludeLibrary) = case settingsPrelude of
