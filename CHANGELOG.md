@@ -29,6 +29,9 @@ The changelog is available [on GitHub][2].
   (by [@chshersh](https://github.com/chshersh))
 * __#TUI__ Allow `brick-0.52`.
   (by [@vrom911](https://github.com/vrom911))
+* [#246](https://github.com/kowainik/summoner/issues/246):
+   Put common fields into common stanza `common-options`.
+* Bump default `cabal` version to `2.4` in the generated project.
 
 ## 1.4.0.0 – Dec 25, 2019 🎅
 

@@ -28,7 +28,7 @@ defaultGHC = maxBound
 
 -- | Default version of the Cabal.
 defaultCabal :: Text
-defaultCabal = "2.0"
+defaultCabal = "2.4"
 
 defaultTomlFile :: FilePath
 defaultTomlFile = ".summoner.toml"

@@ -84,6 +84,7 @@ Features related to the structure and content of the generated projects.
 
 + Support for Cabal and Stack build tools.
 + Ability to pick stanzas (library, executable, test-suite, benchmark).
++ Usage of [common stanza](https://vrom911.github.io/blog/common-stanzas) to reduce `.cabal` file's boilerplate.
 + Option to include an alternative prelude, if desired. The project would then
   use [`base-noprelude` technique](http://hackage.haskell.org/package/Prelude),
   and the `Prelude` module would be added to the library target.
@@ -189,7 +190,7 @@ To start using Summoner make sure that you have the following tools installed on
 
 We also have minimal version requirements for build tools:
 
-* [Cabal >= 2.0](https://www.haskell.org/cabal/)
+* [Cabal >= 2.4](https://www.haskell.org/cabal/)
 * [Stack >= 2.1](http://haskellstack.org)
 
 However, it is always recommended to use the newest versions of build tools.
@@ -223,8 +224,8 @@ mv summon-cli-linux ~/.local/bin/summon
 Using `cabal`:
 
 ```shell
-cabal new-update
-cabal new-install summoner-tui
+cabal v2-update
+cabal v2-install summoner-tui
 ```
 
 Using `stack`:
@@ -256,7 +257,7 @@ cd summoner
 Build and install using `cabal`:
 
 ```shell
-cabal new-install summoner-tui:exe:summon-tui
+cabal v2-install summoner-tui:exe:summon-tui
 ```
 
 Build and install using `stack`:
@@ -283,8 +284,8 @@ mv summon-cli-linux ~/.local/bin/summon
 Using `cabal`:
 
 ```shell
-cabal new-update
-cabal new-install summoner
+cabal v2-update
+cabal v2-install summoner
 ```
 
 Using `stack`:
@@ -316,7 +317,7 @@ cd summoner
 Build and install using `cabal`:
 
 ```shell
-cabal new-install summoner-cli:exe:summon
+cabal v2-install summoner-cli:exe:summon
 ```
 
 Build and install using `stack`:
@@ -617,7 +618,7 @@ On Linux, to build the `summoner-tui` you'll need to have `libtinfo` installed. 
 To build the project you can use the following commands:
 
 ```shell=
-cabal new-build all
+cabal v2-build all
 ```
 
 for Cabal and
@@ -635,7 +636,7 @@ Summoner uses the golden tests technique for assuring the correctness of the gen
 To actually run tests you need to run:
 
 ```shell
-cabal new-test all
+cabal v2-test all
 ```
 
 or, if using Stack
@@ -649,8 +650,8 @@ stack test
 Building Summoner with the recommended method creates two executables: `summon` and `summon-tui`. To run the compiled executable you can use the following commands:
 
 ```shell
-cabal new-exec summon -- SOME_COMMAND
-cabal new-exec summon-tui -- SOME_COMMAND
+cabal v2-exec summon -- SOME_COMMAND
+cabal v2-exec summon-tui -- SOME_COMMAND
 ```
 
 or, if using Stack
