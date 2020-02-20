@@ -15,7 +15,7 @@ module Summoner.Template.Doc
        ( docFiles
        ) where
 
-import Summoner.License (License (..), LicenseName (None))
+import Summoner.License (License (..), LicenseName (NONE))
 import Summoner.Settings (Settings (..))
 import Summoner.Tree (TreeFs (..))
 
@@ -30,7 +30,7 @@ docFiles Settings{..} =
     maybeToList (File "CONTRIBUTING.md" <$> settingsContributing)
   where
     hasLicense :: Bool
-    hasLicense = settingsLicenseName /= None
+    hasLicense = settingsLicenseName /= NONE
 
     licenseName :: Text
     licenseName = show settingsLicenseName

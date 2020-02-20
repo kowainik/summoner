@@ -100,15 +100,15 @@ Features related to the structure and content of the generated projects.
 
   ```
   -Wall
-  -Wincomplete-uni-patterns
-  -Wincomplete-record-updates
   -Wcompat
   -Widentities
-  -Wredundant-constraints       (GHC >= 8.0)
-  -fhide-source-paths           (GHC >= 8.2.2)
-  -Wmissing-export-lists        (GHC >= 8.4.1)
-  -Wpartial-fields              (GHC >= 8.4.1)
-  -Wmissing-deriving-strategies (GHC >= 8.8.1)
+  -Wincomplete-uni-patterns
+  -Wincomplete-record-updates
+  -Wredundant-constraints       (GHC ⩾ 8.0)
+  -fhide-source-paths           (GHC ⩾ 8.2)
+  -Wmissing-export-lists        (GHC ⩾ 8.4)
+  -Wpartial-fields              (GHC ⩾ 8.4)
+  -Wmissing-deriving-strategies (GHC ⩾ 8.8)
   ```
 
   Besides, the following GHC options are added to the executable, tests and benchmark stanzas:
@@ -190,8 +190,8 @@ To start using Summoner make sure that you have the following tools installed on
 
 We also have minimal version requirements for build tools:
 
-* [Cabal >= 2.4](https://www.haskell.org/cabal/)
-* [Stack >= 2.1](http://haskellstack.org)
+* [Cabal ⩾ 2.4](https://www.haskell.org/cabal/)
+* [Stack ⩾ 2.1.3](http://haskellstack.org)
 
 However, it is always recommended to use the newest versions of build tools.
 

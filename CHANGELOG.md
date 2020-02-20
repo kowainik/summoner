@@ -25,6 +25,9 @@ The changelog is available [on GitHub][2].
 * [#363](https://github.com/kowainik/summoner/issues/363):
   Move from `generic-deriving` to `generic-data`.
   (by [@chshersh](https://github.com/chshersh))
+* [#361](https://github.com/kowainik/summoner/issues/361):
+  Always put all warnings in `ghc-options` inside common stanza under `if`s.
+  (by [@chshersh](https://github.com/chshersh))
 * Use `colourista` for pretty terminal formatting.
   (by [@chshersh](https://github.com/chshersh))
 * __#TUI__ Allow `brick-0.52`.

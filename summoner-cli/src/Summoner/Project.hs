@@ -63,7 +63,7 @@ generateProject isOffline projectName Config{..} = do
 
     putText licenseText
     settingsLicenseName  <- if isOffline
-        then None <$ infoMessage "'AllRightsReserved' license is used in offline mode"
+        then NONE <$ infoMessage "'NONE' license is used in offline mode"
         else choose parseLicenseName "License: " $ ordNub (cLicense : universe)
 
     -- License creation

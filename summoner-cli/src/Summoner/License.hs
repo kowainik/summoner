@@ -10,7 +10,6 @@ to work with them.
 module Summoner.License
        ( LicenseName(..)
        , License(..)
-       , cabalLicense
        , customizeLicense
        , githubLicenseQueryNames
        , parseLicenseName
@@ -41,7 +40,7 @@ data LicenseName
     | AGPL3
     | Apache20
     | MPL20
-    | None
+    | NONE
     deriving stock (Eq, Ord, Enum, Bounded, Generic)
 
 instance Show LicenseName where
@@ -55,7 +54,7 @@ instance Show LicenseName where
     show AGPL3    = "AGPL-3"
     show Apache20 = "Apache-2.0"
     show MPL20    = "MPL-2.0"
-    show None     = "None"
+    show NONE     = "NONE"
 
 newtype License = License
     { unLicense :: Text
@@ -64,11 +63,6 @@ newtype License = License
 
 instance FromJSON License where
     parseJSON = withObject "License" $ \o -> License <$> o .: "body"
-
--- | As it will be shown in the @cabal@ file.
-cabalLicense :: LicenseName -> Text
-cabalLicense None = "AllRightsReserved"
-cabalLicense l    = show l
 
 -- | Used for downloading the license text form @Github@.
 githubLicenseQueryNames :: LicenseName -> Text
@@ -83,7 +77,7 @@ githubLicenseQueryNames = \case
     AGPL3    -> "agpl-3.0"
     Apache20 -> "apache-2.0"
     MPL20    -> "mpl-2.0"
-    None     -> "none"
+    NONE     -> "none"
 
 parseLicenseName :: Text -> Maybe LicenseName
 parseLicenseName = inverseMap show
@@ -103,7 +97,7 @@ customizeLicense l license@(License licenseText) nm year
         in  beforeY <> year <> beforeN <> nm <> afterN
 
 fetchLicense :: LicenseName -> IO License
-fetchLicense None = pure $ License $ licenseShortDesc None
+fetchLicense NONE = pure $ License $ licenseShortDesc NONE
 fetchLicense name = do
     let licenseLink = "https://api.github.com/licenses/" <> githubLicenseQueryNames name
     licenseJson <- "curl" $|
@@ -130,7 +124,7 @@ licenseShortDesc = \case
     AGPL3    -> "GNU Affero General Public License, version 3"
     Apache20 -> "Apache License, version 2.0"
     MPL20    -> "Mozilla Public License, version 2.0."
-    None     -> "License file won't be added. Explicitly 'All Rights Reserved', eg \
+    NONE     -> "License file won't be added. Explicitly 'All Rights Reserved', eg \
         \for proprietary software. The package may not be legally modified or \
         \redistributed by anyone but the rightsholder"
 

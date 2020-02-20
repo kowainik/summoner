@@ -16,8 +16,8 @@ import NeatInterpolation (text)
 
 import Summoner.CustomPrelude (CustomPrelude (..))
 import Summoner.Default (defaultCabal)
-import Summoner.GhcVer (GhcVer (..), cabalBaseVersions, showGhcVer)
-import Summoner.License (LicenseName (..), cabalLicense)
+import Summoner.GhcVer (cabalBaseVersions, showGhcVer)
+import Summoner.License (LicenseName (..))
 import Summoner.Settings (Settings (..))
 import Summoner.Template.Mempty (memptyIfFalse)
 import Summoner.Text (endLine, intercalateMap, packageToModule)
@@ -52,7 +52,7 @@ cabalFile Settings{..} = File (toString settingsRepo ++ ".cabal") cabalFileConte
         [ "homepage:            " <> githubUrl        | settingsGitHub ] ++
         [ "bug-reports:         " <> githubBugReports | settingsGitHub ] ++
         ( "license:             " <> licenseName) :
-        [ "license-file:        LICENSE" | settingsLicenseName /= None] ++
+        [ "license-file:        LICENSE" | settingsLicenseName /= NONE] ++
         [ "author:              " <> settingsFullName
         , "maintainer:          " <> settingsEmail
         , "copyright:           " <> settingsYear <> " " <> settingsFullName ] ++
@@ -68,7 +68,7 @@ cabalFile Settings{..} = File (toString settingsRepo ++ ".cabal") cabalFileConte
     githubBugReports = githubUrl <> "/issues"
 
     licenseName, libModuleName :: Text
-    licenseName   = cabalLicense settingsLicenseName
+    licenseName   = show settingsLicenseName
     libModuleName = packageToModule settingsRepo
 
     testedGhcs :: Text
@@ -86,7 +86,6 @@ cabalFile Settings{..} = File (toString settingsRepo ++ ".cabal") cabalFileConte
           location:            ${githubUrl}.git
         |]
 
-
     commonStanza :: Text
     commonStanza =
         [text|
@@ -95,14 +94,41 @@ cabalFile Settings{..} = File (toString settingsRepo ++ ".cabal") cabalFileConte
           build-depends:       $settingsBaseType $baseBounds
                              $commaPreludeLibrary
 
-          ghc-options:         -Wall
-                               $ghcOptions
+          $ghcOptions
 
           default-language:    Haskell2010
     |] <> defaultExtensions
 
     baseBounds :: Text
     baseBounds = cabalBaseVersions settingsTestedVersions
+
+    ghcOptions :: Text
+    ghcOptions = case settingsGhcOptions of
+        [] -> defaultGhcOptions
+        x:xs ->
+            let customGhcOptions = T.intercalate "\n" $ x : map (T.replicate 21 " " <>) xs in
+            [text|
+            ghc-options:         $customGhcOptions
+            |]
+
+    defaultGhcOptions :: Text
+    defaultGhcOptions =
+        [text|
+        ghc-options:         -Wall
+                             -Wcompat
+                             -Widentities
+                             -Wincomplete-uni-patterns
+                             -Wincomplete-record-updates
+        if impl(ghc >= 8.0)
+          ghc-options:       -Wredundant-constraints
+        if impl(ghc >= 8.2)
+          ghc-options:       -fhide-source-paths
+        if impl(ghc >= 8.4)
+          ghc-options:       -Wmissing-export-lists
+                             -Wpartial-fields
+        if impl(ghc >= 8.8)
+          ghc-options:       -Wmissing-deriving-strategies
+        |]
 
     libraryStanza :: Text
     libraryStanza =
@@ -180,35 +206,3 @@ cabalFile Settings{..} = File (toString settingsRepo ++ ".cabal") cabalFileConte
         xs -> "  default-extensions:  "
            <> T.intercalate "\n                       " xs
            <> "\n"
-
-    ghcOptions :: Text
-    ghcOptions = case settingsGhcOptions of
-        [] -> defaultGhcOptions
-        xs -> T.intercalate "\n" xs
-
-    defaultGhcOptions :: Text
-    defaultGhcOptions =
-        [text|
-        -Wincomplete-uni-patterns
-        -Wincomplete-record-updates
-        -Wcompat
-        -Widentities
-        $versionGhcOptions
-        |]
-
-    versionGhcOptions :: Text
-    versionGhcOptions
-        =  memptyIfFalse (settingsTestedVersions `hasLeast` Ghc802)
-            "-Wredundant-constraints\n"
-        <> memptyIfFalse (settingsTestedVersions `hasLeast` Ghc822)
-            "-fhide-source-paths\n"
-        <> memptyIfFalse (settingsTestedVersions `hasLeast` Ghc844)
-            [text|
-            -Wmissing-export-lists
-            -Wpartial-fields
-            |]
-        <> memptyIfFalse (settingsTestedVersions `hasLeast` Ghc882)
-            "-Wmissing-deriving-strategies\n"
-      where
-        hasLeast :: [GhcVer] -> GhcVer -> Bool
-        hasLeast list el = all (>= el) list
