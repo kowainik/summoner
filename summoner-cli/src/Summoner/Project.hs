@@ -19,7 +19,7 @@ import Data.List (intersect)
 import NeatInterpolation (text)
 import Relude.Extra.Enum (universe)
 import Shellmet ()
-import System.Directory (setCurrentDirectory)
+import System.Directory (findExecutable, setCurrentDirectory)
 
 import Summoner.Ansi (errorMessage, infoMessage, skipMessage, successMessage, warningMessage)
 import Summoner.Config (Config, ConfigP (..))
@@ -35,6 +35,7 @@ import Summoner.Question (YesNoPrompt (..), checkUniqueName, choose, falseMessag
 import Summoner.Settings (Settings (..))
 import Summoner.Source (Source, fetchSource)
 import Summoner.Template (createProjectTemplate)
+import Summoner.Template.Mempty (memptyIfFalse)
 import Summoner.Text (intercalateMap, moduleNameValid, packageNameValid, packageToModule)
 import Summoner.Tree (TreeFs, pathToTree, showBoldTree, traverseTree)
 
@@ -249,7 +250,17 @@ doGithubCommands Settings{..} = do
     "git" ["add", "."]
     "git" ["commit", "-m", "Create the project"]
     unless settingsNoUpload $ do
-        "hub" $ ["create", "-d", settingsDescription, settingsOwner <> "/" <> settingsRepo]
-             ++ ["-p" | settingsPrivate]  -- Create private repository if asked so
-         -- Upload repository to GitHub.
-        "git" ["push", "-u", "origin", "master"]
+        let repo = settingsOwner <> "/" <> settingsRepo
+        hubInstalled <- findExecutable "hub"
+        case hubInstalled of
+            Just _ -> do
+                "hub" $ ["create", "-d", settingsDescription, repo]
+                     ++ ["-p" | settingsPrivate]  -- Create private repository if asked so
+                 -- Upload repository to GitHub.
+                "git" ["push", "-u", "origin", "master"]
+            Nothing -> do
+                warningMessage "'hub' is not found at this machine. Cannot create the GitHub repository."
+                warningMessage "Please install 'hub' for the proper work of Summoner."
+                infoMessage "To finish the process manually you can run the following command:"
+                putTextLn $
+                    "    $ hub create -d '" <> settingsDescription <> "' " <> repo <> memptyIfFalse settingsPrivate " -p"
