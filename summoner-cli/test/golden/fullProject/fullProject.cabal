@@ -25,9 +25,12 @@ source-repository head
   location:            https://github.com/kowainik/fullProject.git
 
 common common-options
-  build-depends:       base-noprelude >= 4.9.1.0 && < 4.14
+  build-depends:       base >= 4.9.1.0 && < 4.14
                      , relude
-
+  
+  mixins:              base hiding (Prelude)
+                     , relude (Relude as Prelude)
+  
   ghc-options:         -Wcompat
                        -Widentities
 
@@ -40,7 +43,6 @@ library
   import:              common-options
   hs-source-dirs:      src
   exposed-modules:     FullProject
-                       Prelude
 
 executable fullProject
   import:              common-options

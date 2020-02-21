@@ -86,8 +86,7 @@ Features related to the structure and content of the generated projects.
 + Ability to pick stanzas (library, executable, test-suite, benchmark).
 + Usage of [common stanza](https://vrom911.github.io/blog/common-stanzas) to reduce `.cabal` file's boilerplate.
 + Option to include an alternative prelude, if desired. The project would then
-  use [`base-noprelude` technique](http://hackage.haskell.org/package/Prelude),
-  and the `Prelude` module would be added to the library target.
+  use the [`mixins` technique](https://www.reddit.com/r/haskelltil/comments/9qa366/easy_way_to_replace_default_prelude_with_the/).
 + Whole Hackage-upload checklist support (exhaustive `.cabal` file, PVP versioning, GHC options, conventional meta files).
 + Support for multiple GHC versions, with thoughtful reflection on project meta, base versions (e.g. `base >= 4.9 && < 4.12`), etc.
 + Ability to create runnable Haskell scripts.

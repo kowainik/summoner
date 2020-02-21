@@ -43,7 +43,6 @@ data Settings = Settings
     , settingsTest           :: !Bool   -- ^ add tests
     , settingsBench          :: !Bool   -- ^ add benchmarks
     , settingsTestedVersions :: ![GhcVer]  -- ^ GHC versions
-    , settingsBaseType       :: !Text -- ^ Base library to use
     , settingsPrelude        :: !(Maybe CustomPrelude)  -- ^ custom prelude to be used
     , settingsExtensions     :: ![Text] -- ^ default extensions
     , settingsGhcOptions     :: ![Text] -- ^ default GHC options

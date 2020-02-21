@@ -182,7 +182,6 @@ summonKitToSettings sk = Settings
     , settingsTest           = sk ^. projectMeta . test
     , settingsBench          = sk ^. projectMeta . bench
     , settingsTestedVersions = sortNub $ defaultGHC : (sk ^. projectMeta . ghcs)
-    , settingsBaseType       = baseT
     , settingsPrelude        = cP
     , settingsExtensions     = sk ^. extensions
     , settingsGhcOptions     = sk ^. ghcOptions
@@ -198,14 +197,13 @@ summonKitToSettings sk = Settings
     isGitHub :: Bool
     isGitHub = sk ^. gitHub . enabled
 
-    baseT :: Text
     cP ::  Maybe CustomPrelude
-    (baseT, cP) =
+    cP =
         let cpPackage = T.strip $ sk ^. projectMeta . preludeName
             cpModule  = T.strip $ sk ^. projectMeta . preludeModule
         in if ("" /= cpPackage) && ("" /= cpModule)
-           then ("base-noprelude", Just CustomPrelude{..})
-           else ("base", Nothing)
+           then Just CustomPrelude{..}
+           else Nothing
 
 -- | Gets 'Settings' on successful application complition.
 finalSettings :: SummonKit -> IO Settings

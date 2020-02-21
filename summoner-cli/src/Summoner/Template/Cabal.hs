@@ -91,9 +91,8 @@ cabalFile Settings{..} = File (toString settingsRepo ++ ".cabal") cabalFileConte
         [text|
         $endLine
         common common-options
-          build-depends:       $settingsBaseType $baseBounds
-                             $commaPreludeLibrary
-
+          build-depends:       base $baseBounds
+          $customPrelude
           $ghcOptions
 
           default-language:    Haskell2010
@@ -138,7 +137,6 @@ cabalFile Settings{..} = File (toString settingsRepo ++ ".cabal") cabalFileConte
           import:              common-options
           hs-source-dirs:      src
           exposed-modules:     $libModuleName
-                               $preludeMod
         |]
 
     executableStanza :: Text
@@ -195,10 +193,17 @@ cabalFile Settings{..} = File (toString settingsRepo ++ ".cabal") cabalFileConte
                              -with-rtsopts=-N
         |]
 
-    preludeMod, commaPreludeLibrary :: Text
-    (preludeMod, commaPreludeLibrary) = case settingsPrelude of
-        Nothing                -> ("", "")
-        Just CustomPrelude{..} -> ("Prelude", ", " <> cpPackage)
+    customPrelude :: Text
+    customPrelude = case settingsPrelude of
+        Nothing -> ""
+        Just CustomPrelude{..} ->
+            "                   , " <> cpPackage <> "\n" <>
+            [text|
+            $endLine
+            mixins:              base hiding (Prelude)
+                               , $cpPackage ($cpModule as Prelude)
+            $endLine
+            |]
 
     defaultExtensions :: Text
     defaultExtensions = case settingsExtensions of

@@ -14,8 +14,7 @@ tested-with:         GHC == 8.8.2
 
 common common-options
   build-depends:       base ^>= 4.13.0.0
-                     
-
+  
   ghc-options:         -Wall
                        -Wcompat
                        -Widentities

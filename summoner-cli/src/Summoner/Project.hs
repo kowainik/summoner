@@ -97,9 +97,6 @@ generateProject isOffline projectName Config{..} = do
     settingsTest      <- decisionToBool cTest (mkDefaultYesNoPrompt "tests")
     settingsBench     <- decisionToBool cBench (mkDefaultYesNoPrompt "benchmarks")
     settingsPrelude   <- if settingsIsLib then getPrelude else pure Nothing
-    let settingsBaseType = case settingsPrelude of
-            Nothing -> "base"
-            Just _  -> "base-noprelude"
 
     let settingsExtensions = cExtensions
     let settingsGhcOptions = cGhcOptions

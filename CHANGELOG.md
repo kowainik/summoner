@@ -39,6 +39,16 @@ The changelog is available [on GitHub][2].
   ```
 
   (by [@chshersh](https://github.com/chshersh))
+* [#345](https://github.com/kowainik/summoner/issues/345):
+  Apply `mixins` approach for using alternative preludes instead of
+  the `base-noprelude` trick. Now it looks like this in the `.cabal`
+  file:
+
+  ```haskell
+  mixins:              base hiding (Prelude)
+                     , relude (Relude as Prelude)
+  ```
+  (by [@chshersh](https://github.com/chshersh))
 * Use `colourista` for pretty terminal formatting.
   (by [@chshersh](https://github.com/chshersh))
 * __#TUI__ Allow `brick-0.52`.
