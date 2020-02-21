@@ -1,5 +1,5 @@
 {- |
-Copyright: (c) 2017-2019 Kowainik
+Copyright: (c) 2017-2020 Kowainik
 SPDX-License-Identifier: MPL-2.0
 Maintainer: Kowainik <xrom.xkov@gmail.com>
 
@@ -40,20 +40,22 @@ data LicenseName
     | AGPL3
     | Apache20
     | MPL20
+    | ISC
     | NONE
     deriving stock (Eq, Ord, Enum, Bounded, Generic)
 
 instance Show LicenseName where
     show MIT      = "MIT"
-    show BSD2     = "BSD2"
-    show BSD3     = "BSD3"
-    show GPL2     = "GPL-2"
-    show GPL3     = "GPL-3"
-    show LGPL21   = "LGPL-2.1"
-    show LGPL3    = "LGPL-3"
-    show AGPL3    = "AGPL-3"
+    show BSD2     = "BSD-2-Clause"
+    show BSD3     = "BSD-3-Clause"
+    show GPL2     = "GPL-2.0-only"
+    show GPL3     = "GPL-3.0-only"
+    show LGPL21   = "LGPL-2.1-only"
+    show LGPL3    = "LGPL-3.0-only"
+    show AGPL3    = "AGPL-3.0-only"
     show Apache20 = "Apache-2.0"
     show MPL20    = "MPL-2.0"
+    show ISC      = "ISC"
     show NONE     = "NONE"
 
 newtype License = License
@@ -77,6 +79,7 @@ githubLicenseQueryNames = \case
     AGPL3    -> "agpl-3.0"
     Apache20 -> "apache-2.0"
     MPL20    -> "mpl-2.0"
+    ISC      -> "isc"
     NONE     -> "none"
 
 parseLicenseName :: Text -> Maybe LicenseName
@@ -85,7 +88,7 @@ parseLicenseName = inverseMap show
 -- | Replaces name/year placeholders with the actual data.
 customizeLicense :: LicenseName -> License -> Text -> Text -> License
 customizeLicense l license@(License licenseText) nm year
-    | l `elem` [MIT, BSD2, BSD3] = License updatedLicenseText
+    | l `elem` [MIT, BSD2, BSD3, ISC] = License updatedLicenseText
     | otherwise                  = license
   where
     updatedLicenseText :: Text
@@ -123,10 +126,10 @@ licenseShortDesc = \case
     LGPL3    -> "GNU Lesser General Public License, version 3"
     AGPL3    -> "GNU Affero General Public License, version 3"
     Apache20 -> "Apache License, version 2.0"
-    MPL20    -> "Mozilla Public License, version 2.0."
-    NONE     -> "License file won't be added. Explicitly 'All Rights Reserved', eg \
-        \for proprietary software. The package may not be legally modified or \
-        \redistributed by anyone but the rightsholder"
+    MPL20    -> "Mozilla Public License, version 2.0"
+    ISC      -> "Internet Systems Consortium"
+    NONE -> "License file won't be added. The package may not be legally \
+        \modified or redistributed by anyone but the rightsholder"
 
 -- | Show license name along with its short description.
 showLicenseWithDesc :: LicenseName -> Text

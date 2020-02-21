@@ -49,6 +49,9 @@ The changelog is available [on GitHub][2].
 * [#394](https://github.com/kowainik/summoner/issues/394):
   Do not crush when `hub` is not installed. Instead, print descriptive warning
   message.
+* [#251](https://github.com/kowainik/summoner/issues/251):
+  Update LICENSE names for `.cabal` files in generated projects.
+  Add `ISC` to the list of the accepted licenses.
 
 ## 1.4.0.0 – Dec 25, 2019 🎅
 
