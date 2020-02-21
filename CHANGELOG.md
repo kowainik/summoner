@@ -52,6 +52,19 @@ The changelog is available [on GitHub][2].
 * [#251](https://github.com/kowainik/summoner/issues/251):
   Update LICENSE names for `.cabal` files in generated projects.
   Add `ISC` to the list of the accepted licenses.
+* [#399](https://github.com/kowainik/summoner/issues/399):
+  Add Haddock header to library module.
+
+  ```haskell
+  {- |
+  Copyright: (c) 2020 FULL_NAME
+  SPDX-License-Identifier: LICENSE_NAME
+  Maintainer: NAME <email@email.com>
+
+  Project description
+  -}
+  ```
+* Improve `maintainer` field in the generated `.cabal` file.
 
 ## 1.4.0.0 – Dec 25, 2019 🎅
 

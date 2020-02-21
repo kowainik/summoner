@@ -5,7 +5,7 @@ synopsis:            Small test project
 description:         Small test project
 license:             NONE
 author:              Kowainik
-maintainer:          xrom.xkov@gmail.com
+maintainer:          Kowainik <xrom.xkov@gmail.com>
 copyright:           2018 Kowainik
 build-type:          Simple
 extra-doc-files:     README.md

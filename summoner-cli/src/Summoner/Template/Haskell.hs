@@ -31,9 +31,18 @@ haskellFiles Settings{..} = concat
     libFile :: TreeFs
     libFile = File (toString libModuleName <> ".hs")
         [text|
+        {- |
+        Copyright: (c) $settingsYear $settingsFullName
+        SPDX-License-Identifier: $licenseName
+        Maintainer: $settingsFullName <$settingsEmail>
+
+        $settingsDescription
+        -}
+
         module $libModuleName
                ( someFunc
                ) where
+
 
         someFunc :: IO ()
         someFunc = putStrLn ("someFunc" :: String)
@@ -41,6 +50,9 @@ haskellFiles Settings{..} = concat
 
     libModuleName :: Text
     libModuleName = packageToModule settingsRepo
+
+    licenseName :: Text
+    licenseName = show settingsLicenseName
 
     preludeFile :: [TreeFs]
     preludeFile = maybeToList $
@@ -63,6 +75,7 @@ haskellFiles Settings{..} = concat
         [text|
         module Main (main) where
 
+
         main :: IO ()
         main = putStrLn ("Hello, world!" :: String)
         |]
@@ -83,6 +96,7 @@ haskellFiles Settings{..} = concat
     testFile = File "Spec.hs"
         [text|
         module Main (main) where
+
 
         main :: IO ()
         main = putStrLn ("Test suite is not implemented" :: String)
