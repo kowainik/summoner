@@ -54,7 +54,7 @@ cabalFile Settings{..} = File (toString settingsRepo ++ ".cabal") cabalFileConte
         ( "license:             " <> licenseName) :
         [ "license-file:        LICENSE" | settingsLicenseName /= NONE] ++
         [ "author:              " <> settingsFullName
-        , "maintainer:          " <> settingsEmail
+        , "maintainer:          " <> settingsFullName <> " <" <> settingsEmail <> ">"
         , "copyright:           " <> settingsYear <> " " <> settingsFullName ] ++
         [ "category:            " <> settingsCategories | "" /= settingsCategories ] ++
         [ "build-type:          Simple"
