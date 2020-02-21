@@ -136,7 +136,7 @@ Features related to the structure and content of the generated projects.
   [Dead simple Haskell Travis Settings for Cabal and Stack](https://chshersh.github.io/posts/2019-02-25-haskell-travis).
 + Generation of the `appveyor.yaml` file which runs build and tests on CI under Windows.
 + Generation of the `.github/workflows/ci.yml` file that runs build and tests on
-  GitHub ACtuions CI under Linux using Cabal.
+  GitHub Actions CI under Linux using Cabal.
 + Configuration matrix on CI to build with multiple GHC versions and various build tools.
 + `-Werror` is enabled on CI not to miss any warnings.
 + Run HLint checks on CI.
