@@ -55,8 +55,10 @@ script:
 
       echo "Testing that generated projects are built with cabal..."
       cd "$TRAVIS_BUILD_DIR/summoner-cli/test/golden/smallProject/"
+      echo "packages: ." > cabal.project
       cabal v2-build all
       cd "$TRAVIS_BUILD_DIR/summoner-cli/test/golden/fullProject/"
+      echo "packages: ." > cabal.project
       cabal v2-build all
     else
       stack test --system-ghc --no-terminal

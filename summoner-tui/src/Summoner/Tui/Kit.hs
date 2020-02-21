@@ -248,7 +248,7 @@ configToSummonKit cRepo cOffline cConfigFile files Config{..} = SummonKit
         { projectRepo     = cRepo
         , projectDesc     = defaultDescription
         , projectCategory = ""
-        , projectLicense  = if cOffline then None else cLicense
+        , projectLicense  = if cOffline then NONE else cLicense
         }
     , summonKitProjectMeta = ProjectMeta
         { projectMetaLib = kitLib
