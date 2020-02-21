@@ -139,34 +139,19 @@ gitHubFiles Settings{..} = concat
                 ghc-version: ${{ matrix.ghc }}
                 cabal-version: ${{ matrix.cabal }}
 
-            # We cache the elements of the Cabal store separately,
-            # as the entirety of ~/.cabal can grow very large
-            # for projects with many dependencies.
-
-            - uses: actions/cache@v1
-              name: Cache ~/.cabal/packages
-              with:
-                path: ~/.cabal/packages
-                key: ${{ runner.os }}-${{ matrix.ghc }}-cabal-packages
             - uses: actions/cache@v1
               name: Cache ~/.cabal/store
               with:
                 path: ~/.cabal/store
-                key: ${{ runner.os }}-${{ matrix.ghc }}-cabal-store
-            - uses: actions/cache@v1
-              name: Cache dist-newstyle
-              with:
-                path: dist-newstyle
-                key: ${{ runner.os }}-${{ matrix.ghc }}-dist
+                key: ${{ runner.os }}-${{ matrix.ghc }}-cabal
 
-            - name: Install dependencies
+            - name: Build
               run: |
                 cabal new-update
-                cabal new-configure --enable-tests --enable-benchmarks --write-ghc-environment-files=always -j2
-                cabal new-build --only-dependencies
-            - name: Build & test
+                cabal new-build --enable-tests --enable-benchmarks --write-ghc-environment-files=always
+
+            - name: Test
               run: |
-                cabal v2-build
                 ${cabalTest}
         |]
 

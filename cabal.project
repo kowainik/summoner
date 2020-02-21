@@ -1,3 +1,5 @@
 packages:
     summoner-cli/
     summoner-tui/
+
+tests: true
