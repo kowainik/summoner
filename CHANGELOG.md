@@ -26,7 +26,18 @@ The changelog is available [on GitHub][2].
   Move from `generic-deriving` to `generic-data`.
   (by [@chshersh](https://github.com/chshersh))
 * [#361](https://github.com/kowainik/summoner/issues/361):
-  Always put all warnings in `ghc-options` inside common stanza under `if`s.
+  Always put all default warnings in `ghc-options` inside common
+  stanza under cabal conditionals on the `GHC` version. Now they look
+  like this:
+
+  ```haskell
+  if impl(ghc >= 8.4)
+    ghc-options:       -Wmissing-export-lists
+                       -Wpartial-fields
+  if impl(ghc >= 8.8)
+    ghc-options:       -Wmissing-deriving-strategies
+  ```
+
   (by [@chshersh](https://github.com/chshersh))
 * Use `colourista` for pretty terminal formatting.
   (by [@chshersh](https://github.com/chshersh))
