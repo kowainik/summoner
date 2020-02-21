@@ -14,7 +14,6 @@ module Summoner.Template.Haskell
 
 import NeatInterpolation (text)
 
-import Summoner.CustomPrelude (CustomPrelude (..))
 import Summoner.Settings (Settings (..))
 import Summoner.Text (packageToModule)
 import Summoner.Tree (TreeFs (..))
@@ -22,10 +21,10 @@ import Summoner.Tree (TreeFs (..))
 
 haskellFiles :: Settings -> [TreeFs]
 haskellFiles Settings{..} = concat
-    [ [ Dir "src"     $ libFile : preludeFile   | settingsIsLib ]
-    , [ Dir "app"       [exeFile]               | settingsIsExe ]
-    , [ Dir "test"      [testFile]              | settingsTest  ]
-    , [ Dir "benchmark" [benchmarkFile]         | settingsBench ]
+    [ [ Dir "src"       [libFile]       | settingsIsLib ]
+    , [ Dir "app"       [exeFile]       | settingsIsExe ]
+    , [ Dir "test"      [testFile]      | settingsTest  ]
+    , [ Dir "benchmark" [benchmarkFile] | settingsBench ]
     ] ++ maybeToList (File ".stylish-haskell.yaml" <$> settingsStylish)
   where
     libFile :: TreeFs
@@ -53,19 +52,6 @@ haskellFiles Settings{..} = concat
 
     licenseName :: Text
     licenseName = show settingsLicenseName
-
-    preludeFile :: [TreeFs]
-    preludeFile = maybeToList $
-        settingsPrelude <&> \CustomPrelude{..} -> File "Prelude.hs"
-            [text|
-            -- | Uses [$cpPackage](https://hackage.haskell.org/package/${cpPackage}) as default Prelude.
-
-            module Prelude
-                   ( module $cpModule
-                   ) where
-
-            import $cpModule
-            |]
 
     exeFile :: TreeFs
     exeFile = File "Main.hs" $ if settingsIsLib then createExe else createOnlyExe
