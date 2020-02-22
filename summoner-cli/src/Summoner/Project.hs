@@ -18,7 +18,7 @@ import Colourista (bold, formattedMessage, green)
 import Data.List (intersect)
 import NeatInterpolation (text)
 import Relude.Extra.Enum (universe)
-import Shellmet ()
+import Shellmet (($?))
 import System.Directory (findExecutable, setCurrentDirectory)
 
 import Summoner.Ansi (errorMessage, infoMessage, skipMessage, successMessage, warningMessage)
@@ -251,13 +251,25 @@ doGithubCommands Settings{..} = do
         hubInstalled <- findExecutable "hub"
         case hubInstalled of
             Just _ -> do
-                "hub" $ ["create", "-d", settingsDescription, repo]
-                     ++ ["-p" | settingsPrivate]  -- Create private repository if asked so
-                 -- Upload repository to GitHub.
-                "git" ["push", "-u", "origin", "master"]
+                isHubSuccess <- runHub repo
+                if isHubSuccess
+                then "git" ["push", "-u", "origin", "master"]
+                else do
+                    warningMessage "Error running 'hub'. Possible reason: incorrect password."
+                    hubHelp repo
             Nothing -> do
                 warningMessage "'hub' is not found at this machine. Cannot create the GitHub repository."
                 warningMessage "Please install 'hub' for the proper work of Summoner."
-                infoMessage "To finish the process manually you can run the following command:"
-                putTextLn $
-                    "    $ hub create -d '" <> settingsDescription <> "' " <> repo <> memptyIfFalse settingsPrivate " -p"
+                hubHelp repo
+  where
+    -- Create repo on GitHub and return 'True' in case of sucsess
+    runHub :: Text -> IO Bool
+    runHub repo =
+        True <$ "hub" (["create", "-d", settingsDescription, repo]
+             ++ ["-p" | settingsPrivate])  -- Create private repository if asked so
+             $? pure False
+
+    hubHelp :: Text -> IO ()
+    hubHelp repo = do
+        infoMessage "To finish the process manually you can run the following command:"
+        putTextLn $ "    $ hub create -d '" <> settingsDescription <> "' " <> repo <> memptyIfFalse settingsPrivate " -p"
