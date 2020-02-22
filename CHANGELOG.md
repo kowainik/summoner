@@ -62,6 +62,10 @@ The changelog is available [on GitHub][2].
 * [#251](https://github.com/kowainik/summoner/issues/251):
   Update LICENSE names for `.cabal` files in generated projects.
   Add `ISC` to the list of the accepted licenses.
+* [#34](https://github.com/kowainik/summoner/issues/34):
+  Print helpful error message when `hub` fails (for example, if the
+  password is incorrect).
+  (by [@chshersh](https://github.com/chshersh))
 * [#399](https://github.com/kowainik/summoner/issues/399):
   Add Haddock header to library module.
 
