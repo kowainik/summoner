@@ -255,7 +255,7 @@ gitHubFiles Settings{..} = concat
         script:
           - |
             if [ -z "$$STACK_YAML" ]; then
-               ${cabalTest}
+              ${cabalTest}
             else
               $stackTest
             fi
@@ -282,7 +282,7 @@ gitHubFiles Settings{..} = concat
 
           - curl -sSL https://get.haskellstack.org/ | sh
           - stack --version
-          -  $stackBuild
+          - $stackBuild
 
         script:
           - $stackTest
@@ -292,7 +292,7 @@ gitHubFiles Settings{..} = concat
     cabalUpdate = "cabal v2-update"
 
     cabalBuild :: Text
-    cabalBuild = "cabal v2-build --enable-tests --enable-benchmarks --write-ghc-environment-files=always"
+    cabalBuild = "cabal v2-build --enable-tests --enable-benchmarks"
 
     cabalTest :: Text
     cabalTest = if settingsTest

@@ -39,7 +39,7 @@ install:
   - |
     if [ -z "$STACK_YAML" ]; then
       cabal v2-update
-      cabal v2-build --enable-tests --enable-benchmarks --write-ghc-environment-files=always
+      cabal v2-build --enable-tests --enable-benchmarks
     else
       curl -sSL https://get.haskellstack.org/ | sh
       stack --version
@@ -49,7 +49,7 @@ install:
 script:
   - |
     if [ -z "$STACK_YAML" ]; then
-       cabal v2-test --enable-tests
+      cabal v2-test --enable-tests
     else
       stack test --system-ghc
     fi
