@@ -75,6 +75,10 @@ The changelog is available [on GitHub][2].
   -}
   ```
 * Improve `maintainer` field in the generated `.cabal` file.
+* [#375](https://github.com/kowainik/summoner/issues/375):
+  Remove deprecated `stylish` and `contributing` fields in the configurations.
+  Use `files` instead.
+  (by [@vrom911](https://github.com/vrom911))
 
 ## 1.4.0.0 – Dec 25, 2019 🎅
 

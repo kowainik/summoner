@@ -6,7 +6,6 @@ Maintainer: Kowainik <xrom.xkov@gmail.com>
 Templates for various documentation files:
 
 * CHANGELOG.md
-* CONTRIBUTING.md
 * LICENSE
 * README.md
 -}
@@ -26,8 +25,7 @@ docFiles :: Settings -> [TreeFs]
 docFiles Settings{..} =
     [ File "README.md" readme
     , File "CHANGELOG.md" changelog ] ++
-    [ File "LICENSE" (unLicense settingsLicenseText) | hasLicense ] ++
-    maybeToList (File "CONTRIBUTING.md" <$> settingsContributing)
+    [ File "LICENSE" (unLicense settingsLicenseText) | hasLicense ]
   where
     hasLicense :: Bool
     hasLicense = settingsLicenseName /= NONE

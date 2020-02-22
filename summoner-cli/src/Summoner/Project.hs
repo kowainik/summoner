@@ -117,16 +117,6 @@ generateProject isOffline projectName Config{..} = do
     when (oldGhcIncluded && settingsStack && settingsTravis) $
         warningMessage "Old GHC versions won't be included into Stack matrix at Travis CI because of the Stack issue with newer Cabal versions."
 
-    let fetchLast :: Text -> Last Source -> IO (Maybe Text)
-        fetchLast option (Last mSource) = case mSource of
-            Nothing -> pure Nothing
-            Just source -> do
-                let msg = [text|The option '${option}' is deprecated. Use 'files' instead.|]
-                warningMessage msg
-                fetchSource isOffline source
-
-    settingsStylish      <- fetchLast "stylish.{url,file,link}" cStylish
-    settingsContributing <- fetchLast "contributing.{url,file,link}" cContributing
     settingsFiles <- fetchSources isOffline cFiles
 
     -- Create project data from all variables in scope
@@ -137,7 +127,6 @@ generateProject isOffline projectName Config{..} = do
     decisionIf p ynPrompt decision = if p
         then decisionToBool decision ynPrompt
         else falseMessage (yesNoTarget ynPrompt)
-
 
     categoryText :: Text
     categoryText =

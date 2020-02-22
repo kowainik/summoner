@@ -49,8 +49,6 @@ data Settings = Settings
     , settingsGitignore      :: ![Text] -- ^ .gitignore file
     , settingsCabal          :: !Bool
     , settingsStack          :: !Bool
-    , settingsStylish        :: !(Maybe Text) -- ^ @.stylish-haskell.yaml@ file
-    , settingsContributing   :: !(Maybe Text) -- ^ @CONTRIBUTING.md@ file
     , settingsNoUpload       :: !Bool  -- ^ do not upload to GitHub
     , settingsFiles          :: ![TreeFs]  -- ^ Tree nodes of extra files
     } deriving stock (Show)

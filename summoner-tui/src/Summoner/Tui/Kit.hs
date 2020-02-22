@@ -33,8 +33,6 @@ module Summoner.Tui.Kit
        , gitHub
        , extensions
        , ghcOptions
-       , stylish
-       , contributing
        , offline
        , shouldSummon
        , configFile
@@ -79,7 +77,6 @@ import Summoner.Default (currentYear, defaultDescription, defaultGHC)
 import Summoner.GhcVer (GhcVer)
 import Summoner.License (LicenseName (..), customizeLicense, fetchLicense)
 import Summoner.Settings (Settings (..))
-import Summoner.Source (Source, fetchSource)
 import Summoner.Template (createProjectTemplate)
 import Summoner.Tree (TreeFs, showTree)
 
@@ -98,8 +95,6 @@ data SummonKit = SummonKit
     , summonKitExtensions   :: ![Text]  -- ^ Can be recieved from the config file.
     , summonKitGhcOptions   :: ![Text]  -- ^ Can be recieved from the config file.
     , summonKitGitignore    :: ![Text]  -- ^ Received from the config file.
-    , summonKitStylish      :: !(Maybe Source)  -- ^ Can be recieved from the config file.
-    , summonKitContributing :: !(Maybe Source)  -- ^ Can be recieved from the config file.
     , summonKitOffline      :: !Bool
     , summonKitShouldSummon :: !Decision  -- ^ Check if project needs to be created.
     , summonKitConfigFile   :: !(Maybe FilePath)  -- ^ Just if configuration file was used.
@@ -188,8 +183,6 @@ summonKitToSettings sk = Settings
     , settingsGitignore      = sk ^. gitignore
     , settingsCabal          = sk ^. cabal
     , settingsStack          = sk ^. stack
-    , settingsStylish        = "" <$ sk ^. stylish
-    , settingsContributing   = "" <$ sk ^. contributing
     , settingsNoUpload       = sk ^. gitHub . noUpload
     , settingsFiles          = sk ^. extraFiles
     }
@@ -217,15 +210,9 @@ finalSettings sk = do
             (sk ^. user . fullName)
             year
 
-    let fetch = maybe (pure Nothing) (fetchSource (sk ^. offline))
-    sStylish      <- fetch $ sk ^. stylish
-    sContributing <- fetch $ sk ^. contributing
-
     pure (summonKitToSettings sk)
         { settingsYear = year
         , settingsLicenseText = licenseText
-        , settingsStylish = sStylish
-        , settingsContributing = sContributing
         }
 
 -- | Gets the initial 'SummonKit' from the given 'Config'.
@@ -270,8 +257,6 @@ configToSummonKit cRepo cOffline cConfigFile files Config{..} = SummonKit
     , summonKitExtensions   = cExtensions
     , summonKitGhcOptions   = cGhcOptions
     , summonKitGitignore    = cGitignore
-    , summonKitStylish      = getLast cStylish
-    , summonKitContributing = getLast cContributing
     , summonKitOffline      = cOffline
     , summonKitShouldSummon = Nop
     , summonKitConfigFile   = cConfigFile
