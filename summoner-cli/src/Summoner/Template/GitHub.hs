@@ -127,7 +127,7 @@ gitHubFiles Settings{..} = concat
             strategy:
               matrix:
                 ghc: ${ghActionsVersions}
-                cabal: ["3.0"]
+                cabal: ["${defaultCabal}"]
 
             steps:
             - uses: actions/checkout@v2
