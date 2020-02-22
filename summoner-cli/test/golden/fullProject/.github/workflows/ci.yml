@@ -35,9 +35,9 @@ jobs:
 
     - name: Build
       run: |
-        cabal new-update
-        cabal new-build --enable-tests --enable-benchmarks --write-ghc-environment-files=always
+        cabal v2-update
+        cabal v2-build --enable-tests --enable-benchmarks --write-ghc-environment-files=always
 
     - name: Test
       run: |
-        cabal new-test --enable-tests
+        cabal v2-test --enable-tests

@@ -26,7 +26,7 @@ module Summoner.Template.GitHub
 import Data.List ((\\))
 import NeatInterpolation (text)
 
-import Summoner.Default (defaultGHC)
+import Summoner.Default (defaultCabal, defaultGHC)
 import Summoner.GhcVer (GhcVer (..), oldGhcs, showGhcVer)
 import Summoner.Settings (Settings (..))
 import Summoner.Template.Mempty (memptyIfFalse)
@@ -147,8 +147,8 @@ gitHubFiles Settings{..} = concat
 
             - name: Build
               run: |
-                cabal new-update
-                cabal new-build --enable-tests --enable-benchmarks --write-ghc-environment-files=always
+                $cabalUpdate
+                $cabalBuild
 
             - name: Test
               run: |
@@ -173,7 +173,7 @@ gitHubFiles Settings{..} = concat
         git:
           depth: 5
 
-        cabal: "2.4"
+        cabal: "${defaultCabal}"
 
         cache:
           directories:
@@ -198,12 +198,6 @@ gitHubFiles Settings{..} = concat
         - "$$HOME/.stack"
         - "$$TRAVIS_BUILD_DIR/.stack-work"
         |]
-
-
-    cabalTest :: Text
-    cabalTest = if settingsTest
-        then "cabal new-test --enable-tests"
-        else "echo 'No tests'"
 
     travisCabalMtr :: Text
     travisCabalMtr = memptyIfFalse settingsCabal $
@@ -250,14 +244,12 @@ gitHubFiles Settings{..} = concat
 
           - |
             if [ -z "$$STACK_YAML" ]; then
-              ghc --version
-              cabal --version
-              cabal new-update
-              cabal new-build --enable-tests --enable-benchmarks
+              $cabalUpdate
+              $cabalBuild
             else
               curl -sSL https://get.haskellstack.org/ | sh
               stack --version
-              stack build --system-ghc --test --bench --no-run-tests --no-run-benchmarks --ghc-options=-Werror
+              $stackBuild
             fi
 
         script:
@@ -265,7 +257,7 @@ gitHubFiles Settings{..} = concat
             if [ -z "$$STACK_YAML" ]; then
                ${cabalTest}
             else
-              stack test --system-ghc
+              $stackTest
             fi
         |]
 
@@ -275,8 +267,8 @@ gitHubFiles Settings{..} = concat
         install:
           $hlintCheck
 
-          - cabal new-update
-          - cabal new-build --enable-tests --enable-benchmarks
+          - $cabalUpdate
+          - $cabalBuild
 
         script:
           - ${cabalTest}
@@ -290,11 +282,28 @@ gitHubFiles Settings{..} = concat
 
           - curl -sSL https://get.haskellstack.org/ | sh
           - stack --version
-          - stack build --system-ghc --test --bench --no-run-tests --no-run-benchmarks --ghc-options=-Werror
+          -  $stackBuild
 
         script:
-          - stack test --system-ghc
+          - $stackTest
         |]
+
+    cabalUpdate :: Text
+    cabalUpdate = "cabal v2-update"
+
+    cabalBuild :: Text
+    cabalBuild = "cabal v2-build --enable-tests --enable-benchmarks --write-ghc-environment-files=always"
+
+    cabalTest :: Text
+    cabalTest = if settingsTest
+        then "cabal v2-test --enable-tests"
+        else "echo 'No tests'"
+
+    stackBuild :: Text
+    stackBuild = "stack build --system-ghc --test --bench --no-run-tests --no-run-benchmarks --ghc-options=-Werror"
+
+    stackTest :: Text
+    stackTest = "stack test --system-ghc"
 
     hlintCheck :: Text
     hlintCheck =
@@ -378,7 +387,7 @@ gitHubFiles Settings{..} = concat
           - stack setup > nul
 
         build_script:
-          - stack build --test --bench --no-run-tests --no-run-benchmarks
+          - stack build --test --bench --no-run-tests --no-run-benchmarks --ghc-options=-Werror
 
         test_script:
           - stack test
