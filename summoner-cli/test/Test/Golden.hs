@@ -88,12 +88,12 @@ fullProject = Settings
     , settingsGhcOptions     = ["-Wcompat", "-Widentities"]
     , settingsCabal          = True
     , settingsStack          = True
-    , settingsStylish        = Just "This is stylish-haskell.yaml\n"
-    , settingsContributing   = Just "This is contributing guide\n"
     , settingsNoUpload       = True
     , settingsFiles          =
         [ File "extra.txt" "See full content of the file [here](@github)\n"
         , Dir ".github" [File "CODEOWNERS" "*  @chshersh @vrom911\n"]
+        , File ".stylish-haskell.yaml" "This is stylish-haskell.yaml\n"
+        , File "CONTRIBUTING.md" "This is contributing guide\n"
         ]
     }
   where
@@ -149,8 +149,6 @@ smallProject = Settings
     , settingsGitignore      = []
     , settingsCabal          = True
     , settingsStack          = False
-    , settingsStylish        = Nothing
-    , settingsContributing   = Nothing
     , settingsNoUpload       = True
     , settingsFiles          = mempty
     }

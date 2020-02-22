@@ -35,7 +35,7 @@ import Summoner.CustomPrelude (CustomPrelude (..), customPreludeT)
 import Summoner.Decision (Decision (..))
 import Summoner.GhcVer (GhcVer (..), parseGhcVer, showGhcVer)
 import Summoner.License (LicenseName (..), parseLicenseName)
-import Summoner.Source (Source, sourceCodec, sourceT)
+import Summoner.Source (Source, sourceCodec)
 
 import qualified Toml
 
@@ -75,8 +75,6 @@ data ConfigP (p :: Phase) = Config
     , cExtensions   :: ![Text]
     , cGhcOptions   :: ![Text]  -- ^ GHC options to add to each stanza
     , cGitignore    :: ![Text]
-    , cStylish      :: !(Last Source)  -- ^ DEPRECATED: source to .stylish-haskell.yaml
-    , cContributing :: !(Last Source)  -- ^ DEPRECATED: source to CONTRIBUTING.md
     , cNoUpload     :: !Any  -- ^ Do not upload to the GitHub (even if enabled)
     , cFiles        :: !(Map FilePath Source)  -- ^ Custom files
     } deriving stock (Generic)
@@ -129,8 +127,6 @@ defaultConfig = Config
     , cExtensions   = []
     , cGhcOptions   = []
     , cGitignore    = []
-    , cStylish      = Last Nothing
-    , cContributing = Last Nothing
     , cNoUpload     = Any False
     , cFiles        = mempty
     }
@@ -158,8 +154,6 @@ configCodec = Config
     <*> textArr             "extensions"    .= cExtensions
     <*> textArr             "ghc-options"   .= cGhcOptions
     <*> textArr             "gitignore"     .= cGitignore
-    <*> Toml.last sourceT   "stylish"       .= cStylish
-    <*> Toml.last sourceT   "contributing"  .= cContributing
     <*> Toml.any            "noUpload"      .= cNoUpload
     <*> filesCodec          "files"         .= cFiles
   where
@@ -219,8 +213,6 @@ finalise Config{..} = Config
     <*> pure cExtensions
     <*> pure cGhcOptions
     <*> pure cGitignore
-    <*> pure cStylish
-    <*> pure cContributing
     <*> pure cNoUpload
     <*> pure cFiles
   where

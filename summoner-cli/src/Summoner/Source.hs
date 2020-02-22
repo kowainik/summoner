@@ -8,14 +8,13 @@ This module contains the 'Source' data that describes how to fetch custom files.
 
 module Summoner.Source
        ( Source (..)
-       , sourceT
        , sourceCodec
        , fetchSource
        ) where
 
 import Control.Exception (catch)
 import System.Process (readProcess)
-import Toml (Key, TomlBiMap, TomlBiMapError (..), TomlCodec)
+import Toml (TomlBiMapError (..), TomlCodec)
 
 import Summoner.Ansi (errorMessage, infoMessage)
 
@@ -58,21 +57,6 @@ matchLocal e            = Left $ WrongConstructor "Local" $ showSource e
 matchRaw :: Source -> Either TomlBiMapError Text
 matchRaw (Raw raw) = Right raw
 matchRaw e         = Left $ WrongConstructor "Raw" $ showSource e
-
--- DEPRECATED: To be removed in 2.0
-sourceT :: Key -> TomlCodec Source
-sourceT nm = Toml.match (_Url  >>> Toml._Text) (nm <> "url")
-         <|> Toml.match (_Local >>> Toml._String) (nm <> "Local")
-         <|> Toml.match (_Raw  >>> Toml._Text) (nm <> "raw")
-  where
-    _Url :: TomlBiMap Source Text
-    _Url = Toml.prism Url matchUrl
-
-    _Local :: TomlBiMap Source FilePath
-    _Local = Toml.prism Local matchLocal
-
-    _Raw :: TomlBiMap Source Text
-    _Raw = Toml.prism Raw matchRaw
 
 {- | This 'TomlCodec' is used in the @files@ field of config. It decodes
 corresponding constructor from the top-level key.

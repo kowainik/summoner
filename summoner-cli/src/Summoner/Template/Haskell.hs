@@ -25,7 +25,7 @@ haskellFiles Settings{..} = concat
     , [ Dir "app"       [exeFile]       | settingsIsExe ]
     , [ Dir "test"      [testFile]      | settingsTest  ]
     , [ Dir "benchmark" [benchmarkFile] | settingsBench ]
-    ] ++ maybeToList (File ".stylish-haskell.yaml" <$> settingsStylish)
+    ]
   where
     libFile :: TreeFs
     libFile = File (toString libModuleName <> ".hs")
