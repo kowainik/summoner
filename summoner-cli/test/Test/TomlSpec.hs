@@ -1,5 +1,5 @@
 module Test.TomlSpec
-       ( tomlSpec
+       ( tomlConfigSpec
        , tomlProp
        ) where
 
@@ -22,8 +22,8 @@ import qualified Hedgehog.Gen as Gen
 import qualified Hedgehog.Range as Range
 
 
-tomlSpec :: Spec
-tomlSpec = describe "TOML configuration spec" $ do
+tomlConfigSpec :: Spec
+tomlConfigSpec = describe "TOML configuration spec" $ do
     it "finalises default configuration" $
         finalise defaultConfig `shouldSatisfy` isSuccess
     it "parses default configuration" $
