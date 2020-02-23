@@ -27,6 +27,7 @@ module Summoner.Question
        , queryDef
        , queryManyRepeatOnFail
        , checkUniqueName
+       , doesExistProjectName
 
          -- * Customize target message
        , targetMessageWithText
@@ -260,11 +261,16 @@ queryManyRepeatOnFail parser = promptLoop
 
 checkUniqueName :: Text -> IO Text
 checkUniqueName nm = do
-    curPath <- getCurrentDirectory
-    exist   <- doesPathExist $ curPath </> toString nm
+    exist <- doesExistProjectName nm
     if exist then do
         warningMessage "Project with this name is already exist. Please choose another one"
         newNm <- queryNotNull "Project name: "
         checkUniqueName newNm
     else
         pure nm
+
+-- | Check if the folder with the suggested project name is already exist.
+doesExistProjectName :: Text -> IO Bool
+doesExistProjectName projectName = do
+    curPath <- getCurrentDirectory
+    doesPathExist $ curPath </> toString projectName

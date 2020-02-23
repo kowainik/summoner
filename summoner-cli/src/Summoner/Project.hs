@@ -10,8 +10,9 @@ This module introduces functions for the project creation.
 
 module Summoner.Project
        ( generateProject
+       , generateProjectInteractive
+       , generateProjectNonInteractive
        , initializeProject
-       , fetchSources
        ) where
 
 import Colourista (bold, formattedMessage, green)
@@ -24,31 +25,40 @@ import System.Directory (findExecutable, setCurrentDirectory)
 import Summoner.Ansi (errorMessage, infoMessage, skipMessage, successMessage, warningMessage)
 import Summoner.Config (Config, ConfigP (..))
 import Summoner.CustomPrelude (CustomPrelude (..))
-import Summoner.Decision (Decision (..), decisionToBool)
+import Summoner.Decision (Decision (..), decisionToBool, decisionsToBools, promptDecisionToBool)
 import Summoner.Default (currentYear, defaultDescription, defaultGHC)
 import Summoner.GhcVer (oldGhcs, parseGhcVer, showGhcVer)
-import Summoner.License (LicenseName (..), customizeLicense, fetchLicense, licenseShortDesc,
-                         parseLicenseName)
-import Summoner.Question (YesNoPrompt (..), checkUniqueName, choose, falseMessage,
-                          mkDefaultYesNoPrompt, query, queryDef, queryManyRepeatOnFail,
-                          queryWithPredicate, targetMessageWithText, trueMessage)
+import Summoner.License (LicenseName (..), fetchLicenseCustom, licenseShortDesc, parseLicenseName)
+import Summoner.Mode (ConnectMode (..), Interactivity (..), isOffline)
+import Summoner.Question (YesNoPrompt (..), checkUniqueName, choose, doesExistProjectName,
+                          falseMessage, mkDefaultYesNoPrompt, query, queryDef,
+                          queryManyRepeatOnFail, queryWithPredicate, targetMessageWithText,
+                          trueMessage)
 import Summoner.Settings (Settings (..))
-import Summoner.Source (Source, fetchSource)
+import Summoner.Source (fetchSources)
 import Summoner.Template (createProjectTemplate)
 import Summoner.Template.Mempty (memptyIfFalse)
 import Summoner.Text (intercalateMap, moduleNameValid, packageNameValid, packageToModule)
-import Summoner.Tree (TreeFs, pathToTree, showBoldTree, traverseTree)
-
-import qualified Data.Map.Strict as Map
-
+import Summoner.Tree (showBoldTree, traverseTree)
 
 -- | Generate the project.
 generateProject
-    :: Bool        -- ^ @offline@ mode option
-    -> Text        -- ^ Given project name.
-    -> Config      -- ^ Given configurations.
+    :: Interactivity  -- ^ Is it interactive or non-interactive mode?
+    -> ConnectMode    -- ^ @offline@ mode option.
+    -> Text           -- ^ Given project name.
+    -> Config         -- ^ Given configurations.
     -> IO ()
-generateProject isOffline projectName ConfigP{..} = do
+generateProject Interactive    = generateProjectInteractive
+generateProject NonInteractive = generateProjectNonInteractive
+
+
+-- | Generate the project.
+generateProjectInteractive
+    :: ConnectMode    -- ^ @offline@ mode option.
+    -> Text           -- ^ Given project name.
+    -> Config         -- ^ Given configurations.
+    -> IO ()
+generateProjectInteractive connectMode projectName ConfigP{..} = do
     settingsRepo <- checkUniqueName projectName
     -- decide cabal stack or both
     (settingsCabal, settingsStack) <- getCabalStack (cCabal, cStack)
@@ -62,20 +72,18 @@ generateProject isOffline projectName ConfigP{..} = do
     settingsCategories <- query "Category: "
 
     putText licenseText
-    settingsLicenseName  <- if isOffline
+    settingsLicenseName  <- if isOffline connectMode
         then NONE <$ infoMessage "'NONE' license is used in offline mode"
         else choose parseLicenseName "License: " $ ordNub (cLicense : universe)
 
     -- License creation
-    fetchedLicense <- fetchLicense settingsLicenseName
     settingsYear <- currentYear
-    let settingsLicenseText = customizeLicense
-            settingsLicenseName
-            fetchedLicense
-            settingsFullName
-            settingsYear
+    settingsLicenseText <- fetchLicenseCustom
+        settingsLicenseName
+        settingsFullName
+        settingsYear
 
-    settingsGitHub   <- decisionToBool cGitHub
+    settingsGitHub   <- promptDecisionToBool cGitHub
         (YesNoPrompt "GitHub integration" "Do you want to create a GitHub repository?")
 
     let settingsNoUpload = getAny cNoUpload
@@ -89,14 +97,14 @@ generateProject isOffline projectName ConfigP{..} = do
     settingsGhActions <- decisionIf (settingsCabal && settingsGitHub) (mkDefaultYesNoPrompt "GitHub Actions CI integration") cGhActions
     settingsTravis    <- decisionIf settingsGitHub (mkDefaultYesNoPrompt "Travis CI integration") cTravis
     settingsAppVeyor  <- decisionIf settingsGitHub (mkDefaultYesNoPrompt "AppVeyor CI integration") cAppVey
-    settingsIsLib     <- decisionToBool cLib (mkDefaultYesNoPrompt "library target")
+    settingsIsLib     <- promptDecisionToBool cLib (mkDefaultYesNoPrompt "library target")
     settingsIsExe     <- let target = "executable target" in
         if settingsIsLib
-        then decisionToBool cExe (mkDefaultYesNoPrompt target)
+        then promptDecisionToBool cExe (mkDefaultYesNoPrompt target)
         else trueMessage target
-    settingsTest      <- decisionToBool cTest (mkDefaultYesNoPrompt "tests")
-    settingsBench     <- decisionToBool cBench (mkDefaultYesNoPrompt "benchmarks")
-    settingsPrelude   <- if settingsIsLib then getPrelude else pure Nothing
+    settingsTest      <- promptDecisionToBool cTest (mkDefaultYesNoPrompt "tests")
+    settingsBench     <- promptDecisionToBool cBench (mkDefaultYesNoPrompt "benchmarks")
+    settingsPrelude   <- getPrelude
 
     let settingsExtensions = cExtensions
     let settingsGhcOptions = cGhcOptions
@@ -117,7 +125,7 @@ generateProject isOffline projectName ConfigP{..} = do
     when (oldGhcIncluded && settingsStack && settingsTravis) $
         warningMessage "Old GHC versions won't be included into Stack matrix at Travis CI because of the Stack issue with newer Cabal versions."
 
-    settingsFiles <- fetchSources isOffline cFiles
+    settingsFiles <- fetchSources connectMode cFiles
 
     -- Create project data from all variables in scope
     -- and make a project from it.
@@ -125,7 +133,7 @@ generateProject isOffline projectName ConfigP{..} = do
  where
     decisionIf :: Bool -> YesNoPrompt -> Decision -> IO Bool
     decisionIf p ynPrompt decision = if p
-        then decisionToBool decision ynPrompt
+        then promptDecisionToBool decision ynPrompt
         else falseMessage (yesNoTarget ynPrompt)
 
     categoryText :: Text
@@ -182,8 +190,8 @@ generateProject isOffline projectName ConfigP{..} = do
     -- If user chose only one during CLI, we assume to use only that one.
     getCabalStack :: (Decision, Decision) -> IO (Bool, Bool)
     getCabalStack = \case
-        (Idk, Idk) -> decisionToBool cCabal (mkDefaultYesNoPrompt "cabal") >>= \c ->
-            if c then decisionToBool cStack (mkDefaultYesNoPrompt "stack") >>= \s -> pure (c, s)
+        (Idk, Idk) -> promptDecisionToBool cCabal (mkDefaultYesNoPrompt "cabal") >>= \c ->
+            if c then promptDecisionToBool cStack (mkDefaultYesNoPrompt "stack") >>= \s -> pure (c, s)
             else stackMsg True >> pure (False, True)
         (Nop, Nop) -> errorMessage "Neither cabal nor stack was chosen" >> exitFailure
         (Yes, Yes) -> output (True, True)
@@ -198,26 +206,76 @@ generateProject isOffline projectName ConfigP{..} = do
         cabalMsg c = targetMessageWithText c "Cabal" "used in this project"
         stackMsg c = targetMessageWithText c "Stack" "used in this project"
 
+----------------------------------------------------------------------------
+-- Non-interactive
+----------------------------------------------------------------------------
+
+generateProjectNonInteractive
+    :: ConnectMode    -- ^ @offline@ mode option.
+    -> Text           -- ^ Given project name.
+    -> Config         -- ^ Given configurations.
+    -> IO ()
+generateProjectNonInteractive connectMode projectName ConfigP{..} = do
+    isNonUnique <- doesExistProjectName projectName
+    when isNonUnique $ do
+        errorMessage "Project with this name is already exist. Please choose another one."
+        () <$ exitFailure
+    let settingsRepo = projectName
+    -- decide cabal stack or both
+    let (settingsCabal, settingsStack) = decisionsToBools (cCabal, cStack)
+
+    let settingsOwner       = cOwner
+    let settingsDescription = defaultDescription
+    let settingsFullName    = cFullName
+    let settingsEmail       = cEmail
+    let settingsCategories  = ""
+    let settingsLicenseName = if isOffline connectMode then NONE else cLicense
+
+    -- License creation
+    settingsYear <- currentYear
+    settingsLicenseText <- fetchLicenseCustom
+        settingsLicenseName
+        settingsFullName
+        settingsYear
+
+    let settingsGitHub   = decisionToBool cGitHub
+    let settingsNoUpload = getAny cNoUpload || isOffline connectMode
+
+    let settingsPrivate = decisionIf (settingsGitHub && not settingsNoUpload) cPrivate
+    let settingsGhActions = decisionIf (settingsCabal && settingsGitHub) cGhActions
+    let settingsTravis    = decisionIf settingsGitHub cTravis
+    let settingsAppVeyor  = decisionIf settingsGitHub cAppVey
+    let (settingsIsLib, settingsIsExe) = decisionsToBools (cLib, cExe)
+    let settingsTest    = decisionToBool cTest
+    let settingsBench   = decisionToBool cBench
+    let settingsPrelude = getLast cPrelude
+
+    let settingsExtensions = cExtensions
+    let settingsGhcOptions = cGhcOptions
+    let settingsGitignore  = cGitignore
+    let settingsTestedVersions = sortNub $ defaultGHC : cGhcVer
+    settingsFiles <- fetchSources connectMode cFiles
+
+    -- Create project data from all variables in scope
+    -- and make a project from it.
+    initializeProject Settings{..}
+  where
+    decisionIf :: Bool -> Decision -> Bool
+    decisionIf p d =
+        if p
+        then decisionToBool d
+        else False
+
+----------------------------------------------------------------------------
+-- Initialize
+----------------------------------------------------------------------------
+
 -- | Creates the directory and run GitHub commands.
 initializeProject :: Settings -> IO ()
 initializeProject settings@Settings{..} = do
     createProjectDirectory settings
     when settingsGitHub $ doGithubCommands settings
     formattedMessage [bold, green] "\nJob's done"
-
-{- | This function fetches contents of extra file sources.
--}
-fetchSources :: Bool -> Map FilePath Source -> IO [TreeFs]
-fetchSources isOffline = mapMaybeM sourceToTree . Map.toList
-  where
-    sourceToTree :: (FilePath, Source) -> IO (Maybe TreeFs)
-    sourceToTree (path, source) = do
-        infoMessage $ "Fetching content of the extra file: " <> toText path
-        fetchSource isOffline source >>= \case
-            Nothing -> do
-                errorMessage $ "Error fetching: " <> toText path
-                pure Nothing
-            Just content -> pure $ Just $ pathToTree path content
 
 -- | From the given 'Settings' creates the project.
 createProjectDirectory :: Settings -> IO ()

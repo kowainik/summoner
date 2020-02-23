@@ -9,6 +9,7 @@ This module contains the 'Source' data that describes how to fetch custom files.
 module Summoner.Source
        ( Source (..)
        , sourceCodec
+       , fetchSources
        , fetchSource
        ) where
 
@@ -17,7 +18,10 @@ import System.Process (readProcess)
 import Toml (TomlBiMapError (..), TomlCodec)
 
 import Summoner.Ansi (errorMessage, infoMessage)
+import Summoner.Mode (ConnectMode (..), isOffline)
+import Summoner.Tree (TreeFs, pathToTree)
 
+import qualified Data.Map.Strict as Map
 import qualified Toml
 
 
@@ -68,21 +72,40 @@ sourceCodec = asum
     , Toml.dimatch (rightToMaybe . matchRaw) Raw (Toml.text "raw")
     ]
 
-fetchSource :: Bool -> Source -> IO (Maybe Text)
-fetchSource isOffline = \case
+{- | This function fetches contents of extra file sources.
+-}
+fetchSources :: ConnectMode -> Map FilePath Source -> IO [TreeFs]
+fetchSources connectMode = mapMaybeM sourceToTree . Map.toList
+  where
+    sourceToTree :: (FilePath, Source) -> IO (Maybe TreeFs)
+    sourceToTree (path, source) = do
+        infoMessage $ "Fetching content of the extra file: " <> toText path
+        fetchSource connectMode source >>= \case
+            Nothing -> Nothing <$ errorMessage ("Error fetching: " <> toText path)
+            Just content -> pure $ Just $ pathToTree path content
+
+{- | Fetches content of the given extra file source.
+Doesn't fetch 'Url' if the 'ConnectMode' is 'Offline'.
+-}
+fetchSource :: ConnectMode -> Source -> IO (Maybe Text)
+fetchSource connectMode = \case
     Local path -> catch (Just <$> readFileText path) (localError path)
-    Url url -> if isOffline
+    Url url -> if isOffline connectMode
         then Nothing <$ infoMessage ("Ignoring fetching from URL in offline mode from source: " <> url)
         else fetchUrl url `catch` urlError url
     Raw raw -> pure $ Just raw
   where
     localError :: FilePath -> SomeException -> IO (Maybe Text)
-    localError path _ = errorMessage ("Couldn't read file: " <> toText path)
-                    >> pure Nothing
+    localError path err = do
+        errorMessage ("Couldn't read file: " <> toText path)
+        errorMessage $ toText $ displayException err
+        pure Nothing
 
     urlError :: Text -> SomeException -> IO (Maybe Text)
-    urlError url _ = errorMessage ("Couldn't get to link: " <> url)
-                  >> pure Nothing
+    urlError url err = do
+        errorMessage ("Couldn't get to link: " <> url)
+        errorMessage $ toText $ displayException err
+        pure Nothing
 
     fetchUrl :: Text -> IO (Maybe Text)
-    fetchUrl url = Just . toText <$> readProcess "curl" [toString url] ""
+    fetchUrl url = Just . toText <$> readProcess "curl" [toString url, "--silent"] ""

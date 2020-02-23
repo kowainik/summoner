@@ -88,6 +88,13 @@ The changelog is available [on GitHub][2].
   Remove deprecated `stylish` and `contributing` fields in the configurations.
   Use `files` instead.
   (by [@vrom911](https://github.com/vrom911))
+* __#CLI__ __#TUI__
+  Customise outputted LICENSE text for `summon show license LICENSE_NAME` command
+* Use `--silent` mode with `curl` commands.
+* [#114](https://github.com/kowainik/summoner/issues/114):
+  __#CLI__ __#TUI__
+  Implement non-interactive mode with `-n | --non-interacive` command-line option.
+  (by [@vrom911](https://github.com/vrom911))
 
 ## 1.4.0.0 – Dec 25, 2019 🎅
 
