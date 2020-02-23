@@ -25,6 +25,10 @@ The changelog is available [on GitHub][2].
 * [#363](https://github.com/kowainik/summoner/issues/363):
   Move from `generic-deriving` to `generic-data`.
   (by [@chshersh](https://github.com/chshersh))
+* [#70](https://github.com/kowainik/summoner/issues/70):
+  Implement `summon config` command. This command will generate the
+  default TOML configuration file with helpful comments.
+  (by [@chshersh](https://github.com/chshersh))
 * [#361](https://github.com/kowainik/summoner/issues/361):
   Always put all default warnings in `ghc-options` inside common
   stanza under cabal conditionals on the `GHC` version. Now they look

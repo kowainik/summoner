@@ -223,7 +223,7 @@ configToSummonKit
     -> [TreeFs]  -- ^ Extra files
     -> Config  -- ^ Given configurations.
     -> SummonKit
-configToSummonKit cRepo cOffline cConfigFile files Config{..} = SummonKit
+configToSummonKit cRepo cOffline cConfigFile files ConfigP{..} = SummonKit
     { summonKitUser  = User
         { userOwner    = cOwner
         , userFullName = cFullName

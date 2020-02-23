@@ -48,7 +48,7 @@ generateProject
     -> Text        -- ^ Given project name.
     -> Config      -- ^ Given configurations.
     -> IO ()
-generateProject isOffline projectName Config{..} = do
+generateProject isOffline projectName ConfigP{..} = do
     settingsRepo <- checkUniqueName projectName
     -- decide cabal stack or both
     (settingsCabal, settingsStack) <- getCabalStack (cCabal, cStack)

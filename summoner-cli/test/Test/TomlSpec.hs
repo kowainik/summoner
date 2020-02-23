@@ -1,13 +1,17 @@
 module Test.TomlSpec
-       ( tomlProp
+       ( tomlSpec
+       , tomlProp
        ) where
 
 import Hedgehog (MonadGen, Property, forAll, property, tripping)
 import Relude.Extra.Enum (universe)
+import Relude.Extra.Validation (Validation (..))
+import Test.Hspec (Spec, describe, it, shouldSatisfy)
 import Toml.Bi.Code (decode, encode)
 
-import Summoner.Config (ConfigP (..), PartialConfig, configCodec)
+import Summoner.Config (ConfigP (..), PartialConfig, configCodec, defaultConfig, finalise)
 import Summoner.CustomPrelude (CustomPrelude (..))
+import Summoner.Default (defaultConfigFileContent)
 import Summoner.GhcVer (GhcVer)
 import Summoner.License (LicenseName)
 import Summoner.Source (Source (..))
@@ -17,6 +21,16 @@ import qualified Data.Text as T
 import qualified Hedgehog.Gen as Gen
 import qualified Hedgehog.Range as Range
 
+
+tomlSpec :: Spec
+tomlSpec = describe "TOML configuration spec" $ do
+    it "finalises default configuration" $
+        finalise defaultConfig `shouldSatisfy` isSuccess
+    it "parses default configuration" $
+        decode configCodec defaultConfigFileContent `shouldSatisfy` isRight
+  where
+    isSuccess :: Validation e a -> Bool
+    isSuccess = \case { Success _ -> True; _ -> False }
 
 tomlProp :: Property
 tomlProp = property $ do
@@ -84,8 +98,6 @@ genPartialConfig = do
     cExtensions <- genTextArr
     cGhcOptions <- genTextArr
     cGitignore  <- genTextArr
-    cStylish    <- Last <$> Gen.maybe genSource
-    cContributing <- Last <$> Gen.maybe genSource
     cNoUpload   <- Any <$> Gen.bool
     cFiles <- Gen.map (Range.constant 0 10) (liftA2 (,) genString genSource)
-    pure Config{..}
+    pure ConfigP{..}

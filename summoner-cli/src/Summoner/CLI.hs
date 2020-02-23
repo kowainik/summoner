@@ -22,6 +22,7 @@ module Summoner.CLI
        , summonCli
 
          -- * Runners
+       , runConfig
        , runScript
 
          -- * Common helper functions
@@ -35,8 +36,8 @@ import NeatInterpolation (text)
 import Options.Applicative (Parser, ParserInfo, ParserPrefs, argument, command, customExecParser,
                             flag, fullDesc, help, helpLongEquals, helper, info, infoFooter,
                             infoHeader, infoOption, long, maybeReader, metavar, option, prefs,
-                            progDesc, short, showHelpOnEmpty, strArgument, strOption, subparser,
-                            subparserInline, switch, value)
+                            progDesc, short, showDefault, showHelpOnEmpty, strArgument, strOption,
+                            subparser, subparserInline, switch, value)
 import Options.Applicative.Help.Chunk (stringChunk)
 import Relude.Extra.Enum (universe)
 import Relude.Extra.Validation (Validation (..))
@@ -49,7 +50,7 @@ import Summoner.Config (Config, ConfigP (..), PartialConfig, defaultConfig, fina
                         loadFileConfig)
 import Summoner.CustomPrelude (CustomPrelude (..))
 import Summoner.Decision (Decision (..))
-import Summoner.Default (defaultConfigFile, defaultGHC)
+import Summoner.Default (defaultConfigFile, defaultConfigFileContent, defaultGHC)
 import Summoner.GhcVer (GhcVer, ghcTable, parseGhcVer)
 import Summoner.License (License (..), LicenseName (..), fetchLicense, parseLicenseName,
                          showLicenseWithDesc)
@@ -85,6 +86,35 @@ runCliCommand = \case
     New opts -> runNew opts
     Script opts -> runScript opts
     ShowInfo opts -> runShow opts
+    Config opts -> runConfig opts
+
+
+{- | Runs @config@ command
+
+@
+Usage: summon config [-f|--file=FILENAME]
+  Create default TOML configuration for summoner
+
+Available options:
+  -h,--help                Show this help text
+  -f,--file=FILENAME       Path to the toml file with configurations. If not
+                           specified '~/.summoner.toml' will be used if present
+@
+-}
+runConfig :: ConfigOpts -> IO ()
+runConfig ConfigOpts{..} = do
+    configFile <- whenNothing configOptsName defaultConfigFile
+    let configFileTxt = toText configFile
+    alreadyExist <- doesFileExist configFile
+    if alreadyExist
+    then do
+        warningMessage $ "File '" <> configFileTxt <> "' already exits."
+        infoMessage "Use 'summon config --file <path>' to specify another path."
+        exitFailure
+    else do
+        writeFileText configFile defaultConfigFileContent
+        infoMessage $ "Created default configuration file: " <> configFileTxt
+        infoMessage "Open the file using your editor of your choice."
 
 {- | Runs @show@ command.
 
@@ -230,8 +260,10 @@ data Command
     | Script ScriptOpts
     -- | @show@ command shows supported licenses or GHC versions
     | ShowInfo ShowOpts
+    -- | @config@ command creates the TOML configuration file
+    | Config ConfigOpts
 
--- | Options parsed with @new@ command
+-- | Options parsed with the @new@ command
 data NewOpts = NewOpts
     { newOptsProjectName :: Text           -- ^ project name
     , newOptsIgnoreFile  :: Bool           -- ^ ignore all config files if 'True'
@@ -240,7 +272,7 @@ data NewOpts = NewOpts
     , newOptsCliConfig   :: PartialConfig  -- ^ config gathered during CLI
     }
 
--- | Options parsed with @script@ command
+-- | Options parsed with the @script@ command
 data ScriptOpts = ScriptOpts
     { scriptOptsTool :: !Tool      -- ^ Build tool: `cabal` or `stack`
     , scriptOptsName :: !FilePath  -- ^ File path to the script
@@ -251,6 +283,11 @@ data ScriptOpts = ScriptOpts
 data ShowOpts
     = GhcList
     | LicenseList (Maybe String)
+
+-- | Options parsed with the @config@ command
+newtype ConfigOpts = ConfigOpts
+    { configOptsName :: Maybe FilePath
+    }
 
 ----------------------------------------------------------------------------
 -- Parsers
@@ -278,12 +315,23 @@ summonerVersion version = intercalate "\n" [sVersion, sHash, sDate]
     sHash = " ➤ " <> formatWith [blue, bold] "Git revision: " <> $(gitHash)
     sDate = " ➤ " <> formatWith [blue, bold] "Commit date:  " <> $(gitCommitDate)
 
--- All possible commands.
+-- | All possible commands.
 summonerP :: Parser Command
 summonerP = subparser
     $ command "new" (info (helper <*> newP) $ progDesc "Create a new Haskell project")
    <> command "script" (info (helper <*> scriptP) $ progDesc "Create a new Haskell script")
    <> command "show" (info (helper <*> showP) $ progDesc "Show supported licenses or ghc versions")
+   <> command "config" (info (helper <*> configP) $ progDesc "Create default TOML configuration for summoner")
+
+----------------------------------------------------------------------------
+-- @config@ command parsers
+----------------------------------------------------------------------------
+
+-- | Parses options of the @config@ command.
+configP :: Parser Command
+configP = do
+    configOptsName <- optional configFileP
+    pure $ Config ConfigOpts{..}
 
 ----------------------------------------------------------------------------
 -- @show@ command parsers
@@ -330,6 +378,7 @@ ghcVerP = option
     (  long "ghc"
     <> short 'g'
     <> value defaultGHC
+    <> showDefault
     <> metavar "GHC_VERSION"
     <> help "Version of the compiler to be used for script"
     )
@@ -345,7 +394,7 @@ newP = do
     newOptsIgnoreFile  <- ignoreFileP
     noUpload           <- noUploadP
     newOptsOffline     <- offlineP
-    newOptsConfigFile  <- optional fileP
+    newOptsConfigFile  <- optional configFileP
     cabal <- cabalP
     stack <- stackP
     preludePack <- optional preludePackP
@@ -463,8 +512,8 @@ offlineP = switch
     $ long "offline"
    <> help "Offline mode: create project with 'All Rights Reserved' license and without uploading to GitHub."
 
-fileP :: Parser FilePath
-fileP = strOption
+configFileP :: Parser FilePath
+configFileP = strOption
     $ long "file"
    <> short 'f'
    <> metavar "FILENAME"
