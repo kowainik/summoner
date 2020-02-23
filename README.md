@@ -499,7 +499,7 @@ Available options:
                            specified '~/.summoner.toml' will be used if present
 ```
 
-This command will generate TOML configuration with default settings
+This command will generate a TOML configuration file with the default settings
 that can be used to scaffold future Haskell packages. It contains all
 options supported by Summoner with comments and examples. Possible usages:
 

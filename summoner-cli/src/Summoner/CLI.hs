@@ -114,7 +114,7 @@ runConfig ConfigOpts{..} = do
     else do
         writeFileText configFile defaultConfigFileContent
         infoMessage $ "Created default configuration file: " <> configFileTxt
-        infoMessage "Open the file using your editor of your choice."
+        infoMessage "Open the file using the editor of your choice."
 
 {- | Runs @show@ command.
 

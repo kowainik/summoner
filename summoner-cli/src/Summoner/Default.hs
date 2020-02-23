@@ -110,7 +110,7 @@ license = "$licenseName"
 # hosting 'git' repos. The following set of flags controls integration with GitHub.
 # github = true    # enabled GitHub integration
 # noUpload = true  # Init git repo, but don't create it on GitHub
-# private = false  # create private repos by default
+# private = true  # create private repos by default
 # gitignore =      # list of additional entries to be added in .gitignore
 #     [ "build"
 #     , "result"
@@ -149,7 +149,7 @@ license = "$licenseName"
 #     , { path = ".github/CODEOWNERS"
 #       , raw  = "*  @$defaultOwner"
 #       }
-#     , { path  = ".github/CODEOWNERS"
+#     , { path  = "src/Foo.hs"
 #       , local = "/home/user/.default/Foo.hs"
 #       }
 #     ]
