@@ -262,10 +262,7 @@ generateProjectNonInteractive connectMode projectName ConfigP{..} = do
     initializeProject Settings{..}
   where
     decisionIf :: Bool -> Decision -> Bool
-    decisionIf p d =
-        if p
-        then decisionToBool d
-        else False
+    decisionIf p d = p && decisionToBool d
 
 ----------------------------------------------------------------------------
 -- Initialize

@@ -32,14 +32,13 @@ import Relude.Extra.Enum (universe)
 import System.Directory (doesDirectoryExist, doesFileExist, getCurrentDirectory, listDirectory)
 
 import Summoner.Ansi (errorMessage, infoMessage)
-import Summoner.CLI (Command (..), NewOpts (..), ShowOpts (..), getFinalConfig, runConfig,
-                     runScript, summon)
-import Summoner.Config (ConfigP (cFiles, cFullName), guessConfigFromGit)
+import Summoner.CLI (Command (..), NewOpts (..), ShowOpts (..), getCustomLicenseText,
+                     getFinalConfig, runConfig, runScript, summon)
+import Summoner.Config (ConfigP (cFiles))
 import Summoner.Decision (Decision (..))
-import Summoner.Default (currentYear, defaultConfigFile)
+import Summoner.Default (defaultConfigFile)
 import Summoner.GhcVer (ghcTable)
-import Summoner.License (License (..), LicenseName, fetchLicenseCustom, parseLicenseName,
-                         showLicenseWithDesc)
+import Summoner.License (License (..), LicenseName, parseLicenseName, showLicenseWithDesc)
 import Summoner.Mode (isNonInteractive)
 import Summoner.Project (generateProjectNonInteractive, initializeProject)
 import Summoner.Source (fetchSources)
@@ -306,12 +305,7 @@ runTuiShowLicense (toText -> name) = case parseLicenseName name of
         errorMessage $ "Error parsing license name: " <> name
         infoMessage "Use 'summon show license' command to see the list of all available licenses"
     Just licenseName -> do
-        year <- currentYear
-        guessConfig <- guessConfigFromGit
-        lc <- fetchLicenseCustom
-            licenseName
-            (fromMaybe "YOUR NAME" $ getLast $ cFullName guessConfig)
-            year
+        lc <- getCustomLicenseText licenseName
         runApp (licenseApp licenseName lc) ()
   where
     licenseApp :: LicenseName -> License -> App () e ()

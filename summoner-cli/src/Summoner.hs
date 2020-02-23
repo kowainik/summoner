@@ -18,6 +18,7 @@ import Summoner.Decision as Summoner
 import Summoner.Default as Summoner
 import Summoner.GhcVer as Summoner
 import Summoner.License as Summoner
+import Summoner.Mode as Summoner
 import Summoner.Project as Summoner
 import Summoner.Question as Summoner
 import Summoner.Settings as Summoner

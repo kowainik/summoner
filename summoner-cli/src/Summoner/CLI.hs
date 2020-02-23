@@ -27,6 +27,7 @@ module Summoner.CLI
 
          -- * Common helper functions
        , getFinalConfig
+       , getCustomLicenseText
        ) where
 
 import Colourista (blue, bold, formatWith)
@@ -145,16 +146,21 @@ runShow = \case
                 showBulletList @LicenseName show universe
                 -- get and show a license`s text
             Just licenseName -> do
-                year <- currentYear
-                guessConfig <- guessConfigFromGit
-                licenseCustomText <- fetchLicenseCustom
-                    licenseName
-                    (fromMaybe "YOUR NAME" $ getLast $ cFullName guessConfig)
-                    year
+                licenseCustomText <- getCustomLicenseText licenseName
                 putTextLn $ unLicense licenseCustomText
   where
     showBulletList :: (a -> Text) -> [a] -> IO ()
     showBulletList showT = mapM_ (infoMessage . T.append "➤ " . showT)
+
+-- | Get the customized License text for @summon show license NAME@ command.
+getCustomLicenseText :: LicenseName -> IO License
+getCustomLicenseText licenseName = do
+    year <- currentYear
+    guessConfig <- guessConfigFromGit
+    fetchLicenseCustom
+        licenseName
+        (fromMaybe "YOUR NAME" $ getLast $ cFullName guessConfig)
+        year
 
 {- | Runs @script@ command.
 
