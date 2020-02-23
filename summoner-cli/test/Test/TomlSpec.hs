@@ -6,7 +6,7 @@ module Test.TomlSpec
 import Hedgehog (MonadGen, Property, forAll, property, tripping)
 import Relude.Extra.Enum (universe)
 import Relude.Extra.Validation (Validation (..))
-import Test.Hspec (Spec, describe, it, shouldSatisfy)
+import Test.Hspec (Spec, describe, it, shouldReturn, shouldSatisfy)
 import Toml.Bi.Code (decode, encode)
 
 import Summoner.Config (ConfigP (..), PartialConfig, configCodec, defaultConfig, finalise)
@@ -28,6 +28,9 @@ tomlSpec = describe "TOML configuration spec" $ do
         finalise defaultConfig `shouldSatisfy` isSuccess
     it "parses default configuration" $
         decode configCodec defaultConfigFileContent `shouldSatisfy` isRight
+    it "default configuration is up-to-date" $
+        readFileText "test/golden/summoner-default.toml"
+            `shouldReturn` defaultConfigFileContent
   where
     isSuccess :: Validation e a -> Bool
     isSuccess = \case { Success _ -> True; _ -> False }

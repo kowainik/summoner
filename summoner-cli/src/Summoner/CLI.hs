@@ -517,7 +517,7 @@ configFileP = strOption
     $ long "file"
    <> short 'f'
    <> metavar "FILENAME"
-   <> help "Path to the toml file with configurations. If not specified '~/.summoner.toml' will be used if present"
+   <> help "Path to the toml file with configurations. If not specified '~/.summoner.toml' will be used by default"
 
 preludePackP :: Parser Text
 preludePackP = strOption

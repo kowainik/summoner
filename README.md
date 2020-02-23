@@ -380,7 +380,10 @@ Here is the list of the options that can be configured to suit your needs. If op
 | `package`        | Text    | The package name of the custom prelude you'd like to use in the project (doesn't work without `module` field).                                                       |
 | `module`         | Text    | The module name of the custom prelude you'd like to use in the project (doesn't work without `package` field).                                                       |
 
-You can create default configuration using the `summon config` command. For a real-life example of the configuration, see [the configuration for projects of the `Kowainik` organization](https://github.com/kowainik/org/blob/master/.summoner.toml).
+You can create default configuration using the `summon config`
+command. See [the default content here](summoner-cli/test/golden/summoner-default.toml).
+
+For a real-life example of the configuration, see [the configuration for projects of the `Kowainik` organization](https://github.com/kowainik/org/blob/master/.summoner.toml).
 
 ### Command line arguments [↑](#structure)
 
@@ -501,7 +504,12 @@ Available options:
 
 This command will generate a TOML configuration file with the default settings
 that can be used to scaffold future Haskell packages. It contains all
-options supported by Summoner with comments and examples. Possible usages:
+options supported by Summoner with comments and examples. Though, all
+options would be turned off by default and to use them one will need
+to uncomment the correspoding lines.
+See [the default content here](summoner-cli/test/golden/summoner-default.toml).
+
+Possible command usages:
 
 ```shell
 summon config

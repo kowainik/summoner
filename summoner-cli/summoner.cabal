@@ -21,6 +21,8 @@ tested-with:         GHC == 8.2.2
                    , GHC == 8.6.5
                    , GHC == 8.8.2
 extra-source-files:
+    test/golden/summoner-default.toml
+
     test/golden/fullProject/*.yml
     test/golden/fullProject/*.yaml
     test/golden/fullProject/*.md
