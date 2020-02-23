@@ -1,6 +1,6 @@
 module Main (main) where
 
-import FullProject (someFunc)
+import FullBatteries (someFunc)
 
 
 main :: IO ()

@@ -1,0 +1,32 @@
+sudo: true
+language: haskell
+
+git:
+  depth: 5
+
+cabal: "2.4"
+
+cache:
+  directories:
+  - "$HOME/.cabal/store"
+  
+
+matrix:
+  include:
+  - ghc: 8.4.4
+  - ghc: 8.6.5
+  - ghc: 8.8.2
+  
+
+install:
+  # HLint check
+  - curl -sSL https://raw.github.com/ndmitchell/neil/master/misc/travis.sh | sh -s -- hlint .
+
+  - cabal v2-update
+  - cabal v2-build --enable-tests --enable-benchmarks
+
+script:
+  - cabal v2-test --enable-tests
+
+notifications:
+  email: false

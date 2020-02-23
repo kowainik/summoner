@@ -1,6 +1,6 @@
 # Changelog
 
-`smallProject` uses [PVP Versioning][1].
+`cabal-minimal` uses [PVP Versioning][1].
 
 ## 0.0.0.0
 

@@ -29,7 +29,7 @@ tomlConfigSpec = describe "TOML configuration spec" $ do
     it "parses default configuration" $
         decode configCodec defaultConfigFileContent `shouldSatisfy` isRight
     it "default configuration is up-to-date" $
-        readFileText "test/golden/summoner-default.toml"
+        readFileText "examples/summoner-default.toml"
             `shouldReturn` defaultConfigFileContent
   where
     isSuccess :: Validation e a -> Bool

@@ -1,0 +1,40 @@
+sudo: true
+language: haskell
+
+git:
+  depth: 5
+
+cabal: "2.4"
+
+cache:
+  directories:
+  
+  - "$HOME/.stack"
+  - "$TRAVIS_BUILD_DIR/.stack-work"
+
+matrix:
+  include:
+  
+  
+  - ghc: 8.4.4
+    env: STACK_YAML="$TRAVIS_BUILD_DIR/stack-8.4.4.yaml"
+  
+  - ghc: 8.6.5
+    env: STACK_YAML="$TRAVIS_BUILD_DIR/stack-8.6.5.yaml"
+  
+  - ghc: 8.8.2
+    env: STACK_YAML="$TRAVIS_BUILD_DIR/stack.yaml"
+
+install:
+  # HLint check
+  - curl -sSL https://raw.github.com/ndmitchell/neil/master/misc/travis.sh | sh -s -- hlint .
+
+  - curl -sSL https://get.haskellstack.org/ | sh
+  - stack --version
+  - stack build --system-ghc --test --bench --no-run-tests --no-run-benchmarks --ghc-options=-Werror
+
+script:
+  - stack test --system-ghc
+
+notifications:
+  email: false

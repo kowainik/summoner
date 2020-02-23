@@ -1,12 +1,12 @@
 {- |
-Copyright: (c) 2018 Kowainik
-SPDX-License-Identifier: MIT
+Copyright: (c) 2020 Kowainik
+SPDX-License-Identifier: BSD-3-Clause
 Maintainer: Kowainik <xrom.xkov@gmail.com>
 
-Full test project
+Stack-only example with all integrations
 -}
 
-module FullProject
+module StackFull
        ( someFunc
        ) where
 
