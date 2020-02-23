@@ -14,6 +14,7 @@ module Summoner.License
        , githubLicenseQueryNames
        , parseLicenseName
        , fetchLicense
+       , fetchLicenseCustom
        , licenseShortDesc
        , showLicenseWithDesc
        ) where
@@ -99,6 +100,7 @@ customizeLicense l license@(License licenseText) nm year
             afterN           = T.tail $ T.dropWhile (/= ']') withN
         in  beforeY <> year <> beforeN <> nm <> afterN
 
+-- | Download the given LICENSE text as it is from GitHub API.
 fetchLicense :: LicenseName -> IO License
 fetchLicense NONE = pure $ License $ licenseShortDesc NONE
 fetchLicense name = do
@@ -107,12 +109,21 @@ fetchLicense name = do
         [ licenseLink
         , "-H"
         , "Accept: application/vnd.github.drax-preview+json"
+        , "--silent"
         ]
 
     whenNothing (decodeStrict @License $ encodeUtf8 licenseJson) $ do
         errorMessage $ "Error downloading license: " <> show name
         putTextLn $ "Fetched content:\n" <> licenseJson
         exitFailure
+
+{- | Fetches the license by given name and customises user information where
+applicable.
+-}
+fetchLicenseCustom :: LicenseName -> Text -> Text -> IO License
+fetchLicenseCustom license fullName year = do
+    licenseText <- fetchLicense license
+    pure $ customizeLicense license licenseText fullName year
 
 -- | Show short information for the 'LicenseName'.
 licenseShortDesc :: LicenseName -> Text

@@ -21,6 +21,7 @@ module Summoner.Config
        , Config
        , configCodec
        , defaultConfig
+       , guessConfigFromGit
        , finalise
 
        , loadFileConfig
@@ -29,6 +30,7 @@ module Summoner.Config
 import Data.List (lookup)
 import Generic.Data (gmappend, gmempty)
 import Relude.Extra.Validation (Validation (..))
+import Shellmet (($?), ($|))
 import Toml (Key, TomlBiMap, TomlCodec, (.=))
 
 import Summoner.CustomPrelude (CustomPrelude (..), customPreludeT)
@@ -190,6 +192,21 @@ configCodec = ConfigP
 
     filesCodec :: Key -> TomlCodec (Map FilePath Source)
     filesCodec = Toml.map (Toml.string "path") sourceCodec
+
+{- | Try to retrieve user information from Git config.
+Return the 'PartialConfig' with the corresponding filled fields if the
+information is applicable.
+-}
+guessConfigFromGit :: IO PartialConfig
+guessConfigFromGit = do
+   gitOwner <- (Just <$> "git" $| ["config", "user.login"]) $? pure Nothing
+   gitName  <- (Just <$> "git" $| ["config", "user.name"])  $? pure Nothing
+   gitEmail <- (Just <$> "git" $| ["config", "user.email"]) $? pure Nothing
+   pure $ defaultConfig
+       { cOwner = Last gitOwner
+       , cFullName = Last gitName
+       , cEmail = Last gitEmail
+       }
 
 -- | Make sure that all the required configurations options were specified.
 finalise :: PartialConfig -> Validation [Text] Config

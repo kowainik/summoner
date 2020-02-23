@@ -33,7 +33,7 @@ module Summoner.Tui.Kit
        , gitHub
        , extensions
        , ghcOptions
-       , offline
+       , connectMode
        , shouldSummon
        , configFile
 
@@ -72,10 +72,11 @@ import Lens.Micro.TH (makeFields)
 
 import Summoner.Config (Config, ConfigP (..))
 import Summoner.CustomPrelude (CustomPrelude (..))
-import Summoner.Decision (Decision (..))
+import Summoner.Decision (Decision (..), decisionToBool, decisionsToBools)
 import Summoner.Default (currentYear, defaultDescription, defaultGHC)
 import Summoner.GhcVer (GhcVer)
-import Summoner.License (LicenseName (..), customizeLicense, fetchLicense)
+import Summoner.License (LicenseName (..), fetchLicenseCustom)
+import Summoner.Mode (ConnectMode (..), isOffline)
 import Summoner.Settings (Settings (..))
 import Summoner.Template (createProjectTemplate)
 import Summoner.Tree (TreeFs, showTree)
@@ -95,7 +96,7 @@ data SummonKit = SummonKit
     , summonKitExtensions   :: ![Text]  -- ^ Can be recieved from the config file.
     , summonKitGhcOptions   :: ![Text]  -- ^ Can be recieved from the config file.
     , summonKitGitignore    :: ![Text]  -- ^ Received from the config file.
-    , summonKitOffline      :: !Bool
+    , summonKitConnectMode  :: !ConnectMode
     , summonKitShouldSummon :: !Decision  -- ^ Check if project needs to be created.
     , summonKitConfigFile   :: !(Maybe FilePath)  -- ^ Just if configuration file was used.
     , summonKitExtraFiles   :: ![TreeFs]  -- ^ Extra files
@@ -203,12 +204,10 @@ finalSettings :: SummonKit -> IO Settings
 finalSettings sk = do
     year <- currentYear
     let licenseName = sk ^. project . license
-    fetchedLicense <- fetchLicense licenseName
-    let licenseText = customizeLicense
-            licenseName
-            fetchedLicense
-            (sk ^. user . fullName)
-            year
+    licenseText <- fetchLicenseCustom
+        licenseName
+        (sk ^. user . fullName)
+        year
 
     pure (summonKitToSettings sk)
         { settingsYear = year
@@ -218,12 +217,12 @@ finalSettings sk = do
 -- | Gets the initial 'SummonKit' from the given 'Config'.
 configToSummonKit
     :: Text  -- ^ Given project name
-    -> Bool    -- ^  @offline@ mode option
+    -> ConnectMode  -- ^  @offline@ mode option
     -> Maybe FilePath  -- ^ Configuration file used
     -> [TreeFs]  -- ^ Extra files
     -> Config  -- ^ Given configurations.
     -> SummonKit
-configToSummonKit cRepo cOffline cConfigFile files ConfigP{..} = SummonKit
+configToSummonKit cRepo cConnectMode cConfigFile files ConfigP{..} = SummonKit
     { summonKitUser  = User
         { userOwner    = cOwner
         , userFullName = cFullName
@@ -233,13 +232,13 @@ configToSummonKit cRepo cOffline cConfigFile files ConfigP{..} = SummonKit
         { projectRepo     = cRepo
         , projectDesc     = defaultDescription
         , projectCategory = ""
-        , projectLicense  = if cOffline then NONE else cLicense
+        , projectLicense  = if isOffline cConnectMode then NONE else cLicense
         }
     , summonKitProjectMeta = ProjectMeta
         { projectMetaLib = kitLib
         , projectMetaExe = kitExe
-        , projectMetaTest = toBool cTest
-        , projectMetaBench = toBool cBench
+        , projectMetaTest  = decisionToBool cTest
+        , projectMetaBench = decisionToBool cBench
         , projectMetaGhcs = List.delete defaultGHC cGhcVer
         , projectMetaPreludeName = kitPreludeName
         , projectMetaPreludeModule = kitPreludeModule
@@ -248,39 +247,24 @@ configToSummonKit cRepo cOffline cConfigFile files ConfigP{..} = SummonKit
     , summonKitStack = kitStack
     , summonKitGitHub = GitHub
         { gitHubEnabled  = cGitHub /= Nop
-        , gitHubNoUpload = getAny cNoUpload || cOffline
-        , gitHubPrivate  = toBool cPrivate
+        , gitHubNoUpload = getAny cNoUpload || isOffline cConnectMode
+        , gitHubPrivate  = decisionToBool cPrivate
         , gitHubActions  = (cGitHub /= Nop) && (cGhActions /= Nop) && kitCabal
         , gitHubTravis   = (cGitHub /= Nop) && (cTravis /= Nop)
-        , gitHubAppVeyor = toBool cAppVey
+        , gitHubAppVeyor = decisionToBool cAppVey
         }
     , summonKitExtensions   = cExtensions
     , summonKitGhcOptions   = cGhcOptions
     , summonKitGitignore    = cGitignore
-    , summonKitOffline      = cOffline
+    , summonKitConnectMode  = cConnectMode
     , summonKitShouldSummon = Nop
     , summonKitConfigFile   = cConfigFile
     , summonKitExtraFiles   = files
     }
   where
     kitCabal, kitStack, kitLib, kitExe :: Bool
-    (kitCabal, kitStack) = decToBools (cCabal, cStack)
-    (kitLib, kitExe) = decToBools (cLib, cExe)
-
-    decToBools :: (Decision, Decision) -> (Bool, Bool)
-    decToBools = \case
-        (Idk, Idk) -> (True, True)
-        (Yes, Idk) -> (True, False)
-        (Idk, Yes) -> (False, True)
-        (Nop, Idk) -> (False, True)
-        (Idk, Nop) -> (True, False)
-        (x, y)     -> (toBool x, toBool y)
-
-    toBool :: Decision -> Bool
-    toBool = \case
-        Yes -> True
-        Nop -> False
-        Idk -> False
+    (kitCabal, kitStack) = decisionsToBools (cCabal, cStack)
+    (kitLib, kitExe) = decisionsToBools (cLib, cExe)
 
     kitPreludeName, kitPreludeModule :: Text
     (kitPreludeName, kitPreludeModule) = case getLast cPrelude of

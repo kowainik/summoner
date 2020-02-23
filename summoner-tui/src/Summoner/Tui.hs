@@ -32,15 +32,16 @@ import Relude.Extra.Enum (universe)
 import System.Directory (doesDirectoryExist, doesFileExist, getCurrentDirectory, listDirectory)
 
 import Summoner.Ansi (errorMessage, infoMessage)
-import Summoner.CLI (Command (..), NewOpts (..), ShowOpts (..), getFinalConfig, runConfig,
-                     runScript, summon)
+import Summoner.CLI (Command (..), NewOpts (..), ShowOpts (..), getCustomLicenseText,
+                     getFinalConfig, runConfig, runScript, summon)
 import Summoner.Config (ConfigP (cFiles))
 import Summoner.Decision (Decision (..))
 import Summoner.Default (defaultConfigFile)
 import Summoner.GhcVer (ghcTable)
-import Summoner.License (License (..), LicenseName, fetchLicense, parseLicenseName,
-                         showLicenseWithDesc)
-import Summoner.Project (fetchSources, initializeProject)
+import Summoner.License (License (..), LicenseName, parseLicenseName, showLicenseWithDesc)
+import Summoner.Mode (isNonInteractive)
+import Summoner.Project (generateProjectNonInteractive, initializeProject)
+import Summoner.Source (fetchSources)
 import Summoner.Tui.Field (disabledAttr)
 import Summoner.Tui.Form (KitForm, SummonForm (..), getCurrentFocus, isActive, mkForm, recreateForm)
 import Summoner.Tui.Kit
@@ -76,11 +77,17 @@ summonTuiNew :: NewOpts -> IO ()
 summonTuiNew newOpts@NewOpts{..} = do
     -- configure initial state for TUI application
     finalConfig <- getFinalConfig newOpts
-    files <- fetchSources newOptsOffline (cFiles finalConfig)
+    when (isNonInteractive newOptsInteractivity) $ do
+        generateProjectNonInteractive
+            newOptsConnectMode
+            newOptsProjectName
+            finalConfig
+        () <$ exitSuccess
+    files <- fetchSources newOptsConnectMode (cFiles finalConfig)
     configFilePath <- findConfigFile
     let initialKit = configToSummonKit
             newOptsProjectName
-            newOptsOffline
+            newOptsConnectMode
             configFilePath
             files
             finalConfig
@@ -298,7 +305,7 @@ runTuiShowLicense (toText -> name) = case parseLicenseName name of
         errorMessage $ "Error parsing license name: " <> name
         infoMessage "Use 'summon show license' command to see the list of all available licenses"
     Just licenseName -> do
-        lc <- fetchLicense licenseName
+        lc <- getCustomLicenseText licenseName
         runApp (licenseApp licenseName lc) ()
   where
     licenseApp :: LicenseName -> License -> App () e ()

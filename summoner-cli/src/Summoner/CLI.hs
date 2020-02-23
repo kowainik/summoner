@@ -27,6 +27,7 @@ module Summoner.CLI
 
          -- * Common helper functions
        , getFinalConfig
+       , getCustomLicenseText
        ) where
 
 import Colourista (blue, bold, formatWith)
@@ -41,19 +42,19 @@ import Options.Applicative (Parser, ParserInfo, ParserPrefs, argument, command, 
 import Options.Applicative.Help.Chunk (stringChunk)
 import Relude.Extra.Enum (universe)
 import Relude.Extra.Validation (Validation (..))
-import Shellmet (($?), ($|))
 import System.Directory (doesFileExist)
 import System.Info (os)
 
 import Summoner.Ansi (errorMessage, infoMessage, successMessage, warningMessage)
 import Summoner.Config (Config, ConfigP (..), PartialConfig, defaultConfig, finalise,
-                        loadFileConfig)
+                        guessConfigFromGit, loadFileConfig)
 import Summoner.CustomPrelude (CustomPrelude (..))
 import Summoner.Decision (Decision (..))
-import Summoner.Default (defaultConfigFile, defaultConfigFileContent, defaultGHC)
+import Summoner.Default (currentYear, defaultConfigFile, defaultConfigFileContent, defaultGHC)
 import Summoner.GhcVer (GhcVer, ghcTable, parseGhcVer)
-import Summoner.License (License (..), LicenseName (..), fetchLicense, parseLicenseName,
+import Summoner.License (License (..), LicenseName (..), fetchLicenseCustom, parseLicenseName,
                          showLicenseWithDesc)
+import Summoner.Mode (ConnectMode (..), Interactivity (..), isOffline)
 import Summoner.Project (generateProject)
 import Summoner.Settings (Tool, parseTool)
 import Summoner.Template.Script (scriptFile)
@@ -145,11 +146,21 @@ runShow = \case
                 showBulletList @LicenseName show universe
                 -- get and show a license`s text
             Just licenseName -> do
-                fetchedLicense <- fetchLicense licenseName
-                putTextLn $ unLicense fetchedLicense
+                licenseCustomText <- getCustomLicenseText licenseName
+                putTextLn $ unLicense licenseCustomText
   where
     showBulletList :: (a -> Text) -> [a] -> IO ()
     showBulletList showT = mapM_ (infoMessage . T.append "➤ " . showT)
+
+-- | Get the customized License text for @summon show license NAME@ command.
+getCustomLicenseText :: LicenseName -> IO License
+getCustomLicenseText licenseName = do
+    year <- currentYear
+    guessConfig <- guessConfigFromGit
+    fetchLicenseCustom
+        licenseName
+        (fromMaybe "YOUR NAME" $ getLast $ cFullName guessConfig)
+        year
 
 {- | Runs @script@ command.
 
@@ -196,7 +207,7 @@ runNew newOpts@NewOpts{..} = do
     -- get the final config
     finalConfig <- getFinalConfig newOpts
     -- Generate the project.
-    generateProject newOptsOffline newOptsProjectName finalConfig
+    generateProject newOptsInteractivity newOptsConnectMode newOptsProjectName finalConfig
 
 -- | By the given 'NewOpts' return the final configurations.
 getFinalConfig :: NewOpts -> IO Config
@@ -205,7 +216,7 @@ getFinalConfig NewOpts{..} = do
     fileConfig <- readFileConfig newOptsIgnoreFile newOptsConfigFile
 
     -- guess config from the global ~/.gitconfig file
-    gitConfig <- guessFromGit
+    gitConfig <- guessConfigFromGit
 
     -- union all possible configs
     let unionConfig = defaultConfig <> gitConfig <> fileConfig <> newOptsCliConfig
@@ -214,18 +225,6 @@ getFinalConfig NewOpts{..} = do
     case finalise unionConfig of
         Success c    -> pure c
         Failure msgs -> for_ msgs errorMessage >> exitFailure
-  where
-    guessFromGit :: IO PartialConfig
-    guessFromGit = do
-       gitOwner <- (Just <$> "git" $| ["config", "user.login"]) $? pure Nothing
-       gitName  <- (Just <$> "git" $| ["config", "user.name"])  $? pure Nothing
-       gitEmail <- (Just <$> "git" $| ["config", "user.email"]) $? pure Nothing
-       pure $ defaultConfig
-           { cOwner = Last gitOwner
-           , cFullName = Last gitName
-           , cEmail = Last gitEmail
-           }
-
 
 -- | Reads and parses the given config file. If no file is provided the default
 -- configuration returned.
@@ -265,11 +264,12 @@ data Command
 
 -- | Options parsed with the @new@ command
 data NewOpts = NewOpts
-    { newOptsProjectName :: Text           -- ^ project name
-    , newOptsIgnoreFile  :: Bool           -- ^ ignore all config files if 'True'
-    , newOptsOffline     :: Bool           -- ^ Offline mode
-    , newOptsConfigFile  :: Maybe FilePath -- ^ file with custom configuration
-    , newOptsCliConfig   :: PartialConfig  -- ^ config gathered during CLI
+    { newOptsProjectName   :: !Text             -- ^ Project name
+    , newOptsIgnoreFile    :: !Bool             -- ^ Ignore all config files if 'True'
+    , newOptsConnectMode   :: !ConnectMode      -- ^ 'Online'/'Offline' mode
+    , newOptsInteractivity :: !Interactivity    -- ^ Interactive or non-interactive mode is on?
+    , newOptsConfigFile    :: !(Maybe FilePath) -- ^ File with custom configuration
+    , newOptsCliConfig     :: !PartialConfig    -- ^ Config gathered via command-line
     }
 
 -- | Options parsed with the @script@ command
@@ -390,11 +390,12 @@ ghcVerP = option
 -- | Parses options of the @new@ command.
 newP :: Parser Command
 newP = do
-    newOptsProjectName <- strArgument (metavar "PROJECT_NAME")
-    newOptsIgnoreFile  <- ignoreFileP
-    noUpload           <- noUploadP
-    newOptsOffline     <- offlineP
-    newOptsConfigFile  <- optional configFileP
+    newOptsProjectName   <- strArgument (metavar "PROJECT_NAME")
+    newOptsIgnoreFile    <- ignoreFileP
+    noUpload             <- noUploadP
+    newOptsConnectMode   <- connectModeP
+    newOptsInteractivity <- interactivityP
+    newOptsConfigFile    <- optional configFileP
     cabal <- cabalP
     stack <- stackP
     preludePack <- optional preludePackP
@@ -407,7 +408,7 @@ newP = do
             { cPrelude = Last $ CustomPrelude <$> preludePack <*> preludeMod
             , cCabal = cabal
             , cStack = stack
-            , cNoUpload = Any $ noUpload || newOptsOffline
+            , cNoUpload = Any $ noUpload || isOffline newOptsConnectMode
             }
         , ..
         }
@@ -436,58 +437,67 @@ targetsP d = do
         }
 
 githubP :: Decision -> Parser Decision
-githubP d = flag Idk d
-          $ long "github"
-         <> short 'g'
-         <> help "GitHub integration"
+githubP d = flag Idk d $ mconcat
+    [ long "github"
+    , short 'g'
+    , help "GitHub integration"
+    ]
 
 ghActionsP :: Decision -> Parser Decision
-ghActionsP d = flag Idk d
-             $ long "actions"
-         <> short 'a'
-         <> help "GitHub Actions CI"
+ghActionsP d = flag Idk d $ mconcat
+    [ long "actions"
+    , short 'a'
+    , help "GitHub Actions CI"
+    ]
 
 travisP :: Decision -> Parser Decision
-travisP d = flag Idk d
-          $ long "travis"
-         <> short 'c'
-         <> help "Travis CI integration"
+travisP d = flag Idk d $ mconcat
+    [ long "travis"
+    , short 'c'
+    , help "Travis CI integration"
+    ]
 
 appVeyorP :: Decision -> Parser Decision
-appVeyorP d = flag Idk d
-            $ long "app-veyor"
-           <> short 'w'
-           <> help "AppVeyor CI integration"
+appVeyorP d = flag Idk d $ mconcat
+    [ long "app-veyor"
+    , short 'w'
+    , help "AppVeyor CI integration"
+    ]
 
 privateP :: Decision -> Parser Decision
-privateP d = flag Idk d
-           $ long "private"
-          <> short 'p'
-          <> help "Private repository"
+privateP d = flag Idk d $ mconcat
+    [ long "private"
+    , short 'p'
+    , help "Private repository"
+    ]
 
 libraryP :: Decision -> Parser Decision
-libraryP d = flag Idk d
-           $ long "library"
-          <> short 'l'
-          <> help "Library folder"
+libraryP d = flag Idk d $ mconcat
+    [ long "library"
+    , short 'l'
+    , help "Library folder"
+    ]
 
 execP :: Decision -> Parser Decision
-execP d = flag Idk d
-        $ long "exec"
-       <> short 'e'
-       <> help "Executable target"
+execP d = flag Idk d $ mconcat
+    [ long "exec"
+    , short 'e'
+    , help "Executable target"
+    ]
 
 testP :: Decision -> Parser Decision
-testP d = flag Idk d
-        $ long "test"
-       <> short 't'
-       <> help "Test target"
+testP d = flag Idk d $ mconcat
+    [ long "test"
+    , short 't'
+    , help "Test target"
+    ]
 
 benchmarkP :: Decision -> Parser Decision
-benchmarkP d = flag Idk d
-             $ long "benchmark"
-            <> short 'b'
-            <> help "Benchmarks"
+benchmarkP d = flag Idk d $ mconcat
+    [ long "benchmark"
+    , short 'b'
+    , help "Benchmarks"
+    ]
 
 withP :: Parser PartialConfig
 withP = subparser $ mconcat
@@ -502,44 +512,63 @@ withoutP = subparser $ mconcat
     ]
 
 ignoreFileP :: Parser Bool
-ignoreFileP = switch $ long "ignore-config" <> help "Ignore configuration file"
+ignoreFileP = switch $ mconcat
+    [ long "ignore-config"
+    , help "Ignore configuration file"
+    ]
 
 noUploadP :: Parser Bool
-noUploadP = switch $ long "no-upload" <> help "Do not upload to GitHub. Special case of the '--offline' flag."
+noUploadP = switch $ mconcat
+    [ long "no-upload"
+    , help "Do not upload to GitHub. Special case of the '--offline' flag."
+    ]
 
-offlineP :: Parser Bool
-offlineP = switch
-    $ long "offline"
-   <> help "Offline mode: create project with 'All Rights Reserved' license and without uploading to GitHub."
+connectModeP :: Parser ConnectMode
+connectModeP = flag Online Offline $ mconcat
+    [ long "offline"
+    , help "Offline mode: create a project with 'All Rights Reserved' license and without uploading to GitHub."
+    ]
+
+interactivityP :: Parser Interactivity
+interactivityP = flag Interactive NonInteractive $ mconcat
+    [ long "non-interactive"
+    , short 'n'
+    , help "Non-interactive mode: create a project without interactive questions."
+    ]
 
 configFileP :: Parser FilePath
-configFileP = strOption
-    $ long "file"
-   <> short 'f'
-   <> metavar "FILENAME"
-   <> help "Path to the toml file with configurations. If not specified '~/.summoner.toml' will be used by default"
+configFileP = strOption $ mconcat
+    [ long "file"
+    , short 'f'
+    , metavar "FILENAME"
+    , help "Path to the toml file with configurations. If not specified '~/.summoner.toml' will be used by default"
+    ]
 
 preludePackP :: Parser Text
-preludePackP = strOption
-    $ long "prelude-package"
-   <> metavar "PACKAGE_NAME"
-   <> help "Name for the package of the custom prelude to use in the project"
+preludePackP = strOption $ mconcat
+    [ long "prelude-package"
+    , metavar "PACKAGE_NAME"
+    , help "Name for the package of the custom prelude to use in the project"
+    ]
 
 preludeModP :: Parser Text
-preludeModP = strOption
-    $ long "prelude-module"
-   <> metavar "MODULE_NAME"
-   <> help "Name for the module of the custom prelude to use in the project"
+preludeModP = strOption $ mconcat
+    [ long "prelude-module"
+    , metavar "MODULE_NAME"
+    , help "Name for the module of the custom prelude to use in the project"
+    ]
 
 cabalP :: Parser Decision
-cabalP = flag Idk Yes
-       $ long "cabal"
-      <> help "Cabal support for the project"
+cabalP = flag Idk Yes $ mconcat
+    [ long "cabal"
+    , help "Cabal support for the project"
+    ]
 
 stackP :: Parser Decision
-stackP = flag Idk Yes
-       $ long "stack"
-      <> help "Stack support for the project"
+stackP = flag Idk Yes $ mconcat
+    [ long "stack"
+    , help "Stack support for the project"
+    ]
 
 ----------------------------------------------------------------------------
 -- Beauty util
