@@ -1,5 +1,7 @@
 {-# LANGUAGE QuasiQuotes #-}
 
+{- HLINT ignore "Reduce duplication" -}
+
 {- |
 Copyright: (c) 2017-2019 Kowainik
 SPDX-License-Identifier: MPL-2.0
