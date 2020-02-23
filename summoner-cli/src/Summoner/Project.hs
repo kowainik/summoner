@@ -41,6 +41,7 @@ import Summoner.Template.Mempty (memptyIfFalse)
 import Summoner.Text (intercalateMap, moduleNameValid, packageNameValid, packageToModule)
 import Summoner.Tree (showBoldTree, traverseTree)
 
+
 -- | Generate the project.
 generateProject
     :: Interactivity  -- ^ Is it interactive or non-interactive mode?
@@ -219,7 +220,7 @@ generateProjectNonInteractive connectMode projectName ConfigP{..} = do
     isNonUnique <- doesExistProjectName projectName
     when isNonUnique $ do
         errorMessage "Project with this name is already exist. Please choose another one."
-        () <$ exitFailure
+        exitFailure
     let settingsRepo = projectName
     -- decide cabal stack or both
     let (settingsCabal, settingsStack) = decisionsToBools (cCabal, cStack)
