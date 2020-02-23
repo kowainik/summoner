@@ -32,7 +32,8 @@ import Relude.Extra.Enum (universe)
 import System.Directory (doesDirectoryExist, doesFileExist, getCurrentDirectory, listDirectory)
 
 import Summoner.Ansi (errorMessage, infoMessage)
-import Summoner.CLI (Command (..), NewOpts (..), ShowOpts (..), getFinalConfig, runScript, summon)
+import Summoner.CLI (Command (..), NewOpts (..), ShowOpts (..), getFinalConfig, runConfig,
+                     runScript, summon)
 import Summoner.Config (ConfigP (cFiles))
 import Summoner.Decision (Decision (..))
 import Summoner.Default (defaultConfigFile)
@@ -60,8 +61,9 @@ summonTui = summon Meta.version runTuiCommand
 runTuiCommand :: Command -> IO ()
 runTuiCommand = \case
     New opts      -> summonTuiNew opts
-    Script opts   -> runScript opts  -- TODO: implement TUI for script command
     ShowInfo opts -> summonTuiShow opts
+    Script opts   -> runScript opts  -- TODO: implement TUI for script command
+    Config opts   -> runConfig opts
 
 ----------------------------------------------------------------------------
 -- New command

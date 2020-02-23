@@ -33,6 +33,7 @@ import Toml (Key, TomlBiMap, TomlCodec, (.=))
 
 import Summoner.CustomPrelude (CustomPrelude (..), customPreludeT)
 import Summoner.Decision (Decision (..))
+import Summoner.Default (defaultEmail, defaultFullName, defaultLicenseName, defaultOwner)
 import Summoner.GhcVer (GhcVer (..), parseGhcVer, showGhcVer)
 import Summoner.License (LicenseName (..), parseLicenseName)
 import Summoner.Source (Source, sourceCodec)
@@ -54,29 +55,29 @@ type family phase :- field where
     'Final   :- field = field
 
 -- | Potentially incomplete configuration.
-data ConfigP (p :: Phase) = Config
-    { cOwner        :: !(p :- Text)
-    , cFullName     :: !(p :- Text)
-    , cEmail        :: !(p :- Text)
-    , cLicense      :: !(p :- LicenseName)
-    , cGhcVer       :: !(p :- [GhcVer])
-    , cCabal        :: !Decision
-    , cStack        :: !Decision
-    , cGitHub       :: !Decision
-    , cGhActions    :: !Decision
-    , cTravis       :: !Decision
-    , cAppVey       :: !Decision
-    , cPrivate      :: !Decision
-    , cLib          :: !Decision
-    , cExe          :: !Decision
-    , cTest         :: !Decision
-    , cBench        :: !Decision
-    , cPrelude      :: !(Last CustomPrelude)
-    , cExtensions   :: ![Text]
-    , cGhcOptions   :: ![Text]  -- ^ GHC options to add to each stanza
-    , cGitignore    :: ![Text]
-    , cNoUpload     :: !Any  -- ^ Do not upload to the GitHub (even if enabled)
-    , cFiles        :: !(Map FilePath Source)  -- ^ Custom files
+data ConfigP (p :: Phase) = ConfigP
+    { cOwner      :: !(p :- Text)
+    , cFullName   :: !(p :- Text)
+    , cEmail      :: !(p :- Text)
+    , cLicense    :: !(p :- LicenseName)
+    , cGhcVer     :: !(p :- [GhcVer])
+    , cCabal      :: !Decision
+    , cStack      :: !Decision
+    , cGitHub     :: !Decision
+    , cGhActions  :: !Decision
+    , cTravis     :: !Decision
+    , cAppVey     :: !Decision
+    , cPrivate    :: !Decision
+    , cLib        :: !Decision
+    , cExe        :: !Decision
+    , cTest       :: !Decision
+    , cBench      :: !Decision
+    , cPrelude    :: !(Last CustomPrelude)
+    , cExtensions :: ![Text]
+    , cGhcOptions :: ![Text]  -- ^ GHC options to add to each stanza
+    , cGitignore  :: ![Text]
+    , cNoUpload   :: !Any  -- ^ Do not upload to the GitHub (even if enabled)
+    , cFiles      :: !(Map FilePath Source)  -- ^ Custom files
     } deriving stock (Generic)
 
 deriving stock instance
@@ -106,11 +107,11 @@ type Config = ConfigP 'Final
 
 -- | Default 'Config' configurations.
 defaultConfig :: PartialConfig
-defaultConfig = Config
-    { cOwner        = Last (Just "kowainik")
-    , cFullName     = Last (Just "Kowainik")
-    , cEmail        = Last (Just "xrom.xkov@gmail.com")
-    , cLicense      = Last (Just MIT)
+defaultConfig = ConfigP
+    { cOwner        = Last (Just defaultOwner)
+    , cFullName     = Last (Just defaultFullName)
+    , cEmail        = Last (Just defaultEmail)
+    , cLicense      = Last (Just defaultLicenseName)
     , cGhcVer       = Last (Just [])
     , cCabal        = Idk
     , cStack        = Idk
@@ -133,7 +134,7 @@ defaultConfig = Config
 
 -- | Identifies how to read 'Config' data from the @.toml@ file.
 configCodec :: TomlCodec PartialConfig
-configCodec = Config
+configCodec = ConfigP
     <$> Toml.last Toml.text "owner"         .= cOwner
     <*> Toml.last Toml.text "fullName"      .= cFullName
     <*> Toml.last Toml.text "email"         .= cEmail
@@ -192,7 +193,7 @@ configCodec = Config
 
 -- | Make sure that all the required configurations options were specified.
 finalise :: PartialConfig -> Validation [Text] Config
-finalise Config{..} = Config
+finalise ConfigP{..} = ConfigP
     <$> fin  "owner"      cOwner
     <*> fin  "fullName"   cFullName
     <*> fin  "email"      cEmail

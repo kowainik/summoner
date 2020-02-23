@@ -9,7 +9,7 @@ import Test.Golden (goldenSpec)
 import Test.QuestionSpec (yesNoPromptSpec)
 import Test.Script (scriptSpec)
 import Test.Show (showCommandSpec)
-import Test.TomlSpec (tomlProp)
+import Test.TomlSpec (tomlConfigSpec, tomlProp)
 
 
 main :: IO ()
@@ -20,6 +20,7 @@ main = do
         showCommandSpec
         goldenSpec
         customPreludeSpec
+        tomlConfigSpec
     ifM (checkParallel hedgehogTests) exitSuccess exitFailure
 
 hedgehogTests :: Group

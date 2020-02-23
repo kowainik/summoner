@@ -142,10 +142,11 @@ Features related to the structure and content of the generated projects.
 
 ### Others [↑](#structure)
 
++ Carefully collected Haskell project best practices gathered in your projects' scaffold.
++ Generate beginner-friendly default configuration using the `summon config` command.
 + Ability to create a project in the offline mode.
 + Ability to check GHC-specific versions of the corresponding `base` library
   and Stackage snapshot resolver via `summon show ghc` command.
-+ Carefully collected Haskell project best practices gathered in your projects' scaffold.
 
 ### Project structure example [↑](#structure)
 
@@ -379,7 +380,10 @@ Here is the list of the options that can be configured to suit your needs. If op
 | `package`        | Text    | The package name of the custom prelude you'd like to use in the project (doesn't work without `module` field).                                                       |
 | `module`         | Text    | The module name of the custom prelude you'd like to use in the project (doesn't work without `package` field).                                                       |
 
-See the example of [the configuration for projects of the `Kowainik` organization](https://github.com/kowainik/org/blob/master/.summoner.toml).
+You can create default configuration using the `summon config`
+command. See [the default content here](summoner-cli/test/golden/summoner-default.toml).
+
+For a real-life example of the configuration, see [the configuration for projects of the `Kowainik` organization](https://github.com/kowainik/org/blob/master/.summoner.toml).
 
 ### Command line arguments [↑](#structure)
 
@@ -394,6 +398,7 @@ Available commands:
   new                      Create a new Haskell project
   script                   Create a new Haskell script
   show                     Show available licenses or ghc versions
+  config                   Create default TOML configuration for summoner
 
 Available global options:
   -h, --help               Show this help text
@@ -422,7 +427,7 @@ Available options:
   --cabal                  Cabal support for the project
   --stack                  Stack support for the project
   -f, --file FILENAME      Path to the toml file with configurations. If not
-                           specified '~/.summoner.toml' will be used if present
+                           specified '~/.summoner.toml' will be used by default
   --prelude-package PACKAGE_NAME
                            Name for the package of the custom prelude to use in
                            the project
@@ -483,6 +488,32 @@ Travis CI and AppVeyor CI integrated.
 
 ```shell
 summon new my-project with -letgcpwa without -b --prelude-package relude --prelude-module Relude
+```
+
+#### **summon config** command: [↑](#structure)
+
+```
+Usage: summon config [-f|--file=FILENAME]
+  Create a default TOML configuration file for summoner
+
+Available options:
+  -h,--help                Show this help text
+  -f,--file=FILENAME       Path to the toml file with configurations. If not
+                           specified '~/.summoner.toml' will be used by default
+```
+
+This command will generate a TOML configuration file with the default settings
+that can be used to scaffold future Haskell packages. It contains all
+options supported by Summoner with comments and examples. Though, all
+options would be turned off by default and to use them one will need
+to uncomment the correspoding lines.
+See [the default content here](summoner-cli/test/golden/summoner-default.toml).
+
+Possible command usages:
+
+```shell
+summon config
+summon config --file ~/.summoner-demo.toml
 ```
 
 ### TUI [↑](#structure)
