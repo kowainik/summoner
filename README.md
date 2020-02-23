@@ -427,7 +427,7 @@ Available options:
   --cabal                  Cabal support for the project
   --stack                  Stack support for the project
   -f, --file FILENAME      Path to the toml file with configurations. If not
-                           specified '~/.summoner.toml' will be used if present
+                           specified '~/.summoner.toml' will be used by default
   --prelude-package PACKAGE_NAME
                            Name for the package of the custom prelude to use in
                            the project
@@ -494,12 +494,12 @@ summon new my-project with -letgcpwa without -b --prelude-package relude --prelu
 
 ```
 Usage: summon config [-f|--file=FILENAME]
-  Create default TOML configuration for summoner
+  Create a default TOML configuration file for summoner
 
 Available options:
   -h,--help                Show this help text
   -f,--file=FILENAME       Path to the toml file with configurations. If not
-                           specified '~/.summoner.toml' will be used if present
+                           specified '~/.summoner.toml' will be used by default
 ```
 
 This command will generate a TOML configuration file with the default settings

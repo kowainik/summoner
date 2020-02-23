@@ -93,12 +93,12 @@ runCliCommand = \case
 
 @
 Usage: summon config [-f|--file=FILENAME]
-  Create default TOML configuration for summoner
+  Create a default TOML configuration file for summoner
 
 Available options:
   -h,--help                Show this help text
   -f,--file=FILENAME       Path to the toml file with configurations. If not
-                           specified '~/.summoner.toml' will be used if present
+                           specified '~/.summoner.toml' will be used by default
 @
 -}
 runConfig :: ConfigOpts -> IO ()
@@ -321,7 +321,7 @@ summonerP = subparser
     $ command "new" (info (helper <*> newP) $ progDesc "Create a new Haskell project")
    <> command "script" (info (helper <*> scriptP) $ progDesc "Create a new Haskell script")
    <> command "show" (info (helper <*> showP) $ progDesc "Show supported licenses or ghc versions")
-   <> command "config" (info (helper <*> configP) $ progDesc "Create default TOML configuration for summoner")
+   <> command "config" (info (helper <*> configP) $ progDesc "Create a default TOML configuration file for summoner")
 
 ----------------------------------------------------------------------------
 -- @config@ command parsers
