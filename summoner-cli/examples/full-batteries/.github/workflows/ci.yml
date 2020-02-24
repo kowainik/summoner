@@ -14,6 +14,7 @@ jobs:
       matrix:
         cabal: ["2.4"]
         ghc:
+          - "8.0.2"
           - "8.2.2"
           - "8.4.4"
           - "8.6.5"
@@ -38,8 +39,8 @@ jobs:
     - name: Build
       run: |
         cabal v2-update
-        cabal v2-build all --enable-tests --enable-benchmarks
+        cabal v2-build --enable-tests --enable-benchmarks
 
     - name: Test
       run: |
-        cabal v2-test all --enable-tests
+        cabal v2-test --enable-tests

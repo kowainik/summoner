@@ -65,10 +65,20 @@ By the way, Summoner operates as either CLI or TUI application, so you can choos
 
 You can also see complete examples in the following folder:
 
-* [`summon-cli/tests/golden`: Examples of scaffolded projects](https://github.com/kowainik/summoner/tree/master/summoner-cli/test/golden)
+* [`summon-cli/examples/`: Examples of scaffolded projects](https://github.com/kowainik/summoner/tree/master/summoner-cli/examples/)
 
-Directory `smallProject` contains an example of the straightforward package,
-and `fullProject` shows a generated project with more advanced structure and more features.
+The directory contains the following examples:
+
+* [`cabal-minimal`](https://github.com/kowainik/summoner/tree/master/summoner-cli/examples/cabal-minimal):
+  minimal Haskell project with the Cabal-only support, default
+  settings and all of the integrations disabled.
+* [`cabal-full`](https://github.com/kowainik/summoner/tree/master/summoner-cli/examples/cabal-full):
+   Cabal-only project with all integrations enabled.
+* [`stack-full`](https://github.com/kowainik/summoner/tree/master/summoner-cli/examples/stack-full):
+  Stack-only project with all integrations enabled.
+* [`full-batteries`](https://github.com/kowainik/summoner/tree/master/summoner-cli/examples/full-batteries):
+  All batteries-included project which supports both build tools and
+  shows every Summoner feature.
 
 ## Features [↑](#structure)
 

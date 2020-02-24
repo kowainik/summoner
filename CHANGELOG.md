@@ -29,6 +29,10 @@ The changelog is available [on GitHub][2].
   Implement `summon config` command. This command will generate the
   default TOML configuration file with helpful comments.
   (by [@chshersh](https://github.com/chshersh))
+* [#281](https://github.com/kowainik/summoner/issues/281):
+  Add more example projects and golden tests for various scaffolding
+  configurations.
+  (by [@chshersh](https://github.com/chshersh))
 * [#361](https://github.com/kowainik/summoner/issues/361):
   Always put all default warnings in `ghc-options` inside common
   stanza under cabal conditionals on the `GHC` version. Now they look

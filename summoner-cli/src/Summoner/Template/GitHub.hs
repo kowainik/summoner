@@ -112,13 +112,11 @@ gitHubFiles Settings{..} = concat
     ghActionsYml = [text|
         name: CI
 
+        # Trigger the workflow on push or pull request, but only for the master branch
         on:
-          # Trigger the workflow on push or pull request,
-          # but only for the master branch
-          push:
-            branches:
-              - master
           pull_request:
+          push:
+            branches: [master]
 
         jobs:
           build:
@@ -126,8 +124,9 @@ gitHubFiles Settings{..} = concat
             runs-on: ubuntu-16.04
             strategy:
               matrix:
-                ghc: ${ghActionsVersions}
                 cabal: ["${defaultCabal}"]
+                ghc:
+                  ${ghActionsVersions}
 
             steps:
             - uses: actions/checkout@v2
@@ -157,8 +156,10 @@ gitHubFiles Settings{..} = concat
 
 
     ghActionsVersions :: Text
-    ghActionsVersions = memptyIfFalse settingsGhActions $
-      "[" <> intercalateMap ", " ghActionsMatrixItem settingsTestedVersions <> "]"
+    ghActionsVersions = intercalateMap
+        "\n"
+        (\ghc -> "- " <> ghActionsMatrixItem ghc)
+        settingsTestedVersions
 
     ghActionsMatrixItem :: GhcVer -> Text
     ghActionsMatrixItem v = "\"" <> showGhcVer v <> "\""

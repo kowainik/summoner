@@ -33,10 +33,14 @@ import Summoner.Tree (TreeFs (..))
 
 goldenSpec :: Spec
 goldenSpec = describe "golden tests" $ do
-    it "correctly creates full project" $
-        checkProject "test/golden/fullProject" fullProject
-    it "correctly creates small project" $
-        checkProject "test/golden/smallProject" smallProject
+    it "correctly scaffolds the 'cabal-minimal' project" $
+        checkProject "examples/cabal-minimal" cabalMinimal
+    it "correctly scaffolds the 'cabal-full' project" $
+        checkProject "examples/cabal-full" cabalFull
+    it "correctly scaffolds the 'stack-full' project" $
+        checkProject "examples/stack-full" stackFull
+    it "correctly scaffolds the 'full-batteries' project" $
+        checkProject "examples/full-batteries" fullBatteries
   where
     checkProject :: FilePath -> Settings -> IO ()
     checkProject path settings = do
@@ -61,14 +65,14 @@ sortTree = \case
     Dir path fs -> Dir path $ sort $ map sortTree fs
 
 
-fullProject :: Settings
-fullProject = Settings
-    { settingsRepo           = "fullProject"
+fullBatteries :: Settings
+fullBatteries = Settings
+    { settingsRepo           = "full-batteries"
     , settingsOwner          = "kowainik"
-    , settingsDescription    = "Full test project"
+    , settingsDescription    = "Full-featured test project"
     , settingsFullName       = "Kowainik"
     , settingsEmail          = "xrom.xkov@gmail.com"
-    , settingsYear           = "2018"
+    , settingsYear           = "2020"
     , settingsCategories     = "Testing"
     , settingsLicenseName    = MIT
     , settingsLicenseText    = mitLicense
@@ -99,37 +103,99 @@ fullProject = Settings
   where
     mitLicense :: License
     mitLicense = License [text|
-    MIT License
+MIT License
 
-    Copyright (c) 2018 Kowainik
+Copyright (c) 2018 Kowainik
 
-    Permission is hereby granted, free of charge, to any person obtaining a copy
-    of this software and associated documentation files (the "Software"), to deal
-    in the Software without restriction, including without limitation the rights
-    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-    copies of the Software, and to permit persons to whom the Software is
-    furnished to do so, subject to the following conditions:
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
 
-    The above copyright notice and this permission notice shall be included in all
-    copies or substantial portions of the Software.
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
 
-    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-    SOFTWARE.
-    |]
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+|]
 
-smallProject :: Settings
-smallProject = Settings
-    { settingsRepo           = "smallProject"
+stackFull :: Settings
+stackFull = Settings
+    { settingsRepo           = "stack-full"
     , settingsOwner          = "kowainik"
-    , settingsDescription    = "Small test project"
+    , settingsDescription    = "Stack-only example with all integrations"
     , settingsFullName       = "Kowainik"
     , settingsEmail          = "xrom.xkov@gmail.com"
-    , settingsYear           = "2018"
+    , settingsYear           = "2020"
+    , settingsCategories     = "Testing"
+    , settingsLicenseName    = BSD3
+    , settingsLicenseText    = bsd3License
+    , settingsGitHub         = True
+    , settingsGhActions      = False
+    , settingsPrivate        = False
+    , settingsTravis         = True
+    , settingsAppVeyor       = True
+    , settingsIsLib          = True
+    , settingsIsExe          = True
+    , settingsTest           = True
+    , settingsBench          = True
+    , settingsTestedVersions = [Ghc844 .. defaultGHC]
+    , settingsPrelude        = Just $ CustomPrelude "relude" "Relude"
+    , settingsExtensions     = ["DeriveGeneric", "TypeApplications"]
+    , settingsGitignore      = []
+    , settingsGhcOptions     = []
+    , settingsCabal          = False
+    , settingsStack          = True
+    , settingsNoUpload       = False
+    , settingsFiles          = []
+    }
+
+cabalFull :: Settings
+cabalFull = Settings
+    { settingsRepo           = "cabal-full"
+    , settingsOwner          = "kowainik"
+    , settingsDescription    = "Cabal-only example with all integrations"
+    , settingsFullName       = "Kowainik"
+    , settingsEmail          = "xrom.xkov@gmail.com"
+    , settingsYear           = "2020"
+    , settingsCategories     = "Testing"
+    , settingsLicenseName    = BSD3
+    , settingsLicenseText    = bsd3License
+    , settingsGitHub         = True
+    , settingsGhActions      = True
+    , settingsPrivate        = False
+    , settingsTravis         = True
+    , settingsAppVeyor       = True
+    , settingsIsLib          = True
+    , settingsIsExe          = True
+    , settingsTest           = True
+    , settingsBench          = True
+    , settingsTestedVersions = [Ghc844 .. defaultGHC]
+    , settingsPrelude        = Just $ CustomPrelude "relude" "Relude"
+    , settingsExtensions     = ["DeriveGeneric", "TypeApplications"]
+    , settingsGitignore      = []
+    , settingsGhcOptions     = []
+    , settingsCabal          = True
+    , settingsStack          = False
+    , settingsNoUpload       = False
+    , settingsFiles          = []
+    }
+
+cabalMinimal :: Settings
+cabalMinimal = Settings
+    { settingsRepo           = "cabal-minimal"
+    , settingsOwner          = "kowainik"
+    , settingsDescription    = "Minimal cabal-only test project"
+    , settingsFullName       = "Kowainik"
+    , settingsEmail          = "xrom.xkov@gmail.com"
+    , settingsYear           = "2020"
     , settingsCategories     = ""
     , settingsLicenseName    = NONE
     , settingsLicenseText    = ""
@@ -152,6 +218,39 @@ smallProject = Settings
     , settingsNoUpload       = True
     , settingsFiles          = mempty
     }
+
+bsd3License :: License
+bsd3License = License [text|
+BSD 3-Clause License
+
+Copyright (c) 2020, Kowainik
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
+
+1. Redistributions of source code must retain the above copyright notice, this
+   list of conditions and the following disclaimer.
+
+2. Redistributions in binary form must reproduce the above copyright notice,
+   this list of conditions and the following disclaimer in the documentation
+   and/or other materials provided with the distribution.
+
+3. Neither the name of the copyright holder nor the names of its
+   contributors may be used to endorse or promote products derived from
+   this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+|]
 
 -- Orphan instances
 

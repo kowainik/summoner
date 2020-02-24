@@ -49,8 +49,9 @@ moduleNameValid = all isValidFragment . T.split (== '.')
         && T.all C.isAlphaNum s
         && C.isUpper (T.head s)
 
--- | Converts every element of list into 'Text' and then joins every element
--- into single 'Text' like 'T.intercalate'.
+{- | Converts every element of list into 'Text' and then joins every element
+into single 'Text' like 'T.intercalate'.
+-}
 intercalateMap :: Text -> (a -> Text) -> [a] -> Text
 intercalateMap between showT = T.intercalate between . map showT
 

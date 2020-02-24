@@ -21,27 +21,48 @@ tested-with:         GHC == 8.2.2
                    , GHC == 8.6.5
                    , GHC == 8.8.2
 extra-source-files:
-    test/golden/summoner-default.toml
+    examples/summoner-default.toml
 
-    test/golden/fullProject/*.yml
-    test/golden/fullProject/*.yaml
-    test/golden/fullProject/*.md
-    test/golden/fullProject/*.cabal
-    test/golden/fullProject/src/*.hs
-    test/golden/fullProject/app/*.hs
-    test/golden/fullProject/test/*.hs
-    test/golden/fullProject/benchmark/*.hs
-    test/golden/fullProject/.gitignore
-    test/golden/fullProject/.travis.yml
-    test/golden/fullProject/.stylish-haskell.yaml
-    test/golden/fullProject/stack-8.4.4.yaml
-    test/golden/fullProject/stack-8.2.2.yaml
-    test/golden/fullProject/stack-8.0.2.yaml
-    test/golden/fullProject/LICENSE
+    examples/cabal-minimal/*.md
+    examples/cabal-minimal/*.cabal
+    examples/cabal-minimal/app/*.hs
 
-    test/golden/smallProject/*.md
-    test/golden/smallProject/*.cabal
-    test/golden/smallProject/app/*.hs
+    examples/cabal-full/*.yml
+    examples/cabal-full/*.md
+    examples/cabal-full/*.cabal
+    examples/cabal-full/src/*.hs
+    examples/cabal-full/app/*.hs
+    examples/cabal-full/test/*.hs
+    examples/cabal-full/benchmark/*.hs
+    examples/cabal-full/.gitignore
+    examples/cabal-full/.github/workflows/ci.yml
+    examples/cabal-full/.travis.yml
+    examples/cabal-full/LICENSE
+
+    examples/stack-full/*.yml
+    examples/stack-full/*.yaml
+    examples/stack-full/*.md
+    examples/stack-full/*.cabal
+    examples/stack-full/src/*.hs
+    examples/stack-full/app/*.hs
+    examples/stack-full/test/*.hs
+    examples/stack-full/benchmark/*.hs
+    examples/stack-full/.gitignore
+    examples/stack-full/.travis.yml
+    examples/stack-full/LICENSE
+
+    examples/full-batteries/*.yml
+    examples/full-batteries/*.yaml
+    examples/full-batteries/*.md
+    examples/full-batteries/*.cabal
+    examples/full-batteries/src/*.hs
+    examples/full-batteries/app/*.hs
+    examples/full-batteries/test/*.hs
+    examples/full-batteries/benchmark/*.hs
+    examples/full-batteries/.gitignore
+    examples/full-batteries/.github/workflows/ci.yml
+    examples/full-batteries/.travis.yml
+    examples/full-batteries/LICENSE
 
 source-repository head
   type:     git
