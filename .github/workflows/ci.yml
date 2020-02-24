@@ -1,12 +1,10 @@
 name: CI
 
+# Trigger the workflow on push or pull request, but only for the master branch
 on:
-  # Trigger the workflow on push or pull request,
-  # but only for the master branch
-  push:
-    branches:
-      - master
   pull_request:
+  push:
+    branches: [master]
 
 jobs:
   build:
@@ -14,8 +12,12 @@ jobs:
     runs-on: ubuntu-16.04
     strategy:
       matrix:
-        ghc: ["8.2.2", "8.4.4", "8.6.5", "8.8.2"]
-        cabal: ["3.0"]
+        cabal: ["2.4"]
+        ghc:
+          - "8.2.2"
+          - "8.4.4"
+          - "8.6.5"
+          - "8.8.2"
 
     steps:
     - uses: actions/checkout@v2
@@ -35,9 +37,9 @@ jobs:
 
     - name: Build
       run: |
-        cabal new-update
-        cabal new-build all --enable-tests --enable-benchmarks --write-ghc-environment-files=always
+        cabal v2-update
+        cabal v2-build all --enable-tests --enable-benchmarks
 
     - name: Test
       run: |
-        cabal new-test all --enable-tests
+        cabal v2-test all --enable-tests

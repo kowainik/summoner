@@ -69,12 +69,16 @@ You can also see complete examples in the following folder:
 
 The directory contains the following examples:
 
-* `cabal-minimal`: minimal Haskell project with the Cabal-only
-  support, default settings and all of the integrations disabled.
-* `cabal-full`: Cabal-only project with all integrations enabled.
-* `stack-full`: Stack-only project with all integrations enabled.
-* `full-batteries`: All batteries-included project which supports both
-  build tools and shows every Summoner feature.
+* [`cabal-minimal`](https://github.com/kowainik/summoner/tree/master/summoner-cli/examples/cabal-minimal):
+  minimal Haskell project with the Cabal-only support, default
+  settings and all of the integrations disabled.
+* [`cabal-full`](https://github.com/kowainik/summoner/tree/master/summoner-cli/examples/cabal-full):
+   Cabal-only project with all integrations enabled.
+* [`stack-full`](https://github.com/kowainik/summoner/tree/master/summoner-cli/examples/stack-full):
+  Stack-only project with all integrations enabled.
+* [`full-batteries`](https://github.com/kowainik/summoner/tree/master/summoner-cli/examples/full-batteries):
+  All batteries-included project which supports both build tools and
+  shows every Summoner feature.
 
 ## Features [↑](#structure)
 
