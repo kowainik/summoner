@@ -54,17 +54,27 @@ script:
       cabal v2-test all --enable-tests
 
       echo "Testing that generated projects are built with cabal..."
-      cd "$TRAVIS_BUILD_DIR/summoner-cli/test/golden/smallProject/"
+      cd "$TRAVIS_BUILD_DIR/summoner-cli/examples/cabal-minimal/"
       echo "packages: ." > cabal.project
       cabal v2-build all
-      cd "$TRAVIS_BUILD_DIR/summoner-cli/test/golden/fullProject/"
+      cd "$TRAVIS_BUILD_DIR/summoner-cli/examples/cabal-full/"
+      echo "packages: ." > cabal.project
+      cabal v2-build all
+      cd "$TRAVIS_BUILD_DIR/summoner-cli/examples/stack-full/"
+      echo "packages: ." > cabal.project
+      cabal v2-build all
+      cd "$TRAVIS_BUILD_DIR/summoner-cli/examples/full-batteries/"
       echo "packages: ." > cabal.project
       cabal v2-build all
     else
       stack test --system-ghc --no-terminal
 
       echo "Testing that generated projects are built with stack..."
-      cd "$TRAVIS_BUILD_DIR/summoner-cli/test/golden/fullProject/"
+      cd "$TRAVIS_BUILD_DIR/summoner-cli/examples/stack-full/"
+      echo "packages: ." > cabal.project
+      stack build --system-ghc --test --bench
+      cd "$TRAVIS_BUILD_DIR/summoner-cli/examples/full-batteries/"
+      echo "packages: ." > cabal.project
       stack build --system-ghc --test --bench
     fi
 
