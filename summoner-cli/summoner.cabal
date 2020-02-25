@@ -80,13 +80,18 @@ common common-options
                               )
 
   ghc-options:         -Wall
-                       -Wincomplete-uni-patterns
-                       -Wincomplete-record-updates
                        -Wcompat
                        -Widentities
-                       -Wredundant-constraints
-                       -fhide-source-paths
-  if impl(ghc >= 8.8.1)
+                       -Wincomplete-uni-patterns
+                       -Wincomplete-record-updates
+  if impl(ghc >= 8.0)
+    ghc-options:       -Wredundant-constraints
+  if impl(ghc >= 8.2)
+    ghc-options:       -fhide-source-paths
+  if impl(ghc >= 8.4)
+    ghc-options:       -Wmissing-export-lists
+                       -Wpartial-fields
+  if impl(ghc >= 8.8)
     ghc-options:       -Wmissing-deriving-strategies
                        -Werror=missing-deriving-strategies
 
