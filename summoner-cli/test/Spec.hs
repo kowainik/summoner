@@ -1,4 +1,4 @@
-module Main where
+module Main (main) where
 
 import Hedgehog (Group (..), checkParallel)
 import Test.Hspec (hspec)
