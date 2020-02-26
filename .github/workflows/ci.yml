@@ -40,20 +40,31 @@ jobs:
         cabal v2-update
         cabal v2-build all --enable-tests --enable-benchmarks
 
-    - name: Test
+    - name: Unit and property tests
       run: |
         cabal v2-test all --enable-tests
 
-        echo "Testing that generated projects are built with cabal..."
+    - if: matrix.ghc == '8.8.2'
+      name: Build 'cabal-minimal'
+      run: |
         cd "summoner-cli/examples/cabal-minimal/"
         echo "packages: ." > cabal.project
         cabal v2-build all
-        cd "../cabal-full/"
+
+    - name: Build 'cabal-full'
+      run: |
+        cd "summoner-cli/examples/cabal-full/"
         echo "packages: ." > cabal.project
         cabal v2-build all
-        cd "../stack-full/"
+
+    - name: Build 'stack-full'
+      run: |
+        cd "summoner-cli/examples/stack-full/"
         echo "packages: ." > cabal.project
         cabal v2-build all
-        cd "../full-batteries/"
+
+    - name: Build 'full-batteries'
+      run: |
+        cd "summoner-cli/examples/full-batteries/"
         echo "packages: ." > cabal.project
         cabal v2-build all

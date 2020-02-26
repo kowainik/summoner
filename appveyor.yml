@@ -31,15 +31,14 @@ build_script:
   - stack build --test --no-run-tests --no-run-benchmarks
   # prepare binary releases
   - stack install summoner --local-bin-path bin
-  - if /I "%APPVEYOR_REPO_TAG%" EQU "true" (set DEPLOY_TAG=%APPVEYOR_REPO_TAG_NAME%-x86_64-windows.zip)
   - set DEPLOY_DIR=%APPVEYOR_BUILD_FOLDER%\bin
-  - if /I "%DEPLOY_TAG%" NEQ "" (7z a "bin\summoner-%DEPLOY_TAG%" "%DEPLOY_DIR%\summoner.exe")
+  - if /I "%DEPLOY_TAG%" NEQ "" (7z a "bin\summoner-cli-x86_64-windows.zip" "%DEPLOY_DIR%\summoner.exe")
 
 test_script:
   - stack test
 
 artifacts:
-  - path: bin\summoner-%DEPLOY_TAG%
+  - path: bin\summoner-cli-x86_64-windows.zip
     name: summoner
 
 deploy:

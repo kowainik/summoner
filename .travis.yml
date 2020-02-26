@@ -34,6 +34,7 @@ script:
 
 after_success:
   - echo "Trying to deploy..."
+  - cd "$TRAVIS_BUILD_DIR"
   - mv "$(stack path --local-install-root)/bin/summon"     "summon-cli-${TRAVIS_OS_NAME}"
   - mv "$(stack path --local-install-root)/bin/summon-tui" "summon-tui-${TRAVIS_OS_NAME}"
   - chmod +x "summon-cli-${TRAVIS_OS_NAME}"
