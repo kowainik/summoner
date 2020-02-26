@@ -8,27 +8,45 @@ platform:
   - x86_64
 
 cache:
-  - "C:\\SR"
-  - dist-newstyle
+  - "%STACK_ROOT% -> %STACK_YAML%, appveyor.yml"
+  - ".stack-work -> %STACK_YAML%, appveyor.yml"
 
 environment:
-  global:
-    CABOPTS: --store-dir=C:\\SR
+  STACK_ROOT: C:\sr
+  STACK_VERSION: 2.1.1
+
+  # Workaround a gnarly bug https://github.com/haskell/cabal/issues/5386
+  # See: https://www.fpcomplete.com/blog/2018/06/sed-a-debugging-story
+  # TODO: check if it's fixed once we switch to lst-13 and GHC 8.6
+  TMP: "c:\\tmp"
 
   matrix:
-    - GHCVER: 8.8.2
+    - STACK_YAML: stack.yaml
 
 install:
-  - choco source add -n mistuke -s https://www.myget.org/F/mistuke/api/v2
-  - choco install -y cabal --version 2.4.1.0
-  - choco install -y ghc   --version 8.8.2
-  - refreshenv
-
-before_build:
-  - cabal --version
-  - ghc   --version
-  - cabal %CABOPTS% v2-update
+  - choco install -y haskell-stack --version %STACK_VERSION%
+  - stack setup > nul
 
 build_script:
-  - cabal %CABOPTS% v2-build all --enable-tests
-  - cabal %CABOPTS% v2-test  all --enable-tests
+  - stack build --test --no-run-tests --no-run-benchmarks
+  # prepare binary releases
+  - stack install summoner --local-bin-path bin
+  - if /I "%APPVEYOR_REPO_TAG%" EQU "true" (set DEPLOY_TAG=%APPVEYOR_REPO_TAG_NAME%-x86_64-windows.zip)
+  - set DEPLOY_DIR=%APPVEYOR_BUILD_FOLDER%\bin
+  - if /I "%DEPLOY_TAG%" NEQ "" (7z a "bin\summoner-%DEPLOY_TAG%" "%DEPLOY_DIR%\summoner.exe")
+
+test_script:
+  - stack test
+
+artifacts:
+  - path: bin\summoner-%DEPLOY_TAG%
+    name: summoner
+
+deploy:
+  - provider: GitHub
+    auth_token:
+      secure: Aw3qiz6W75ZJd7bxhVJJmMsVJwwukrllQH4I95/npkfwzMjqDSMhmvIukt7SfLok
+    artifact: summoner
+    on:
+      APPVEYOR_REPO_TAG: true
+      STACK_YAML: stack.yaml
