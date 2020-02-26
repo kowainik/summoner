@@ -1,92 +1,43 @@
 sudo: true
-language: haskell
+language: generic
 
 git:
   depth: 5
 
-cabal: "3.0"
-
 cache:
   directories:
-  - "$HOME/.cabal/store"
   - "$HOME/.stack"
-  - "$TRAVIS_BUILD_DIR/.stack-work"
 
 matrix:
   include:
-  # Cabal, linux
-  - ghc: 8.2.2
-  - ghc: 8.4.4
-  - ghc: 8.6.5
-  - ghc: 8.8.2
-
-  # Stack, linux
-
-  - ghc: 8.8.2
-    env: STACK_YAML="$TRAVIS_BUILD_DIR/stack.yaml" DEPLOY=yes
-
-#  Disabled because of Travis bugs
-#  # macOS build
-#  - env: GHCVER='8.6.3' STACK_YAML="$TRAVIS_BUILD_DIR/stack.yaml" DEPLOY=yes
-#    os: osx
+  - os: linux
+  - os: osx
 
 install:
   # HLint
   - curl https://raw.githubusercontent.com/kowainik/relude/v0.6.0.0/.hlint.yaml -o .hlint-relude.yaml
   - curl -sSL https://raw.github.com/ndmitchell/neil/master/misc/travis.sh | sh -s -- hlint -h .hlint-relude.yaml summoner-cli/src/ summoner-cli/test/ summoner-cli/app/ summoner-tui/src/ summoner-tui/app/
 
-  - |
-    if [ -z "$STACK_YAML" ]; then
-      cabal v2-update
-      cabal v2-build all --enable-tests --enable-benchmarks
-    else
-      # install stack
-      curl -sSL https://get.haskellstack.org/ | sh
-
-      # build project with stack
-      stack --version
-      stack build --system-ghc --test --no-run-tests
-    fi
+  # install stack and build project
+  - curl -sSL https://get.haskellstack.org/ | sh
+  - stack --version
+  - stack build --test --no-run-tests --bench --no-run-benchmarks
 
 script:
-  - |
-    if [ -z "$STACK_YAML" ]; then
-      cabal v2-test all --enable-tests
+  - stack test --no-terminal
 
-      echo "Testing that generated projects are built with cabal..."
-      cd "$TRAVIS_BUILD_DIR/summoner-cli/examples/cabal-minimal/"
-      echo "packages: ." > cabal.project
-      cabal v2-build all
-      cd "$TRAVIS_BUILD_DIR/summoner-cli/examples/cabal-full/"
-      echo "packages: ." > cabal.project
-      cabal v2-build all
-      cd "$TRAVIS_BUILD_DIR/summoner-cli/examples/stack-full/"
-      echo "packages: ." > cabal.project
-      cabal v2-build all
-      cd "$TRAVIS_BUILD_DIR/summoner-cli/examples/full-batteries/"
-      echo "packages: ." > cabal.project
-      cabal v2-build all
-    else
-      stack test --system-ghc --no-terminal
-
-      echo "Testing that generated projects are built with stack..."
-      cd "$TRAVIS_BUILD_DIR/summoner-cli/examples/stack-full/"
-      stack build --system-ghc --test --bench
-      cd "$TRAVIS_BUILD_DIR/summoner-cli/examples/full-batteries/"
-      stack build --system-ghc --test --bench
-    fi
+  - echo "Testing that generated projects are built with stack..."
+  - cd "$TRAVIS_BUILD_DIR/summoner-cli/examples/stack-full/"
+  - stack build --test --bench
+  - cd "$TRAVIS_BUILD_DIR/summoner-cli/examples/full-batteries/"
+  - stack build --test --bench
 
 after_success:
   - echo "Trying to deploy..."
-  - |
-    if [ "$DEPLOY" = "yes" ]; then
-      echo "Deploy triggered!"
-      mv "$(stack path --system-ghc --local-install-root)/bin/summon"     "summon-cli-${TRAVIS_OS_NAME}"
-      mv "$(stack path --system-ghc --local-install-root)/bin/summon-tui" "summon-tui-${TRAVIS_OS_NAME}"
-      chmod +x "summon-cli-${TRAVIS_OS_NAME}"
-      chmod +x "summon-tui-${TRAVIS_OS_NAME}"
-      git tag "$(date +'%Y%m%d%H%M%S')"
-    fi
+  - mv "$(stack path --local-install-root)/bin/summon"     "summon-cli-${TRAVIS_OS_NAME}"
+  - mv "$(stack path --local-install-root)/bin/summon-tui" "summon-tui-${TRAVIS_OS_NAME}"
+  - chmod +x "summon-cli-${TRAVIS_OS_NAME}"
+  - chmod +x "summon-tui-${TRAVIS_OS_NAME}"
 
 deploy:
   - skip_cleanup: true
@@ -99,7 +50,6 @@ deploy:
     on:
       repo: kowainik/summoner
       tags: true
-      condition: $DEPLOY = yes
 
 notifications:
   email: false

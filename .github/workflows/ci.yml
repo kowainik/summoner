@@ -43,3 +43,17 @@ jobs:
     - name: Test
       run: |
         cabal v2-test all --enable-tests
+
+        echo "Testing that generated projects are built with cabal..."
+        cd "summoner-cli/examples/cabal-minimal/"
+        echo "packages: ." > cabal.project
+        cabal v2-build all
+        cd "../cabal-full/"
+        echo "packages: ." > cabal.project
+        cabal v2-build all
+        cd "../stack-full/"
+        echo "packages: ." > cabal.project
+        cabal v2-build all
+        cd "../full-batteries/"
+        echo "packages: ." > cabal.project
+        cabal v2-build all
