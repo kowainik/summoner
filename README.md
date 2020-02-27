@@ -1,6 +1,7 @@
 # 🔮 Summoner
 
 ![wizard](https://user-images.githubusercontent.com/8126674/44388234-320aac00-a55a-11e8-879d-5dca68512031.png)
+[![GitHub CI](https://github.com/kowainik/summoner/workflows/CI/badge.svg)](https://github.com/kowainik/summoner/actions)
 [![Build](https://img.shields.io/travis/kowainik/summoner.svg?logo=travis)](http://travis-ci.org/kowainik/summoner)
 [![Windows build](https://ci.appveyor.com/api/projects/status/github/kowainik/summoner?branch=master&svg=true)](https://ci.appveyor.com/project/kowainik/summoner)
 [![Hackage](https://img.shields.io/hackage/v/summoner.svg?logo=haskell)](https://hackage.haskell.org/package/summoner)
