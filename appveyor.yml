@@ -1,4 +1,3 @@
-clone_folder: "c:\\WORK"
 clone_depth: 5
 
 # Do not build feature branch with open Pull Requests
@@ -18,7 +17,8 @@ environment:
   # Workaround a gnarly bug https://github.com/haskell/cabal/issues/5386
   # See: https://www.fpcomplete.com/blog/2018/06/sed-a-debugging-story
   # TODO: check if it's fixed once we switch to lst-13 and GHC 8.6
-  TMP: "c:\\tmp"
+  TMP: c:\tmp
+  LANG: en_US.UTF-8
 
   matrix:
     - STACK_YAML: stack.yaml
