@@ -29,25 +29,29 @@ install:
 
 build_script:
   - stack build --test --no-run-tests --no-run-benchmarks
-  # prepare binary releases
-  - stack install summoner --local-bin-path bin
-  - if /I "%APPVEYOR_REPO_TAG%" EQU "true" (set DEPLOY_TAG=-x86_64-windows.zip)
-  - set DEPLOY_DIR=%APPVEYOR_BUILD_FOLDER%\bin
-  - if /I "%DEPLOY_TAG%" NEQ "" (7z a "bin\summoner-cli-%DEPLOY_TAG%" "%DEPLOY_DIR%\summoner.exe")
 
 test_script:
   - stack test
 
+on_success:
+  # prepare binary releases
+  - ps: |
+      if ($env:APPVEYOR_REPO_TAG_NAME)
+      {
+        cp "$(stack path --local-install-root)/bin/summon.exe" summon.exe
+        7z a summoner-cli-x86_64-windows.zip summon.exe
+      }
+
 artifacts:
-  - path: bin\summoner-cli-%DEPLOY_TAG%
-    name: summoner
+  - path: summon-cli-x86_64-windows.zip
+    name: summon
 
 deploy:
   - provider: GitHub
     description: 'Release automatically created by AppVeyor CI.'
     auth_token:
       secure: Aw3qiz6W75ZJd7bxhVJJmMsVJwwukrllQH4I95/npkfwzMjqDSMhmvIukt7SfLok
-    artifact: summoner
+    artifact: summon
     draft: true
     on:
       APPVEYOR_REPO_TAG: true
