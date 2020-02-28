@@ -85,7 +85,7 @@ defaultConfigFileContent = [text|
     email = "$defaultEmail"
 
     # Default OSS license for your projects.
-    # Run the 'summon show license' command to see the list of supported licesses.
+    # Run the 'summon show license' command to see the list of supported licenses.
     license = "$licenseName"
 
     # Create projects with the Cabal support
