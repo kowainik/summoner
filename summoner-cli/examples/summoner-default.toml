@@ -12,7 +12,7 @@ fullName = "Kowainik"
 email = "xrom.xkov@gmail.com"
 
 # Default OSS license for your projects.
-# Run the 'summon show license' command to see the list of supported licesses.
+# Run the 'summon show license' command to see the list of supported licenses.
 license = "MIT"
 
 # Create projects with the Cabal support
