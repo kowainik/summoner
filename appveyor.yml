@@ -30,10 +30,6 @@ install:
 build_script:
   - stack build --test --no-run-tests --no-run-benchmarks
 
-test_script:
-  - stack test
-
-on_success:
   # prepare binary releases
   - ps: |
       if ($env:APPVEYOR_REPO_TAG_NAME)
@@ -41,6 +37,9 @@ on_success:
         cp "$(stack path --local-install-root)/bin/summon.exe" summon.exe
         7z a summoner-cli-x86_64-windows.zip summon.exe
       }
+
+test_script:
+  - stack test
 
 artifacts:
   - path: summon-cli-x86_64-windows.zip
