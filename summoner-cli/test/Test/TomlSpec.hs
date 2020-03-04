@@ -1,12 +1,12 @@
 module Test.TomlSpec
-       ( tomlConfigSpec
-       , tomlProp
+       ( tomlSpec
        ) where
 
-import Hedgehog (MonadGen, Property, forAll, property, tripping)
+import Hedgehog (MonadGen, forAll, tripping)
 import Relude.Extra.Enum (universe)
 import Relude.Extra.Validation (Validation (..))
 import Test.Hspec (Spec, describe, it, shouldReturn, shouldSatisfy)
+import Test.Hspec.Hedgehog (hedgehog)
 import Toml.Bi.Code (decode, encode)
 
 import Summoner.Config (ConfigP (..), PartialConfig, configCodec, defaultConfig, finalise)
@@ -22,6 +22,11 @@ import qualified Hedgehog.Gen as Gen
 import qualified Hedgehog.Range as Range
 
 
+tomlSpec :: Spec
+tomlSpec = describe "TOML Testing" $ do
+    tomlConfigSpec
+    tomlProp
+
 tomlConfigSpec :: Spec
 tomlConfigSpec = describe "TOML configuration spec" $ do
     it "finalises default configuration" $
@@ -35,10 +40,11 @@ tomlConfigSpec = describe "TOML configuration spec" $ do
     isSuccess :: Validation e a -> Bool
     isSuccess = \case { Success _ -> True; _ -> False }
 
-tomlProp :: Property
-tomlProp = property $ do
-    configToml <- forAll genPartialConfig
-    tripping configToml (encode configCodec) (decode configCodec)
+tomlProp :: Spec
+tomlProp = describe "TOML property tests" $
+    it "decode . encode == id" $ hedgehog $ do
+        configToml <- forAll genPartialConfig
+        tripping configToml (encode configCodec) (decode configCodec)
 
 ----------------------------------------------------------------------------
 -- Generators
