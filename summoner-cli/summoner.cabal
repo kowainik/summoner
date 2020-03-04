@@ -182,6 +182,7 @@ test-suite summoner-test
                      , filepath
                      , hedgehog >= 0.5.3 && < 1.1
                      , hspec >= 2.4.8
+                     , hspec-hedgehog ^>= 0.0.1.1
                      , neat-interpolation
                      , text
                      , tomland
