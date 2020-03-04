@@ -29,12 +29,15 @@ script:
   - echo "Testing that generated projects are built with stack..."
   - cd "$TRAVIS_BUILD_DIR/summoner-cli/examples/stack-full/"
   - stack build --test --bench
+  - STACK_YAML=stack-8.6.5.yaml stack build --test --bench
+  - STACK_YAML=stack-8.4.4.yaml stack build --test --bench
+
   - cd "$TRAVIS_BUILD_DIR/summoner-cli/examples/full-batteries/"
   - stack build --test --bench
-#  - STACK_YAML=stack-8.6.5.yaml stack build --test --bench
-#  - STACK_YAML=stack-8.4.4.yaml stack build --test --bench
-#  - STACK_YAML=stack-8.2.2.yaml stack build --test --bench
-#  - STACK_YAML=stack-8.0.2.yaml stack build --test --bench
+  - STACK_YAML=stack-8.6.5.yaml stack build --test --bench
+  - STACK_YAML=stack-8.4.4.yaml stack build --test --bench
+  - STACK_YAML=stack-8.2.2.yaml stack build --test --bench
+  - STACK_YAML=stack-8.0.2.yaml stack build --test --bench
 
 after_success:
   - echo "Trying to deploy..."
