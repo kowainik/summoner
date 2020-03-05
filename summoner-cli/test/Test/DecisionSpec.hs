@@ -8,7 +8,7 @@ module Test.DecisionSpec
        , genDecision
        ) where
 
-import Hedgehog (MonadGen, Property, forAll, property, (===))
+import Hedgehog (MonadGen, forAll, (===))
 import Test.Hspec (Spec, describe, it)
 import Test.Hspec.Hedgehog (hedgehog)
 
