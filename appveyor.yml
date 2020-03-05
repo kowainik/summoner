@@ -1,4 +1,3 @@
-clone_folder: "c:\\WORK"
 clone_depth: 5
 
 # Do not build feature branch with open Pull Requests
@@ -8,27 +7,45 @@ platform:
   - x86_64
 
 cache:
-  - "C:\\SR"
-  - dist-newstyle
+  - "%STACK_ROOT% -> %STACK_YAML%, appveyor.yml"
+  - ".stack-work -> %STACK_YAML%, appveyor.yml"
 
 environment:
-  global:
-    CABOPTS: --store-dir=C:\\SR
+  STACK_ROOT: C:\sr
+  STACK_VERSION: 2.1.1
 
   matrix:
-    - GHCVER: 8.8.2
+    - STACK_YAML: stack.yaml
 
 install:
-  - choco source add -n mistuke -s https://www.myget.org/F/mistuke/api/v2
-  - choco install -y cabal --version 2.4.1.0
-  - choco install -y ghc   --version 8.8.2
-  - refreshenv
-
-before_build:
-  - cabal --version
-  - ghc   --version
-  - cabal %CABOPTS% v2-update
+  - choco install -y haskell-stack --version %STACK_VERSION%
+  - stack setup > nul
 
 build_script:
-  - cabal %CABOPTS% v2-build all --enable-tests
-  - cabal %CABOPTS% v2-test  all --enable-tests
+  - stack build --test --no-run-tests --no-run-benchmarks
+
+  # prepare binary releases
+  - ps: |
+      if ($env:APPVEYOR_REPO_TAG_NAME)
+      {
+        cp "$(stack path --local-install-root)/bin/summon.exe" summon.exe
+        7z a summon-cli-x86_64-windows.zip summon.exe
+      }
+
+test_script:
+  - stack test
+
+artifacts:
+  - path: summon-cli-x86_64-windows.zip
+    name: summon
+
+deploy:
+  - provider: GitHub
+    description: 'Release automatically created by AppVeyor CI.'
+    auth_token:
+      secure: Aw3qiz6W75ZJd7bxhVJJmMsVJwwukrllQH4I95/npkfwzMjqDSMhmvIukt7SfLok
+    artifact: summon
+    draft: true
+    on:
+      APPVEYOR_REPO_TAG: true
+      STACK_YAML: stack.yaml
