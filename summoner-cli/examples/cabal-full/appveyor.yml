@@ -16,12 +16,12 @@ environment:
     CABOPTS: --store-dir=C:\\SR
 
   matrix:
-    - GHCVER: 8.8.2
+    - GHCVER: 8.8.3
 
 install:
   - choco source add -n mistuke -s https://www.myget.org/F/mistuke/api/v2
   - choco install -y cabal --version 2.4.1.0
-  - choco install -y ghc   --version 8.8.2
+  - choco install -y ghc   --version 8.8.3
   - refreshenv
 
 before_build:

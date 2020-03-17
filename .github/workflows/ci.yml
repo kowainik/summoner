@@ -17,7 +17,7 @@ jobs:
           - "8.2.2"
           - "8.4.4"
           - "8.6.5"
-          - "8.8.2"
+          - "8.8.3"
 
     steps:
     - uses: actions/checkout@v2
@@ -44,7 +44,7 @@ jobs:
       run: |
         cabal v2-test all --enable-tests
 
-    - if: matrix.ghc == '8.8.2'
+    - if: matrix.ghc == '8.8.3'
       name: Build 'cabal-minimal'
       run: |
         cd "summoner-cli/examples/cabal-minimal/"

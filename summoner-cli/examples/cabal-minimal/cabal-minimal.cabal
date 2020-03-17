@@ -10,7 +10,7 @@ copyright:           2020 Kowainik
 build-type:          Simple
 extra-doc-files:     README.md
                      CHANGELOG.md
-tested-with:         GHC == 8.8.2
+tested-with:         GHC == 8.8.3
 
 common common-options
   build-depends:       base ^>= 4.13.0.0

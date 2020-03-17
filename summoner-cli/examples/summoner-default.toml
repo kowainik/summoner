@@ -48,7 +48,7 @@ license = "MIT"
 # travis = true         # Travis CI
 # appveyor = true       # AppVeyor CI
 
-# List of additional GHC versions to support besides 8.8.2.
+# List of additional GHC versions to support besides 8.8.3.
 # Run the 'summon show ghc' command to see the list of all supported GHC versions.
 # ghcVersions = ["8.4.4", "8.6.5"]
 
