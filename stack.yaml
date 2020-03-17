@@ -1,4 +1,4 @@
-resolver: lts-15.3
+resolver: lts-15.4
 
 packages:
   - summoner-cli/
