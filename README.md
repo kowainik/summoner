@@ -99,11 +99,11 @@ Features related to the structure and content of the generated projects.
 + Option to include an alternative prelude, if desired. The project would then
   use the [`mixins` technique](https://www.reddit.com/r/haskelltil/comments/9qa366/easy_way_to_replace_default_prelude_with_the/).
 + Whole Hackage-upload checklist support (exhaustive `.cabal` file, PVP versioning, GHC options, conventional meta files).
-+ Support for multiple GHC versions, with thoughtful reflection on project meta, base versions (e.g. `base >= 4.9 && < 4.12`), etc.
++ Support for multiple GHC versions, with thoughtful reflection on project meta, base versions (e.g. `base >= 4.9 && < 4.13`), etc.
 + Ability to create runnable Haskell scripts.
-+ Different license support: MIT, BSD2, BSD3, GPL-2, GPL-3, LGPL-2.1, LGPL-3, AGPL-3, Apache-2.0, MPL-2.0, None (All Rights Reserved license without file).
++ Different license support: MIT, BSD-2-Clause, BSD-3-Clause, GPL-2.0, GPL-3.0, LGPL-2.1, LGPL-3.0, AGPL-3.0, Apache-2.0, MPL-2.0, ISC, None (without file).
 + Creation of the `CHANGELOG.md` file with [PVP versioning policy](https://pvp.haskell.org).
-+ Ability to include any custom files (including `.stylish-haskell.yaml`, `CONTRIBUTING.md`, `CODEOWNERS`, etc.).
++ Ability to include any custom files (including `.stylish-haskell.yaml`, `CONTRIBUTING.md`, `CODEOWNERS`, `FUNDING.yml` etc.).
 + Usage of the `ghc-options` field with sensible defaults.
 
   If `ghc-options` are not explicitly stated in the configuration file, then the following list of GHC flags is added to all stanzas:
@@ -600,7 +600,7 @@ main = putStrLn "Hello, World!"
 ```haskell
 #!/usr/bin/env stack
 {- stack
-  --resolver lts-14.18
+  --resolver lts-15.5
   script
   --package base
 -}
@@ -637,6 +637,21 @@ We can not change or configure this behaviour, but there are several workarounds
    ```
    export HUB_PROTOCOL="https"
    ```
+
+<hr>
+
+> Why some of the Stack checks on my TravisCI matrix are marked as "This job is
+> allowed to fail"?
+
+Due to the Stack problem of working with older versions of Cabal, the build can
+fail with Stack for some older GHCs. We are adding these checks into
+`allow_failures` section, as this is a known issue, and there is no need for the
+whole build to fail because of that.
+
+For more information about the issue and some workarounds from Stack developers,
+see the following ticket:
+
+  * [commersialhaskell/stack issue](https://github.com/commercialhaskell/stack/issues/4488)
 
 ## For Developers [↑](#structure)
 

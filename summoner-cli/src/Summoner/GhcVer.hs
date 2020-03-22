@@ -48,9 +48,11 @@ showGhcVer = \case
     Ghc865  -> "8.6.5"
     Ghc883  -> "8.8.3"
 
--- | These are old GHC versions that are not working with default GHC versions when using Stack.
+{- | These are old GHC versions that are not working with default GHC versions
+when using Stack.
+-}
 oldGhcs :: [GhcVer]
-oldGhcs = [minBound .. Ghc802]
+oldGhcs = [minBound .. Ghc844]
 
 parseGhcVer :: Text -> Maybe GhcVer
 parseGhcVer = inverseMap showGhcVer
@@ -63,7 +65,7 @@ latestLts = \case
     Ghc822  -> "lts-11.22"
     Ghc844  -> "lts-12.26"
     Ghc865  -> "lts-14.27"
-    Ghc883  -> "lts-15.4"
+    Ghc883  -> "lts-15.5"
 
 -- | Represents PVP versioning (4 numbers).
 data Pvp = Pvp
