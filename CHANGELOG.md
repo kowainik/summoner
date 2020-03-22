@@ -20,6 +20,7 @@ The changelog is available [on GitHub][2].
   [#429](https://github.com/kowainik/summoner/issues/429):
   Support GHC-8.8.3 in the project.
   Make GHC-8.8.3 default for the generated projects.
+  Upgrade Stack LTS to `15.5`.
   (by [@vrom911](https://github.com/vrom911))
 * Upgrade GHC-8.6.5 LTS to `14.27`.
   (by [@vrom911](https://github.com/vrom911))
@@ -100,6 +101,11 @@ The changelog is available [on GitHub][2].
   __#CLI__ __#TUI__
   Implement non-interactive mode with `-n | --non-interacive` command-line option.
   (by [@vrom911](https://github.com/vrom911))
+* [#430](https://github.com/kowainik/summoner/issues/430):
+  Instead of not including old GHCs for Stack check at Travis,
+  those versions are added to the `allow_failures` section of matrix.
+
+  _Note:_ For the Stack failure reasons see [this issue](https://github.com/commercialhaskell/stack/issues/4488).
 
 ## 1.4.0.0 – Dec 25, 2019 🎅
 

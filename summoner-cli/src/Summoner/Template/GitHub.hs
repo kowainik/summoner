@@ -9,12 +9,13 @@ Maintainer: Kowainik <xrom.xkov@gmail.com>
 This module contains template for GitHub related docs:
 
  * @.gitignore@ — static file with all Haskell related ignored files.
- * @appveyor.yml@ — Appveyor CI for Stack project only.
+ * @.github/workflows/ci.yml@ — GitHub acttions for Cabal projects.
+ * @appveyor.yml@ — Appveyor CI for Cabal or Stack projects.
  * @.travis.yml@ — depending on the build tool and supported GHC versions
    builds the Travis matrix with all necessary checks, including HLint check.
-   __NOTE:__ Old GHC versions is not included into Travis matrix for Stack due to
-   Stack limitations with the Cabal version usage on each GHC. See this issue to
-   track the problem:
+   __NOTE:__ Old GHC versions are included into @allow_failure@ Travis matrix
+   section for Stack due to Stack limitations with the Cabal version usage on
+   each GHC. See this issue to track the problem:
 
     + https://github.com/commercialhaskell/stack/issues/4488
 -}
@@ -23,7 +24,7 @@ module Summoner.Template.GitHub
        ( gitHubFiles
        ) where
 
-import Data.List ((\\))
+import Data.List (delete, intersect)
 import NeatInterpolation (text)
 
 import Summoner.Default (defaultCabal, defaultGHC)
@@ -185,6 +186,7 @@ gitHubFiles Settings{..} = concat
           include:
           $travisCabalMtr
           $travisStackMtr
+          $travisStackAllowFailuresMtr
 
         $installAndScript
 
@@ -207,11 +209,26 @@ gitHubFiles Settings{..} = concat
     travisCabalMatrixItem :: GhcVer -> Text
     travisCabalMatrixItem (showGhcVer -> ghcV) = [text|- ghc: $ghcV|]
 
-    -- Due to Stach issues with newer Cabal versions we are not supporting Travis CI for GHC <= 8.0.2 for stack
+    -- Due to the Stack issues with newer Cabal versions TravisCI for 'oldGhcs'
+    -- can fail. Possible failure jobs are added to the @allow-failures@ section.
     travisStackMtr :: Text
     travisStackMtr = memptyIfFalse settingsStack $ tconcatMap
-           travisStackMatrixItem (settingsTestedVersions \\ (defaultGHC:oldGhcs))
+           travisStackMatrixItem (delete defaultGHC settingsTestedVersions)
         <> travisStackMatrixDefaultItem
+
+    travisStackAllowFailuresMtr :: Text
+    travisStackAllowFailuresMtr = memptyIfFalse (settingsStack && not (null old))
+        [text|
+        $endLine
+        allow_failures:
+        $matrix
+        |]
+      where
+        old :: [GhcVer]
+        old = settingsTestedVersions `intersect` oldGhcs
+
+        matrix :: Text
+        matrix = tconcatMap travisStackMatrixItem old
 
     travisStackMatrixItem :: GhcVer -> Text
     travisStackMatrixItem (showGhcVer -> ghcV) =

@@ -18,7 +18,6 @@ module Summoner.Project
        ) where
 
 import Colourista (bold, formattedMessage, green)
-import Data.List (intersect)
 import NeatInterpolation (text)
 import Relude.Extra.Enum (universe)
 import Shellmet (($?))
@@ -29,7 +28,7 @@ import Summoner.Config (Config, ConfigP (..))
 import Summoner.CustomPrelude (CustomPrelude (..))
 import Summoner.Decision (Decision (..), decisionToBool, decisionsToBools, promptDecisionToBool)
 import Summoner.Default (currentYear, defaultDescription, defaultGHC)
-import Summoner.GhcVer (oldGhcs, parseGhcVer, showGhcVer)
+import Summoner.GhcVer (parseGhcVer, showGhcVer)
 import Summoner.License (LicenseName (..), fetchLicenseCustom, licenseShortDesc, parseLicenseName)
 import Summoner.Mode (ConnectMode (..), Interactivity (..), isOffline)
 import Summoner.Question (YesNoPrompt (..), checkUniqueName, choose, doesExistProjectName,
@@ -123,10 +122,6 @@ generateProjectInteractive connectMode projectName ConfigP{..} = do
         vers -> do
             putTextLn $ "Also these GHC versions will be added: " <> intercalateMap " " showGhcVer vers
             pure vers
-    -- Inform if there are old GHCs that won't be included to Travis Stack matrix
-    let oldGhcIncluded = not $ null $ settingsTestedVersions `intersect` oldGhcs
-    when (oldGhcIncluded && settingsStack && settingsTravis) $
-        warningMessage "Old GHC versions won't be included into Stack matrix at Travis CI because of the Stack issue with newer Cabal versions."
 
     settingsFiles <- fetchSources connectMode cFiles
 

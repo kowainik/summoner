@@ -1,10 +1,9 @@
-resolver: lts-15.4
+resolver: lts-15.5
 
 packages:
   - summoner-cli/
   - summoner-tui/
 
 extra-deps:
-  - colourista-0.0.0.0
   - generic-data-0.8.0.0
   - hspec-hedgehog-0.0.1.1

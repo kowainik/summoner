@@ -20,6 +20,9 @@ matrix:
   - ghc: 8.6.5
   - ghc: 8.8.3
   
+  - ghc: 8.0.2
+    env: STACK_YAML="$TRAVIS_BUILD_DIR/stack-8.0.2.yaml"
+  
   - ghc: 8.2.2
     env: STACK_YAML="$TRAVIS_BUILD_DIR/stack-8.2.2.yaml"
   
@@ -31,6 +34,17 @@ matrix:
   
   - ghc: 8.8.3
     env: STACK_YAML="$TRAVIS_BUILD_DIR/stack.yaml"
+  
+  allow_failures:
+  
+  - ghc: 8.0.2
+    env: STACK_YAML="$TRAVIS_BUILD_DIR/stack-8.0.2.yaml"
+  
+  - ghc: 8.2.2
+    env: STACK_YAML="$TRAVIS_BUILD_DIR/stack-8.2.2.yaml"
+  
+  - ghc: 8.4.4
+    env: STACK_YAML="$TRAVIS_BUILD_DIR/stack-8.4.4.yaml"
 
 install:
   # HLint check
