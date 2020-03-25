@@ -106,6 +106,8 @@ The changelog is available [on GitHub][2].
   those versions are added to the `allow_failures` section of matrix.
 
   _Note:_ For the Stack failure reasons see [this issue](https://github.com/commercialhaskell/stack/issues/4488).
+* [#434](https://github.com/kowainik/summoner/issues/434):
+  Move to `validation-selective`.
 
 ## 1.4.0.0 – Dec 25, 2019 🎅
 

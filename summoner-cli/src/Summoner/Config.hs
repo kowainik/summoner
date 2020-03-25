@@ -29,9 +29,9 @@ module Summoner.Config
 
 import Data.List (lookup)
 import Generic.Data (gmappend, gmempty)
-import Relude.Extra.Validation (Validation (..))
 import Shellmet (($?), ($|))
 import Toml (Key, TomlBiMap, TomlCodec, (.=))
+import Validation (Validation (..))
 
 import Summoner.CustomPrelude (CustomPrelude (..), customPreludeT)
 import Summoner.Decision (Decision (..))

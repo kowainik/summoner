@@ -41,9 +41,9 @@ import Options.Applicative (Parser, ParserInfo, ParserPrefs, argument, command, 
                             subparser, subparserInline, switch, value)
 import Options.Applicative.Help.Chunk (stringChunk)
 import Relude.Extra.Enum (universe)
-import Relude.Extra.Validation (Validation (..))
 import System.Directory (doesFileExist)
 import System.Info (os)
+import Validation (Validation (..))
 
 import Summoner.Ansi (errorMessage, infoMessage, successMessage, warningMessage)
 import Summoner.Config (Config, ConfigP (..), PartialConfig, defaultConfig, finalise,

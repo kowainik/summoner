@@ -31,7 +31,6 @@ common common-options
   mixins:              base hiding (Prelude)
                      , relude (Relude as Prelude
                               , Relude.Extra.Enum
-                              , Relude.Extra.Validation
                               )
   ghc-options:         -Wall
                        -Wcompat
@@ -84,6 +83,7 @@ library
                      , microlens-th ^>= 0.4
                      , summoner ^>= 1.4.0
                      , text ^>= 1.2.3.0
+                     , validation-selective ^>= 0.0.0.0
                      , vty >= 5.25 && < 5.27
 
 executable summon-tui
