@@ -4,10 +4,10 @@ module Test.TomlSpec
 
 import Hedgehog (MonadGen, forAll, tripping)
 import Relude.Extra.Enum (universe)
-import Relude.Extra.Validation (Validation (..))
 import Test.Hspec (Spec, describe, it, shouldReturn, shouldSatisfy)
 import Test.Hspec.Hedgehog (hedgehog)
 import Toml.Bi.Code (decode, encode)
+import Validation (Validation (..))
 
 import Summoner.Config (ConfigP (..), PartialConfig, configCodec, defaultConfig, finalise)
 import Summoner.CustomPrelude (CustomPrelude (..))
