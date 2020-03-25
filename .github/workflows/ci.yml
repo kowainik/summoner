@@ -14,7 +14,6 @@ jobs:
       matrix:
         cabal: ["2.4"]
         ghc:
-          - "8.2.2"
           - "8.4.4"
           - "8.6.5"
           - "8.8.3"
@@ -51,22 +50,19 @@ jobs:
         echo "packages: ." > cabal.project
         cabal v2-build all
 
-    - if: matrix.ghc != '8.2.2'
-      name: Build 'cabal-full'
+    - name: Build 'cabal-full'
       run: |
         cd "summoner-cli/examples/cabal-full/"
         echo "packages: ." > cabal.project
         cabal v2-build all
 
-    - if: matrix.ghc != '8.2.2'
-      name: Build 'stack-full'
+    - name: Build 'stack-full'
       run: |
         cd "summoner-cli/examples/stack-full/"
         echo "packages: ." > cabal.project
         cabal v2-build all
 
-    - if: matrix.ghc != '8.2.2'
-      name: Build 'full-batteries'
+    - name: Build 'full-batteries'
       run: |
         cd "summoner-cli/examples/full-batteries/"
         echo "packages: ." > cabal.project

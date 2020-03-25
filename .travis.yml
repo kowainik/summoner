@@ -36,8 +36,6 @@ script:
   - stack build --test --bench
   - STACK_YAML=stack-8.6.5.yaml stack build --test --bench
 #  - STACK_YAML=stack-8.4.4.yaml stack build --test --bench
-#  - STACK_YAML=stack-8.2.2.yaml stack build --test --bench
-#  - STACK_YAML=stack-8.0.2.yaml stack build --test --bench
 
 after_success:
   - echo "Trying to deploy..."

@@ -16,8 +16,7 @@ build-type:          Simple
 stability:           stable
 extra-doc-files:     README.md
                      CHANGELOG.md
-tested-with:         GHC == 8.2.2
-                     GHC == 8.4.4
+tested-with:         GHC == 8.4.4
                      GHC == 8.6.5
                      GHC == 8.8.3
 extra-source-files:
@@ -69,7 +68,7 @@ source-repository head
   location: git@github.com:kowainik/summoner.git
 
 common common-options
-  build-depends:       base >= 4.10 && < 4.14
+  build-depends:       base >= 4.11 && < 4.14
                      , relude ^>= 0.6.0.0
 
   mixins:              base hiding (Prelude)
