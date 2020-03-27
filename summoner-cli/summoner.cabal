@@ -54,12 +54,15 @@ extra-source-files:
     examples/full-batteries/*.yaml
     examples/full-batteries/*.md
     examples/full-batteries/*.cabal
+    examples/full-batteries/*.txt
     examples/full-batteries/src/*.hs
     examples/full-batteries/app/*.hs
     examples/full-batteries/test/*.hs
     examples/full-batteries/benchmark/*.hs
     examples/full-batteries/.gitignore
+    examples/full-batteries/.github/CODEOWNERS
     examples/full-batteries/.github/workflows/ci.yml
+    examples/full-batteries/.stylish-haskell.yaml
     examples/full-batteries/.travis.yml
     examples/full-batteries/LICENSE
 
