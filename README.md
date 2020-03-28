@@ -60,11 +60,11 @@ By the way, Summoner operates as either CLI or TUI application, so you can choos
 
 ### TUI demo [↑](#structure)
 
-[![TUI demo](https://asciinema.org/a/214424.png)](https://asciinema.org/a/214424)
+[![TUI demo](https://asciinema.org/a/314375.png)](https://asciinema.org/a/314375)
 
 ### CLI demo [↑](#structure)
 
-[![CLI demo](https://asciinema.org/a/214433.png)](https://asciinema.org/a/214433)
+[![CLI demo](https://asciinema.org/a/314374.png)](https://asciinema.org/a/314374)
 
 ### Examples
 
