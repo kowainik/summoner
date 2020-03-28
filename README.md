@@ -19,7 +19,7 @@ Or are you building a production application which uses a custom prelude and has
 Maybe do you want to play with your idea in a single module without introducing the whole complexity of the Haskell projects?
 Summoner can help you do all that with minimal effort from you - it can even upload the project to GitHub if you wish!
 
-By the way, Summoner operates as either CLI or TUI application, so you can choose what you're more comfortable with and install only the required one.
+By the way, Summoner operates as either CLI or TUI application, so you can choose what you are more comfortable with and install only the required one.
 
 ## Structure
 
@@ -33,10 +33,14 @@ By the way, Summoner operates as either CLI or TUI application, so you can choos
     + [Installation](#installation-)
         + [Summon-TUI](#summon-tui-)
           + [TUI: download binary](#tui-download-binary-)
+          + [TUI: Homebrew](#tui-homebrew-)
+          + [TUI: Ubuntu](#tui-ubuntu-)
           + [TUI: from Hackage/Stackage](#tui-from-hackagestackage-)
           + [TUI: from source](#tui-from-source-)
         + [Summon-CLI](#summon-cli-)
           + [CLI: download binary](#cli-download-binary-)
+          + [CLI: Homebrew](#cli-homebrew-)
+          + [CLI: Ubuntu](#cli-ubuntu-)
           + [CLI: from Hackage/Stackage](#cli-from-hackagestackage-)
           + [CLI: from source](#cli-from-source-)
     + [Setup](#setup-)
@@ -71,7 +75,7 @@ You can also see complete examples in the following folder:
 The directory contains the following examples:
 
 * [`cabal-minimal`](https://github.com/kowainik/summoner/tree/master/summoner-cli/examples/cabal-minimal):
-  minimal Haskell project with the Cabal-only support, default
+  Minimal Haskell project with the Cabal-only support, default
   settings and all of the integrations disabled.
 * [`cabal-full`](https://github.com/kowainik/summoner/tree/master/summoner-cli/examples/cabal-full):
    Cabal-only project with all integrations enabled.
@@ -230,6 +234,29 @@ chmod +x summon-cli-linux
 mv summon-cli-linux ~/.local/bin/summon
 ```
 
+##### TUI: Homebrew [↑](#structure)
+
+If you are on MacOS, you can get Summoner using Homebrew Kowainik's Tap.
+
+You need to run the following commands for that:
+
+```shell
+$ brew tap kowainik/tap
+$ brew install summoner-tui
+```
+
+##### TUI: Ubuntu [↑](#structure)
+
+If you are on Ubuntu, you can get Summoner from Kowainik's PPA.
+
+You need to run the following commands for that:
+
+```shell
+$ sudo add-apt-repository ppa:kowainik/summoner-tui
+$ sudo apt update
+$ sudo apt install summoner-tui
+```
+
 ##### TUI: from Hackage/Stackage [↑](#structure)
 
 Using `cabal`:
@@ -288,6 +315,29 @@ After downloading binary, make it executable and copy it under convenient locati
 ```shell
 chmod +x summon-cli-linux
 mv summon-cli-linux ~/.local/bin/summon
+```
+
+##### CLI: Homebrew [↑](#structure)
+
+If you are on MacOS, you can get Summoner using Homebrew Kowainik's Tap.
+
+You need to run the following commands for that:
+
+```shell
+$ brew tap kowainik/tap
+$ brew install summoner-cli
+```
+
+##### CLI: Ubuntu [↑](#structure)
+
+If you are on Ubuntu, you can get Summoner from Kowainik's PPA.
+
+You need to run the following commands for that:
+
+```shell
+$ sudo add-apt-repository ppa:kowainik/summoner-cli
+$ sudo apt update
+$ sudo apt install summoner-cli
 ```
 
 ##### CLI: from Hackage/Stackage [↑](#structure)
