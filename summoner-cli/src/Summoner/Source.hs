@@ -108,4 +108,4 @@ fetchSource connectMode = \case
         pure Nothing
 
     fetchUrl :: Text -> IO (Maybe Text)
-    fetchUrl url = Just . toText <$> readProcess "curl" [toString url, "--silent"] ""
+    fetchUrl url = Just . toText <$> readProcess "curl" [toString url, "--silent", "--fail"] ""

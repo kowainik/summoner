@@ -27,17 +27,18 @@ The changelog is available [on GitHub][2].
   Make GHC-8.8.3 default for the generated projects.
   Upgrade Stack LTS to `15.5`.
   (by [@vrom911](https://github.com/vrom911))
+* [#418](https://github.com/kowainik/summoner/issues/418):
+  Bump default `cabal` version to `2.4` in the generated project.
+  (by [@vrom911](https://github.com/vrom911))
 * [#114](https://github.com/kowainik/summoner/issues/114):
   __#CLI__ __#TUI__
   Implement non-interactive mode with `-n | --non-interacive` command-line option.
   (by [@vrom911](https://github.com/vrom911))
 * [#70](https://github.com/kowainik/summoner/issues/70):
+  __#CLI__ __#TUI__
   Implement `summon config` command. This command will generate the
   default TOML configuration file with helpful comments.
   (by [@chshersh](https://github.com/chshersh))
-* [#418](https://github.com/kowainik/summoner/issues/418):
-  Bump default `cabal` version to `2.4` in the generated project.
-  (by [@vrom911](https://github.com/vrom911))
 * [#361](https://github.com/kowainik/summoner/issues/361):
   Always put all default warnings in `ghc-options` inside common
   stanza under cabal conditionals on the `GHC` version. Now they look
@@ -106,7 +107,8 @@ The changelog is available [on GitHub][2].
   Remove deprecated `stylish` and `contributing` fields in the configurations.
   Use `files` instead.
   (by [@vrom911](https://github.com/vrom911))
-* Use `--silent` mode with `curl` commands.
+* Use `--silent` and `--fail` options with `curl` commands.
+  (by [@chshersh](https://github.com/chshersh))
 * Upgrade GHC-8.6.5 LTS to `14.27`.
   (by [@vrom911](https://github.com/vrom911))
 * __#TUI__ Allow `brick-0.52`.
