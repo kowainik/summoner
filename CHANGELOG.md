@@ -3,37 +3,41 @@
 `summoner` uses [PVP Versioning][1].
 The changelog is available [on GitHub][2].
 
-## 2.0.0.0 – Unreleased
+## 2.0.0.0 – Mar 28, 2019
 
-* [#351](https://github.com/kowainik/summoner/issues/351)
-  [#395](https://github.com/kowainik/summoner/issues/395):
+* [#246](https://github.com/kowainik/summoner/issues/246):
+  Put common fields into the `common-options` [common stanza](https://vrom911.github.io/blog/common-stanzas).
+  (by [@vrom911](https://github.com/vrom911))
+* [#351](https://github.com/kowainik/summoner/issues/351),
+  [#395](https://github.com/kowainik/summoner/issues/395),
+  [#398](https://github.com/kowainik/summoner/issues/398):
   __#CLI__ __#TUI__
   Add GitHub Actions CI check as an option for the generated
   project.
 
-  Add `-a` or `--actions` CLI option for GitHub actions.
-  Add `GitHub Actions` entry into interactive CLI mode.
-  Add `GitHub Actions` button into TUI.
-  Add `githubActions` to the TOML configs.
-  (by [@patrickt](https://github.com/patrickt), [@vrom911](https://github.com/vrom911))
-* [#401](https://github.com/kowainik/summoner/issues/401)
+  * Add `-a` or `--actions` CLI option for GitHub actions.
+  * Add `GitHub Actions` entry into interactive CLI mode.
+  * Add `GitHub Actions` button into TUI.
+  * Add `githubActions` to the TOML configs.
+
+  (by [@patrickt](https://github.com/patrickt), [@vrom911](https://github.com/vrom911), [@chshersh](https://github.com/chshersh))
+* [#401](https://github.com/kowainik/summoner/issues/401),
   [#429](https://github.com/kowainik/summoner/issues/429):
   Support GHC-8.8.3 in the project.
   Make GHC-8.8.3 default for the generated projects.
   Upgrade Stack LTS to `15.5`.
   (by [@vrom911](https://github.com/vrom911))
-* Upgrade GHC-8.6.5 LTS to `14.27`.
+* [#418](https://github.com/kowainik/summoner/issues/418):
+  Bump default `cabal` version to `2.4` in the generated project.
   (by [@vrom911](https://github.com/vrom911))
-* [#363](https://github.com/kowainik/summoner/issues/363):
-  Move from `generic-deriving` to `generic-data`.
-  (by [@chshersh](https://github.com/chshersh))
+* [#114](https://github.com/kowainik/summoner/issues/114):
+  __#CLI__ __#TUI__
+  Implement non-interactive mode with `-n | --non-interacive` command-line option.
+  (by [@vrom911](https://github.com/vrom911))
 * [#70](https://github.com/kowainik/summoner/issues/70):
+  __#CLI__ __#TUI__
   Implement `summon config` command. This command will generate the
   default TOML configuration file with helpful comments.
-  (by [@chshersh](https://github.com/chshersh))
-* [#281](https://github.com/kowainik/summoner/issues/281):
-  Add more example projects and golden tests for various scaffolding
-  configurations.
   (by [@chshersh](https://github.com/chshersh))
 * [#361](https://github.com/kowainik/summoner/issues/361):
   Always put all default warnings in `ghc-options` inside common
@@ -59,24 +63,13 @@ The changelog is available [on GitHub][2].
                      , relude (Relude as Prelude)
   ```
   (by [@chshersh](https://github.com/chshersh))
-* Use `colourista` for pretty terminal formatting.
-  (by [@chshersh](https://github.com/chshersh))
-* __#TUI__ Allow `brick-0.52`.
-  (by [@vrom911](https://github.com/vrom911))
-* [#246](https://github.com/kowainik/summoner/issues/246):
-   Put common fields into common stanza `common-options`.
-* [#418](https://github.com/kowainik/summoner/issues/418):
-  Bump default `cabal` version to `2.4` in the generated project.
-* [#394](https://github.com/kowainik/summoner/issues/394):
-  Do not crush when `hub` is not installed. Instead, print descriptive warning
-  message.
 * [#251](https://github.com/kowainik/summoner/issues/251):
   Update LICENSE names for `.cabal` files in generated projects.
   Add `ISC` to the list of the accepted licenses.
-* [#34](https://github.com/kowainik/summoner/issues/34):
-  Print helpful error message when `hub` fails (for example, if the
-  password is incorrect).
-  (by [@chshersh](https://github.com/chshersh))
+  (by [@vrom911](https://github.com/vrom911))
+* __#CLI__ __#TUI__
+  Customise outputted LICENSE text for `summon show license LICENSE_NAME` command
+  (by [@vrom911](https://github.com/vrom911))
 * [#399](https://github.com/kowainik/summoner/issues/399):
   Add Haddock header to library module.
 
@@ -89,25 +82,45 @@ The changelog is available [on GitHub][2].
   Project description
   -}
   ```
-* Improve `maintainer` field in the generated `.cabal` file.
-* [#375](https://github.com/kowainik/summoner/issues/375):
-  Remove deprecated `stylish` and `contributing` fields in the configurations.
-  Use `files` instead.
   (by [@vrom911](https://github.com/vrom911))
-* __#CLI__ __#TUI__
-  Customise outputted LICENSE text for `summon show license LICENSE_NAME` command
-* Use `--silent` mode with `curl` commands.
-* [#114](https://github.com/kowainik/summoner/issues/114):
-  __#CLI__ __#TUI__
-  Implement non-interactive mode with `-n | --non-interacive` command-line option.
+* Improve `maintainer` field in the generated `.cabal` file.
   (by [@vrom911](https://github.com/vrom911))
 * [#430](https://github.com/kowainik/summoner/issues/430):
   Instead of not including old GHCs for Stack check at Travis,
   those versions are added to the `allow_failures` section of matrix.
+  (by [@vrom911](https://github.com/vrom911))
 
   _Note:_ For the Stack failure reasons see [this issue](https://github.com/commercialhaskell/stack/issues/4488).
+* [#394](https://github.com/kowainik/summoner/issues/394):
+  Do not crush when `hub` is not installed. Instead, print descriptive warning
+  message.
+  (by [@vrom911](https://github.com/vrom911))
+* [#34](https://github.com/kowainik/summoner/issues/34):
+  Print helpful error message when `hub` fails (for example, if the
+  password is incorrect).
+  (by [@chshersh](https://github.com/chshersh))
+* [#281](https://github.com/kowainik/summoner/issues/281):
+  Add more example projects and golden tests for various scaffolding
+  configurations.
+  (by [@chshersh](https://github.com/chshersh))
+* [#375](https://github.com/kowainik/summoner/issues/375):
+  Remove deprecated `stylish` and `contributing` fields in the configurations.
+  Use `files` instead.
+  (by [@vrom911](https://github.com/vrom911))
+* Use `--silent` and `--fail` options with `curl` commands.
+  (by [@chshersh](https://github.com/chshersh))
+* Upgrade GHC-8.6.5 LTS to `14.27`.
+  (by [@vrom911](https://github.com/vrom911))
+* __#TUI__ Allow `brick-0.52`.
+  (by [@vrom911](https://github.com/vrom911))
+* [#363](https://github.com/kowainik/summoner/issues/363):
+  Move from `generic-deriving` to `generic-data`.
+  (by [@chshersh](https://github.com/chshersh))
 * [#434](https://github.com/kowainik/summoner/issues/434):
   Move to `validation-selective`.
+  (by [@vrom911](https://github.com/vrom911))
+* Use `colourista` for pretty terminal formatting.
+  (by [@chshersh](https://github.com/chshersh))
 
 ## 1.4.0.0 – Dec 25, 2019 🎅
 

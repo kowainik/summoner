@@ -110,6 +110,7 @@ fetchLicense name = do
         , "-H"
         , "Accept: application/vnd.github.drax-preview+json"
         , "--silent"
+        , "--fail"
         ]
 
     whenNothing (decodeStrict @License $ encodeUtf8 licenseJson) $ do
