@@ -1,6 +1,6 @@
 cabal-version:       2.4
 name:                summoner-tui
-version:             1.4.0.0
+version:             2.0.0.0
 synopsis:            Tool for scaffolding fully configured batteries-included production-level Haskell projects using TUI.
 description:         Tool for scaffolding fully configured batteries-included production-level Haskell projects using TUI.
                      See [README.md](https://github.com/kowainik/summoner#-summoner) for details.
@@ -81,10 +81,10 @@ library
                      , filepath ^>= 1.4.1.2
                      , microlens ^>= 0.4
                      , microlens-th ^>= 0.4
-                     , summoner ^>= 1.4.0
+                     , summoner ^>= 2.0.0.0
                      , text ^>= 1.2.3.0
                      , validation-selective ^>= 0.0.0.0
-                     , vty >= 5.25 && < 5.27
+                     , vty >= 5.25 && < 5.29
 
 executable summon-tui
   import:              common-options
