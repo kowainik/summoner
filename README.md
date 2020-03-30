@@ -238,11 +238,10 @@ mv summon-cli-linux ~/.local/bin/summon
 
 If you are on MacOS, you can get Summoner using Homebrew Kowainik's Tap.
 
-You need to run the following commands for that:
+You need to run the following command for that:
 
 ```shell
-$ brew tap kowainik/tap
-$ brew install summoner-tui
+$ brew install kowainik/tap/summoner-tui
 ```
 
 ##### TUI: Ubuntu [↑](#structure)
@@ -321,11 +320,10 @@ mv summon-cli-linux ~/.local/bin/summon
 
 If you are on MacOS, you can get Summoner using Homebrew Kowainik's Tap.
 
-You need to run the following commands for that:
+You need to run the following command for that:
 
 ```shell
-$ brew tap kowainik/tap
-$ brew install summoner-cli
+$ brew install kowainik/tap/summoner-cli
 ```
 
 ##### CLI: Ubuntu [↑](#structure)
