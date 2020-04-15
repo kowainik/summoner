@@ -114,12 +114,12 @@ cabalFile Settings{..} = File (toString settingsRepo ++ ".cabal") cabalFileConte
     defaultGhcOptions =
         [text|
         ghc-options:         -Wall
-                             -Wcompat
+        if impl(ghc >= 8.0)
+          ghc-options:       -Wcompat
                              -Widentities
                              -Wincomplete-uni-patterns
                              -Wincomplete-record-updates
-        if impl(ghc >= 8.0)
-          ghc-options:       -Wredundant-constraints
+                             -Wredundant-constraints
         if impl(ghc >= 8.2)
           ghc-options:       -fhide-source-paths
         if impl(ghc >= 8.4)
