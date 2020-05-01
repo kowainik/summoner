@@ -66,7 +66,7 @@ By the way, Summoner operates as either CLI or TUI application, so you can choos
 
 [![CLI demo](https://asciinema.org/a/314374.png)](https://asciinema.org/a/314374)
 
-### Examples
+### Examples [↑](#structure)
 
 You can also see complete examples in the following folder:
 
