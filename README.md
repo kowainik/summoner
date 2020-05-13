@@ -23,50 +23,58 @@ By the way, Summoner operates as either CLI or TUI application, so you can choos
 
 ## Structure
 
-* [Demo](#demo-)
-    + [TUI demo](#tui-demo-)
-    + [CLI demo](#cli-demo-)
-    + [Examples](#examples-)
-* [Features](#features-)
-* [Get started](#get-started-)
-    + [Prerequisites](#prerequisites-)
-    + [Installation](#installation-)
-        + [Summon-TUI](#summon-tui-)
-          + [TUI: download binary](#tui-download-binary-)
-          + [TUI: Homebrew](#tui-homebrew-)
-          + [TUI: Ubuntu](#tui-ubuntu-)
-          + [TUI: from Hackage/Stackage](#tui-from-hackagestackage-)
-          + [TUI: from source](#tui-from-source-)
-        + [Summon-CLI](#summon-cli-)
-          + [CLI: download binary](#cli-download-binary-)
-          + [CLI: Homebrew](#cli-homebrew-)
-          + [CLI: Ubuntu](#cli-ubuntu-)
-          + [CLI: from Hackage/Stackage](#cli-from-hackagestackage-)
-          + [CLI: from source](#cli-from-source-)
-    + [Setup](#setup-)
-* [Usage](#usage-)
-    + [Command-line arguments](#command-line-arguments-)
-    + [File configuration](#file-configuration-)
-    + [TUI](#tui-)
-    + [CLI](#cli-)
-* [FAQ](#faq-)
-* [For Developers](#for-developers-)
-    + [Build](#build-)
-    + [Test](#test-)
-    + [Run](#run-)
-* [Acknowledgments](#acknowledgments-)
+* [Demo](#demo)
+    + [TUI demo](#tui-demo)
+    + [CLI demo](#cli-demo)
+    + [Examples](#examples)
+* [Features](#features)
+* [Get started](#get-started)
+    + [Prerequisites](#prerequisites)
+    + [Installation](#installation)
+        + [Summon-TUI](#summon-tui)
+          + [TUI: download binary](#tui-download-binary)
+          + [TUI: Homebrew](#tui-homebrew)
+          + [TUI: Ubuntu](#tui-ubuntu)
+          + [TUI: from Hackage/Stackage](#tui-from-hackagestackage)
+          + [TUI: from source](#tui-from-source)
+        + [Summon-CLI](#summon-cli)
+          + [CLI: download binary](#cli-download-binary)
+          + [CLI: Homebrew](#cli-homebrew)
+          + [CLI: Ubuntu](#cli-ubuntu)
+          + [CLI: from Hackage/Stackage](#cli-from-hackagestackage)
+          + [CLI: from source](#cli-from-source)
+    + [Setup](#setup)
+* [Usage](#usage)
+    + [Command-line arguments](#command-line-arguments)
+    + [File configuration](#file-configuration)
+    + [TUI](#tui)
+    + [CLI](#cli)
+* [FAQ](#faq)
+* [For Developers](#for-developers)
+    + [Build](#build)
+    + [Test](#test)
+    + [Run](#run)
+* [Acknowledgments](#acknowledgments)
 
-## Demo [↑](#structure)
+## Demo
 
-### TUI demo [↑](#structure)
+[[Back to the Table of Contents] ↑](#structure)
+
+### TUI demo
+
+[[Back to the Table of Contents] ↑](#structure)
 
 [![TUI demo](https://asciinema.org/a/314375.png)](https://asciinema.org/a/314375)
 
-### CLI demo [↑](#structure)
+### CLI demo
+
+[[Back to the Table of Contents] ↑](#structure)
 
 [![CLI demo](https://asciinema.org/a/314374.png)](https://asciinema.org/a/314374)
 
-### Examples [↑](#structure)
+### Examples
+
+[[Back to the Table of Contents] ↑](#structure)
 
 You can also see complete examples in the following folder:
 
@@ -85,7 +93,9 @@ The directory contains the following examples:
   All batteries-included project which supports both build tools and
   shows every Summoner feature.
 
-## Features [↑](#structure)
+## Features
+
+[[Back to the Table of Contents] ↑](#structure)
 
 Summoner is a tool that combines predefined configurations, command-line arguments and a chosen interface.
 
@@ -93,7 +103,9 @@ To fully understand the power in your hands with the help of Summoner, please re
 
 Below you can see highlighted features in different categories.
 
-### Project [↑](#structure)
+### Project
+
+[[Back to the Table of Contents] ↑](#structure)
 
 Features related to the structure and content of the generated projects.
 
@@ -133,7 +145,9 @@ Features related to the structure and content of the generated projects.
   -with-rtsopts=-N
   ```
 
-### GitHub [↑](#structure)
+### GitHub
+
+[[Back to the Table of Contents] ↑](#structure)
 
 + Initialisation of the git repository inside the project folder.
 + Initial commit creation.
@@ -144,7 +158,9 @@ Features related to the structure and content of the generated projects.
 + Ability to include your custom GitHub meta files: `CONTRIBUTING.md`, `CODEOWNERS`, `.github/pull_request_template.md`, etc.
 + Guessing user credentials from the local `.gitconfig` file.
 
-### CI [↑](#structure)
+### CI
+
+[[Back to the Table of Contents] ↑](#structure)
 
 + Generation of the `.travis.yml` file that runs build and tests on CI under Linux using
   [Dead simple Haskell Travis Settings for Cabal and Stack](https://chshersh.github.io/posts/2019-02-25-haskell-travis).
@@ -155,7 +171,9 @@ Features related to the structure and content of the generated projects.
 + `-Werror` is enabled on CI not to miss any warnings.
 + Run HLint checks on CI.
 
-### Others [↑](#structure)
+### Others
+
+[[Back to the Table of Contents] ↑](#structure)
 
 + Carefully collected Haskell project best practices gathered in your projects' scaffold.
 + Generate beginner-friendly default configuration using the `summon config` command.
@@ -163,7 +181,9 @@ Features related to the structure and content of the generated projects.
 + Ability to check GHC-specific versions of the corresponding `base` library
   and Stackage snapshot resolver via `summon show ghc` command.
 
-### Project structure example [↑](#structure)
+### Project structure example
+
+[[Back to the Table of Contents] ↑](#structure)
 
 This is an example of the project hierarchy you can get if you are running Summoner's `new` command with all options enabled:
 
@@ -193,9 +213,13 @@ project-name/
 └── .travis.yml
 ```
 
-## Get started [↑](#structure)
+## Get started
 
-### Prerequisites [↑](#structure)
+[[Back to the Table of Contents] ↑](#structure)
+
+### Prerequisites
+
+[[Back to the Table of Contents] ↑](#structure)
 
 To start using Summoner make sure that you have the following tools installed on your machine:
 
@@ -210,7 +234,9 @@ We also have minimal version requirements for build tools:
 
 However, it is always recommended to use the newest versions of build tools.
 
-### Installation [↑](#structure)
+### Installation
+
+[[Back to the Table of Contents] ↑](#structure)
 
 Summon contains two executables:
 
@@ -219,11 +245,15 @@ Summon contains two executables:
 
 Below you can find the description of how to install each of them so you can choose the one you want.
 
-#### Summon-TUI [↑](#structure)
+#### Summon-TUI
+
+[[Back to the Table of Contents] ↑](#structure)
 
 > **NOTE:** `summon-tui` is not supported on Windows. See [this issue](https://github.com/jtdaugherty/vty/pull/1).
 
-##### TUI: download binary [↑](#structure)
+##### TUI: download binary
+
+[[Back to the Table of Contents] ↑](#structure)
 
 You can download binary directly [from GitHub releases](https://github.com/kowainik/summoner/releases).
 
@@ -234,7 +264,9 @@ chmod +x summon-cli-linux
 mv summon-cli-linux ~/.local/bin/summon
 ```
 
-##### TUI: Homebrew [↑](#structure)
+##### TUI: Homebrew
+
+[[Back to the Table of Contents] ↑](#structure)
 
 If you are on MacOS, you can get Summoner using Homebrew Kowainik's Tap.
 
@@ -244,7 +276,9 @@ You need to run the following command for that:
 $ brew install kowainik/tap/summoner-tui
 ```
 
-##### TUI: Ubuntu [↑](#structure)
+##### TUI: Ubuntu
+
+[[Back to the Table of Contents] ↑](#structure)
 
 If you are on Ubuntu, you can get Summoner from Kowainik's PPA.
 
@@ -256,7 +290,9 @@ $ sudo apt update
 $ sudo apt install summoner-tui
 ```
 
-##### TUI: from Hackage/Stackage [↑](#structure)
+##### TUI: from Hackage/Stackage
+
+[[Back to the Table of Contents] ↑](#structure)
 
 Using `cabal`:
 
@@ -271,7 +307,9 @@ Using `stack`:
 stack install summoner-tui
 ```
 
-##### TUI: from source [↑](#structure)
+##### TUI: from source
+
+[[Back to the Table of Contents] ↑](#structure)
 
 Fetch the repo using `cabal`:
 
@@ -303,9 +341,13 @@ Build and install using `stack`:
 stack install summoner-tui:exe:summon-tui
 ```
 
-#### Summon-CLI [↑](#structure)
+#### Summon-CLI
 
-##### CLI: download binary [↑](#structure)
+[[Back to the Table of Contents] ↑](#structure)
+
+##### CLI: download binary
+
+[[Back to the Table of Contents] ↑](#structure)
 
 You can download binary directly [from GitHub releases](https://github.com/kowainik/summoner/releases).
 
@@ -316,7 +358,9 @@ chmod +x summon-cli-linux
 mv summon-cli-linux ~/.local/bin/summon
 ```
 
-##### CLI: Homebrew [↑](#structure)
+##### CLI: Homebrew
+
+[[Back to the Table of Contents] ↑](#structure)
 
 If you are on MacOS, you can get Summoner using Homebrew Kowainik's Tap.
 
@@ -326,7 +370,9 @@ You need to run the following command for that:
 $ brew install kowainik/tap/summoner-cli
 ```
 
-##### CLI: Ubuntu [↑](#structure)
+##### CLI: Ubuntu
+
+[[Back to the Table of Contents] ↑](#structure)
 
 If you are on Ubuntu, you can get Summoner from Kowainik's PPA.
 
@@ -338,7 +384,9 @@ $ sudo apt update
 $ sudo apt install summoner-cli
 ```
 
-##### CLI: from Hackage/Stackage [↑](#structure)
+##### CLI: from Hackage/Stackage
+
+[[Back to the Table of Contents] ↑](#structure)
 
 Using `cabal`:
 
@@ -353,7 +401,9 @@ Using `stack`:
 stack install summoner
 ```
 
-##### CLI: from source [↑](#structure)
+##### CLI: from source
+
+[[Back to the Table of Contents] ↑](#structure)
 
 Fetch the repo using `cabal`:
 
@@ -385,7 +435,9 @@ Build and install using `stack`:
 stack install summoner:exe:summon
 ```
 
-### Setup [↑](#structure)
+### Setup
+
+[[Back to the Table of Contents] ↑](#structure)
 
 You can turn on bash auto-completion by running the following command:
 
@@ -393,7 +445,9 @@ You can turn on bash auto-completion by running the following command:
 source <(summon --bash-completion-script `which summon`)
 ```
 
-## Usage [↑](#structure)
+## Usage
+
+[[Back to the Table of Contents] ↑](#structure)
 
 To start `summon`ing projects nothing additional is required. However, to tweak your settings further, you can use additional configuration settings.
 There are several options you can use to set particular configurations for new projects (in increasing order of priority):
@@ -408,7 +462,9 @@ There are several options you can use to set particular configurations for new p
 
 To cut a long story short, the configuration uses [Partial Options Monoid Pattern](https://medium.com/@jonathangfischoff/the-partial-options-monoid-pattern-31914a71fc67).
 
-### File configuration [↑](#structure)
+### File configuration
+
+[[Back to the Table of Contents] ↑](#structure)
 
 Here is the list of the options that can be configured to suit your needs. If options are not specified, they are asked interactively (or some sensible defaults are used).
 
@@ -444,7 +500,9 @@ command. See [the default content here](summoner-cli/test/golden/summoner-defaul
 
 For a real-life example of the configuration, see [the configuration for projects of the `Kowainik` organization](https://github.com/kowainik/org/blob/master/.summoner.toml).
 
-### Command line arguments [↑](#structure)
+### Command line arguments
+
+[[Back to the Table of Contents] ↑](#structure)
 
 Available commands:
 
@@ -464,7 +522,9 @@ Available global options:
   -v, --version            Show summoner's version
 ```
 
-#### **summon new** command: [↑](#structure)
+#### **summon new** command:
+
+[[Back to the Table of Contents] ↑](#structure)
 
 ```
 Usage:
@@ -511,7 +571,9 @@ Available command options:
   -b, --benchmark          Benchmarks
 ```
 
-#### **summon script** command: [↑](#structure)
+#### **summon script** command:
+
+[[Back to the Table of Contents] ↑](#structure)
 
 ```
 Usage:
@@ -524,7 +586,9 @@ Available options:
   -n,--name FILE_NAME      Name of the script file
 ```
 
-#### **summon show** command: [↑](#structure)
+#### **summon show** command:
+
+[[Back to the Table of Contents] ↑](#structure)
 
 ```
 Usage:
@@ -549,7 +613,9 @@ Travis CI and AppVeyor CI integrated.
 summon new my-project with -letgcpwa without -b --prelude-package relude --prelude-module Relude
 ```
 
-#### **summon config** command: [↑](#structure)
+#### **summon config** command:
+
+[[Back to the Table of Contents] ↑](#structure)
 
 ```
 Usage: summon config [-f|--file=FILENAME]
@@ -575,9 +641,13 @@ summon config
 summon config --file ~/.summoner-demo.toml
 ```
 
-### TUI [↑](#structure)
+### TUI
 
-#### TUI new command [↑](#structure)
+[[Back to the Table of Contents] ↑](#structure)
+
+#### TUI new command
+
+[[Back to the Table of Contents] ↑](#structure)
 
 ![summon new TUI](https://user-images.githubusercontent.com/8126674/49283553-fc684e00-f4cc-11e8-8411-f173f5f19a71.png)
 
@@ -611,22 +681,32 @@ To help you navigate between the form fields here are the available hotkeys:
 
 Note that the form should be valid in order to be able to go to the Confirm window. If there are some errors in the input, you could see details about these errors in the `Status` section of the form.
 
-#### TUI script command [↑](#structure)
+#### TUI script command
+
+[[Back to the Table of Contents] ↑](#structure)
 
 See [CLI description](#cli-script-command-) of the `summon script` command.
 
-#### TUI show command [↑](#structure)
+#### TUI show command
+
+[[Back to the Table of Contents] ↑](#structure)
 
 These commands display the list of supported GHC versions or Licenses. Also, when the license name is specified the window with the scrollable content of the License text is shown.
 
-### CLI [↑](#structure)
+### CLI
 
-#### CLI new command [↑](#structure)
+[[Back to the Table of Contents] ↑](#structure)
+
+#### CLI new command
+
+[[Back to the Table of Contents] ↑](#structure)
 
 In CLI mode of operation Summoner asks about every project setting. Most of the questions contain a default value, so you can press <kbd>Enter</kbd> to choose the default value.
 If some option is specified via a configuration file or CLI arguments, then the question is skipped and the predefined value is used.
 
-#### CLI script command [↑](#structure)
+#### CLI script command
+
+[[Back to the Table of Contents] ↑](#structure)
 
 This command creates minimal `cabal` or `stack` script file which allows you to save some keystrokes and eliminates the need to remember magic words for scripts.
 
@@ -657,11 +737,15 @@ main :: IO ()
 main = putStrLn "Hello, World!"
 ```
 
-#### CLI show command [↑](#structure)
+#### CLI show command
+
+[[Back to the Table of Contents] ↑](#structure)
 
 These commands display the list of supported GHC versions, or Licenses. Also, when the license name is specified, the content of the License is outputted to the terminal.
 
-## FAQ [↑](#structure)
+## FAQ
+
+[[Back to the Table of Contents] ↑](#structure)
 
 > I want to use HTTPS remote for the created GitHub project, but it creates SSH one. How should I fix this?
 
@@ -701,7 +785,9 @@ see the following ticket:
 
   * [commersialhaskell/stack issue](https://github.com/commercialhaskell/stack/issues/4488)
 
-## For Developers [↑](#structure)
+## For Developers
+
+[[Back to the Table of Contents] ↑](#structure)
 
 If you'd like to take part in the development processes, here are a few things to keep in mind:
 
@@ -711,11 +797,15 @@ If you'd like to take part in the development processes, here are a few things t
 * To sum up, [here is the Contributing guide](https://github.com/kowainik/.github/blob/master/CONTRIBUTING.md#contributing-to-the-kowainik-repositories) we use across the repositories.
 * This project is contributor-friendly, so be kind to other people working on the project.
 
-### Dependencies [↑](#structure)
+### Dependencies
+
+[[Back to the Table of Contents] ↑](#structure)
 
 On Linux, to build the `summoner-tui` you'll need to have `libtinfo` installed. The easiest way to get this is from your system's package manager and is usually available as the package `libtinfo-dev`.
 
-### Build [↑](#structure)
+### Build
+
+[[Back to the Table of Contents] ↑](#structure)
 
 To build the project you can use the following commands:
 
@@ -731,7 +821,9 @@ stack build
 
 for Stack.
 
-### Test [↑](#structure)
+### Test
+
+[[Back to the Table of Contents] ↑](#structure)
 
 Summoner uses the golden tests technique for assuring the correctness of the generated files. For this purpose, we have [the `golden` folder](https://github.com/kowainik/summoner/tree/master/summoner-cli/test/golden) with two sample projects to test against.
 
@@ -747,7 +839,9 @@ or, if using Stack
 stack test
 ```
 
-### Run [↑](#structure)
+### Run
+
+[[Back to the Table of Contents] ↑](#structure)
 
 Building Summoner with the recommended method creates two executables: `summon` and `summon-tui`. To run the compiled executable you can use the following commands:
 
@@ -763,7 +857,9 @@ stack exec summon -- SOME_COMMAND
 stack exec summon-tui -- SOME_COMMAND
 ```
 
-## Acknowledgments [↑](#structure)
+## Acknowledgments
+
+[[Back to the Table of Contents] ↑](#structure)
 
 This project was inspired by [Aelve/new-hs](https://github.com/aelve/new-hs#readme),
 which is the tool with the same goal but it's only for creating cabal projects.
