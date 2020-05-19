@@ -3,6 +3,13 @@
 `summoner` uses [PVP Versioning][1].
 The changelog is available [on GitHub][2].
 
+## Unreleased
+
+* [#459](https://github.com/kowainik/summoner/issues/459):
+  Bump up `tomland` version to `1.3.0.0`.
+* [#455](https://github.com/kowainik/summoner/issues/455):
+  Allow `validation-selective` version `0.1.0.0`.
+
 ## 2.0.0.0 – Mar 28, 2019
 
 * [#246](https://github.com/kowainik/summoner/issues/246):

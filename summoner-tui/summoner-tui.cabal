@@ -83,7 +83,7 @@ library
                      , microlens-th ^>= 0.4
                      , summoner ^>= 2.0.0.0
                      , text ^>= 1.2.3.0
-                     , validation-selective ^>= 0.0.0.0
+                     , validation-selective >= 0.0.0.0 && < 0.2
                      , vty >= 5.25 && < 5.29
 
 executable summon-tui

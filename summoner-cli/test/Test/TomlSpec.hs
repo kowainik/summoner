@@ -6,7 +6,7 @@ import Hedgehog (MonadGen, forAll, tripping)
 import Relude.Extra.Enum (universe)
 import Test.Hspec (Spec, describe, it, shouldReturn, shouldSatisfy)
 import Test.Hspec.Hedgehog (hedgehog)
-import Toml.Bi.Code (decode, encode)
+import Toml.Codec.Code (decode, encode)
 import Validation (Validation (..))
 
 import Summoner.Config (ConfigP (..), PartialConfig, configCodec, defaultConfig, finalise)
