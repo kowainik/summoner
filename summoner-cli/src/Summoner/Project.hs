@@ -18,12 +18,12 @@ module Summoner.Project
        ) where
 
 import Colourista (bold, formattedMessage, green)
+import Colourista (errorMessage, infoMessage, skipMessage, successMessage, warningMessage)
 import NeatInterpolation (text)
 import Relude.Extra.Enum (universe)
 import Shellmet (($?))
 import System.Directory (findExecutable, setCurrentDirectory)
 
-import Summoner.Ansi (errorMessage, infoMessage, skipMessage, successMessage, warningMessage)
 import Summoner.Config (Config, ConfigP (..))
 import Summoner.CustomPrelude (CustomPrelude (..))
 import Summoner.Decision (Decision (..), decisionToBool, decisionsToBools, promptDecisionToBool)
@@ -277,7 +277,7 @@ createProjectDirectory :: Settings -> IO ()
 createProjectDirectory settings@Settings{..} = do
     let tree = createProjectTemplate settings
     traverseTree tree
-    successMessage "\nThe project with the following structure has been created:"
+    successMessage "The project with the following structure has been created:"
     putTextLn $ showBoldTree tree
     setCurrentDirectory (toString settingsRepo)
 

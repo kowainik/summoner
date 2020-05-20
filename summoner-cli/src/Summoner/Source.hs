@@ -13,11 +13,11 @@ module Summoner.Source
        , fetchSource
        ) where
 
+import Colourista (errorMessage, infoMessage)
 import Control.Exception (catch)
 import System.Process (readProcess)
 import Toml (TomlBiMapError (..), TomlCodec)
 
-import Summoner.Ansi (errorMessage, infoMessage)
 import Summoner.Mode (ConnectMode (..), isOffline)
 import Summoner.Tree (TreeFs, pathToTree)
 

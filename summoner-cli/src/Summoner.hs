@@ -10,7 +10,6 @@ module Summoner
        ( module Summoner
        ) where
 
-import Summoner.Ansi as Summoner
 import Summoner.CLI as Summoner
 import Summoner.Config as Summoner
 import Summoner.CustomPrelude as Summoner

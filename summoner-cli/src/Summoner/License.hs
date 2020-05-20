@@ -19,11 +19,10 @@ module Summoner.License
        , showLicenseWithDesc
        ) where
 
+import Colourista (errorMessage)
 import Data.Aeson (FromJSON (..), decodeStrict, withObject, (.:))
 import Relude.Extra.Enum (inverseMap)
 import Shellmet (($|))
-
-import Summoner.Ansi (errorMessage)
 
 import qualified Data.Text as T
 import qualified Text.Show as TS

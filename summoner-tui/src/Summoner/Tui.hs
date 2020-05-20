@@ -27,11 +27,11 @@ import Brick.Widgets.Core (emptyWidget, fill, hLimit, hLimitPercent, padTopBotto
                            vLimit, viewport)
 import Brick.Widgets.Edit (editAttr, editFocusedAttr)
 import Brick.Widgets.List (listSelectedAttr, listSelectedFocusedAttr)
+import Colourista (errorMessage, infoMessage)
 import Lens.Micro ((.~), (^.))
 import Relude.Extra.Enum (universe)
 import System.Directory (doesDirectoryExist, doesFileExist, getCurrentDirectory, listDirectory)
 
-import Summoner.Ansi (errorMessage, infoMessage)
 import Summoner.CLI (Command (..), NewOpts (..), ShowOpts (..), getCustomLicenseText,
                      getFinalConfig, runConfig, runScript, summon)
 import Summoner.Config (ConfigP (cFiles))
