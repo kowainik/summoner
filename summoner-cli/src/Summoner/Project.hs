@@ -17,8 +17,8 @@ module Summoner.Project
        , initializeProject
        ) where
 
-import Colourista (bold, formattedMessage, green)
-import Colourista (errorMessage, infoMessage, skipMessage, successMessage, warningMessage)
+import Colourista (bold, errorMessage, formattedMessage, green, infoMessage, skipMessage,
+                   successMessage, warningMessage)
 import NeatInterpolation (text)
 import Relude.Extra.Enum (universe)
 import Shellmet (($?))
