@@ -9,6 +9,9 @@ The changelog is available [on GitHub][2].
   Bump up `tomland` version to `1.3.0.0`.
 * [#455](https://github.com/kowainik/summoner/issues/455):
   Allow `validation-selective` version `0.1.0.0`.
+* [#452](https://github.com/kowainik/summoner/issues/452):
+  Bump up `colourista` version to `0.1.0.0`. Remove the
+  `Summoner.Ansi` module.
 
 ## 2.0.0.0 – Mar 28, 2019
 

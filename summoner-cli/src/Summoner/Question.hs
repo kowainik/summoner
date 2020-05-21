@@ -36,11 +36,12 @@ module Summoner.Question
        , falseMessage
        ) where
 
-import Colourista (bold, cyan, formatWith, formattedMessage, green, italic)
+import Colourista (blue, bold, cyan, errorMessage, formatWith, formattedMessage, green, italic,
+                   warningMessage)
 import System.Directory (doesPathExist, getCurrentDirectory)
 import System.FilePath ((</>))
+import System.IO (hFlush)
 
-import Summoner.Ansi (boldDefault, errorMessage, prompt, putStrFlush, warningMessage)
 import Summoner.Text (headToUpper, intercalateMap)
 
 import qualified Data.Text as T
@@ -274,3 +275,23 @@ doesExistProjectName :: Text -> IO Bool
 doesExistProjectName projectName = do
     curPath <- getCurrentDirectory
     doesPathExist $ curPath </> toString projectName
+
+----------------------------------------------------------------------------
+-- Internal implementation details
+----------------------------------------------------------------------------
+
+-- | Explicit flush ensures prompt messages are in the correct order on all systems.
+putStrFlush :: Text -> IO ()
+putStrFlush msg = do
+    putText msg
+    hFlush stdout
+
+{- | Read 'Text' from standard input after arrow prompt.
+-}
+prompt :: IO Text
+prompt = do
+    putStrFlush $ formatWith [blue] "  ->   "
+    T.strip <$> getLine
+
+boldDefault :: Text -> Text
+boldDefault message = formatWith [bold] $ " [" <> message <> "]"

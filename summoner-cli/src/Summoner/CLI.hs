@@ -30,7 +30,8 @@ module Summoner.CLI
        , getCustomLicenseText
        ) where
 
-import Colourista (blue, bold, formatWith)
+import Colourista (blue, bold, errorMessage, formatWith, infoMessage, successMessage,
+                   warningMessage)
 import Data.Version (Version, showVersion)
 import Development.GitRev (gitCommitDate, gitHash)
 import NeatInterpolation (text)
@@ -45,7 +46,6 @@ import System.Directory (doesFileExist)
 import System.Info (os)
 import Validation (Validation (..))
 
-import Summoner.Ansi (errorMessage, infoMessage, successMessage, warningMessage)
 import Summoner.Config (Config, ConfigP (..), PartialConfig, defaultConfig, finalise,
                         guessConfigFromGit, loadFileConfig)
 import Summoner.CustomPrelude (CustomPrelude (..))

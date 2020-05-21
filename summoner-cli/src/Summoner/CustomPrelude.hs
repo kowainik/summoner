@@ -11,7 +11,7 @@ module Summoner.CustomPrelude
        , customPreludeT
        ) where
 
-import Toml (Key, TomlCodec, (.=))
+import Toml (TomlCodec, (.=))
 
 import Summoner.Text (moduleNameValid, packageNameValid)
 
