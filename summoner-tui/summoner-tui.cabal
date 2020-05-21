@@ -19,13 +19,14 @@ extra-doc-files:     README.md
 tested-with:         GHC == 8.4.4
                      GHC == 8.6.5
                      GHC == 8.8.3
+                     GHC == 8.10.1
 
 source-repository head
   type:     git
   location: git@github.com:kowainik/summoner.git
 
 common common-options
-  build-depends:       base >= 4.11 && < 4.14
+  build-depends:       base >= 4.11 && < 4.15
                      , relude ^>= 0.7.0.0
 
   mixins:              base hiding (Prelude)
@@ -47,6 +48,8 @@ common common-options
   if impl(ghc >= 8.8)
     ghc-options:       -Wmissing-deriving-strategies
                        -Werror=missing-deriving-strategies
+  if impl(ghc >= 8.10)
+    ghc-options:       -Wunused-packages
 
   default-extensions:  DeriveGeneric
                        DerivingStrategies
@@ -76,10 +79,9 @@ library
   autogen-modules:     Paths_summoner_tui
   other-modules:       Paths_summoner_tui
 
-  build-depends:       brick >= 0.47 && < 0.53
+  build-depends:       brick >= 0.47 && < 0.54
                      , colourista ^>= 0.1
                      , directory ^>= 1.3.0.2
-                     , filepath ^>= 1.4.1.2
                      , microlens ^>= 0.4
                      , microlens-th ^>= 0.4
                      , summoner ^>= 2.0.0.0

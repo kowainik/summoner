@@ -5,6 +5,8 @@ The changelog is available [on GitHub][2].
 
 ## Unreleased
 
+* [#443](https://github.com/kowainik/summoner/issues/443):
+  Support GHC-8.10.1 for `Summoner` project.
 * [#459](https://github.com/kowainik/summoner/issues/459):
   Bump up `tomland` version to `1.3.0.0`.
 * [#460](https://github.com/kowainik/summoner/issues/460):
@@ -16,6 +18,8 @@ The changelog is available [on GitHub][2].
 * [#452](https://github.com/kowainik/summoner/issues/452):
   Bump up `colourista` version to `0.1.0.0`. Remove the
   `Summoner.Ansi` module.
+* __#TUI__ Bump up `brick` upper bound to allow `0.53`.
+* __#CLI__ Bump up `time` upper bound to allow `1.10`.
 
 ## 2.0.0.0 – Mar 28, 2019
 
