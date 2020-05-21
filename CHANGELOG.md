@@ -3,7 +3,7 @@
 `summoner` uses [PVP Versioning][1].
 The changelog is available [on GitHub][2].
 
-## Unreleased
+## 2.0.1.0 — May 21, 2020
 
 * [#443](https://github.com/kowainik/summoner/issues/443):
   Support GHC-8.10.1 for `Summoner` project.
@@ -21,7 +21,7 @@ The changelog is available [on GitHub][2].
 * __#TUI__ Bump up `brick` upper bound to allow `0.53`.
 * __#CLI__ Bump up `time` upper bound to allow `1.10`.
 
-## 2.0.0.0 – Mar 28, 2019
+## 2.0.0.0 – Mar 28, 2020
 
 * [#246](https://github.com/kowainik/summoner/issues/246):
   Put common fields into the `common-options` [common stanza](https://vrom911.github.io/blog/common-stanzas).
