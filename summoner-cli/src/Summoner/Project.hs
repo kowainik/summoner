@@ -19,8 +19,9 @@ module Summoner.Project
 
 import Colourista (bold, errorMessage, formattedMessage, green, infoMessage, skipMessage,
                    successMessage, warningMessage)
+import Data.List.NonEmpty ((<|))
 import NeatInterpolation (text)
-import Relude.Extra.Enum (universe)
+import Relude.Extra.Enum (universe, universeNonEmpty)
 import Shellmet (($?))
 import System.Directory (findExecutable, setCurrentDirectory)
 
@@ -38,9 +39,10 @@ import Summoner.Question (YesNoPrompt (..), checkUniqueName, choose, doesExistPr
 import Summoner.Settings (Settings (..))
 import Summoner.Source (fetchSources)
 import Summoner.Template (createProjectTemplate)
-import Summoner.Template.Mempty (memptyIfFalse)
 import Summoner.Text (intercalateMap, moduleNameValid, packageNameValid, packageToModule)
 import Summoner.Tree (showBoldTree, traverseTree)
+
+import qualified Data.List.NonEmpty as NE
 
 
 -- | Generate the project.
@@ -76,7 +78,7 @@ generateProjectInteractive connectMode projectName ConfigP{..} = do
     putText licenseText
     settingsLicenseName  <- if isOffline connectMode
         then NONE <$ infoMessage "'NONE' license is used in offline mode"
-        else choose parseLicenseName "License: " $ ordNub (cLicense : universe)
+        else choose parseLicenseName "License: " $ NE.nub (cLicense <| universeNonEmpty)
 
     -- License creation
     settingsYear <- currentYear

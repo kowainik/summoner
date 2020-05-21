@@ -30,7 +30,6 @@ import NeatInterpolation (text)
 import Summoner.Default (defaultCabal, defaultGHC)
 import Summoner.GhcVer (GhcVer (..), oldGhcs, showGhcVer)
 import Summoner.Settings (Settings (..))
-import Summoner.Template.Mempty (memptyIfFalse)
 import Summoner.Text (endLine, intercalateMap, tconcatMap)
 import Summoner.Tree (TreeFs (..))
 

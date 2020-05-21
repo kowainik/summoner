@@ -72,12 +72,11 @@ source-repository head
 
 common common-options
   build-depends:       base >= 4.11 && < 4.14
-                     , relude ^>= 0.6.0.0
+                     , relude ^>= 0.7.0.0
 
   mixins:              base hiding (Prelude)
                      , relude (Relude as Prelude
                               , Relude.Extra.Enum
-                              , Relude.Unsafe
                               )
 
   ghc-options:         -Wall
@@ -129,7 +128,6 @@ library
                            Summoner.Template.Doc
                            Summoner.Template.GitHub
                            Summoner.Template.Haskell
-                           Summoner.Template.Mempty
                            Summoner.Template.Script
                            Summoner.Template.Stack
                          Summoner.Text
