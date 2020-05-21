@@ -45,7 +45,6 @@ import System.IO (hFlush)
 import Summoner.Text (headToUpper, intercalateMap)
 
 import qualified Data.Text as T
-import qualified Relude.Unsafe as Unsafe
 
 
 {- HLINT ignore "Redundant multi-way if" -}
@@ -130,22 +129,23 @@ printQuestion question (def:rest) = do
 choose :: Show a
     => (Text -> Maybe a)  -- ^ Parse function
     -> Text  -- ^ Question text.
-    -> [a]   -- ^ List of available options.
+    -> NonEmpty a   -- ^ List of available options.
     -> IO a  -- ^ The chosen option.
 choose parser question choices = do
-    let showChoices = map show choices
+    let showChoices = map show $ toList choices
     printQuestion question showChoices
     answer <- prompt
     if T.null answer
-        then pure (Unsafe.head choices)
+        then pure (head choices)
         else whenNothing (parser answer)
                 (errorMessage "This wasn't a valid choice." >> choose parser question choices)
 
 -- | Like 'choose' but the possible answer are 'Y' or 'N'.
-chooseYesNo :: YesNoPrompt -- ^ Target and Prompt
-            -> IO a -- ^ action for 'Y' answer
-            -> IO a -- ^ action for 'N' answer
-            -> IO a
+chooseYesNo
+    :: YesNoPrompt -- ^ Target and Prompt
+    -> IO a -- ^ action for 'Y' answer
+    -> IO a -- ^ action for 'N' answer
+    -> IO a
 chooseYesNo p@YesNoPrompt {..} yesDo noDo = do
     printQuestion yesNoPrompt ["y", "n"]
     answer <- yesOrNo <$> prompt

@@ -19,7 +19,6 @@ import Summoner.Default (defaultCabal)
 import Summoner.GhcVer (cabalBaseVersions, showGhcVer)
 import Summoner.License (LicenseName (..))
 import Summoner.Settings (Settings (..))
-import Summoner.Template.Mempty (memptyIfFalse)
 import Summoner.Text (endLine, intercalateMap, packageToModule)
 import Summoner.Tree (TreeFs (..))
 
