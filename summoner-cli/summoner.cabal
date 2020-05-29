@@ -139,7 +139,7 @@ library
   autogen-modules:     Paths_summoner
   other-modules:       Paths_summoner
 
-  build-depends:       aeson >= 1.2.4.0 && < 1.5
+  build-depends:       aeson >= 1.2.4.0 && < 1.6
                      , colourista ^>= 0.1
                      , containers ^>= 0.6
                      , directory ^>= 1.3.0.2
