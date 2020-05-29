@@ -3,6 +3,13 @@
 `summoner` uses [PVP Versioning][1].
 The changelog is available [on GitHub][2].
 
+## 2.0.1.1 — May 29, 2020
+
+* [#467](https://github.com/kowainik/summoner/issues/467):
+  Allow `aeson-1.5.0.0`.
+* [#469](https://github.com/kowainik/summoner/issues/469):
+  __#TUI__ Allow `brick-0.54`.
+
 ## 2.0.1.0 — May 21, 2020
 
 * [#443](https://github.com/kowainik/summoner/issues/443):
