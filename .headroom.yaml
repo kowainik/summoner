@@ -1,0 +1,33 @@
+## This is the configuration file for Headroom.
+## See https://github.com/vaclavsvejcar/headroom for more details.
+
+run-mode: replace
+
+source-paths:
+  - summoner-cli/src/
+  - summoner-tui/src/
+
+excluded-paths: []
+
+template-paths:
+  - headroom-templates
+
+variables:
+  author: Kowainik
+  email: xrom.xkov@gmail.com
+  _haskell_module_copyright: "(c) {{ _current_year }} {{ author }}"
+
+license-headers:
+  haskell:
+    put-after: ["^{-#"]
+    margin-after: 1
+    margin-before: 1
+    block-comment:
+      starts-with: "{- |"
+      ends-with: "-}"
+
+post-process:
+  update-copyright:
+    enabled: true
+    config:
+      selected-authors-only: ["{{ author }}"]
