@@ -1,9 +1,12 @@
 {-# LANGUAGE Rank2Types #-}
 
 {- |
-Copyright: (c) 2018-2019 Kowainik
-SPDX-License-Identifier: MPL-2.0
-Maintainer: Kowainik <xrom.xkov@gmail.com>
+Module                  : Summoner.Tui.Field
+Copyright               : (c) 2018-2020 Kowainik
+SPDX-License-Identifier : MPL-2.0
+Maintainer              : Kowainik <xrom.xkov@gmail.com>
+Stability               : Stable
+Portability             : Portable
 
 This modules adds necessary functions for Forms and Form fields
 that are not covered in @brick@ library.

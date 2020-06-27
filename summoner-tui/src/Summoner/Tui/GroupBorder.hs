@@ -1,7 +1,10 @@
 {- |
-Copyright: (c) 2018-2019 Kowainik
-SPDX-License-Identifier: MPL-2.0
-Maintainer: Kowainik <xrom.xkov@gmail.com>
+Module                  : Summoner.Tui.GroupBorder
+Copyright               : (c) 2018-2020 Kowainik
+SPDX-License-Identifier : MPL-2.0
+Maintainer              : Kowainik <xrom.xkov@gmail.com>
+Stability               : Stable
+Portability             : Portable
 
 @Brick@ library helper functions to group checkbox elements inside the form.
 This is not going to be the part of the library itself, so we will have it in

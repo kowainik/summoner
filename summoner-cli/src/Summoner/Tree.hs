@@ -1,9 +1,12 @@
 {-# LANGUAGE ViewPatterns #-}
 
 {- |
-Copyright: (c) 2017-2019 Kowainik
-SPDX-License-Identifier: MPL-2.0
-Maintainer: Kowainik <xrom.xkov@gmail.com>
+Module                  : Summoner.Tree
+Copyright               : (c) 2017-2020 Kowainik
+SPDX-License-Identifier : MPL-2.0
+Maintainer              : Kowainik <xrom.xkov@gmail.com>
+Stability               : Stable
+Portability             : Portable
 
 Data type for representing filesystem structure via tree.
 -}
