@@ -3,6 +3,11 @@
 `summoner` uses [PVP Versioning][1].
 The changelog is available [on GitHub][2].
 
+## Unreleased
+
+* [#466](https://github.com/kowainik/summoner/issues/466):
+  Add ` --test-show-details=direct` to `cabal test` on CI.
+
 ## 2.0.1.1 — May 29, 2020
 
 * [#467](https://github.com/kowainik/summoner/issues/467):

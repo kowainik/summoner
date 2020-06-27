@@ -63,7 +63,7 @@ install:
 script:
   - |
     if [ -z "$STACK_YAML" ]; then
-      cabal v2-test --enable-tests
+      cabal v2-test --enable-tests --test-show-details=direct
     else
       stack test --system-ghc
     fi

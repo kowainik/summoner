@@ -27,7 +27,7 @@ install:
   - cabal v2-build --enable-tests --enable-benchmarks
 
 script:
-  - cabal v2-test --enable-tests
+  - cabal v2-test --enable-tests --test-show-details=direct
 
 notifications:
   email: false

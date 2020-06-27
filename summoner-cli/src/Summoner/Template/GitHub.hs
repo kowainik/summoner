@@ -313,7 +313,7 @@ gitHubFiles Settings{..} = concat
 
     cabalTest :: Text
     cabalTest = if settingsTest
-        then "cabal v2-test --enable-tests"
+        then "cabal v2-test --enable-tests --test-show-details=direct"
         else "echo 'No tests'"
 
     stackBuild :: Text

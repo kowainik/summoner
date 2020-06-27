@@ -42,7 +42,7 @@ jobs:
 
     - name: Unit and property tests
       run: |
-        cabal v2-test all --enable-tests
+        cabal v2-test all --enable-tests --test-show-details=direct
 
     - if: matrix.ghc == '8.8.3'
       name: Build 'cabal-minimal'
