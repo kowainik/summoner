@@ -1,7 +1,10 @@
 {- |
-Copyright: (c) 2017-2020 Kowainik
-SPDX-License-Identifier: MPL-2.0
-Maintainer: Kowainik <xrom.xkov@gmail.com>
+Module                  : Summoner.License
+Copyright               : (c) 2017-2020 Kowainik
+SPDX-License-Identifier : MPL-2.0
+Maintainer              : Kowainik <xrom.xkov@gmail.com>
+Stability               : Stable
+Portability             : Portable
 
 Data types that represent license names and license content and functions
 to work with them.

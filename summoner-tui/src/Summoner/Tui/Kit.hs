@@ -4,9 +4,12 @@
 {-# LANGUAGE TemplateHaskell        #-}
 
 {- |
-Copyright: (c) 2018-2019 Kowainik
-SPDX-License-Identifier: MPL-2.0
-Maintainer: Kowainik <xrom.xkov@gmail.com>
+Module                  : Summoner.Tui.Kit
+Copyright               : (c) 2018-2020 Kowainik
+SPDX-License-Identifier : MPL-2.0
+Maintainer              : Kowainik <xrom.xkov@gmail.com>
+Stability               : Stable
+Portability             : Portable
 
 This module contains data types to work with application form. 'SummonKit' is
 the data type containing the values manipulated by the fields in the form.

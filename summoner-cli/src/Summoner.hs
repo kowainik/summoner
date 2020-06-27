@@ -1,7 +1,10 @@
 {- |
-Copyright: (c) 2017-2019 Kowainik
-SPDX-License-Identifier: MPL-2.0
-Maintainer: Kowainik <xrom.xkov@gmail.com>
+Module                  : Summoner
+Copyright               : (c) 2017-2020 Kowainik
+SPDX-License-Identifier : MPL-2.0
+Maintainer              : Kowainik <xrom.xkov@gmail.com>
+Stability               : Stable
+Portability             : Portable
 
 Main module that reexports all library components of the @summoner@.
 -}
