@@ -374,7 +374,7 @@ gitHubFiles Settings{..} = concat
 
         build_script:
           - cabal %CABOPTS% v2-build --enable-tests
-          - cabal %CABOPTS% v2-test  --enable-tests
+          - cabal %CABOPTS% v2-test  --enable-tests --test-show-details=direct
         |]
 
     -- create appveyor.yml template

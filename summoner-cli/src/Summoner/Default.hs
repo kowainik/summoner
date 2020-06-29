@@ -25,6 +25,8 @@ module Summoner.Default
        , currentYear
        ) where
 
+import Relude.Extra.Enum (prev)
+
 import Data.Time (getCurrentTime, toGregorian, utctDay)
 import NeatInterpolation (text)
 import System.Directory (getHomeDirectory)
@@ -126,7 +128,7 @@ defaultConfigFileContent = [text|
 
     # List of additional GHC versions to support besides $defaultGhcVer.
     # Run the 'summon show ghc' command to see the list of all supported GHC versions.
-    # ghcVersions = ["8.4.4", "8.6.5"]
+    # ghcVersions = ["$defaultGhcPrevPrev", "$defaultGhcPrev"]
 
     # List of default-extensions in the .cabal file
     # extensions = [ "ConstraintKinds"
@@ -166,5 +168,7 @@ defaultConfigFileContent = [text|
     licenseName :: Text
     licenseName = show defaultLicenseName
 
-    defaultGhcVer :: Text
+    defaultGhcVer, defaultGhcPrev, defaultGhcPrevPrev :: Text
     defaultGhcVer = showGhcVer defaultGHC
+    defaultGhcPrev = showGhcVer $ prev defaultGHC
+    defaultGhcPrevPrev = showGhcVer $ prev $ prev defaultGHC
