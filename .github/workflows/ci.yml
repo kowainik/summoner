@@ -44,29 +44,26 @@ jobs:
       run: |
         cabal v2-test all --enable-tests --test-show-details=direct
 
-    - if: matrix.ghc == '8.8.3'
+    - if: matrix.ghc == '8.10.1'
       name: Build 'cabal-minimal'
       run: |
         cd "summoner-cli/examples/cabal-minimal/"
         echo "packages: ." > cabal.project
         cabal v2-build all
 
-    - if: matrix.ghc != '8.10.1'
-      name: Build 'cabal-full'
+    - name: Build 'cabal-full'
       run: |
         cd "summoner-cli/examples/cabal-full/"
         echo "packages: ." > cabal.project
         cabal v2-build all
 
-    - if: matrix.ghc != '8.10.1'
-      name: Build 'stack-full'
+    - name: Build 'stack-full'
       run: |
         cd "summoner-cli/examples/stack-full/"
         echo "packages: ." > cabal.project
         cabal v2-build all
 
-    - if: matrix.ghc != '8.10.1'
-      name: Build 'full-batteries'
+    - name: Build 'full-batteries'
       run: |
         cd "summoner-cli/examples/full-batteries/"
         echo "packages: ." > cabal.project
