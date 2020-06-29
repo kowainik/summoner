@@ -126,7 +126,7 @@ defaultConfigFileContent = [text|
 
     # List of additional GHC versions to support besides $defaultGhcVer.
     # Run the 'summon show ghc' command to see the list of all supported GHC versions.
-    # ghcVersions = ["8.4.4", "8.6.5"]
+    # ghcVersions = ["8.6.5", "8.8.3"]
 
     # List of default-extensions in the .cabal file
     # extensions = [ "ConstraintKinds"

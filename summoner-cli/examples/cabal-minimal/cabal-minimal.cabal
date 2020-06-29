@@ -10,10 +10,10 @@ copyright:           2020 Kowainik
 build-type:          Simple
 extra-doc-files:     README.md
                      CHANGELOG.md
-tested-with:         GHC == 8.8.3
+tested-with:         GHC == 8.10.1
 
 common common-options
-  build-depends:       base ^>= 4.13.0.0
+  build-depends:       base ^>= 4.14.0.0
   
   ghc-options:         -Wall
                        -Wcompat
@@ -29,6 +29,8 @@ common common-options
                        -Wpartial-fields
   if impl(ghc >= 8.8)
     ghc-options:       -Wmissing-deriving-strategies
+  if impl(ghc >= 8.10)
+    ghc-options:       -Wunused-packages
 
   default-language:    Haskell2010
 

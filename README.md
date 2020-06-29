@@ -135,6 +135,7 @@ Features related to the structure and content of the generated projects.
   -Wmissing-export-lists        (GHC ⩾ 8.4)
   -Wpartial-fields              (GHC ⩾ 8.4)
   -Wmissing-deriving-strategies (GHC ⩾ 8.8)
+  -Wunused-packages (GHC ⩾ 8.10)
   ```
 
   Besides, the following GHC options are added to the executable, tests and benchmark stanzas:
@@ -476,7 +477,7 @@ Here is the list of the options that can be configured to suit your needs. If op
 | `fullName`       | Text    | Full name.                                                                                                                                                           |
 | `email`          | Text    | E-mail address.                                                                                                                                                      |
 | `license`        | License | One of: `MIT`, `BSD2`, `BSD3`, `GPL-2`, `GPL-3`, `LGPL-2.1`, `LGPL-3`, `AGPL-3`, `Apache-2.0`, `MPL-2.0`, `None`.                                                    |
-| `ghcVersions`    | [GHC]   | `summoner` uses default `GHC-8.8.3`. However, additionally you can specify other versions. For each version `x.y.z` the `stack-x.y.z.yaml` will be created.          |
+| `ghcVersions`    | [GHC]   | `summoner` uses default `GHC-8.10.1`. However, additionally you can specify other versions. For each version `x.y.z` the `stack-x.y.z.yaml` will be created.          |
 | `github`         | Bool    | Turn on `GitHub` integration by default?                                                                                                                             |
 | `gitignore`      | [Text]  | List of files you want added to the default `.gitignore`. (Ignored if `github = false`)                                                                              |
 | `noUpload`       | Bool    | Do not upload to GitHub, but create all GitHub related files if specified (Ignored if `github = false`)                                                              |

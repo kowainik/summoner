@@ -129,6 +129,9 @@ cabalFile Settings{..} = File (toString settingsRepo ++ ".cabal") cabalFileConte
                              -Wpartial-fields
         if impl(ghc >= 8.8)
           ghc-options:       -Wmissing-deriving-strategies
+        if impl(ghc >= 8.10)
+          ghc-options:       -Wunused-packages
+
         |]
 
     libraryStanza :: Text

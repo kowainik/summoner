@@ -7,6 +7,12 @@ The changelog is available [on GitHub][2].
 
 * [#466](https://github.com/kowainik/summoner/issues/466):
   Add ` --test-show-details=direct` to `cabal test` on CI.
+* [#444](https://github.com/kowainik/summoner/issues/444):
+  Support GHC-8.10.1 in the generated projects.
+  Use GHC-8.10.1 by default in the generated projects.
+  Use `nightly-2020-06-29` for stack resolver.
+* [#445](https://github.com/kowainik/summoner/issues/445):
+  Add `-Wunused-packages` for GHC-8.10.1.
 
 ## 2.0.1.1 — May 29, 2020
 
