@@ -11,3 +11,4 @@ extra-deps:
   - relude-0.7.0.0
   - tomland-1.3.0.0
   - validation-selective-0.1.0.0
+  - microaeson-0.1.0.0

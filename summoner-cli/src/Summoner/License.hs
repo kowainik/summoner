@@ -23,7 +23,7 @@ module Summoner.License
        ) where
 
 import Colourista (errorMessage)
-import Data.Aeson (FromJSON (..), decodeStrict, withObject, (.:))
+import Data.Aeson.Micro (FromJSON (..), decodeStrict, withObject, (.:))
 import Relude.Extra.Enum (inverseMap)
 import Shellmet (($|))
 

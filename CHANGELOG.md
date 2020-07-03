@@ -5,6 +5,8 @@ The changelog is available [on GitHub][2].
 
 ## Unreleased
 
+* [#476](https://github.com/kowainik/summoner/issues/476):
+  Switch from `aeson` to `microaeson`.
 * [#466](https://github.com/kowainik/summoner/issues/466):
   Add ` --test-show-details=direct` to `cabal test` on CI.
 * [#444](https://github.com/kowainik/summoner/issues/444):
