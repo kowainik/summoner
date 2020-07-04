@@ -32,6 +32,7 @@ module Summoner.Config
 
 import Data.List (lookup)
 import Generic.Data (gmappend, gmempty)
+import Generic.Data.Orphans ()
 import Shellmet (($?), ($|))
 import Toml (Key, TomlBiMap, TomlCodec, (.=))
 import Validation (Validation (..))
