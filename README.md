@@ -1,10 +1,14 @@
 # 🔮 Summoner
 
 ![wizard](https://user-images.githubusercontent.com/8126674/44388234-320aac00-a55a-11e8-879d-5dca68512031.png)
+
 [![GitHub CI](https://github.com/kowainik/summoner/workflows/CI/badge.svg)](https://github.com/kowainik/summoner/actions)
 [![Build](https://img.shields.io/travis/kowainik/summoner.svg?logo=travis)](http://travis-ci.org/kowainik/summoner)
 [![Windows build](https://ci.appveyor.com/api/projects/status/github/kowainik/summoner?branch=master&svg=true)](https://ci.appveyor.com/project/kowainik/summoner)
+
 [![Hackage](https://img.shields.io/hackage/v/summoner.svg?logo=haskell)](https://hackage.haskell.org/package/summoner)
+[![Stackage Lts](http://stackage.org/package/summoner/badge/lts)](http://stackage.org/lts/package/summoner)
+[![Stackage Nightly](http://stackage.org/package/summoner/badge/nightly)](http://stackage.org/nightly/package/summoner)
 [![MPL-2.0 license](https://img.shields.io/badge/license-MPL--2.0-blue.svg)](https://github.com/kowainik/summoner/blob/master/LICENSE)
 
 > _So many of our dreams at first seem impossible, then they seem improbable, and
@@ -35,13 +39,13 @@ By the way, Summoner operates as either CLI or TUI application, so you can choos
           + [TUI: download binary](#tui-download-binary)
           + [TUI: Homebrew](#tui-homebrew)
           + [TUI: Ubuntu](#tui-ubuntu)
-          + [TUI: from Hackage/Stackage](#tui-from-hackagestackage)
+          + [TUI: from Hackage](#tui-from-hackage)
           + [TUI: from source](#tui-from-source)
         + [Summon-CLI](#summon-cli)
           + [CLI: download binary](#cli-download-binary)
           + [CLI: Homebrew](#cli-homebrew)
           + [CLI: Ubuntu](#cli-ubuntu)
-          + [CLI: from Hackage/Stackage](#cli-from-hackagestackage)
+          + [CLI: from Hackage](#cli-from-hackage)
           + [CLI: from source](#cli-from-source)
     + [Setup](#setup)
 * [Usage](#usage)
@@ -291,7 +295,7 @@ $ sudo apt update
 $ sudo apt install summoner-tui
 ```
 
-##### TUI: from Hackage/Stackage
+##### TUI: from Hackage
 
 [[Back to the Table of Contents] ↑](#structure)
 
@@ -300,12 +304,6 @@ Using `cabal`:
 ```shell
 cabal v2-update
 cabal v2-install summoner-tui
-```
-
-Using `stack`:
-
-```shell
-stack install summoner-tui
 ```
 
 ##### TUI: from source
@@ -385,7 +383,7 @@ $ sudo apt update
 $ sudo apt install summoner-cli
 ```
 
-##### CLI: from Hackage/Stackage
+##### CLI: from Hackage
 
 [[Back to the Table of Contents] ↑](#structure)
 
@@ -394,12 +392,6 @@ Using `cabal`:
 ```shell
 cabal v2-update
 cabal v2-install summoner
-```
-
-Using `stack`:
-
-```shell
-stack install summoner
 ```
 
 ##### CLI: from source
