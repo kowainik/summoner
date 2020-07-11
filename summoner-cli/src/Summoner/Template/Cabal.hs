@@ -1,5 +1,3 @@
-{-# LANGUAGE QuasiQuotes #-}
-
 {- |
 Module                  : Summoner.Template.Cabal
 Copyright               : (c) 2017-2020 Kowainik
@@ -15,14 +13,12 @@ module Summoner.Template.Cabal
        ( cabalFile
        ) where
 
-import NeatInterpolation (text)
-
 import Summoner.CustomPrelude (CustomPrelude (..))
 import Summoner.Default (defaultCabal)
 import Summoner.GhcVer (cabalBaseVersions, showGhcVer)
 import Summoner.License (LicenseName (..))
 import Summoner.Settings (Settings (..))
-import Summoner.Text (endLine, intercalateMap, packageToModule)
+import Summoner.Text (intercalateMap, packageToModule)
 import Summoner.Tree (TreeFs (..))
 
 import qualified Data.Text as T
@@ -43,7 +39,6 @@ cabalFile Settings{..} = File (toString settingsRepo ++ ".cabal") cabalFileConte
         , memptyIfFalse settingsBench $ benchmarkStanza $ memptyIfFalse settingsIsLib $ ", " <> settingsRepo
         ]
 
-    -- TODO: do something to not have empty lines
     cabalHeader :: Text
     cabalHeader = unlines $
         [ "cabal-version:       " <> defaultCabal
@@ -80,139 +75,125 @@ cabalFile Settings{..} = File (toString settingsRepo ++ ".cabal") cabalFileConte
         settingsTestedVersions
 
     sourceRepository :: Text
-    sourceRepository =
-        [text|
-        $endLine
-        source-repository head
-          type:                git
-          location:            ${githubUrl}.git
-        |]
+    sourceRepository = unlines
+        [ ""
+        , "source-repository head"
+        , "  type:                git"
+        , "  location:            " <> githubUrl <> ".git"
+        ]
 
     commonStanza :: Text
-    commonStanza =
-        [text|
-        $endLine
-        common common-options
-          build-depends:       base $baseBounds
-          $customPrelude
-          $ghcOptions
-
-          default-language:    Haskell2010
-    |] <> defaultExtensions
+    commonStanza = unlines $
+        [ ""
+        , "common common-options"
+        , "  build-depends:       base " <> baseBounds
+        ]
+        <> customPrelude
+        <> ("" : map ("  " <>) ghcOptions)
+        <>
+        ( ""
+        : "  default-language:    Haskell2010"
+        : defaultExtensions
+        )
 
     baseBounds :: Text
     baseBounds = cabalBaseVersions settingsTestedVersions
 
-    ghcOptions :: Text
+    ghcOptions :: [Text]
     ghcOptions = case settingsGhcOptions of
-        [] -> defaultGhcOptions
-        x:xs ->
-            let customGhcOptions = T.intercalate "\n" $ x : map (T.replicate 21 " " <>) xs in
-            [text|
-            ghc-options:         $customGhcOptions
-            |]
+        []   -> defaultGhcOptions
+        x:xs -> "ghc-options:         " <> x : map (T.replicate 21 " " <>) xs
 
-    defaultGhcOptions :: Text
+    defaultGhcOptions :: [Text]
     defaultGhcOptions =
-        [text|
-        ghc-options:         -Wall
-                             -Wcompat
-                             -Widentities
-                             -Wincomplete-uni-patterns
-                             -Wincomplete-record-updates
-        if impl(ghc >= 8.0)
-          ghc-options:       -Wredundant-constraints
-        if impl(ghc >= 8.2)
-          ghc-options:       -fhide-source-paths
-        if impl(ghc >= 8.4)
-          ghc-options:       -Wmissing-export-lists
-                             -Wpartial-fields
-        if impl(ghc >= 8.8)
-          ghc-options:       -Wmissing-deriving-strategies
-        if impl(ghc >= 8.10)
-          ghc-options:       -Wunused-packages
-
-        |]
+        [ "ghc-options:         -Wall"
+        , "                     -Wcompat"
+        , "                     -Widentities"
+        , "                     -Wincomplete-uni-patterns"
+        , "                     -Wincomplete-record-updates"
+        , "if impl(ghc >= 8.0)"
+        , "  ghc-options:       -Wredundant-constraints"
+        , "if impl(ghc >= 8.2)"
+        , "  ghc-options:       -fhide-source-paths"
+        , "if impl(ghc >= 8.4)"
+        , "  ghc-options:       -Wmissing-export-lists"
+        , "                     -Wpartial-fields"
+        , "if impl(ghc >= 8.8)"
+        , "  ghc-options:       -Wmissing-deriving-strategies"
+        , "if impl(ghc >= 8.10)"
+        , "  ghc-options:       -Wunused-packages"
+        ]
 
     libraryStanza :: Text
-    libraryStanza =
-        [text|
-        $endLine
-        library
-          import:              common-options
-          hs-source-dirs:      src
-          exposed-modules:     $libModuleName
-        |]
+    libraryStanza = unlines
+        [ ""
+        , "library"
+        , "  import:              common-options"
+        , "  hs-source-dirs:      src"
+        , "  exposed-modules:     " <> libModuleName
+        ]
 
     executableStanza :: Text
-    executableStanza =
-        [text|
-        $endLine
-        executable $settingsRepo
-          import:              common-options
-          hs-source-dirs:      app
-          main-is:             Main.hs
-          $buildDepends
-          $rtsOptions
-        |]
+    executableStanza = unlines $
+        [ ""
+        , "executable " <> settingsRepo
+        , "  import:              common-options"
+        , "  hs-source-dirs:      app"
+        , "  main-is:             Main.hs"
+        ]
+        <> buildDepends
+        <> rtsOptions
 
     testSuiteStanza :: Text
-    testSuiteStanza =
-        [text|
-        $endLine
-        test-suite ${settingsRepo}-test
-          import:              common-options
-          type:                exitcode-stdio-1.0
-          hs-source-dirs:      test
-          main-is:             Spec.hs
-          $buildDepends
-          $rtsOptions
-        |]
+    testSuiteStanza = unlines $
+        [ ""
+        , "test-suite " <> settingsRepo <> "-test"
+        , "  import:              common-options"
+        , "  type:                exitcode-stdio-1.0"
+        , "  hs-source-dirs:      test"
+        , "  main-is:             Spec.hs"
+        ]
+        <> buildDepends
+        <> rtsOptions
 
     benchmarkStanza :: Text -> Text
-    benchmarkStanza commaRepo =
-        [text|
-        $endLine
-        benchmark ${settingsRepo}-benchmark
-          import:              common-options
-          type:                exitcode-stdio-1.0
-          hs-source-dirs:      benchmark
-          main-is:             Main.hs
-          build-depends:       gauge
-                             $commaRepo
-          $rtsOptions
-          |]
+    benchmarkStanza commaRepo = unlines $
+        [ ""
+        , "benchmark " <> settingsRepo <> "-benchmark"
+        , "  import:              common-options"
+        , "  type:                exitcode-stdio-1.0"
+        , "  hs-source-dirs:      benchmark"
+        , "  main-is:             Main.hs"
+        , "  build-depends:       gauge"
+        , "                     " <> commaRepo
+        ]
+        <> rtsOptions
 
     -- | @build-depends@ for the repo, only if the library is on.
-    buildDepends :: Text
-    buildDepends =
-        if settingsIsLib
-        then "build-depends:       " <> settingsRepo
-        else ""
+    buildDepends :: [Text]
+    buildDepends = memptyIfFalse settingsIsLib
+        ["  build-depends:       " <> settingsRepo]
 
-    rtsOptions :: Text
+    rtsOptions :: [Text]
     rtsOptions =
-        [text|
-        ghc-options:         -threaded
-                             -rtsopts
-                             -with-rtsopts=-N
-        |]
+        [ "  ghc-options:         -threaded"
+        , "                       -rtsopts"
+        , "                       -with-rtsopts=-N"
+        ]
 
-    customPrelude :: Text
+    customPrelude :: [Text]
     customPrelude = case settingsPrelude of
-        Nothing -> ""
+        Nothing -> []
         Just CustomPrelude{..} ->
-            "                   , " <> cpPackage <> "\n" <>
-            [text|
-            $endLine
-            mixins:              base hiding (Prelude)
-                               , $cpPackage ($cpModule as Prelude)
-            $endLine
-            |]
+            [ "                     , " <> cpPackage
+            , ""
+            , "  mixins:              base hiding (Prelude)"
+            , "                     , " <> cpPackage <> " (" <> cpModule <> " as Prelude)"
+            ]
 
-    defaultExtensions :: Text
+    defaultExtensions :: [Text]
     defaultExtensions = case settingsExtensions of
-        [] -> ""
-        xs -> "  default-extensions:  "
-           <> T.intercalate "\n                       " xs
-           <> "\n"
+        [] -> []
+        x:xs ->
+             "  default-extensions:  " <> x
+           : map ("                       " <>) xs

@@ -15,6 +15,9 @@ The changelog is available [on GitHub][2].
   Use `nightly-2020-06-29` for stack resolver.
 * [#445](https://github.com/kowainik/summoner/issues/445):
   Add `-Wunused-packages` for GHC-8.10.1.
+* [#477](https://github.com/kowainik/summoner/issues/477):
+  Remove `neat-interpolation` from dependencies.
+  As a result, remove some trailing spaces from the generated files.
 
 ## 2.0.1.1 — May 29, 2020
 

@@ -26,10 +26,10 @@ source-repository head
 common common-options
   build-depends:       base >= 4.11.1.0 && < 4.15
                      , relude
-  
+
   mixins:              base hiding (Prelude)
                      , relude (Relude as Prelude)
-  
+
   ghc-options:         -Wall
                        -Wcompat
                        -Widentities

@@ -10,8 +10,7 @@ Various helpful functions to work with 'Text'
 -}
 
 module Summoner.Text
-       ( endLine
-       , packageToModule
+       ( packageToModule
        , packageNameValid
        , moduleNameValid
        , intercalateMap
@@ -22,10 +21,6 @@ module Summoner.Text
 import qualified Data.Char as C
 import qualified Data.Text as T
 
-
--- | Endline symbol to use with @neat-interpolation@.
-endLine :: Text
-endLine = "\n"
 
 -- | Creates module name from the name of the package
 -- Ex: @my-lovely-project@ — @MyLovelyProject@
