@@ -1,5 +1,3 @@
-{-# LANGUAGE QuasiQuotes #-}
-
 {- |
 Module                  : Summoner.Template.Script
 Copyright               : (c) 2017-2020 Kowainik
@@ -15,38 +13,35 @@ module Summoner.Template.Script
        ( scriptFile
        ) where
 
-import NeatInterpolation (text)
-
 import Summoner.GhcVer (GhcVer, baseVer, latestLts)
 import Summoner.Settings (Tool (..))
+import Summoner.Text (quote)
 
 
 -- | 'Text' content for a single script file.
 scriptFile :: GhcVer -> Tool -> Text
 scriptFile ghcVer = \case
-    Cabal ->
-        [text|
-        #!/usr/bin/env cabal
-        {- cabal:
-        build-depends:
-          , base ^>= $baseVersion
-        -}
-
-        main :: IO ()
-        main = putStrLn "Hello, World!"
-        |]
-    Stack ->
-        [text|
-        #!/usr/bin/env stack
-        {- stack
-          --resolver ${ltsVersion}
-          script
-          --package base
-        -}
-
-        main :: IO ()
-        main = putStrLn "Hello, World!"
-        |]
+    Cabal -> unlines
+        [ "#!/usr/bin/env cabal"
+        , "{- cabal:"
+        , "build-depends:"
+        , "  , base ^>= " <> baseVersion
+        , "-}"
+        , ""
+        , "main :: IO ()"
+        , "main = putStrLn " <> quote "Hello, World!"
+        ]
+    Stack -> unlines
+        [ "#!/usr/bin/env stack"
+        , "{- stack"
+        , "  --resolver " <> ltsVersion
+        , "  script"
+        , "  --package base"
+        , "-}"
+        , ""
+        , "main :: IO ()"
+        , "main = putStrLn " <> quote "Hello, World!"
+        ]
   where
     baseVersion, ltsVersion :: Text
     baseVersion = baseVer ghcVer

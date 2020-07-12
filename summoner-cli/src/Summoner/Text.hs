@@ -10,22 +10,17 @@ Various helpful functions to work with 'Text'
 -}
 
 module Summoner.Text
-       ( endLine
-       , packageToModule
+       ( packageToModule
        , packageNameValid
        , moduleNameValid
        , intercalateMap
        , headToUpper
-       , tconcatMap
+       , quote
        ) where
 
 import qualified Data.Char as C
 import qualified Data.Text as T
 
-
--- | Endline symbol to use with @neat-interpolation@.
-endLine :: Text
-endLine = "\n"
 
 -- | Creates module name from the name of the package
 -- Ex: @my-lovely-project@ — @MyLovelyProject@
@@ -66,3 +61,7 @@ headToUpper t = case T.uncons t of
 -- | Convert every element of a list into text, and squash the results
 tconcatMap :: (a -> Text) -> [a] -> Text
 tconcatMap f = T.concat . map f
+
+-- | Wrap the given text into quotes.
+quote :: Text -> Text
+quote t = "\"" <> t <> "\""

@@ -1,5 +1,3 @@
-{-# LANGUAGE QuasiQuotes #-}
-
 {- |
 Module                  : Summoner.Project
 Copyright               : (c) 2017-2020 Kowainik
@@ -23,7 +21,6 @@ module Summoner.Project
 import Colourista (bold, errorMessage, formattedMessage, green, infoMessage, skipMessage,
                    successMessage, warningMessage)
 import Data.List.NonEmpty ((<|))
-import NeatInterpolation (text)
 import Relude.Extra.Enum (universe, universeNonEmpty)
 import Shellmet (($?))
 import System.Directory (findExecutable, setCurrentDirectory)
@@ -140,24 +137,23 @@ generateProjectInteractive connectMode projectName ConfigP{..} = do
         else falseMessage (yesNoTarget ynPrompt)
 
     categoryText :: Text
-    categoryText =
-        [text|
-        List of categories to choose from:
-
-          * Control                    * Concurrency
-          * Codec                      * Graphics
-          * Data                       * Sound
-          * Math                       * System
-          * Parsing                    * Network
-          * Text
-
-          * Application                * Development
-          * Compilers/Interpreters     * Testing
-          * Web
-          * Game
-          * Utility
-
-        |]
+    categoryText = unlines
+        [ "List of categories to choose from:"
+        , ""
+        , "  * Control                    * Concurrency"
+        , "  * Codec                      * Graphics"
+        , "  * Data                       * Sound"
+        , "  * Math                       * System"
+        , "  * Parsing                    * Network"
+        , "  * Text"
+        , ""
+        , "  * Application                * Development"
+        , "  * Compilers/Interpreters     * Testing"
+        , "  * Web"
+        , "  * Game"
+        , "  * Utility"
+        , ""
+        ]
 
     licenseText :: Text
     licenseText = "List of licenses to choose from:\n\n"

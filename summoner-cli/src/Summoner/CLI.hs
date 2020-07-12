@@ -1,5 +1,4 @@
 {-# LANGUAGE ApplicativeDo   #-}
-{-# LANGUAGE QuasiQuotes     #-}
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE TupleSections   #-}
 
@@ -37,7 +36,6 @@ import Colourista (blue, bold, errorMessage, formatWith, infoMessage, successMes
                    warningMessage)
 import Data.Version (Version, showVersion)
 import Development.GitRev (gitCommitDate, gitHash)
-import NeatInterpolation (text)
 import Options.Applicative (Parser, ParserInfo, ParserPrefs, argument, command, customExecParser,
                             flag, fullDesc, help, helpLongEquals, helper, info, infoFooter,
                             infoHeader, infoOption, long, maybeReader, metavar, option, prefs,
@@ -61,7 +59,6 @@ import Summoner.Mode (ConnectMode (..), Interactivity (..), isOffline)
 import Summoner.Project (generateProject)
 import Summoner.Settings (Tool, parseTool)
 import Summoner.Template.Script (scriptFile)
-import Summoner.Text (endLine)
 
 import qualified Data.Text as T
 import qualified Paths_summoner as Meta (version)
@@ -586,39 +583,39 @@ modifyFooter :: ParserInfo a -> ParserInfo a
 modifyFooter p = p {infoFooter = stringChunk $ toString artFooter}
 
 artHeader :: Text
-artHeader = [text|
-$endLine
-                                                   ___
-                                                 ╱  .  ╲
-                                                │╲_/│   │
-                                                │   │  ╱│
-  ___________________________________________________-' │
- ╱                                                      │
-╱   .-.                                                 │
-│  ╱   ╲                                                │
-│ │\_.  │ Summoner — tool for creating Haskell projects │
-│\│  │ ╱│                                               │
-│ `-_-' │                                              ╱
-│       │_____________________________________________╱
-│       │
- ╲     ╱
-  `-_-'
-|]
+artHeader = unlines
+    [ ""
+    , "                                                   ___"
+    , "                                                 ╱  .  ╲"
+    , "                                                │╲_/│   │"
+    , "                                                │   │  ╱│"
+    , "  ___________________________________________________-' │"
+    , " ╱                                                      │"
+    , "╱   .-.                                                 │"
+    , "│  ╱   ╲                                                │"
+    , "│ │\\_.  │ Summoner — tool for creating Haskell projects │"
+    , "│\\│  │ ╱│                                               │"
+    , "│ `-_-' │                                              ╱"
+    , "│       │_____________________________________________╱"
+    , "│       │"
+    , " ╲     ╱"
+    , "  `-_-'"
+    ]
 
 artFooter :: Text
-artFooter = [text|
-$endLine
-              , *   +
-           +      o   *             ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
-            * @ ╭─╮  .      ________┃                                 ┃_______
-           ╱| . │λ│ @   '   ╲       ┃   λ Haskell's summon scroll λ   ┃      ╱
-         _╱ ╰─  ╰╥╯    O     ╲      ┃                                 ┃     ╱
-        .─╲"╱. * ║  +        ╱      ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛     ╲
-       ╱  ( ) ╲_ ║          ╱__________)                           (_________╲
-       ╲ ╲(')╲__(╱
-       ╱╱`)╱ `╮  ║
- `╲.  ╱╱  (   │  ║
-  ╲.╲╱        │  ║
-  `╰══════════╯
-$endLine
-|]
+artFooter = unlines
+    [ ""
+    , "              , *   +"
+    , "           +      o   *             ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓"
+    , "            * @ ╭─╮  .      ________┃                                 ┃_______"
+    , "           ╱| . │λ│ @   '   ╲       ┃   λ Haskell's summon scroll λ   ┃      ╱"
+    , "         _╱ ╰─  ╰╥╯    O     ╲      ┃                                 ┃     ╱"
+    , "        .─╲\"╱. * ║  +        ╱      ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛     ╲"
+    , "       ╱  ( ) ╲_ ║          ╱__________)                           (_________╲"
+    , "       ╲ ╲(')╲__(╱"
+    , "       ╱╱`)╱ `╮  ║"
+    , " `╲.  ╱╱  (   │  ║"
+    , "  ╲.╲╱        │  ║"
+    , "  `╰══════════╯"
+    , ""
+    ]
