@@ -89,7 +89,7 @@ cabalFile Settings{..} = File (toString settingsRepo ++ ".cabal") cabalFileConte
         , "  build-depends:       base " <> baseBounds
         ]
         <> customPrelude
-        <> ("" : map ("  " <>) ghcOptions)
+        <> ("" : map (indent 2) ghcOptions)
         <>
         ( ""
         : "  default-language:    Haskell2010"
