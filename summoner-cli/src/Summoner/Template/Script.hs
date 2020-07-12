@@ -15,6 +15,7 @@ module Summoner.Template.Script
 
 import Summoner.GhcVer (GhcVer, baseVer, latestLts)
 import Summoner.Settings (Tool (..))
+import Summoner.Text (quote)
 
 
 -- | 'Text' content for a single script file.
@@ -28,7 +29,7 @@ scriptFile ghcVer = \case
         , "-}"
         , ""
         , "main :: IO ()"
-        , "main = putStrLn \"Hello, World!\""
+        , "main = putStrLn " <> quote "Hello, World!"
         ]
     Stack -> unlines
         [ "#!/usr/bin/env stack"
@@ -39,7 +40,7 @@ scriptFile ghcVer = \case
         , "-}"
         , ""
         , "main :: IO ()"
-        , "main = putStrLn \"Hello, World!\""
+        , "main = putStrLn " <> quote "Hello, World!"
         ]
   where
     baseVersion, ltsVersion :: Text

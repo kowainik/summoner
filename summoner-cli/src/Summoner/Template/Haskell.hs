@@ -14,7 +14,7 @@ module Summoner.Template.Haskell
        ) where
 
 import Summoner.Settings (Settings (..))
-import Summoner.Text (packageToModule)
+import Summoner.Text (packageToModule, quote)
 import Summoner.Tree (TreeFs (..))
 
 
@@ -42,7 +42,7 @@ haskellFiles Settings{..} = concat
         , ""
         , ""
         , "someFunc :: IO ()"
-        , "someFunc = putStrLn (\"someFunc\" :: String)"
+        , "someFunc = putStrLn (" <> quote "someFunc" <> " :: String)"
         ]
 
     libModuleName :: Text
@@ -60,7 +60,7 @@ haskellFiles Settings{..} = concat
         , ""
         , ""
         , "main :: IO ()"
-        , "main = putStrLn (\"Hello, world!\" :: String)"
+        , "main = putStrLn (" <> quote "Hello, world!" <> " :: String)"
         ]
 
     createExe :: Text
@@ -80,7 +80,7 @@ haskellFiles Settings{..} = concat
         , ""
         , ""
         , "main :: IO ()"
-        , "main = putStrLn (\"Test suite is not implemented\" :: String)"
+        , "main = putStrLn (" <> quote "Test suite is not implemented" <> " :: String)"
         ]
 
     benchmarkFile :: TreeFs
@@ -91,5 +91,5 @@ haskellFiles Settings{..} = concat
         , ""
         , ""
         , "main :: IO ()"
-        , "main = defaultMain [bench \"const\" (whnf const ())]"
+        , "main = defaultMain [bench " <> quote "const" <> " (whnf const ())]"
         ]

@@ -13,6 +13,8 @@ module Summoner.Template.Cabal
        ( cabalFile
        ) where
 
+import Colourista (indent)
+
 import Summoner.CustomPrelude (CustomPrelude (..))
 import Summoner.Default (defaultCabal)
 import Summoner.GhcVer (cabalBaseVersions, showGhcVer)
@@ -89,7 +91,7 @@ cabalFile Settings{..} = File (toString settingsRepo ++ ".cabal") cabalFileConte
         , "  build-depends:       base " <> baseBounds
         ]
         <> customPrelude
-        <> ("" : map (indent 2) ghcOptions)
+        <> ghcOptions
         <>
         ( ""
         : "  default-language:    Haskell2010"
@@ -100,28 +102,28 @@ cabalFile Settings{..} = File (toString settingsRepo ++ ".cabal") cabalFileConte
     baseBounds = cabalBaseVersions settingsTestedVersions
 
     ghcOptions :: [Text]
-    ghcOptions = case settingsGhcOptions of
+    ghcOptions = "" : case settingsGhcOptions of
         []   -> defaultGhcOptions
-        x:xs -> "ghc-options:         " <> x : map (T.replicate 21 " " <>) xs
+        x:xs -> "  ghc-options:         " <> x : map (indent 23 <>) xs
 
     defaultGhcOptions :: [Text]
     defaultGhcOptions =
-        [ "ghc-options:         -Wall"
-        , "                     -Wcompat"
-        , "                     -Widentities"
-        , "                     -Wincomplete-uni-patterns"
-        , "                     -Wincomplete-record-updates"
-        , "if impl(ghc >= 8.0)"
-        , "  ghc-options:       -Wredundant-constraints"
-        , "if impl(ghc >= 8.2)"
-        , "  ghc-options:       -fhide-source-paths"
-        , "if impl(ghc >= 8.4)"
-        , "  ghc-options:       -Wmissing-export-lists"
-        , "                     -Wpartial-fields"
-        , "if impl(ghc >= 8.8)"
-        , "  ghc-options:       -Wmissing-deriving-strategies"
-        , "if impl(ghc >= 8.10)"
-        , "  ghc-options:       -Wunused-packages"
+        [ "  ghc-options:         -Wall"
+        , "                       -Wcompat"
+        , "                       -Widentities"
+        , "                       -Wincomplete-uni-patterns"
+        , "                       -Wincomplete-record-updates"
+        , "  if impl(ghc >= 8.0)"
+        , "    ghc-options:       -Wredundant-constraints"
+        , "  if impl(ghc >= 8.2)"
+        , "    ghc-options:       -fhide-source-paths"
+        , "  if impl(ghc >= 8.4)"
+        , "    ghc-options:       -Wmissing-export-lists"
+        , "                       -Wpartial-fields"
+        , "  if impl(ghc >= 8.8)"
+        , "    ghc-options:       -Wmissing-deriving-strategies"
+        , "  if impl(ghc >= 8.10)"
+        , "    ghc-options:       -Wunused-packages"
         ]
 
     libraryStanza :: Text
@@ -196,4 +198,4 @@ cabalFile Settings{..} = File (toString settingsRepo ++ ".cabal") cabalFileConte
         [] -> []
         x:xs ->
              "  default-extensions:  " <> x
-           : map ("                       " <>) xs
+           : map (indent 23 <>) xs

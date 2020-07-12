@@ -26,11 +26,13 @@ module Summoner.Template.GitHub
     ( gitHubFiles
     ) where
 
+import Colourista (indent)
 import Data.List (delete, intersect)
 
 import Summoner.Default (defaultCabal, defaultGHC)
 import Summoner.GhcVer (GhcVer (..), oldGhcs, showGhcVer)
 import Summoner.Settings (Settings (..))
+import Summoner.Text (quote)
 import Summoner.Tree (TreeFs (..))
 
 
@@ -123,10 +125,10 @@ gitHubFiles Settings{..} = concat
         , "    runs-on: ubuntu-16.04"
         , "    strategy:"
         , "      matrix:"
-        , "        cabal: [\"" <> defaultCabal <> "\"]"
+        , "        cabal: [" <> quote defaultCabal <> "]"
         , "        ghc:"
         ]
-        <> map ("          " <>) ghActionsVersions
+        <> map (indent 10 <>) ghActionsVersions
         <>
         [ ""
         , "    steps:"
@@ -158,7 +160,7 @@ gitHubFiles Settings{..} = concat
 
     ghActionsVersions :: [Text]
     ghActionsVersions = map
-        (\ghc -> "- " <> "\"" <> showGhcVer ghc <> "\"")
+        (\ghc -> "- " <> quote (showGhcVer ghc))
         settingsTestedVersions
 
     -- create travis.yml template
@@ -170,7 +172,7 @@ gitHubFiles Settings{..} = concat
         , "git:"
         , "  depth: 5"
         , ""
-        , "cabal: \"" <> defaultCabal <> "\""
+        , "cabal: " <> quote defaultCabal
         , ""
         , "cache:"
         , "  directories:"
@@ -193,10 +195,10 @@ gitHubFiles Settings{..} = concat
         ]
 
     travisCabalCache, travisStackCache :: [Text]
-    travisCabalCache = memptyIfFalse settingsCabal ["  - \"$HOME/.cabal/store\""]
+    travisCabalCache = memptyIfFalse settingsCabal ["  - " <> quote "$HOME/.cabal/store"]
     travisStackCache = memptyIfFalse settingsStack
-        [ "  - \"$HOME/.stack\""
-        , "  - \"$TRAVIS_BUILD_DIR/.stack-work\""
+        [ "  - " <> quote "$HOME/.stack"
+        , "  - " <> quote "$TRAVIS_BUILD_DIR/.stack-work"
         ]
 
     travisCabalMtr :: [Text]
@@ -227,14 +229,14 @@ gitHubFiles Settings{..} = concat
     travisStackMatrixItem (showGhcVer -> ghcV) =
         [ ""
         , "  - ghc: " <> ghcV
-        , "    env: STACK_YAML=\"$TRAVIS_BUILD_DIR/stack-" <> ghcV <> ".yaml\""
+        , "    env: STACK_YAML=" <> quote ("$TRAVIS_BUILD_DIR/stack-" <> ghcV <> ".yaml")
         ]
 
     travisStackMatrixDefaultItem :: [Text]
     travisStackMatrixDefaultItem =
         [ ""
         , "  - ghc: " <> showGhcVer defaultGHC
-        , "    env: STACK_YAML=\"$TRAVIS_BUILD_DIR/stack.yaml\""
+        , "    env: STACK_YAML=" <> quote "$TRAVIS_BUILD_DIR/stack.yaml"
         ]
 
     installAndScript :: [Text]
@@ -252,7 +254,7 @@ gitHubFiles Settings{..} = concat
     installScriptBoth :: [Text]
     installScriptBoth =
         [ "  - |"
-        , "    if [ -z \"$STACK_YAML\" ]; then"
+        , "    if [ -z " <> quote "$STACK_YAML" <> " ]; then"
         , "      " <> cabalUpdate
         , "      " <> cabalBuild
         , "    else"
@@ -263,7 +265,7 @@ gitHubFiles Settings{..} = concat
         , ""
         , "script:"
         , "  - |"
-        , "    if [ -z \"$STACK_YAML\" ]; then"
+        , "    if [ -z " <> quote "$STACK_YAML" <> " ]; then"
         , "      " <> cabalTest
         , "    else"
         , "      " <> stackTest
@@ -321,7 +323,7 @@ gitHubFiles Settings{..} = concat
 
     appVeyorYmlCabal :: [Text]
     appVeyorYmlCabal = let defGhc = showGhcVer defaultGHC in
-        [ "clone_folder: \"c:\\\\WORK\""
+        [ "clone_folder: " <> quote "c:\\\\WORK"
         , "clone_depth: 5"
         , ""
         , "# Do not build feature branch with open Pull Requests"
@@ -331,7 +333,7 @@ gitHubFiles Settings{..} = concat
         , "  - x86_64"
         , ""
         , "cache:"
-        , "  - \"C:\\\\SR\""
+        , "  - " <> quote "C:\\\\SR"
         , "  - dist-newstyle"
         , ""
         , "environment:"
@@ -372,14 +374,14 @@ gitHubFiles Settings{..} = concat
         , "  # Workaround a gnarly bug https://github.com/haskell/cabal/issues/5386"
         , "  # See: https://www.fpcomplete.com/blog/2018/06/sed-a-debugging-story"
         , "  # TODO: check if it's fixed once we switch to lst-13 and GHC 8.6"
-        , "  TMP: \"c:\\\\tmp\""
+        , "  TMP: " <> quote "c:\\\\tmp"
         , ""
         , "  matrix:"
         , "    - STACK_YAML: stack.yaml"
         , ""
         , "cache:"
-        , "  - \"%STACK_ROOT% -> %STACK_YAML%, appveyor.yml\""
-        , "  - \".stack-work -> %STACK_YAML%, appveyor.yml\""
+        , "  - " <> quote "%STACK_ROOT% -> %STACK_YAML%, appveyor.yml"
+        , "  - " <> quote ".stack-work -> %STACK_YAML%, appveyor.yml"
         , ""
         , "install:"
         , "  - choco install -y haskell-stack --version %STACK_VERSION%"

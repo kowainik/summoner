@@ -15,7 +15,7 @@ module Summoner.Text
        , moduleNameValid
        , intercalateMap
        , headToUpper
-       , tconcatMap
+       , quote
        ) where
 
 import qualified Data.Char as C
@@ -61,3 +61,7 @@ headToUpper t = case T.uncons t of
 -- | Convert every element of a list into text, and squash the results
 tconcatMap :: (a -> Text) -> [a] -> Text
 tconcatMap f = T.concat . map f
+
+-- | Wrap the given text into quotes.
+quote :: Text -> Text
+quote t = "\"" <> t <> "\""

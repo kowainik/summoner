@@ -7,6 +7,7 @@ import Test.Hspec (Spec, describe, it, shouldBe)
 import Summoner.Default (defaultGHC)
 import Summoner.Settings (Tool (..))
 import Summoner.Template.Script (scriptFile)
+import Summoner.Text (quote)
 
 
 scriptSpec :: Spec
@@ -25,7 +26,7 @@ cabalScript = unlines
     , "-}"
     , ""
     , "main :: IO ()"
-    , "main = putStrLn \"Hello, World!\""
+    , "main = putStrLn " <> quote "Hello, World!"
     ]
 
 stackScript :: Text
@@ -38,5 +39,5 @@ stackScript = unlines
     , "-}"
     , ""
     , "main :: IO ()"
-    , "main = putStrLn \"Hello, World!\""
+    , "main = putStrLn " <> quote "Hello, World!"
     ]
