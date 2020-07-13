@@ -18,6 +18,8 @@ The changelog is available [on GitHub][2].
 * [#477](https://github.com/kowainik/summoner/issues/477):
   Remove `neat-interpolation` from dependencies.
   As a result, remove some trailing spaces from the generated files.
+* [#442](https://github.com/kowainik/summoner/issues/442):
+  Get current year with the respect to the current timezone.
 
 ## 2.0.1.1 — May 29, 2020
 
