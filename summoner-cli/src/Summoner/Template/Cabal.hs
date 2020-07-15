@@ -47,7 +47,8 @@ cabalFile Settings{..} = File (toString settingsRepo ++ ".cabal") cabalFileConte
         , "name:                " <> settingsRepo
         , "version:             0.0.0.0"
         , "synopsis:            " <> settingsDescription
-        , "description:         " <> settingsDescription ] ++
+        , "description:"
+        ] <> fullDescription <>
         [ "homepage:            " <> githubUrl        | settingsGitHub ] ++
         [ "bug-reports:         " <> githubBugReports | settingsGitHub ] ++
         ( "license:             " <> licenseName) :
@@ -61,6 +62,23 @@ cabalFile Settings{..} = File (toString settingsRepo ++ ".cabal") cabalFileConte
         , "                     CHANGELOG.md"
         , "tested-with:         " <> testedGhcs
         ]
+
+    fullDescription :: [Text]
+    fullDescription =
+        [ "    " <> addDot settingsDescription
+        , "    See " <> readme <> " for more details."
+        ]
+      where
+        readme :: Text
+        readme = if settingsGitHub
+           then "[README.md](" <> githubUrl <> "#" <> settingsRepo <> ")"
+           else "README.md"
+
+        addDot :: Text -> Text
+        addDot "" = ""
+        addDot txt = case T.last txt of
+            '.'        -> txt
+            _otherChar -> txt <> "."
 
     githubUrl, githubBugReports :: Text
     githubUrl        = "https://github.com/" <> settingsOwner <> "/" <> settingsRepo

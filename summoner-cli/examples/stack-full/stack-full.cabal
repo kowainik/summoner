@@ -2,7 +2,9 @@ cabal-version:       2.4
 name:                stack-full
 version:             0.0.0.0
 synopsis:            Stack-only example with all integrations
-description:         Stack-only example with all integrations
+description:
+    Stack-only example with all integrations.
+    See [README.md](https://github.com/kowainik/stack-full#stack-full) for more details.
 homepage:            https://github.com/kowainik/stack-full
 bug-reports:         https://github.com/kowainik/stack-full/issues
 license:             BSD-3-Clause

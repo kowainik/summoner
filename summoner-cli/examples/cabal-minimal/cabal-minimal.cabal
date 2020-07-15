@@ -2,7 +2,9 @@ cabal-version:       2.4
 name:                cabal-minimal
 version:             0.0.0.0
 synopsis:            Minimal cabal-only test project
-description:         Minimal cabal-only test project
+description:
+    Minimal cabal-only test project.
+    See README.md for more details.
 license:             NONE
 author:              Kowainik
 maintainer:          Kowainik <xrom.xkov@gmail.com>
