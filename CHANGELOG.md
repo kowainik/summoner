@@ -22,6 +22,8 @@ The changelog is available [on GitHub][2].
   Get current year with the respect to the current timezone.
 * [#446](https://github.com/kowainik/summoner/issues/446):
   Add README link in the `.cabal` file's description field.
+* [#453](https://github.com/kowainik/summoner/issues/453):
+  Drop support of `GHC-7.10` in the generated projects.
 
 ## 2.0.1.1 — May 29, 2020
 
