@@ -33,8 +33,7 @@ import qualified Text.Show as Show
 
 -- | Represents some selected set of GHC versions.
 data GhcVer
-    = Ghc7103
-    | Ghc802
+    = Ghc802
     | Ghc822
     | Ghc844
     | Ghc865
@@ -45,7 +44,6 @@ data GhcVer
 -- | Converts 'GhcVer' into dot-separated string.
 showGhcVer :: GhcVer -> Text
 showGhcVer = \case
-    Ghc7103 -> "7.10.3"
     Ghc802  -> "8.0.2"
     Ghc822  -> "8.2.2"
     Ghc844  -> "8.4.4"
@@ -65,7 +63,6 @@ parseGhcVer = inverseMap showGhcVer
 -- | Returns latest known LTS resolver for all GHC versions except default one.
 latestLts :: GhcVer -> Text
 latestLts = \case
-    Ghc7103 -> "lts-6.35"
     Ghc802  -> "lts-9.21"
     Ghc822  -> "lts-11.22"
     Ghc844  -> "lts-12.26"
@@ -88,7 +85,6 @@ instance Show Pvp where
 -- | Returns base version by 'GhcVer' as 'Pvp'.
 baseVerPvp :: GhcVer -> Pvp
 baseVerPvp = \case
-    Ghc7103 -> Pvp 4 8 0 2
     Ghc802  -> Pvp 4 9 1 0
     Ghc822  -> Pvp 4 10 1 0
     Ghc844  -> Pvp 4 11 1 0
