@@ -2,7 +2,9 @@ cabal-version:       2.4
 name:                full-batteries
 version:             0.0.0.0
 synopsis:            Full-featured test project
-description:         Full-featured test project
+description:
+    Full-featured test project.
+    See [README.md](https://github.com/kowainik/full-batteries#full-batteries) for more details.
 homepage:            https://github.com/kowainik/full-batteries
 bug-reports:         https://github.com/kowainik/full-batteries/issues
 license:             MIT

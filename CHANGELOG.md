@@ -20,6 +20,8 @@ The changelog is available [on GitHub][2].
   As a result, remove some trailing spaces from the generated files.
 * [#442](https://github.com/kowainik/summoner/issues/442):
   Get current year with the respect to the current timezone.
+* [#446](https://github.com/kowainik/summoner/issues/446):
+  Add README link in the `.cabal` file's description field.
 
 ## 2.0.1.1 — May 29, 2020
 
