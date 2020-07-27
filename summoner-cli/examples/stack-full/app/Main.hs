@@ -1,7 +1,7 @@
 module Main (main) where
 
-import StackFull (someFunc)
+import StackFull (projectName)
 
 
 main :: IO ()
-main = someFunc
+main = putStrLn ("Executable for " ++ projectName)

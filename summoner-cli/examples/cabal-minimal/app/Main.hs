@@ -2,4 +2,4 @@ module Main (main) where
 
 
 main :: IO ()
-main = putStrLn ("Hello, world!" :: String)
+main = putStrLn ("Executable not implemented" :: String)

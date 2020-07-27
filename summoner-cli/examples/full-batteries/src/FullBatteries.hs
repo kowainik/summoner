@@ -7,9 +7,9 @@ Full-featured test project
 -}
 
 module FullBatteries
-       ( someFunc
-       ) where
+    ( projectName
+    ) where
 
 
-someFunc :: IO ()
-someFunc = putStrLn ("someFunc" :: String)
+projectName :: String
+projectName = "full-batteries"

@@ -1,5 +1,7 @@
 module Main (main) where
 
+import CabalFull (projectName)
+
 
 main :: IO ()
-main = putStrLn ("Test suite is not implemented" :: String)
+main = putStrLn ("Tests for " ++ projectName)

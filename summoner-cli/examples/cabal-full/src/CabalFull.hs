@@ -7,9 +7,9 @@ Cabal-only example with all integrations
 -}
 
 module CabalFull
-       ( someFunc
-       ) where
+    ( projectName
+    ) where
 
 
-someFunc :: IO ()
-someFunc = putStrLn ("someFunc" :: String)
+projectName :: String
+projectName = "cabal-full"

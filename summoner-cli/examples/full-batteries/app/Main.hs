@@ -1,7 +1,7 @@
 module Main (main) where
 
-import FullBatteries (someFunc)
+import FullBatteries (projectName)
 
 
 main :: IO ()
-main = someFunc
+main = putStrLn ("Executable for " ++ projectName)

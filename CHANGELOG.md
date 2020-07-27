@@ -24,6 +24,8 @@ The changelog is available [on GitHub][2].
   Add README link in the `.cabal` file's description field.
 * [#453](https://github.com/kowainik/summoner/issues/453):
   Drop support of `GHC-7.10` in the generated projects.
+* [#484](https://github.com/kowainik/summoner/issues/484):
+  Improve generated files content.
 
 ## 2.0.1.1 — May 29, 2020
 
