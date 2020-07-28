@@ -38,7 +38,7 @@ cabalFile Settings{..} = File (toString settingsRepo ++ ".cabal") cabalFileConte
         , memptyIfFalse settingsIsLib libraryStanza
         , memptyIfFalse settingsIsExe executableStanza
         , memptyIfFalse settingsTest  testSuiteStanza
-        , memptyIfFalse settingsBench $ benchmarkStanza $ memptyIfFalse settingsIsLib $ ", " <> settingsRepo
+        , memptyIfFalse settingsBench benchmarkStanza
         ]
 
     cabalHeader :: Text
@@ -175,17 +175,16 @@ cabalFile Settings{..} = File (toString settingsRepo ++ ".cabal") cabalFileConte
         <> buildDepends
         <> rtsOptions
 
-    benchmarkStanza :: Text -> Text
-    benchmarkStanza commaRepo = unlines $
+    benchmarkStanza :: Text
+    benchmarkStanza = unlines $
         [ ""
         , "benchmark " <> settingsRepo <> "-benchmark"
         , "  import:              common-options"
         , "  type:                exitcode-stdio-1.0"
         , "  hs-source-dirs:      benchmark"
         , "  main-is:             Main.hs"
-        , "  build-depends:       gauge"
-        , "                     " <> commaRepo
         ]
+        <> buildDepends
         <> rtsOptions
 
     -- | @build-depends@ for the repo, only if the library is on.

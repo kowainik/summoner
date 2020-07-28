@@ -1,7 +1,7 @@
 module Main (main) where
 
-import Gauge.Main
+import CabalFull (projectName)
 
 
 main :: IO ()
-main = defaultMain [bench "const" (whnf const ())]
+main = putStrLn ("Benchmarks for " ++ projectName)

@@ -1,7 +1,7 @@
 module Main (main) where
 
-import CabalFull (someFunc)
+import CabalFull (projectName)
 
 
 main :: IO ()
-main = someFunc
+main = putStrLn ("Executable for " ++ projectName)

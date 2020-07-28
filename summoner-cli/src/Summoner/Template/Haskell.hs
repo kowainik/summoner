@@ -36,13 +36,13 @@ haskellFiles Settings{..} = concat
         , settingsDescription
         , "-}"
         , ""
-        , "module " <>libModuleName
-        , "       ( someFunc"
-        , "       ) where"
+        , "module " <> libModuleName
+        , "    ( projectName"
+        , "    ) where"
         , ""
         , ""
-        , "someFunc :: IO ()"
-        , "someFunc = putStrLn (" <> quote "someFunc" <> " :: String)"
+        , "projectName :: String"
+        , "projectName = " <> quote settingsRepo
         ]
 
     libModuleName :: Text
@@ -52,44 +52,29 @@ haskellFiles Settings{..} = concat
     licenseName = show settingsLicenseName
 
     exeFile :: TreeFs
-    exeFile = File "Main.hs" $ if settingsIsLib then createExe else createOnlyExe
-
-    createOnlyExe :: Text
-    createOnlyExe = unlines
-        [ "module Main (main) where"
-        , ""
-        , ""
-        , "main :: IO ()"
-        , "main = putStrLn (" <> quote "Hello, world!" <> " :: String)"
-        ]
-
-    createExe :: Text
-    createExe = unlines
-        [ "module Main (main) where"
-        , ""
-        , "import " <> libModuleName <> " (someFunc)"
-        , ""
-        , ""
-        , "main :: IO ()"
-        , "main = someFunc"
-        ]
+    exeFile = File "Main.hs" $ stanza "Executable"
 
     testFile :: TreeFs
-    testFile = File "Spec.hs" $ unlines
-        [ "module Main (main) where"
-        , ""
-        , ""
-        , "main :: IO ()"
-        , "main = putStrLn (" <> quote "Test suite is not implemented" <> " :: String)"
-        ]
+    testFile = File "Spec.hs" $ stanza "Tests"
 
     benchmarkFile :: TreeFs
-    benchmarkFile = File "Main.hs" $ unlines
-        [ "module Main (main) where"
-        , ""
-        , "import Gauge.Main"
-        , ""
+    benchmarkFile = File "Main.hs" $ stanza "Benchmarks"
+
+    stanza :: Text -> Text
+    stanza st = unlines $
+          "module Main (main) where"
+        : memptyIfFalse settingsIsLib
+            [ ""
+            , "import " <> libModuleName <> " (projectName)"
+            ]
+        <>
+        [ ""
         , ""
         , "main :: IO ()"
-        , "main = defaultMain [bench " <> quote "const" <> " (whnf const ())]"
+        , mainContent
         ]
+      where
+        mainContent :: Text
+        mainContent = if settingsIsLib
+            then "main = putStrLn (" <> quote (st <> " for ") <> " ++ projectName)"
+            else "main = putStrLn (" <> quote (st <> " not implemented") <> " :: String)"

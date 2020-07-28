@@ -7,9 +7,9 @@ Stack-only example with all integrations
 -}
 
 module StackFull
-       ( someFunc
-       ) where
+    ( projectName
+    ) where
 
 
-someFunc :: IO ()
-someFunc = putStrLn ("someFunc" :: String)
+projectName :: String
+projectName = "stack-full"
