@@ -14,23 +14,23 @@ This module contains functions and data types to parse CLI inputs.
 -}
 
 module Summoner.CLI
-       ( -- * CLI data types
-         Command (..)
-       , NewOpts (..)
-       , ShowOpts (..)
+    ( -- * CLI data types
+      Command (..)
+    , NewOpts (..)
+    , ShowOpts (..)
 
-         -- * Functions to parse CLI arguments and run @summoner@
-       , summon
-       , summonCli
+      -- * Functions to parse CLI arguments and run @summoner@
+    , summon
+    , summonCli
 
-         -- * Runners
-       , runConfig
-       , runScript
+      -- * Runners
+    , runConfig
+    , runScript
 
-         -- * Common helper functions
-       , getFinalConfig
-       , getCustomLicenseText
-       ) where
+      -- * Common helper functions
+    , getFinalConfig
+    , getCustomLicenseText
+    ) where
 
 import Colourista (blue, bold, errorMessage, formatWith, infoMessage, successMessage,
                    warningMessage)
@@ -254,13 +254,13 @@ readFileConfig ignoreFile maybeFile = if ignoreFile then pure mempty else do
 -- | Represent all available commands
 data Command
     -- | @new@ command creates a new project
-    = New NewOpts
+    = New !NewOpts
     -- | @script@ command creates Haskell script
-    | Script ScriptOpts
+    | Script !ScriptOpts
     -- | @show@ command shows supported licenses or GHC versions
-    | ShowInfo ShowOpts
+    | ShowInfo !ShowOpts
     -- | @config@ command creates the TOML configuration file
-    | Config ConfigOpts
+    | Config !ConfigOpts
 
 -- | Options parsed with the @new@ command
 data NewOpts = NewOpts
@@ -282,7 +282,7 @@ data ScriptOpts = ScriptOpts
 -- | Commands parsed with @show@ command
 data ShowOpts
     = GhcList
-    | LicenseList (Maybe String)
+    | LicenseList !(Maybe String)
 
 -- | Options parsed with the @config@ command
 newtype ConfigOpts = ConfigOpts

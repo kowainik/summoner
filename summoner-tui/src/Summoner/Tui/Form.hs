@@ -150,7 +150,7 @@ isActive kit = \case
     GitHubActions  -> isGitHubEnabled && (kit ^. cabal)
     GitHubTravis   -> isGitHubEnabled
     GitHubAppVeyor -> isGitHubEnabled
-    _ -> True
+    _nonGithub -> True
   where
     isGitHubEnabled, isUploadEnabled :: Bool
     isGitHubEnabled = kit ^. gitHub . enabled

@@ -7,7 +7,7 @@ import Relude.Extra.Enum (universe)
 import Test.Hspec (Spec, describe, it, shouldReturn, shouldSatisfy)
 import Test.Hspec.Hedgehog (hedgehog)
 import Toml.Codec.Code (decode, encode)
-import Validation (Validation (..))
+import Validation (isSuccess)
 
 import Summoner.Config (ConfigP (..), PartialConfig, configCodec, defaultConfig, finalise)
 import Summoner.CustomPrelude (CustomPrelude (..))
@@ -36,9 +36,6 @@ tomlConfigSpec = describe "TOML configuration spec" $ do
     it "default configuration is up-to-date" $
         readFileText "examples/summoner-default.toml"
             `shouldReturn` defaultConfigFileContent
-  where
-    isSuccess :: Validation e a -> Bool
-    isSuccess = \case { Success _ -> True; _ -> False }
 
 tomlProp :: Spec
 tomlProp = describe "TOML property tests" $

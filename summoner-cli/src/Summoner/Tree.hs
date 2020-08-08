@@ -12,15 +12,15 @@ Data type for representing filesystem structure via tree.
 -}
 
 module Summoner.Tree
-       ( TreeFs (..)
-       , traverseTree
-       , pathToTree
-       , insertTree
-       , showBoldTree
-       , showTree
-       ) where
+    ( TreeFs (..)
+    , traverseTree
+    , pathToTree
+    , insertTree
+    , showBoldTree
+    , showTree
+    ) where
 
-import Colourista (bold, reset)
+import Colourista.Short (b)
 import System.Directory (createDirectoryIfMissing, withCurrentDirectory)
 import System.FilePath (splitDirectories)
 
@@ -28,9 +28,9 @@ import System.FilePath (splitDirectories)
 -- | Describes simple structure of filesystem tree.
 data TreeFs
       -- | Name of directory (relative) and its containing entries
-    = Dir FilePath [TreeFs]
+    = Dir !FilePath ![TreeFs]
       -- | File name (relative) and file content
-    | File FilePath Text
+    | File !FilePath !Text
     deriving stock (Generic, Show, Eq, Ord)
 
 -- | Walks through directory tree and write file contents, creating all
@@ -103,10 +103,7 @@ showTree isBold = unlines . showOne "  " "" ""
         nodeRep = leader <> arm <> tie <> boldDir (fp <> "/")
           where
             boldDir :: FilePath -> Text
-            boldDir str = toText $
-                if isBold
-                then bold <> str <> reset
-                else str
+            boldDir str = toText $ if isBold then b str else str
 
         extension :: Text
         extension = case arm of ""  -> ""; "└" -> "    "; _   -> "│   "

@@ -11,20 +11,19 @@ and some useful functions for manipulation with them.
 -}
 
 module Summoner.GhcVer
-       ( GhcVer (..)
-       , GhcMeta (..)
-       , Pvp (..)
-       , showGhcVer
-       , parseGhcVer
-       , latestLts
-       , baseVer
-       , cabalBaseVersions
-       , ghcTable
+    ( GhcVer (..)
+    , GhcMeta (..)
+    , Pvp (..)
+    , showGhcVer
+    , parseGhcVer
+    , latestLts
+    , baseVer
+    , cabalBaseVersions
+    , ghcTable
 
-       , oldGhcs
-       ) where
+    , oldGhcs
+    ) where
 
-import Data.List (maximum, minimum)
 import Relude.Extra.Enum (inverseMap, universe)
 
 import qualified Data.Text as T
@@ -72,10 +71,10 @@ latestLts = \case
 
 -- | Represents PVP versioning (4 numbers).
 data Pvp = Pvp
-    { pvpFirst  :: Int
-    , pvpSecond :: Int
-    , pvpThird  :: Int
-    , pvpFourth :: Int
+    { pvpFirst  :: !Int
+    , pvpSecond :: !Int
+    , pvpThird  :: !Int
+    , pvpFourth :: !Int
     }
 
 -- | Show PVP version in a standard way: @1.2.3.4@
@@ -106,12 +105,13 @@ baseVer = show . baseVerPvp
 
 -}
 cabalBaseVersions :: [GhcVer] -> Text
-cabalBaseVersions []   = ""
-cabalBaseVersions [v]  = "^>= " <> baseVer v
-cabalBaseVersions ghcs = ">= " <> baseVer (minimum ghcs) <> " && < " <> upperBound
+cabalBaseVersions ghcVers = case sort ghcVers of
+    [] -> ""
+    [v] -> "^>= " <> baseVer v
+    (minGhc:rest) -> ">= " <> baseVer minGhc <> " && < " <> upperBound (minGhc :| rest)
   where
-    upperBound :: Text
-    upperBound = let Pvp{..} = baseVerPvp $ maximum ghcs in
+    upperBound :: NonEmpty GhcVer -> Text
+    upperBound ghcs = let Pvp{..} = baseVerPvp $ last ghcs in
         show pvpFirst <> "." <> show (pvpSecond + 1)
 
 -- | Data type to keep meta information for every 'GhcVer'.
