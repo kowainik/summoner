@@ -108,7 +108,7 @@ cabalBaseVersions :: [GhcVer] -> Text
 cabalBaseVersions ghcVers = case sort ghcVers of
     [] -> ""
     [v] -> "^>= " <> baseVer v
-    (minGhc:rest) -> ">= " <> baseVer minGhc <> " && < " <> upperBound (minGhc :| rest)
+    minGhc:x:xs -> ">= " <> baseVer minGhc <> " && < " <> upperBound (x :| xs)
   where
     upperBound :: NonEmpty GhcVer -> Text
     upperBound ghcs = let Pvp{..} = baseVerPvp $ last ghcs in
