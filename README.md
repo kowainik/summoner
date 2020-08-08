@@ -139,6 +139,8 @@ Features related to the structure and content of the generated projects.
   -Wmissing-export-lists        (GHC ⩾ 8.4)
   -Wpartial-fields              (GHC ⩾ 8.4)
   -Wmissing-deriving-strategies (GHC ⩾ 8.8)
+  -fwrite-ide-info              (GHC ⩾ 8.8)
+  -hiedir=.hie                  (GHC ⩾ 8.8)
   -Wunused-packages             (GHC ⩾ 8.10)
   ```
 

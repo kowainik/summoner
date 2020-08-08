@@ -70,6 +70,7 @@ gitHubFiles Settings{..} = concat
         , "cabal.project.local"
         , ".ghc.environment.*"
         , ".HTF/"
+        , ".hie/"
         , "# Stack"
         , ".stack-work/"
         , "stack.yaml.lock"
