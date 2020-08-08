@@ -24,6 +24,10 @@ The changelog is available [on GitHub][2].
   Add README link in the `.cabal` file's description field.
 * [#453](https://github.com/kowainik/summoner/issues/453):
   Drop support of `GHC-7.10` in the generated projects.
+* [#482](https://github.com/kowainik/summoner/issues/482):
+  Include `.hie` related GHC options to the generated files:
+  `-fwrite-ide-info` and `-hiedir=.hie` for GHC >= 8.8.
+  Also add `.hie` folder in the `.gitignore`.
 * [#484](https://github.com/kowainik/summoner/issues/484):
   Improve generated files content.
 
