@@ -127,7 +127,7 @@ appNew dirs = App
         then case ev of
             VtyEvent (V.EvKey V.KEnter []) -> halt $ changeShouldSummon Yes s
             VtyEvent (V.EvKey V.KEsc [])   -> withForm ev s (changeShouldSummon Nop)
-            _                              -> continue s
+            _otherKey -> continue s
         else case ev of
             VtyEvent V.EvResize {} -> continue s
             VtyEvent (V.EvKey V.KEnter [V.MMeta]) ->
@@ -157,7 +157,7 @@ appNew dirs = App
             VtyEvent (V.EvKey V.KBackTab     []) -> loopWhileInactive ev s
 
             -- Default action
-            _ -> withFormDef ev s
+            _otherEvent -> withFormDef ev s
 
     , appChooseCursor = focusRingCursor formFocus
     , appStartEvent = pure
@@ -188,7 +188,7 @@ appNew dirs = App
         GitHubEnable   -> withForm ev form mkNewForm
         GitHubDisable  -> withForm ev form mkNewForm
         GitHubNoUpload -> withForm ev form mkNewForm
-        _              -> withFormDef ev form
+        _nonCheckBox   -> withFormDef ev form
 
     -- Handles form event until current element is active
     loopWhileInactive
@@ -207,13 +207,14 @@ appNew dirs = App
     keyTriggersAutofill :: V.Key -> Bool
     keyTriggersAutofill (V.KChar _) = True
     keyTriggersAutofill V.KBS       = True
-    keyTriggersAutofill _           = False
+    keyTriggersAutofill _otherKey   = False
 
 -- | Draws the form for @new@ command.
 drawNew :: [FilePath] -> KitForm e -> [Widget SummonForm]
 drawNew dirs kitForm = case kit ^. shouldSummon of
     Idk -> [confirmDialog]
-    _   -> [formWidget]
+    Yes -> [formWidget]
+    Nop -> [formWidget]
   where
     kit :: SummonKit
     kit = formState kitForm
@@ -251,10 +252,10 @@ drawNew dirs kitForm = case kit ^. shouldSummon of
       where
         informationBlock :: Widget SummonForm
         informationBlock = case getCurrentFocus kitForm of
-            Just UserOwner  -> infoTxt "GitHub username"
-            Just ProjectCat -> infoTxt "Comma-separated categories as used at Hackage"
-            Just Ghcs       -> infoTxt "Space separated GHC versions"
-            _               -> emptyWidget
+            Just UserOwner   -> infoTxt "GitHub username"
+            Just ProjectCat  -> infoTxt "Comma-separated categories as used at Hackage"
+            Just Ghcs        -> infoTxt "Space separated GHC versions"
+            _noInfoAvailable -> emptyWidget
 
         infoTxt :: Text -> Widget SummonForm
         infoTxt = withAttr "blue-fg" . txtWrap . (<>) " ⓘ  "
@@ -321,7 +322,7 @@ runTuiShowLicense (toText -> name) = case parseLicenseName name of
             VtyEvent (V.EvKey V.KDown []) -> vScrollBy licenseScroll   1  >> continue ()
             VtyEvent (V.EvKey V.KUp [])   -> vScrollBy licenseScroll (-1) >> continue ()
             VtyEvent (V.EvKey V.KEsc [])  -> halt ()
-            _                             -> continue ()
+            _otherEvent                   -> continue ()
         }
 
     licenseScroll :: ViewportScroll ()

@@ -22,7 +22,7 @@ module Summoner.Tui.Validation
 import Brick.Forms (formState, invalidFields, setFieldValid, setFormFocus)
 import Lens.Micro (Lens', (%~), (.~), (^.))
 import Relude.Extra.Enum (universe)
-import Validation (Validation (..))
+import Validation (Validation (..), failureIf, whenFailure)
 
 import Summoner.Text (moduleNameValid, packageNameValid, packageToModule)
 import Summoner.Tui.Form (KitForm, SummonForm (..), getCurrentFocus, mkForm)
@@ -57,7 +57,7 @@ handleAutofill f = case getCurrentFocus f of
             newState = formState f
                 & projectMeta . preludeModule .~ packageToModule curPreludeName
         in setFormFocus CustomPreludeName $ mkForm newState
-    _ -> f
+    _anyOtherField -> f
 
 -- | Adds a newline for project description.
 projectDescNewLine :: KitForm e -> KitForm e
@@ -85,9 +85,9 @@ summonFormValidation dirs kitForm = foldr setValidation kitForm universe
 -- validation of form input fields.
 data FormError
     -- | List of empty fields that shouldn't be empty.
-    = EmptyFields (NonEmpty SummonForm)
+    = EmptyFields !(NonEmpty SummonForm)
     -- | List of fields that should be exactly one word.
-    | OneWord (NonEmpty SummonForm)
+    | OneWord !(NonEmpty SummonForm)
     -- | Project with such name already exist.
     | ProjectExist
     -- | At least one build tool should be chosen.
@@ -124,7 +124,7 @@ showFormError = \case
         ProjectCat          -> Just "Category"
         CustomPreludeName   -> Just "Prelude name"
         CustomPreludeModule -> Just "Module"
-        _ -> Nothing
+        _nonMandatoryFields -> Nothing
 
 -- | Returns list of all invalid fields according to the error.
 errorToInvalidFields :: FormError -> NonEmpty SummonForm
@@ -136,10 +136,6 @@ errorToInvalidFields = \case
     LibOrExe            -> Lib :| [Exe]
     PreludePackageError -> one CustomPreludeName
     PreludeModuleError  -> one CustomPreludeModule
-
--- | Takes boolean value and error and returns error if predicate 'True'.
-toError :: Bool -> e -> Validation (NonEmpty e) ()
-toError p e = if p then Failure (one e) else Success ()
 
 -- | Validates 'SummonKit' and returns list of all possible errors or success.
 validateKit :: [FilePath] -> SummonKit -> Validation (NonEmpty FormError) ()
@@ -168,10 +164,10 @@ validateKit dirs kit =
             *> checkField (user . email) UserEmail
             *> checkField (project . repo) ProjectName
             *> checkField (project . desc) ProjectDesc
-            *> toError isEmptyPrelude CustomPreludeModule
+            *> failureIf isEmptyPrelude CustomPreludeModule
 
         checkField :: Lens' SummonKit Text -> SummonForm -> Validation (NonEmpty SummonForm) ()
-        checkField textL = toError $ isEmpty $ kit ^. textL
+        checkField textL = failureIf $ isEmpty $ kit ^. textL
 
         isEmpty :: Text -> Bool
         isEmpty t = T.strip t == ""
@@ -193,25 +189,28 @@ validateKit dirs kit =
             *> checkField (projectMeta . preludeModule) CustomPreludeModule
 
         checkField :: Lens' SummonKit Text -> SummonForm -> Validation (NonEmpty SummonForm) ()
-        checkField textL = toError (length (words $ kit ^. textL) > 1)
+        checkField textL = failureIf $ case words $ kit ^. textL of
+            []   -> False
+            [_x]  -> False
+            _x:_ -> True
 
     validateProjectExist :: Validation (NonEmpty FormError) ()
-    validateProjectExist = toError
+    validateProjectExist = failureIf
         (toString (kit ^. project . repo) `elem` dirs)
         ProjectExist
 
     validateBuildTools :: Validation (NonEmpty FormError) ()
-    validateBuildTools = toError
+    validateBuildTools = failureIf
         (not $ kit ^. cabal || kit ^. stack)
         CabalOrStack
 
     validateLibOrExe :: Validation (NonEmpty FormError) ()
-    validateLibOrExe = toError
+    validateLibOrExe = failureIf
         (not $ kit ^. projectMeta . lib  || kit ^. projectMeta . exe)
         LibOrExe
 
     validatePreludePackage :: Validation (NonEmpty FormError) ()
-    validatePreludePackage = toError
+    validatePreludePackage = failureIf
         (not $ T.null packageName || packageNameValid packageName)
         PreludePackageError
       where
@@ -219,7 +218,7 @@ validateKit dirs kit =
         packageName = kit ^. projectMeta . preludeName
 
     validatePreludeModule :: Validation (NonEmpty FormError) ()
-    validatePreludeModule = toError
+    validatePreludeModule = failureIf
         (not $ T.null moduleName || moduleNameValid moduleName)
         PreludeModuleError
       where
@@ -231,9 +230,9 @@ formErrorMessages :: [FilePath] -> KitForm e -> [String]
 formErrorMessages dirs kitForm = validatedErrorMessages ++ ghcErrorMessage
   where
     validatedErrorMessages :: [String]
-    validatedErrorMessages = case validateKit dirs (formState kitForm) of
-        Success _      -> []
-        Failure errors -> map showFormError $ toList errors
+    validatedErrorMessages = whenFailure []
+        (validateKit dirs $ formState kitForm)
+        (map showFormError . toList)
 
     -- Hack because input field for GHC versions uses custom @editField@ with its own validation
     ghcErrorMessage :: [String]
