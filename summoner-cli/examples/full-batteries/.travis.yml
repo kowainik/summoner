@@ -1,4 +1,3 @@
-sudo: true
 language: haskell
 
 git:
@@ -12,7 +11,7 @@ cache:
   - "$HOME/.stack"
   - "$TRAVIS_BUILD_DIR/.stack-work"
 
-matrix:
+jobs:
   include:
   - ghc: 8.0.2
   - ghc: 8.2.2

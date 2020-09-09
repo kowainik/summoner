@@ -1,4 +1,3 @@
-sudo: true
 language: haskell
 
 git:
@@ -10,7 +9,7 @@ cache:
   directories:
   - "$HOME/.cabal/store"
 
-matrix:
+jobs:
   include:
   - ghc: 8.4.4
   - ghc: 8.6.5

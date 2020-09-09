@@ -167,8 +167,7 @@ gitHubFiles Settings{..} = concat
     -- create travis.yml template
     travisYml :: Text
     travisYml = unlines $
-        [ "sudo: true"
-        , "language: haskell"
+        [ "language: haskell"
         , ""
         , "git:"
         , "  depth: 5"
@@ -182,7 +181,7 @@ gitHubFiles Settings{..} = concat
         <> travisStackCache
         <>
         [ ""
-        , "matrix:"
+        , "jobs:"
         , "  include:"
         ]
         <> travisCabalMtr
