@@ -82,7 +82,7 @@ docFiles Settings{..} =
 
         travisShield, travisLink, travisBadge :: Text
         travisShield = shieldsIo <> "travis/" <> ownerRepo <> ".svg?logo=travis"
-        travisLink   = "https://travis-ci.org/" <> ownerRepo
+        travisLink   = "https://travis-ci.com/" <> ownerRepo
         travisBadge  = makeBadge "Build status" travisShield travisLink
 
         appVeyorCom, appVeyorShield, appVeyorLink, appVeyorBadge :: Text
