@@ -30,6 +30,8 @@ The changelog is available [on GitHub][2].
   Also add `.hie` folder in the `.gitignore`.
 * [#484](https://github.com/kowainik/summoner/issues/484):
   Improve generated files content.
+* [#491](https://github.com/kowainik/summoner/issues/491):
+  Support GHC-8.8.4 in the project.
 
 ## 2.0.1.1 — May 29, 2020
 
