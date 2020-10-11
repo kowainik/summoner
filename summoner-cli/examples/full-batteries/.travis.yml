@@ -56,7 +56,8 @@ install:
   - |
     if [ -z "$STACK_YAML" ]; then
       cabal v2-update
-      cabal v2-build --enable-tests --enable-benchmarks
+      cabal v2-configure --enable-tests --enable-benchmarks
+      cabal v2-build all
     else
       curl -sSL https://get.haskellstack.org/ | sh
       stack --version
@@ -66,7 +67,7 @@ install:
 script:
   - |
     if [ -z "$STACK_YAML" ]; then
-      cabal v2-test --enable-tests --test-show-details=direct
+      cabal v2-test all
     else
       stack test --system-ghc
     fi
