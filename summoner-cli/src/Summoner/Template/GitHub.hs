@@ -225,7 +225,7 @@ gitHubFiles Settings{..} = concat
         os <- osesToExclude
         version <- versionsToExclude
         [  "- os: " <> os
-         , "  ghc: " <> (showGhcVer version)
+         , "  ghc: " <> showGhcVer version
          ]
 
     -- create travis.yml template
