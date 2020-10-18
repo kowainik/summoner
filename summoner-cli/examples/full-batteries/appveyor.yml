@@ -35,5 +35,6 @@ before_build:
   - cabal %CABOPTS% v2-update
 
 build_script:
-  - cabal %CABOPTS% v2-build --enable-tests
-  - cabal %CABOPTS% v2-test  --enable-tests --test-show-details=direct
+  - cabal %CABOPTS% v2-configure --enable-tests --enable-benchmarks --test-show-details=direct
+  - cabal %CABOPTS% v2-build all
+  - cabal %CABOPTS% v2-test  all

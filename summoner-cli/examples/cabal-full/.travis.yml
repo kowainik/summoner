@@ -21,7 +21,7 @@ install:
   - curl -sSL https://raw.github.com/ndmitchell/neil/master/misc/travis.sh | sh -s -- hlint .
 
   - cabal v2-update
-  - cabal v2-configure --enable-tests --enable-benchmarks
+  - cabal v2-configure --enable-tests --enable-benchmarks --test-show-details=direct
   - cabal v2-build all
 
 script:

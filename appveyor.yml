@@ -17,7 +17,7 @@ cache:
 
 environment:
   STACK_ROOT: C:\sr
-  STACK_VERSION: 2.1.1
+  STACK_VERSION: 2.3.3
 
   matrix:
     - STACK_YAML: stack.yaml

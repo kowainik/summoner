@@ -137,9 +137,7 @@ gitHubFiles Settings{..} = concat
         , "        ghc:"
         ]
         <> map (indent 10 <>) ghActionsVersions
-        <>
-        [ "        exclude:"]
-        <> map (indent 10 <>) ghActionsExcludes
+        <> ghActionsExcludes
         <>
         [ ""
         , "    steps:"
@@ -218,15 +216,21 @@ gitHubFiles Settings{..} = concat
         settingsTestedVersions
 
     ghActionsExcludes :: [Text]
-    ghActionsExcludes = do
+    ghActionsExcludes =
         let latestVersion = viaNonEmpty last $ sort settingsTestedVersions
             versionsToExclude = filter (\version -> pure version /= latestVersion) settingsTestedVersions
             osesToExclude = ["macOS-latest", "windows-latest"]
-        os <- osesToExclude
-        version <- versionsToExclude
-        [  "- os: " <> os
-         , "  ghc: " <> showGhcVer version
-         ]
+            excludes = do
+                os <- osesToExclude
+                version <- versionsToExclude
+                [  "- os: " <> os
+                 , "  ghc: " <> showGhcVer version
+                 ]
+        in case excludes of
+            [] -> []
+            xs ->
+                "        exclude:"
+                : map (indent 10 <>) xs
 
     -- create travis.yml template
     travisYml :: Text
@@ -361,7 +365,7 @@ gitHubFiles Settings{..} = concat
     cabalUpdate = "cabal v2-update"
 
     cabalConfigure :: Text
-    cabalConfigure = "cabal v2-configure --enable-tests --enable-benchmarks"
+    cabalConfigure = "cabal v2-configure --enable-tests --enable-benchmarks --test-show-details=direct"
 
     cabalBuild :: Text
     cabalBuild = "cabal v2-build all"
@@ -429,8 +433,9 @@ gitHubFiles Settings{..} = concat
         , "  - cabal %CABOPTS% v2-update"
         , ""
         , "build_script:"
-        , "  - cabal %CABOPTS% v2-build --enable-tests"
-        , "  - cabal %CABOPTS% v2-test  --enable-tests --test-show-details=direct"
+        , "  - cabal %CABOPTS% v2-configure --enable-tests --enable-benchmarks --test-show-details=direct"
+        , "  - cabal %CABOPTS% v2-build all"
+        , "  - cabal %CABOPTS% v2-test  all"
         ]
 
     -- create appveyor.yml template
@@ -448,7 +453,7 @@ gitHubFiles Settings{..} = concat
         , ""
         , "environment:"
         , "  STACK_ROOT: C:\\sr"
-        , "  STACK_VERSION: 2.1.1"
+        , "  STACK_VERSION: 2.3.3"
         , ""
         , "  # Workaround a gnarly bug https://github.com/haskell/cabal/issues/5386"
         , "  # See: https://www.fpcomplete.com/blog/2018/06/sed-a-debugging-story"

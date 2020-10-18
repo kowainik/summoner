@@ -56,7 +56,7 @@ jobs:
 
     - name: Build
       run: |
-        cabal v2-configure --enable-tests --enable-benchmarks
+        cabal v2-configure --enable-tests --enable-benchmarks --test-show-details=direct
         cabal v2-build all
 
     - name: Test
