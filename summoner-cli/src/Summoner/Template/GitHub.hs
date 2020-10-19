@@ -125,6 +125,10 @@ gitHubFiles Settings{..} = concat
         <> memptyIfFalse settingsCabal ghActionsCabal
         <> memptyIfFalse settingsStack ghActionsStack
 
+    ghcActionsCheckoutVersion = "@v2.3.3"
+    ghcActionsSetupHaskellVersion = "@v1.1.3"
+    ghcActionsCacheVersion = "@v2.1.2"
+
     ghActionsCabal :: [Text]
     ghActionsCabal =
         [ "  cabal:"
@@ -141,10 +145,10 @@ gitHubFiles Settings{..} = concat
         <>
         [ ""
         , "    steps:"
-        , "    - uses: actions/checkout@v2"
+        , "    - uses: actions/checkout" <> ghcActionsCheckoutVersion
         , "      if: github.event.action == 'opened' || github.event.action == 'synchronize' || github.event.ref == 'refs/heads/master'"
         , ""
-        , "    - uses: actions/setup-haskell@v1.1.1"
+        , "    - uses: actions/setup-haskell" <> ghcActionsSetupHaskellVersion
         , "      id: setup-haskell-cabal"
         , "      name: Setup Haskell"
         , "      with:"
@@ -155,7 +159,7 @@ gitHubFiles Settings{..} = concat
         , "      run: |"
         , "        cabal v2-freeze"
         , ""
-        , "    - uses: actions/cache@v1"
+        , "    - uses: actions/cache" <> ghcActionsCacheVersion
         , "      name: Cache ~/.cabal/store"
         , "      with:"
         , "        path: ${{ steps.setup-haskell-cabal.outputs.cabal-store }}"
@@ -186,16 +190,16 @@ gitHubFiles Settings{..} = concat
         <>
         [ ""
         , "    steps:"
-        , "    - uses: actions/checkout@v2"
+        , "    - uses: actions/checkout" <> ghcActionsCheckoutVersion
         , "      if: github.event.action == 'opened' || github.event.action == 'synchronize' || github.event.ref == 'refs/heads/master'"
         , ""
-        , "    - uses: actions/setup-haskell@v1.1"
+        , "    - uses: actions/setup-haskell" <> ghcActionsSetupHaskellVersion
         , "      name: Setup Haskell Stack"
         , "      with:"
         , "        ghc-version: ${{ matrix.ghc }}"
         , "        stack-version: ${{ matrix.stack }}"
         , ""
-        , "    - uses: actions/cache@v1"
+        , "    - uses: actions/cache" <> ghcActionsCacheVersion
         , "      name: Cache ~/.stack"
         , "      with:"
         , "        path: ~/.stack"

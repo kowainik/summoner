@@ -20,16 +20,16 @@ jobs:
           - "8.10.1"
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v2.3.3
       if: github.event.action == 'opened' || github.event.action == 'synchronize' || github.event.ref == 'refs/heads/master'
 
-    - uses: actions/setup-haskell@v1
+    - uses: actions/setup-haskell@v1.1.3
       name: Setup Haskell
       with:
         ghc-version: ${{ matrix.ghc }}
         cabal-version: ${{ matrix.cabal }}
 
-    - uses: actions/cache@v1
+    - uses: actions/cache@v2.1.2
       name: Cache ~/.cabal/store
       with:
         path: ~/.cabal/store
