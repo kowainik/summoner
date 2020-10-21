@@ -33,7 +33,7 @@ stackScript :: Text
 stackScript = unlines
     [ "#!/usr/bin/env stack"
     , "{- stack"
-    , "  --resolver nightly-2020-06-29"
+    , "  --resolver nightly-2020-10-23"
     , "  script"
     , "  --package base"
     , "-}"
