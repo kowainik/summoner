@@ -45,7 +45,7 @@ defaultCabal = "2.4"
 
 -- | Default version of the Stack.
 defaultStack :: Text
-defaultStack = "2.3.3"
+defaultStack = "2.5.1"
 
 defaultLicenseName :: LicenseName
 defaultLicenseName = MIT

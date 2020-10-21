@@ -78,7 +78,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        stack: ["2.3.3"]
+        stack: ["2.5.1"]
         ghc:
           - "8.0.2"
           - "8.2.2"

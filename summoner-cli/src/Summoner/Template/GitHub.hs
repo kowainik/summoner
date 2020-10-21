@@ -457,7 +457,7 @@ gitHubFiles Settings{..} = concat
         , ""
         , "environment:"
         , "  STACK_ROOT: C:\\sr"
-        , "  STACK_VERSION: 2.3.3"
+        , "  STACK_VERSION: " <> defaultStack
         , ""
         , "  # Workaround a gnarly bug https://github.com/haskell/cabal/issues/5386"
         , "  # See: https://www.fpcomplete.com/blog/2018/06/sed-a-debugging-story"
