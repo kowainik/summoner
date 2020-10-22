@@ -123,6 +123,7 @@ gitHubFiles Settings{..} = concat
         , "jobs:"
         ]
         <> memptyIfFalse settingsCabal ghActionsCabal
+        <> memptyIfFalse (settingsCabal && settingsStack) [""]
         <> memptyIfFalse settingsStack ghActionsStack
 
     ghcActionsCheckoutVersion = "@v2.3.3"
@@ -173,7 +174,6 @@ gitHubFiles Settings{..} = concat
         , "    - name: Test"
         , "      run: |"
         , "        " <> cabalTest
-        , ""
         ]
 
     ghActionsStack :: [Text]
