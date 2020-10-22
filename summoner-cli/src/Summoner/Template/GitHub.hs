@@ -221,8 +221,8 @@ gitHubFiles Settings{..} = concat
 
     ghActionsExcludes :: [Text]
     ghActionsExcludes =
-        let latestVersion = viaNonEmpty last $ sort settingsTestedVersions
-            versionsToExclude = filter (\version -> pure version /= latestVersion) settingsTestedVersions
+        let versionsToExclude = -- all but the latest version
+                drop 1 $ sortWith Down settingsTestedVersions
             osesToExclude = ["macOS-latest", "windows-latest"]
             excludes = do
                 os <- osesToExclude

@@ -21,17 +21,17 @@ jobs:
           - "8.10.1"
         exclude:
           - os: macOS-latest
-            ghc: 8.4.4
+            ghc: 8.8.4
           - os: macOS-latest
             ghc: 8.6.5
           - os: macOS-latest
-            ghc: 8.8.4
-          - os: windows-latest
             ghc: 8.4.4
+          - os: windows-latest
+            ghc: 8.8.4
           - os: windows-latest
             ghc: 8.6.5
           - os: windows-latest
-            ghc: 8.8.4
+            ghc: 8.4.4
 
     steps:
     - uses: actions/checkout@v2.3.3
