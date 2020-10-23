@@ -29,7 +29,7 @@ module Summoner.Template.GitHub
 import Colourista (indent)
 import Data.List (delete, intersect)
 
-import Summoner.Default (defaultCabal, defaultGHC)
+import Summoner.Default (defaultCabal, defaultGHC, defaultStack)
 import Summoner.GhcVer (GhcVer (..), oldGhcs, showGhcVer)
 import Summoner.Settings (Settings (..))
 import Summoner.Text (quote)
@@ -121,36 +121,54 @@ gitHubFiles Settings{..} = concat
         , "    branches: [master]"
         , ""
         , "jobs:"
-        , "  build:"
-        , "    name: ghc ${{ matrix.ghc }}"
-        , "    runs-on: ubuntu-16.04"
+        ]
+        <> memptyIfFalse settingsCabal ghActionsCabal
+        <> memptyIfFalse (settingsCabal && settingsStack) [""]
+        <> memptyIfFalse settingsStack ghActionsStack
+
+    ghcActionsCheckoutVersion = "@v2.3.3"
+    ghcActionsSetupHaskellVersion = "@v1.1.3"
+    ghcActionsCacheVersion = "@v2.1.2"
+
+    ghActionsCabal :: [Text]
+    ghActionsCabal =
+        [ "  cabal:"
+        , "    name: ${{ matrix.os }} / ghc ${{ matrix.ghc }}"
+        , "    runs-on: ${{ matrix.os }}"
         , "    strategy:"
         , "      matrix:"
+        , "        os: [ubuntu-latest, macOS-latest, windows-latest]"
         , "        cabal: [" <> quote defaultCabal <> "]"
         , "        ghc:"
         ]
         <> map (indent 10 <>) ghActionsVersions
+        <> ghActionsExcludes
         <>
         [ ""
         , "    steps:"
-        , "    - uses: actions/checkout@v2"
+        , "    - uses: actions/checkout" <> ghcActionsCheckoutVersion
         , "      if: github.event.action == 'opened' || github.event.action == 'synchronize' || github.event.ref == 'refs/heads/master'"
         , ""
-        , "    - uses: actions/setup-haskell@v1"
+        , "    - uses: actions/setup-haskell" <> ghcActionsSetupHaskellVersion
+        , "      id: setup-haskell-cabal"
         , "      name: Setup Haskell"
         , "      with:"
         , "        ghc-version: ${{ matrix.ghc }}"
         , "        cabal-version: ${{ matrix.cabal }}"
         , ""
-        , "    - uses: actions/cache@v1"
+        , "    - name: Freeze"
+        , "      run: |"
+        , "        cabal v2-freeze"
+        , ""
+        , "    - uses: actions/cache" <> ghcActionsCacheVersion
         , "      name: Cache ~/.cabal/store"
         , "      with:"
-        , "        path: ~/.cabal/store"
-        , "        key: ${{ runner.os }}-${{ matrix.ghc }}-cabal"
+        , "        path: ${{ steps.setup-haskell-cabal.outputs.cabal-store }}"
+        , "        key: ${{ runner.os }}-${{ matrix.ghc }}-${{ hashFiles('cabal.project.freeze') }}"
         , ""
         , "    - name: Build"
         , "      run: |"
-        , "        " <> cabalUpdate
+        , "        " <> cabalConfigure
         , "        " <> cabalBuild
         , ""
         , "    - name: Test"
@@ -158,11 +176,65 @@ gitHubFiles Settings{..} = concat
         , "        " <> cabalTest
         ]
 
+    ghActionsStack :: [Text]
+    ghActionsStack =
+        [ "  stack:"
+        , "    name: stack / ghc ${{ matrix.ghc }}"
+        , "    runs-on: ubuntu-latest"
+        , "    strategy:"
+        , "      matrix:"
+        , "        stack: [" <> quote defaultStack <> "]"
+        , "        ghc:"
+        ]
+        <> map (indent 10 <>) ghActionsVersions
+        <>
+        [ ""
+        , "    steps:"
+        , "    - uses: actions/checkout" <> ghcActionsCheckoutVersion
+        , "      if: github.event.action == 'opened' || github.event.action == 'synchronize' || github.event.ref == 'refs/heads/master'"
+        , ""
+        , "    - uses: actions/setup-haskell" <> ghcActionsSetupHaskellVersion
+        , "      name: Setup Haskell Stack"
+        , "      with:"
+        , "        ghc-version: ${{ matrix.ghc }}"
+        , "        stack-version: ${{ matrix.stack }}"
+        , ""
+        , "    - uses: actions/cache" <> ghcActionsCacheVersion
+        , "      name: Cache ~/.stack"
+        , "      with:"
+        , "        path: ~/.stack"
+        , "        key: ${{ runner.os }}-${{ matrix.ghc }}-stack"
+        , ""
+        , "    - name: Build"
+        , "      run: |"
+        , "        " <> stackBuild
+        , ""
+        , "    - name: Test"
+        , "      run: |"
+        , "        " <> stackTest
+        ]
 
     ghActionsVersions :: [Text]
     ghActionsVersions = map
         (\ghc -> "- " <> quote (showGhcVer ghc))
         settingsTestedVersions
+
+    ghActionsExcludes :: [Text]
+    ghActionsExcludes =
+        let versionsToExclude = -- all but the latest version
+                drop 1 $ sortWith Down settingsTestedVersions
+            osesToExclude = ["macOS-latest", "windows-latest"]
+            excludes = do
+                os <- osesToExclude
+                version <- versionsToExclude
+                [  "- os: " <> os
+                 , "  ghc: " <> showGhcVer version
+                 ]
+        in case excludes of
+            [] -> []
+            xs ->
+                "        exclude:"
+                : map (indent 10 <>) xs
 
     -- create travis.yml template
     travisYml :: Text
@@ -256,6 +328,7 @@ gitHubFiles Settings{..} = concat
         [ "  - |"
         , "    if [ -z " <> quote "$STACK_YAML" <> " ]; then"
         , "      " <> cabalUpdate
+        , "      " <> cabalConfigure
         , "      " <> cabalBuild
         , "    else"
         , "      curl -sSL https://get.haskellstack.org/ | sh"
@@ -275,6 +348,7 @@ gitHubFiles Settings{..} = concat
     installScriptCabal :: [Text]
     installScriptCabal =
         [ "  - " <> cabalUpdate
+        , "  - " <> cabalConfigure
         , "  - " <> cabalBuild
         , ""
         , "script:"
@@ -294,12 +368,15 @@ gitHubFiles Settings{..} = concat
     cabalUpdate :: Text
     cabalUpdate = "cabal v2-update"
 
+    cabalConfigure :: Text
+    cabalConfigure = "cabal v2-configure --enable-tests --enable-benchmarks --test-show-details=direct"
+
     cabalBuild :: Text
-    cabalBuild = "cabal v2-build --enable-tests --enable-benchmarks"
+    cabalBuild = "cabal v2-build all"
 
     cabalTest :: Text
     cabalTest = if settingsTest
-        then "cabal v2-test --enable-tests --test-show-details=direct"
+        then "cabal v2-test all"
         else "echo 'No tests'"
 
     stackBuild :: Text
@@ -360,8 +437,9 @@ gitHubFiles Settings{..} = concat
         , "  - cabal %CABOPTS% v2-update"
         , ""
         , "build_script:"
-        , "  - cabal %CABOPTS% v2-build --enable-tests"
-        , "  - cabal %CABOPTS% v2-test  --enable-tests --test-show-details=direct"
+        , "  - cabal %CABOPTS% v2-configure --enable-tests --enable-benchmarks --test-show-details=direct"
+        , "  - cabal %CABOPTS% v2-build all"
+        , "  - cabal %CABOPTS% v2-test  all"
         ]
 
     -- create appveyor.yml template
@@ -379,7 +457,7 @@ gitHubFiles Settings{..} = concat
         , ""
         , "environment:"
         , "  STACK_ROOT: C:\\sr"
-        , "  STACK_VERSION: 2.1.1"
+        , "  STACK_VERSION: " <> defaultStack
         , ""
         , "  # Workaround a gnarly bug https://github.com/haskell/cabal/issues/5386"
         , "  # See: https://www.fpcomplete.com/blog/2018/06/sed-a-debugging-story"
