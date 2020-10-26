@@ -135,6 +135,7 @@ Features related to the structure and content of the generated projects.
   -Wincomplete-uni-patterns
   -Wincomplete-record-updates
   -Wredundant-constraints
+  -Wnoncanonical-monad-instances
   -fhide-source-paths           (GHC ⩾ 8.2)
   -Wmissing-export-lists        (GHC ⩾ 8.4)
   -Wpartial-fields              (GHC ⩾ 8.4)

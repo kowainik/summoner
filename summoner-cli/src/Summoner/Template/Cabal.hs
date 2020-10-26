@@ -132,6 +132,7 @@ cabalFile Settings{..} = File (toString settingsRepo ++ ".cabal") cabalFileConte
         , "                       -Wincomplete-uni-patterns"
         , "                       -Wincomplete-record-updates"
         , "                       -Wredundant-constraints"
+        , "                       -Wnoncanonical-monad-instances"
         , "  if impl(ghc >= 8.2)"
         , "    ghc-options:       -fhide-source-paths"
         , "  if impl(ghc >= 8.4)"
