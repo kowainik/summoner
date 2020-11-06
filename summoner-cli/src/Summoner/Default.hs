@@ -154,7 +154,7 @@ defaultConfigFileContent = unlines
     , "# List of additional files to add after creating the project"
     , "# files ="
     , "#     [ { path = " <> quote ".stylish-haskell.yaml"
-    , "#       , url  = " <> quote "https://raw.githubusercontent.com/kowainik/org/master/.stylish-haskell.yaml"
+    , "#       , url  = " <> quote "https://raw.githubusercontent.com/kowainik/org/main/.stylish-haskell.yaml"
     , "#       }"
     , "#     , { path = " <> quote ".github/CODEOWNERS"
     , "#       , raw  = " <> quote ("*  @" <> defaultOwner)

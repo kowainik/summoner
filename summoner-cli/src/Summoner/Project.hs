@@ -296,7 +296,9 @@ doGithubCommands Settings{..} = do
             Just _ -> do
                 isHubSuccess <- runHub repo
                 if isHubSuccess
-                then "git" ["push", "-u", "origin", "master"]
+                then do
+                    "git" ["push", "-u", "origin", "main"]
+                    "git" ["remote", "set-head", "origin", "-a"]
                 else do
                     warningMessage "Error running 'hub'. Possible reason: incorrect password."
                     hubHelp repo
