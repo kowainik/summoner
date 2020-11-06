@@ -87,7 +87,7 @@ docFiles Settings{..} =
 
         appVeyorCom, appVeyorShield, appVeyorLink, appVeyorBadge :: Text
         appVeyorCom    = "https://ci.appveyor.com/"
-        appVeyorShield = appVeyorCom <> "api/projects/status/github/" <> ownerRepo <> "?branch=master&svg=true"
+        appVeyorShield = appVeyorCom <> "api/projects/status/github/" <> ownerRepo <> "?branch=main&svg=true"
         appVeyorLink   = appVeyorCom <> "project/" <> ownerRepo
         appVeyorBadge  = makeBadge "Windows build status" appVeyorShield appVeyorLink
 

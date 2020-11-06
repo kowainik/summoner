@@ -32,6 +32,9 @@ The changelog is available [on GitHub][2].
   Improve generated files content.
 * [#491](https://github.com/kowainik/summoner/issues/491):
   Support GHC-8.8.4 in the project.
+* [#517](https://github.com/kowainik/summoner/issues/517):
+  Switch to `main` initial branch when creating project.
+* Require `git >= 2.28` for `--initial-branch=main` option.
 
 ## 2.0.1.1 — May 29, 2020
 

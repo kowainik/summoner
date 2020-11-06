@@ -71,7 +71,7 @@ license = "MIT"
 # List of additional files to add after creating the project
 # files =
 #     [ { path = ".stylish-haskell.yaml"
-#       , url  = "https://raw.githubusercontent.com/kowainik/org/master/.stylish-haskell.yaml"
+#       , url  = "https://raw.githubusercontent.com/kowainik/org/main/.stylish-haskell.yaml"
 #       }
 #     , { path = ".github/CODEOWNERS"
 #       , raw  = "*  @kowainik"

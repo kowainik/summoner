@@ -286,7 +286,7 @@ createProjectDirectory settings@Settings{..} = do
 doGithubCommands :: Settings -> IO ()
 doGithubCommands Settings{..} = do
     -- Create git repostitory and do a commit.
-    "git" ["init"]
+    "git" ["init", "--initial-branch=main"]
     "git" ["add", "."]
     "git" ["commit", "-m", "Create the project"]
     unless settingsNoUpload $ do
@@ -296,7 +296,9 @@ doGithubCommands Settings{..} = do
             Just _ -> do
                 isHubSuccess <- runHub repo
                 if isHubSuccess
-                then "git" ["push", "-u", "origin", "master"]
+                then do
+                    "git" ["push", "-u", "origin", "main"]
+                    "git" ["remote", "set-head", "origin", "-a"]
                 else do
                     warningMessage "Error running 'hub'. Possible reason: incorrect password."
                     hubHelp repo

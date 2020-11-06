@@ -4,12 +4,12 @@
 
 [![GitHub CI](https://github.com/kowainik/summoner/workflows/CI/badge.svg)](https://github.com/kowainik/summoner/actions)
 [![Build](https://img.shields.io/travis/kowainik/summoner.svg?logo=travis)](http://travis-ci.org/kowainik/summoner)
-[![Windows build](https://ci.appveyor.com/api/projects/status/github/kowainik/summoner?branch=master&svg=true)](https://ci.appveyor.com/project/kowainik/summoner)
+[![Windows build](https://ci.appveyor.com/api/projects/status/github/kowainik/summoner?branch=main&svg=true)](https://ci.appveyor.com/project/kowainik/summoner)
 
 [![Hackage](https://img.shields.io/hackage/v/summoner.svg?logo=haskell)](https://hackage.haskell.org/package/summoner)
 [![Stackage Lts](http://stackage.org/package/summoner/badge/lts)](http://stackage.org/lts/package/summoner)
 [![Stackage Nightly](http://stackage.org/package/summoner/badge/nightly)](http://stackage.org/nightly/package/summoner)
-[![MPL-2.0 license](https://img.shields.io/badge/license-MPL--2.0-blue.svg)](https://github.com/kowainik/summoner/blob/master/LICENSE)
+[![MPL-2.0 license](https://img.shields.io/badge/license-MPL--2.0-blue.svg)](https://github.com/kowainik/summoner/blob/main/LICENSE)
 
 > _So many of our dreams at first seem impossible, then they seem improbable, and
 > then, when we summon the will, they soon become inevitable._
@@ -82,18 +82,18 @@ By the way, Summoner operates as either CLI or TUI application, so you can choos
 
 You can also see complete examples in the following folder:
 
-* [`summon-cli/examples/`: Examples of scaffolded projects](https://github.com/kowainik/summoner/tree/master/summoner-cli/examples/)
+* [`summon-cli/examples/`: Examples of scaffolded projects](https://github.com/kowainik/summoner/tree/main/summoner-cli/examples/)
 
 The directory contains the following examples:
 
-* [`cabal-minimal`](https://github.com/kowainik/summoner/tree/master/summoner-cli/examples/cabal-minimal):
+* [`cabal-minimal`](https://github.com/kowainik/summoner/tree/main/summoner-cli/examples/cabal-minimal):
   Minimal Haskell project with the Cabal-only support, default
   settings and all of the integrations disabled.
-* [`cabal-full`](https://github.com/kowainik/summoner/tree/master/summoner-cli/examples/cabal-full):
+* [`cabal-full`](https://github.com/kowainik/summoner/tree/main/summoner-cli/examples/cabal-full):
    Cabal-only project with all integrations enabled.
-* [`stack-full`](https://github.com/kowainik/summoner/tree/master/summoner-cli/examples/stack-full):
+* [`stack-full`](https://github.com/kowainik/summoner/tree/main/summoner-cli/examples/stack-full):
   Stack-only project with all integrations enabled.
-* [`full-batteries`](https://github.com/kowainik/summoner/tree/master/summoner-cli/examples/full-batteries):
+* [`full-batteries`](https://github.com/kowainik/summoner/tree/main/summoner-cli/examples/full-batteries):
   All batteries-included project which supports both build tools and
   shows every Summoner feature.
 
@@ -231,7 +231,7 @@ project-name/
 
 To start using Summoner make sure that you have the following tools installed on your machine:
 
-* [`git`](https://git-scm.com) – to initialize the GitHub repo.
+* [`git`](https://git-scm.com) ⩾ 2.28 – to initialize the GitHub repo.
 * [`hub`](https://github.com/github/hub) – to upload the project to GitHub.
 * [`curl`](https://curl.haxx.se) – to download licenses.
 
@@ -494,7 +494,7 @@ Here is the list of the options that can be configured to suit your needs. If op
 You can create default configuration using the `summon config`
 command. See [the default content here](summoner-cli/test/golden/summoner-default.toml).
 
-For a real-life example of the configuration, see [the configuration for projects of the `Kowainik` organization](https://github.com/kowainik/org/blob/master/.summoner.toml).
+For a real-life example of the configuration, see [the configuration for projects of the `Kowainik` organization](https://github.com/kowainik/org/blob/main/.summoner.toml).
 
 ### Command line arguments
 
@@ -789,8 +789,8 @@ If you'd like to take part in the development processes, here are a few things t
 
 * Summoner is a multi-package project which has two packages inside: `summoner-cli` and `summoner-tui`. We are supporting the same functionality in both of them, so, if it's possible, you should add/change the code in both of the packages.
 * Summoner uses the custom prelude [`relude`](https://github.com/kowainik/relude).
-* We are using the [Kowainik style guide](https://github.com/kowainik/org/blob/master/style-guide.md#haskell-style-guide).
-* To sum up, [here is the Contributing guide](https://github.com/kowainik/.github/blob/master/CONTRIBUTING.md#contributing-to-the-kowainik-repositories) we use across the repositories.
+* We are using the [Kowainik style guide](https://kowainik.github.io/posts/2019-02-06-style-guide).
+* To sum up, [here is the Contributing guide](https://github.com/kowainik/.github/blob/main/CONTRIBUTING.md#contributing-to-the-kowainik-repositories) we use across the repositories.
 * This project is contributor-friendly, so be kind to other people working on the project.
 
 ### Dependencies
@@ -821,7 +821,7 @@ for Stack.
 
 [[Back to the Table of Contents] ↑](#structure)
 
-Summoner uses the golden tests technique for assuring the correctness of the generated files. For this purpose, we have [the `golden` folder](https://github.com/kowainik/summoner/tree/master/summoner-cli/test/golden) with two sample projects to test against.
+Summoner uses the golden tests technique for assuring the correctness of the generated files. For this purpose, we have [the `golden` folder](https://github.com/kowainik/summoner/tree/main/summoner-cli/test/golden) with two sample projects to test against.
 
 To actually run tests you need to run:
 

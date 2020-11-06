@@ -114,11 +114,11 @@ gitHubFiles Settings{..} = concat
     ghActionsYml = unlines $
         [ "name: CI"
         , ""
-        , "# Trigger the workflow on push or pull request, but only for the master branch"
+        , "# Trigger the workflow on push or pull request, but only for the main branch"
         , "on:"
         , "  pull_request:"
         , "  push:"
-        , "    branches: [master]"
+        , "    branches: [main]"
         , ""
         , "jobs:"
         ]
@@ -147,7 +147,7 @@ gitHubFiles Settings{..} = concat
         [ ""
         , "    steps:"
         , "    - uses: actions/checkout" <> ghcActionsCheckoutVersion
-        , "      if: github.event.action == 'opened' || github.event.action == 'synchronize' || github.event.ref == 'refs/heads/master'"
+        , "      if: github.event.action == 'opened' || github.event.action == 'synchronize' || github.event.ref == 'refs/heads/main'"
         , ""
         , "    - uses: actions/setup-haskell" <> ghcActionsSetupHaskellVersion
         , "      id: setup-haskell-cabal"
@@ -191,7 +191,7 @@ gitHubFiles Settings{..} = concat
         [ ""
         , "    steps:"
         , "    - uses: actions/checkout" <> ghcActionsCheckoutVersion
-        , "      if: github.event.action == 'opened' || github.event.action == 'synchronize' || github.event.ref == 'refs/heads/master'"
+        , "      if: github.event.action == 'opened' || github.event.action == 'synchronize' || github.event.ref == 'refs/heads/main'"
         , ""
         , "    - uses: actions/setup-haskell" <> ghcActionsSetupHaskellVersion
         , "      name: Setup Haskell Stack"
@@ -398,20 +398,25 @@ gitHubFiles Settings{..} = concat
         then appVeyorYmlCabal
         else appVeyorYmlStack
 
-    appVeyorYmlCabal :: [Text]
-    appVeyorYmlCabal = let defGhc = showGhcVer defaultGHC in
-        [ "clone_folder: " <> quote "c:\\\\WORK"
-        , "clone_depth: 5"
+    appVeyorYmlCommon :: [Text]
+    appVeyorYmlCommon =
+        [ "clone_depth: 5"
         , ""
         , "# Do not build feature branch with open Pull Requests"
         , "skip_branch_with_pr: true"
         , ""
-        , "# build only master branch"
+        , "# build only main branch"
         , "branches:"
         , "  only:"
-        , "    - master"
+        , "    - main"
         , ""
-        , "platform:"
+        ]
+
+    appVeyorYmlCabal :: [Text]
+    appVeyorYmlCabal = let defGhc = showGhcVer defaultGHC in
+        ( "clone_folder: " <> quote "c:\\\\WORK" )
+        : appVeyorYmlCommon ++
+        [ "platform:"
         , "  - x86_64"
         , ""
         , "cache:"
@@ -444,18 +449,8 @@ gitHubFiles Settings{..} = concat
 
     -- create appveyor.yml template
     appVeyorYmlStack :: [Text]
-    appVeyorYmlStack =
-        [ "clone_depth: 5"
-        , ""
-        , "# Do not build feature branch with open Pull Requests"
-        , "skip_branch_with_pr: true"
-        , ""
-        , "# build only master branch"
-        , "branches:"
-        , "  only:"
-        , "    - master"
-        , ""
-        , "environment:"
+    appVeyorYmlStack = appVeyorYmlCommon ++
+        [ "environment:"
         , "  STACK_ROOT: C:\\sr"
         , "  STACK_VERSION: " <> defaultStack
         , ""
