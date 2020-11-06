@@ -231,7 +231,7 @@ project-name/
 
 To start using Summoner make sure that you have the following tools installed on your machine:
 
-* [`git`](https://git-scm.com) – to initialize the GitHub repo.
+* [`git`](https://git-scm.com) ⩾ 2.28 – to initialize the GitHub repo.
 * [`hub`](https://github.com/github/hub) – to upload the project to GitHub.
 * [`curl`](https://curl.haxx.se) – to download licenses.
 
@@ -789,7 +789,7 @@ If you'd like to take part in the development processes, here are a few things t
 
 * Summoner is a multi-package project which has two packages inside: `summoner-cli` and `summoner-tui`. We are supporting the same functionality in both of them, so, if it's possible, you should add/change the code in both of the packages.
 * Summoner uses the custom prelude [`relude`](https://github.com/kowainik/relude).
-* We are using the [Kowainik style guide](https://github.com/kowainik/org/blob/main/style-guide.md#haskell-style-guide).
+* We are using the [Kowainik style guide](https://kowainik.github.io/posts/2019-02-06-style-guide).
 * To sum up, [here is the Contributing guide](https://github.com/kowainik/.github/blob/main/CONTRIBUTING.md#contributing-to-the-kowainik-repositories) we use across the repositories.
 * This project is contributor-friendly, so be kind to other people working on the project.
 

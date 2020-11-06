@@ -286,7 +286,7 @@ createProjectDirectory settings@Settings{..} = do
 doGithubCommands :: Settings -> IO ()
 doGithubCommands Settings{..} = do
     -- Create git repostitory and do a commit.
-    "git" ["init"]
+    "git" ["init", "--initial-branch=main"]
     "git" ["add", "."]
     "git" ["commit", "-m", "Create the project"]
     unless settingsNoUpload $ do
