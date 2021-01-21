@@ -10,7 +10,7 @@ license:             MPL-2.0
 license-file:        LICENSE
 author:              Veronika Romashkina, Dmitrii Kovanikov
 maintainer:          Kowainik <xrom.xkov@gmail.com>
-copyright:           2018-2020 Kowainik
+copyright:           2018-2021 Kowainik
 category:            TUI, TUI Tool, Development
 build-type:          Simple
 stability:           experimental

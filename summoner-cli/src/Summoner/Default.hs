@@ -1,6 +1,6 @@
 {- |
 Module                  : Summoner.Default
-Copyright               : (c) 2017-2020 Kowainik
+Copyright               : (c) 2017-2021 Kowainik
 SPDX-License-Identifier : MPL-2.0
 Maintainer              : Kowainik <xrom.xkov@gmail.com>
 Stability               : Stable

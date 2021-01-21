@@ -1,5 +1,6 @@
 ## This is the configuration file for Headroom.
 ## See https://github.com/vaclavsvejcar/headroom for more details.
+version: 0.4.0.0
 
 run-mode: replace
 
@@ -20,11 +21,11 @@ variables:
 license-headers:
   haskell:
     put-after: ["^{-#"]
-    margin-after: 1
-    margin-before: 1
+    margin-bottom-code: 1
+    margin-top-code: 1
     block-comment:
-      starts-with: "{- |"
-      ends-with: "-}"
+      starts-with: ^{- \|
+      ends-with: (?<!#)-}$
 
 post-process:
   update-copyright:
