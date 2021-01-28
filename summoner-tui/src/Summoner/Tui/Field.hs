@@ -39,6 +39,7 @@ strField t _ = FormFieldState
     , formFields = []
     , formFieldRenderHelper = renderString
     , formFieldConcat = vBox
+    , formFieldUpdate = flip const
     }
   where
     -- looool
@@ -97,6 +98,7 @@ activeCheckboxField stLens isActive name label initialState = FormFieldState
     , formFieldLens         = stLens
     , formFieldRenderHelper = id
     , formFieldConcat       = vBox
+    , formFieldUpdate       = flip const
     }
   where
     initVal, isEnabled :: Bool
