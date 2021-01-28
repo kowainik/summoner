@@ -22,7 +22,7 @@ module Summoner.Tui.Validation
 import Brick.Forms (formState, invalidFields, setFieldValid, setFormFocus)
 import Lens.Micro (Lens', (%~), (.~), (^.))
 import Relude.Extra.Enum (universe)
-import Validation (Validation (..), failureIf, whenFailure)
+import Validation (Validation (..), failureIf)
 
 import Summoner.Text (moduleNameValid, packageNameValid, packageToModule)
 import Summoner.Tui.Form (KitForm, SummonForm (..), getCurrentFocus, mkForm)
@@ -103,11 +103,11 @@ data FormError
 -- | Show 'FormError' to display later in TUI.
 showFormError :: FormError -> String
 showFormError = \case
+    EmptyFields fields -> "These fields must not be empty: " ++ joinFields fields
+    OneWord fields -> "These fields should contain exactly one word: " ++ joinFields fields
     ProjectExist -> "Directory with such name already exists"
     CabalOrStack -> "Choose at least one: Cabal or Stack"
     LibOrExe     -> "Choose at least one: Library or Executable"
-    EmptyFields fields -> "These fields must not be empty: " ++ joinFields fields
-    OneWord fields -> "These fields should contain exactly one word: " ++ joinFields fields
     PreludePackageError -> "Prelude package should only contain letters, numbers and hyphens"
     PreludeModuleError -> "Prelude module name could only contain dot-separated capitalized letter/numeral fragments. Ex: This.Is.Valid1"
   where
@@ -191,7 +191,7 @@ validateKit dirs kit =
         checkField :: Lens' SummonKit Text -> SummonForm -> Validation (NonEmpty SummonForm) ()
         checkField textL = failureIf $ case words $ kit ^. textL of
             []   -> False
-            [_x]  -> False
+            [_x] -> False
             _x:_ -> True
 
     validateProjectExist :: Validation (NonEmpty FormError) ()
@@ -230,9 +230,9 @@ formErrorMessages :: [FilePath] -> KitForm e -> [String]
 formErrorMessages dirs kitForm = validatedErrorMessages ++ ghcErrorMessage
   where
     validatedErrorMessages :: [String]
-    validatedErrorMessages = whenFailure []
-        (validateKit dirs $ formState kitForm)
-        (map showFormError . toList)
+    validatedErrorMessages = case validateKit dirs $ formState kitForm of
+        Success _ -> []
+        Failure errs -> map showFormError (toList errs)
 
     -- Hack because input field for GHC versions uses custom @editField@ with its own validation
     ghcErrorMessage :: [String]

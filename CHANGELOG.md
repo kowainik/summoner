@@ -13,8 +13,9 @@ The changelog is available [on GitHub][2].
   Support GHC-8.10.1 in the generated projects.
   Use GHC-8.10.1 by default in the generated projects.
   Use `nightly-2020-06-29` for stack resolver.
+  UPD: Use GHC-8.10.3 and `lts-17.0` instead.
 * [#445](https://github.com/kowainik/summoner/issues/445):
-  Add `-Wunused-packages` for GHC-8.10.1.
+  Add `-Wunused-packages` for GHC-8.10.
 * [#477](https://github.com/kowainik/summoner/issues/477):
   Remove `neat-interpolation` from dependencies.
   As a result, remove some trailing spaces from the generated files.
@@ -35,6 +36,9 @@ The changelog is available [on GitHub][2].
 * [#517](https://github.com/kowainik/summoner/issues/517):
   Switch to `main` initial branch when creating project.
 * Require `git >= 2.28` for `--initial-branch=main` option.
+* __#TUI__ Upgrade `brick` allowed version. Bump up lower
+  bound to `0.56` due to the new field `formFieldUpdate`
+  addition to the `FormFieldState` data type.
 
 ## 2.0.1.1 — May 29, 2020
 

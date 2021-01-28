@@ -22,7 +22,7 @@ cabalScript = unlines
     [ "#!/usr/bin/env cabal"
     , "{- cabal:"
     , "build-depends:"
-    , "  , base ^>= 4.14.0.0"
+    , "  , base ^>= 4.14.1.0"
     , "-}"
     , ""
     , "main :: IO ()"
@@ -33,7 +33,7 @@ stackScript :: Text
 stackScript = unlines
     [ "#!/usr/bin/env stack"
     , "{- stack"
-    , "  --resolver nightly-2020-10-23"
+    , "  --resolver lts-17.0"
     , "  script"
     , "  --package base"
     , "-}"

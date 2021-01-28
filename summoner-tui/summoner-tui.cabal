@@ -19,7 +19,7 @@ extra-doc-files:     README.md
 tested-with:         GHC == 8.4.4
                      GHC == 8.6.5
                      GHC == 8.8.4
-                     GHC == 8.10.2
+                     GHC == 8.10.3
 
 source-repository head
   type:     git
@@ -79,7 +79,7 @@ library
   autogen-modules:     Paths_summoner_tui
   other-modules:       Paths_summoner_tui
 
-  build-depends:       brick >= 0.47 && < 0.58
+  build-depends:       brick >= 0.56 && < 0.59
                      , colourista ^>= 0.1
                      , directory ^>= 1.3.0.2
                      , microlens ^>= 0.4
