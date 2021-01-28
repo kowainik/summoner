@@ -15,7 +15,7 @@ extra-doc-files:     README.md
 tested-with:         GHC == 8.10.3
 
 common common-options
-  build-depends:       base ^>= 4.14.0.0
+  build-depends:       base ^>= 4.14.1.0
 
   ghc-options:         -Wall
                        -Wcompat

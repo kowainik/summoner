@@ -19,5 +19,5 @@ goldenGhcTable =
     , "GHC-8.4.4     base-4.11.1.0   lts-12.26"
     , "GHC-8.6.5     base-4.12.0.0   lts-14.27"
     , "GHC-8.8.4     base-4.13.0.0   lts-16.17"
-    , "GHC-8.10.3    base-4.14.0.0   lts-17.0"
+    , "GHC-8.10.3    base-4.14.1.0   lts-17.0"
     ]

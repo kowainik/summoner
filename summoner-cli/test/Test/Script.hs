@@ -22,7 +22,7 @@ cabalScript = unlines
     [ "#!/usr/bin/env cabal"
     , "{- cabal:"
     , "build-depends:"
-    , "  , base ^>= 4.14.0.0"
+    , "  , base ^>= 4.14.1.0"
     , "-}"
     , ""
     , "main :: IO ()"
