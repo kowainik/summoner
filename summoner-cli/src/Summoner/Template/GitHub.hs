@@ -127,7 +127,7 @@ gitHubFiles Settings{..} = concat
         <> memptyIfFalse settingsStack ghActionsStack
 
     ghcActionsCheckoutVersion = "@v2.3.3"
-    ghcActionsSetupHaskellVersion = "@v1.1.3"
+    ghcActionsSetupHaskellVersion = "@v1"
     ghcActionsCacheVersion = "@v2.1.2"
 
     ghActionsCabal :: [Text]
@@ -149,7 +149,7 @@ gitHubFiles Settings{..} = concat
         , "    - uses: actions/checkout" <> ghcActionsCheckoutVersion
         , "      if: github.event.action == 'opened' || github.event.action == 'synchronize' || github.event.ref == 'refs/heads/main'"
         , ""
-        , "    - uses: actions/setup-haskell" <> ghcActionsSetupHaskellVersion
+        , "    - uses: haskell/actions/setup" <> ghcActionsSetupHaskellVersion
         , "      id: setup-haskell-cabal"
         , "      name: Setup Haskell"
         , "      with:"
@@ -193,7 +193,7 @@ gitHubFiles Settings{..} = concat
         , "    - uses: actions/checkout" <> ghcActionsCheckoutVersion
         , "      if: github.event.action == 'opened' || github.event.action == 'synchronize' || github.event.ref == 'refs/heads/main'"
         , ""
-        , "    - uses: actions/setup-haskell" <> ghcActionsSetupHaskellVersion
+        , "    - uses: haskell/actions/setup" <> ghcActionsSetupHaskellVersion
         , "      name: Setup Haskell Stack"
         , "      with:"
         , "        ghc-version: ${{ matrix.ghc }}"
