@@ -43,7 +43,6 @@ import Colourista (blue, bold, cyan, errorMessage, formatWith, formattedMessage,
                    warningMessage)
 import System.Directory (doesPathExist, getCurrentDirectory)
 import System.FilePath ((</>))
-import System.IO (hFlush)
 
 import Summoner.Text (headToUpper, intercalateMap)
 

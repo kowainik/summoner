@@ -32,7 +32,6 @@ import Brick.Widgets.Edit (editAttr, editFocusedAttr)
 import Brick.Widgets.List (listSelectedAttr, listSelectedFocusedAttr)
 import Colourista (errorMessage, infoMessage)
 import Lens.Micro ((.~), (^.))
-import Relude.Extra.Enum (universe)
 import System.Directory (doesDirectoryExist, doesFileExist, getCurrentDirectory, listDirectory)
 
 import Summoner.CLI (Command (..), NewOpts (..), ShowOpts (..), getCustomLicenseText,
@@ -127,7 +126,7 @@ appNew dirs = App
         then case ev of
             VtyEvent (V.EvKey V.KEnter []) -> halt $ changeShouldSummon Yes s
             VtyEvent (V.EvKey V.KEsc [])   -> withForm ev s (changeShouldSummon Nop)
-            _otherKey -> continue s
+            _otherKey                      -> continue s
         else case ev of
             VtyEvent V.EvResize {} -> continue s
             VtyEvent (V.EvKey V.KEnter [V.MMeta]) ->

@@ -27,12 +27,12 @@ source-repository head
 
 common common-options
   build-depends:       base >= 4.11 && < 4.15
-                     , relude ^>= 0.7.0.0
+                     , relude ^>= 1.0.0.0
 
   mixins:              base hiding (Prelude)
-                     , relude (Relude as Prelude
-                              , Relude.Extra.Enum
-                              )
+                     , relude (Relude as Prelude)
+                     , relude
+
   ghc-options:         -Wall
                        -Wcompat
                        -Widentities
@@ -85,7 +85,6 @@ library
                      , microlens ^>= 0.4
                      , microlens-th ^>= 0.4
                      , summoner ^>= 2.0.0.0
-                     , text ^>= 1.2.3.0
                      , validation-selective >= 0.0.0.0 && < 0.2
                      , vty >= 5.25 && < 5.32
 

@@ -21,7 +21,6 @@ module Summoner.Project
 import Colourista (bold, errorMessage, formattedMessage, green, infoMessage, skipMessage,
                    successMessage, warningMessage)
 import Data.List.NonEmpty ((<|))
-import Relude.Extra.Enum (universe, universeNonEmpty)
 import Shellmet (($?))
 import System.Directory (findExecutable, setCurrentDirectory)
 
