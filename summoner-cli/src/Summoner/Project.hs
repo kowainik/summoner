@@ -310,7 +310,7 @@ doGithubCommands Settings{..} = do
     -- Create repo on GitHub and return 'True' in case of sucsess
     runGh :: Text -> IO Bool
     runGh repo =
-        True <$ "gh" (["repo", "create", "-d", settingsDescription, repo]
+        True <$ "gh" (["repo", "create", "-y", "-d", settingsDescription, repo]
              ++ ["--private" | settingsPrivate])  -- Create private repository if asked so
              $? pure False
 
