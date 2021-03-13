@@ -317,4 +317,4 @@ doGithubCommands Settings{..} = do
     ghHelp :: Text -> IO ()
     ghHelp repo = do
         infoMessage "To finish the process manually you can run the following command:"
-        putTextLn $ "    $ gh repo create -d '" <> settingsDescription <> "' " <> repo <> memptyIfFalse settingsPrivate " --private"
+        putTextLn $ "    $ gh repo create -d '" <> settingsDescription <> "' " <> repo <> memptyIfFalse settingsPrivate " --private" <> memptyIfTrue settingsPrivate " --public"
