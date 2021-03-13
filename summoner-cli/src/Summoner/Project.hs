@@ -311,10 +311,13 @@ doGithubCommands Settings{..} = do
     runGh :: Text -> IO Bool
     runGh repo =
         True <$ "gh" (["repo", "create", "-y", "-d", settingsDescription, repo]
-             ++ ["--private" | settingsPrivate])  -- Create private repository if asked so
+             ++ [privateOrPublicFlag settingsPrivate])  -- Create private repository if asked so
              $? pure False
 
     ghHelp :: Text -> IO ()
     ghHelp repo = do
         infoMessage "To finish the process manually you can run the following command:"
-        putTextLn $ "    $ gh repo create -d '" <> settingsDescription <> "' " <> repo <> memptyIfFalse settingsPrivate " --private" <> memptyIfTrue settingsPrivate " --public"
+        putTextLn $ "    $ gh repo create -d '" <> settingsDescription <> "' " <> repo <> " " <> privateOrPublicFlag settingsPrivate
+    
+    privateOrPublicFlag :: Bool -> Text
+    privateOrPublicFlag sp = if sp then "--private" else "--public"
