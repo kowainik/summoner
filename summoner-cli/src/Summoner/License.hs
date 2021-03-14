@@ -24,7 +24,6 @@ module Summoner.License
 
 import Colourista (errorMessage)
 import Data.Aeson.Micro (FromJSON (..), decodeStrict, withObject, (.:))
-import Relude.Extra.Enum (inverseMap)
 import Shellmet (($|))
 
 import qualified Data.Text as T

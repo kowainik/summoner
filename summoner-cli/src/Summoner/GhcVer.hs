@@ -24,8 +24,6 @@ module Summoner.GhcVer
     , oldGhcs
     ) where
 
-import Relude.Extra.Enum (inverseMap, universe)
-
 import qualified Data.Text as T
 import qualified Text.Show as Show
 
@@ -106,8 +104,8 @@ baseVer = show . baseVerPvp
 -}
 cabalBaseVersions :: [GhcVer] -> Text
 cabalBaseVersions ghcVers = case sort ghcVers of
-    [] -> ""
-    [v] -> "^>= " <> baseVer v
+    []          -> ""
+    [v]         -> "^>= " <> baseVer v
     minGhc:x:xs -> ">= " <> baseVer minGhc <> " && < " <> upperBound (x :| xs)
   where
     upperBound :: NonEmpty GhcVer -> Text
