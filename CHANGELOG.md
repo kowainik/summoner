@@ -5,6 +5,10 @@ The changelog is available [on GitHub][2].
 
 ## Unreleased
 
+* [#540](https://github.com/kowainik/summoner/issues/540):
+  Build Summoner with GHC-9.0.
+* [#520](https://github.com/kowainik/summoner/issues/520):
+  Output the link to the GitHub project at the end of the process.
 * [#476](https://github.com/kowainik/summoner/issues/476):
   Switch from `aeson` to `microaeson`.
 * [#466](https://github.com/kowainik/summoner/issues/466):
