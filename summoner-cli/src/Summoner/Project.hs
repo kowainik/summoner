@@ -298,6 +298,8 @@ doGithubCommands Settings{..} = do
                 then do
                     "git" ["push", "-u", "origin", "main"]
                     "git" ["remote", "set-head", "origin", "-a"]
+                    successMessage "Project created:"
+                    infoMessage $ "    https://github.com/" <> repo
                 else do
                     warningMessage "Error running 'hub'. Possible reason: incorrect password."
                     hubHelp repo
