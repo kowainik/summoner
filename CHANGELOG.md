@@ -13,11 +13,13 @@ The changelog is available [on GitHub][2].
   Switch from `aeson` to `microaeson`.
 * [#466](https://github.com/kowainik/summoner/issues/466):
   Add ` --test-show-details=direct` to `cabal test` on CI.
-* [#444](https://github.com/kowainik/summoner/issues/444):
+* [#444](https://github.com/kowainik/summoner/issues/444)
+  [#547](https://github.com/kowainik/summoner/issues/547):
   Support GHC-8.10.1 in the generated projects.
   Use GHC-8.10.1 by default in the generated projects.
   Use `nightly-2020-06-29` for stack resolver.
   UPD: Use GHC-8.10.3 and `lts-17.0` instead.
+  UPD: Use GHC-8.10.7 and `lts-18.10` instead.
 * [#445](https://github.com/kowainik/summoner/issues/445):
   Add `-Wunused-packages` for GHC-8.10.
 * [#477](https://github.com/kowainik/summoner/issues/477):

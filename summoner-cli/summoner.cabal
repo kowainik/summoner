@@ -19,7 +19,7 @@ extra-doc-files:     README.md
 tested-with:         GHC == 8.4.4
                      GHC == 8.6.5
                      GHC == 8.8.4
-                     GHC == 8.10.3
+                     GHC == 8.10.7
                      GHC == 9.0.1
 extra-source-files:
     examples/summoner-default.toml
@@ -182,7 +182,7 @@ test-suite summoner-test
                      , hspec >= 2.4.8
                      , hspec-hedgehog ^>= 0.0.1.1
                      , tomland
-                     , tree-diff >= 0.0.2 && < 0.2
+                     , tree-diff >= 0.0.2 && < 0.3
                      , summoner
                      , validation-selective
 
