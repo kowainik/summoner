@@ -11,16 +11,16 @@ to work with them.
 -}
 
 module Summoner.License
-       ( LicenseName(..)
-       , License(..)
-       , customizeLicense
-       , githubLicenseQueryNames
-       , parseLicenseName
-       , fetchLicense
-       , fetchLicenseCustom
-       , licenseShortDesc
-       , showLicenseWithDesc
-       ) where
+    ( LicenseName (..)
+    , License (..)
+    , customizeLicense
+    , githubLicenseQueryNames
+    , parseLicenseName
+    , fetchLicense
+    , fetchLicenseCustom
+    , licenseShortDesc
+    , showLicenseWithDesc
+    ) where
 
 import Colourista (errorMessage)
 import Data.Aeson.Micro (FromJSON (..), decodeStrict, withObject, (.:))
