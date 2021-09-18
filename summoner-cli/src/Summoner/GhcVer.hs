@@ -87,7 +87,7 @@ baseVerPvp = \case
     Ghc844  -> Pvp 4 11 1 0
     Ghc865  -> Pvp 4 12 0 0
     Ghc884  -> Pvp 4 13 0 0
-    Ghc8107 -> Pvp 4 14 1 0
+    Ghc8107 -> Pvp 4 14 3 0
 
 -- | Returns corresponding @base@ version of the given GHC version.
 baseVer :: GhcVer -> Text
