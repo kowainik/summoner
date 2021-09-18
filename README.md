@@ -851,6 +851,14 @@ stack exec summon -- SOME_COMMAND
 stack exec summon-tui -- SOME_COMMAND
 ```
 
+### Generate golden tests
+
+To regenerate the content of all projects on disk, use the following command:
+
+```shell
+cabal run gg
+```
+
 ## Acknowledgments
 
 [[Back to the Table of Contents] ↑](#structure)
