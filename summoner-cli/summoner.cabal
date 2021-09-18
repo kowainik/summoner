@@ -165,10 +165,11 @@ executable summon
   build-depends:       summoner
 
 executable gg
-  import:              common-options, exe-options
+  import:              exe-options
   hs-source-dirs:      golden
   main-is:             Main.hs
-  build-depends:       summoner
+  build-depends:       base
+                     , summoner
 
 
 test-suite summoner-test
