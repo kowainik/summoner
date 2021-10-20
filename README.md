@@ -625,7 +625,7 @@ This command will generate a TOML configuration file with the default settings
 that can be used to scaffold future Haskell packages. It contains all
 options supported by Summoner with comments and examples. Though, all
 options would be turned off by default and to use them one will need
-to uncomment the correspoding lines.
+to uncomment the corresponding lines.
 See [the default content here](summoner-cli/test/golden/summoner-default.toml).
 
 Possible command usages:
