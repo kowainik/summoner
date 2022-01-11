@@ -40,7 +40,12 @@ import Summoner.Tree (TreeFs (..))
 gitHubFiles :: Settings -> [TreeFs]
 gitHubFiles Settings{..} = concat
     [ [File ".gitignore" (gitignoreDefault <> gitignoreCustom) | settingsGitHub]
-    , [Dir ".github" [ Dir "workflows" [ File "ci.yml" ghActionsYml ]] | settingsGhActions ]
+    , [ Dir ".github"
+          [ Dir "workflows" [ File "ci.yml" ghActionsYml ]
+          , File "dependabot.yml" dependabotYml
+          ]
+      | settingsGhActions
+      ]
     , [File ".travis.yml" travisYml    | settingsTravis]
     , [File "appveyor.yml" appVeyorYml | settingsAppVeyor]
     ]
@@ -247,6 +252,21 @@ gitHubFiles Settings{..} = concat
             xs ->
                 "        exclude:"
                 : map (indent 10 <>) xs
+
+    dependabotYml :: Text
+    dependabotYml = unlines
+        [ "updates:"
+        , "  - package-ecosystem: \"github-actions\""
+        , "    directory: \"/\""
+        , "    schedule:"
+        , "      interval: \"daily\""
+        , "    commit-message:"
+        , "      prefix: \"GA\""
+        , "      include: \"scope\""
+        , "    labels:"
+        , "      - \"CI\""
+        , "      - \"dependencies\""
+        ]
 
     -- create travis.yml template
     travisYml :: Text
