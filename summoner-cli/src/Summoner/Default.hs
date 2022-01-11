@@ -22,6 +22,11 @@ module Summoner.Default
        , defaultConfigFileContent
        , defaultDescription
        , currentYear
+
+         -- * GitHub Actions defaults
+       , ghcActionsCacheVersion
+       , ghcActionsCheckoutVersion
+       , ghcActionsSetupHaskellVersion
        ) where
 
 import Relude.Extra.Enum (prev)
@@ -67,6 +72,15 @@ defaultConfigFile = (</> defaultTomlFile) <$> getHomeDirectory
 
 defaultDescription :: Text
 defaultDescription = "See README for more info"
+
+ghcActionsCheckoutVersion :: Text
+ghcActionsCheckoutVersion = "@v2"
+
+ghcActionsSetupHaskellVersion :: Text
+ghcActionsSetupHaskellVersion = "@v1.2"
+
+ghcActionsCacheVersion :: Text
+ghcActionsCacheVersion = "@v2"
 
 currentYear :: IO Text
 currentYear = do

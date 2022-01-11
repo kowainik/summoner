@@ -29,7 +29,8 @@ module Summoner.Template.GitHub
 import Colourista (indent)
 import Data.List (delete, intersect)
 
-import Summoner.Default (defaultCabal, defaultGHC, defaultStack)
+import Summoner.Default (defaultCabal, defaultGHC, defaultStack, ghcActionsCacheVersion,
+                         ghcActionsCheckoutVersion, ghcActionsSetupHaskellVersion)
 import Summoner.GhcVer (GhcVer (..), oldGhcs, showGhcVer)
 import Summoner.Settings (Settings (..))
 import Summoner.Text (quote)
@@ -129,10 +130,6 @@ gitHubFiles Settings{..} = concat
         <> memptyIfFalse settingsCabal ghActionsCabal
         <> memptyIfFalse (settingsCabal && settingsStack) [""]
         <> memptyIfFalse settingsStack ghActionsStack
-
-    ghcActionsCheckoutVersion = "@v2"
-    ghcActionsSetupHaskellVersion = "@v1.2"
-    ghcActionsCacheVersion = "@v2"
 
     ghActionsCabal :: [Text]
     ghActionsCabal =
