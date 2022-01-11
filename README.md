@@ -235,7 +235,7 @@ To start using Summoner make sure that you have the following tools installed on
 
 We also have minimal version requirements for build tools:
 
-* [Cabal ⩾ 2.4](https://www.haskell.org/cabal/)
+* [Cabal ⩾ 3.0](https://www.haskell.org/cabal/)
 * [Stack ⩾ 2.1.3](http://haskellstack.org)
 
 However, it is always recommended to use the newest versions of build tools.
@@ -303,8 +303,8 @@ $ sudo apt install summoner-tui
 Using `cabal`:
 
 ```shell
-cabal v2-update
-cabal v2-install summoner-tui
+cabal update
+cabal install summoner-tui
 ```
 
 ##### TUI: from source
@@ -332,7 +332,7 @@ cd summoner
 Build and install using `cabal`:
 
 ```shell
-cabal v2-install summoner-tui:exe:summon-tui
+cabal install summoner-tui:exe:summon-tui
 ```
 
 Build and install using `stack`:
@@ -391,8 +391,8 @@ $ sudo apt install summoner-cli
 Using `cabal`:
 
 ```shell
-cabal v2-update
-cabal v2-install summoner
+cabal update
+cabal install summoner
 ```
 
 ##### CLI: from source
@@ -420,7 +420,7 @@ cd summoner
 Build and install using `cabal`:
 
 ```shell
-cabal v2-install summoner-cli:exe:summon
+cabal install summoner-cli:exe:summon
 ```
 
 Build and install using `stack`:
@@ -804,7 +804,7 @@ On Linux, to build the `summoner-tui` you'll need to have `libtinfo` installed. 
 To build the project you can use the following commands:
 
 ```shell=
-cabal v2-build all
+cabal build all
 ```
 
 for Cabal and
@@ -824,7 +824,7 @@ Summoner uses the golden tests technique for assuring the correctness of the gen
 To actually run tests you need to run:
 
 ```shell
-cabal v2-test all
+cabal test all
 ```
 
 or, if using Stack
@@ -840,8 +840,8 @@ stack test
 Building Summoner with the recommended method creates two executables: `summon` and `summon-tui`. To run the compiled executable you can use the following commands:
 
 ```shell
-cabal v2-exec summon -- SOME_COMMAND
-cabal v2-exec summon-tui -- SOME_COMMAND
+cabal exec summon -- SOME_COMMAND
+cabal exec summon-tui -- SOME_COMMAND
 ```
 
 or, if using Stack
