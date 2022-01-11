@@ -1,6 +1,6 @@
 {- |
 Module                  : Summoner.GhcVer
-Copyright               : (c) 2017-2021 Kowainik
+Copyright               : (c) 2017-2022 Kowainik
 SPDX-License-Identifier : MPL-2.0
 Maintainer              : Kowainik <xrom.xkov@gmail.com>
 Stability               : Stable
@@ -36,6 +36,7 @@ data GhcVer
     | Ghc865
     | Ghc884
     | Ghc8107
+    | Ghc902
     deriving stock (Eq, Ord, Show, Enum, Bounded)
 
 -- | Converts 'GhcVer' into dot-separated string.
@@ -47,6 +48,7 @@ showGhcVer = \case
     Ghc865  -> "8.6.5"
     Ghc884  -> "8.8.4"
     Ghc8107 -> "8.10.7"
+    Ghc902  -> "9.0.2"
 
 {- | These are old GHC versions that are not working with default GHC versions
 when using Stack.
@@ -66,6 +68,7 @@ latestLts = \case
     Ghc865  -> "lts-14.27"
     Ghc884  -> "lts-16.31"
     Ghc8107 -> "lts-18.10"
+    Ghc902  -> "nightly-2022-01-10"
 
 -- | Represents PVP versioning (4 numbers).
 data Pvp = Pvp
@@ -88,6 +91,7 @@ baseVerPvp = \case
     Ghc865  -> Pvp 4 12 0 0
     Ghc884  -> Pvp 4 13 0 0
     Ghc8107 -> Pvp 4 14 3 0
+    Ghc902  -> Pvp 4 15 1 0
 
 -- | Returns corresponding @base@ version of the given GHC version.
 baseVer :: GhcVer -> Text

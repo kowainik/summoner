@@ -1,6 +1,6 @@
 {- |
 Module                  : Summoner.Tui.Form
-Copyright               : (c) 2018-2021 Kowainik
+Copyright               : (c) 2018-2022 Kowainik
 SPDX-License-Identifier : MPL-2.0
 Maintainer              : Kowainik <xrom.xkov@gmail.com>
 Stability               : Stable

@@ -1,6 +1,6 @@
 {- |
 Module                  : Summoner.Golden
-Copyright               : (c) 2021 Kowainik
+Copyright               : (c) 2021-2022 Kowainik
 SPDX-License-Identifier : MPL-2.0
 Maintainer              : Kowainik <xrom.xkov@gmail.com>
 Stability               : Stable
@@ -89,7 +89,7 @@ cabalMinimal = Settings
     , settingsDescription    = "Minimal cabal-only test project"
     , settingsFullName       = "Kowainik"
     , settingsEmail          = "xrom.xkov@gmail.com"
-    , settingsYear           = "2021"
+    , settingsYear           = "2022"
     , settingsCategories     = ""
     , settingsLicenseName    = NONE
     , settingsLicenseText    = ""
@@ -120,7 +120,7 @@ cabalFull = Settings
     , settingsDescription    = "Cabal-only example with all integrations"
     , settingsFullName       = "Kowainik"
     , settingsEmail          = "xrom.xkov@gmail.com"
-    , settingsYear           = "2021"
+    , settingsYear           = "2022"
     , settingsCategories     = "Testing"
     , settingsLicenseName    = BSD3
     , settingsLicenseText    = bsd3License
@@ -151,7 +151,7 @@ stackFull = Settings
     , settingsDescription    = "Stack-only example with all integrations"
     , settingsFullName       = "Kowainik"
     , settingsEmail          = "xrom.xkov@gmail.com"
-    , settingsYear           = "2021"
+    , settingsYear           = "2022"
     , settingsCategories     = "Testing"
     , settingsLicenseName    = BSD3
     , settingsLicenseText    = bsd3License
@@ -182,7 +182,7 @@ fullBatteries = Settings
     , settingsDescription    = "Full-featured test project"
     , settingsFullName       = "Kowainik"
     , settingsEmail          = "xrom.xkov@gmail.com"
-    , settingsYear           = "2021"
+    , settingsYear           = "2022"
     , settingsCategories     = "Testing"
     , settingsLicenseName    = MIT
     , settingsLicenseText    = mitLicense
@@ -215,7 +215,7 @@ fullBatteries = Settings
     mitLicense = License  $ unlines
         [ "MIT License"
         , ""
-        , "Copyright (c) 2021 Kowainik"
+        , "Copyright (c) 2022 Kowainik"
         , ""
         , "Permission is hereby granted, free of charge, to any person obtaining a copy"
         , "of this software and associated documentation files (the " <> quote "Software" <> "), to deal"
@@ -240,7 +240,7 @@ bsd3License :: License
 bsd3License = License $ unlines
     [ "BSD 3-Clause License"
     , ""
-    , "Copyright (c) 2021, Kowainik"
+    , "Copyright (c) 2022, Kowainik"
     , "All rights reserved."
     , ""
     , "Redistribution and use in source and binary forms, with or without"

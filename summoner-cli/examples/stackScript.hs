@@ -1,6 +1,6 @@
 #!/usr/bin/env stack
 {- stack
-  --resolver lts-18.10
+  --resolver nightly-2022-01-10
   script
   --package base
 -}

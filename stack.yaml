@@ -1,4 +1,4 @@
-resolver: lts-18.10
+resolver: nightly-2022-01-10
 
 packages:
   - summoner-cli/
