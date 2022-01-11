@@ -5,6 +5,8 @@ The changelog is available [on GitHub][2].
 
 ## Unreleased
 
+* [#539](https://github.com/kowainik/summoner/issues/539):
+  Use GHC-9.0 as default version for generated projects.
 * [#540](https://github.com/kowainik/summoner/issues/540):
   Build Summoner with GHC-9.0.
 * [#520](https://github.com/kowainik/summoner/issues/520):

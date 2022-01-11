@@ -11,7 +11,7 @@ license:             BSD-3-Clause
 license-file:        LICENSE
 author:              Kowainik
 maintainer:          Kowainik <xrom.xkov@gmail.com>
-copyright:           2021 Kowainik
+copyright:           2022 Kowainik
 category:            Testing
 build-type:          Simple
 extra-doc-files:     README.md
@@ -20,13 +20,14 @@ tested-with:         GHC == 8.4.4
                      GHC == 8.6.5
                      GHC == 8.8.4
                      GHC == 8.10.7
+                     GHC == 9.0.2
 
 source-repository head
   type:                git
   location:            https://github.com/kowainik/stack-full.git
 
 common common-options
-  build-depends:       base >= 4.11.1.0 && < 4.15
+  build-depends:       base >= 4.11.1.0 && < 4.16
                      , relude
 
   mixins:              base hiding (Prelude)
