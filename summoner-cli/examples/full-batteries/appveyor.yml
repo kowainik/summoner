@@ -25,16 +25,16 @@ environment:
 
 install:
   - choco source add -n mistuke -s https://www.myget.org/F/mistuke/api/v2
-  - choco install -y cabal --version 2.4.1.0
+  - choco install -y cabal --version 3.6.2.0
   - choco install -y ghc   --version 8.10.7
   - refreshenv
 
 before_build:
   - cabal --version
   - ghc   --version
-  - cabal %CABOPTS% v2-update
+  - cabal %CABOPTS% update
 
 build_script:
-  - cabal %CABOPTS% v2-configure --enable-tests --enable-benchmarks --test-show-details=direct
-  - cabal %CABOPTS% v2-build all
-  - cabal %CABOPTS% v2-test  all
+  - cabal %CABOPTS% configure --enable-tests --enable-benchmarks --enable-documentation --test-show-details=direct --write-ghc-environment-files=always
+  - cabal %CABOPTS% build all
+  - cabal %CABOPTS% test  all

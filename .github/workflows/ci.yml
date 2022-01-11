@@ -9,7 +9,6 @@ on:
     # additionally run once per week (At 00:00 on Sunday) to maintain cache
     - cron: '0 0 * * 0'
 
-
 jobs:
   cabal:
     name: ${{ matrix.os }} / ghc ${{ matrix.ghc }}
@@ -17,7 +16,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, macOS-latest, windows-latest]
-        cabal: ["3.4"]
+        cabal: ["3.6"]
         ghc:
           - "8.4.4"
           - "8.6.5"
@@ -46,7 +45,7 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
-    - uses: haskell/actions/setup@v1
+    - uses: haskell/actions/setup@v1.2
       id: setup-haskell-cabal
       name: Setup Haskell
       with:
@@ -61,7 +60,7 @@ jobs:
       run: |
         cabal freeze
 
-    - uses: actions/cache@v2.1.4
+    - uses: actions/cache@v2
       name: Cache ~/.cabal/store
       with:
         path: ${{ steps.setup-haskell-cabal.outputs.cabal-store }}
@@ -77,7 +76,7 @@ jobs:
 
     - name: Unit and property tests
       run: |
-        cabal test all --enable-tests --test-show-details=direct
+        cabal test all
 
     - if: matrix.ghc == '8.10.7'
       name: Build 'cabal-minimal'
@@ -112,7 +111,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        stack: ["2.5"]
+        stack: ["2.7.3"]
         ghc: ["8.10.7"]
 
     steps:

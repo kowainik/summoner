@@ -41,11 +41,11 @@ defaultGHC = maxBound
 
 -- | Default version of the Cabal.
 defaultCabal :: Text
-defaultCabal = "2.4"
+defaultCabal = "3.0"
 
 -- | Default version of the Stack.
 defaultStack :: Text
-defaultStack = "2.5.1"
+defaultStack = "2.7.3"
 
 defaultLicenseName :: LicenseName
 defaultLicenseName = MIT
