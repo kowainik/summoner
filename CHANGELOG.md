@@ -42,8 +42,10 @@ The changelog is available [on GitHub][2].
 * [#517](https://github.com/kowainik/summoner/issues/517):
   Switch to `main` initial branch when creating project.
 * Require `git >= 2.28` for `--initial-branch=main` option.
-* [#491](https://github.com/kowainik/summoner/issues/491):
+* [#340](https://github.com/kowainik/summoner/issues/340):
   Use `cabal` version `3.0`.
+* [#495](https://github.com/kowainik/summoner/issues/495):
+  Generate `dependabot.yml` to update GitHub Actions automatically.
 * __#TUI__ Upgrade `brick` allowed version. Bump up lower
   bound to `0.56` due to the new field `formFieldUpdate`
   addition to the `FormFieldState` data type.
