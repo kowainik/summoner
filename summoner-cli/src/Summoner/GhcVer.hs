@@ -67,7 +67,7 @@ latestLts = \case
     Ghc844  -> "lts-12.26"
     Ghc865  -> "lts-14.27"
     Ghc884  -> "lts-16.31"
-    Ghc8107 -> "lts-18.10"
+    Ghc8107 -> "lts-18.21"
     Ghc902  -> "nightly-2022-01-10"
 
 -- | Represents PVP versioning (4 numbers).
