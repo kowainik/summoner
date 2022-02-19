@@ -121,7 +121,7 @@ activeCheckboxField stLens isActive name label initialState = FormFieldState
         }
 
 -- | Renders checkbox depending on its state.
-renderCheckbox :: Bool -> String -> n -> Bool -> Bool -> Widget n
+renderCheckbox :: (Ord n) => Bool -> String -> n -> Bool -> Bool -> Widget n
 renderCheckbox isEnabled label n foc val =
     let addAttr = if foc then withDefAttr focusedFormInputAttr else id
         csr = if foc then showCursor n (Location (1,0)) else id
