@@ -1,4 +1,4 @@
-resolver: nightly-2022-01-10
+resolver: nightly-2022-02-18
 
 packages:
   - summoner-cli/
@@ -9,3 +9,5 @@ extra-deps:
   - megaparsec-9.0.1
   - microaeson-0.1.0.0
   - tomland-1.3.3.0
+  - validation-selective-0.1.0.1
+  - selective-0.4.2

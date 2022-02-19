@@ -3,8 +3,3 @@ packages:
     summoner-tui/
 
 tests: true
-
-source-repository-package
-    type: git
-    location: https://github.com/kowainik/microaeson.git
-    tag: 0630d4d8c6d912180b35795dc462f8ea75affa99
