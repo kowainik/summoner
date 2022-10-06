@@ -5,6 +5,10 @@ The changelog is available [on GitHub][2].
 
 ## Unreleased
 
+* [#564](https://github.com/kowainik/summoner/issues/564):
+  Upgrade `brick` to version `>=1.0`.
+* [#565](https://github.com/kowainik/summoner/issues/565):
+  Build Summoner with GHC-9.2.
 * [#539](https://github.com/kowainik/summoner/issues/539):
   Use GHC-9.0 as default version for generated projects.
 * [#540](https://github.com/kowainik/summoner/issues/540):

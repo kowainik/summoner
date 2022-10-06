@@ -20,8 +20,8 @@ module Summoner.Tui.Field
        , disabledAttr
        ) where
 
-import Brick (BrickEvent (..), EventM, Location (..), Widget, clickable, showCursor, str, vBox,
-              withAttr, withDefAttr, (<+>))
+import Brick (BrickEvent (..), EventM, Location (..), Widget, attrName, clickable, showCursor, str,
+              vBox, withAttr, withDefAttr, (<+>))
 import Brick.AttrMap (AttrName)
 import Brick.Forms (FormField (..), FormFieldState (..), checkboxCustomField, focusedFormInputAttr,
                     radioCustomField)
@@ -105,11 +105,11 @@ activeCheckboxField stLens isActive name label initialState = FormFieldState
     initVal   = initialState ^. stLens
     isEnabled = isActive initialState name
 
-    handleEvent :: BrickEvent n e -> Bool -> EventM n Bool
+    handleEvent :: BrickEvent n e -> EventM n Bool ()
     handleEvent (MouseDown n _ _ _)
-        | isEnabled && n == name = pure . not
-    handleEvent (VtyEvent (V.EvKey (V.KChar ' ') [])) = pure . not
-    handleEvent _ = pure
+        | isEnabled && n == name = get >>= put . not
+    handleEvent (VtyEvent (V.EvKey (V.KChar ' ') [])) = get >>= put . not
+    handleEvent _ = pass
 
     checkboxFormField :: FormField Bool Bool e n
     checkboxFormField = FormField
@@ -132,4 +132,4 @@ renderCheckbox isEnabled label n foc val =
 
 -- | Attribute for disabled checkboxes.
 disabledAttr :: AttrName
-disabledAttr = "disabled"
+disabledAttr = attrName "disabled"

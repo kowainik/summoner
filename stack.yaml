@@ -1,13 +1,17 @@
-resolver: nightly-2022-02-18
+resolver: lts-19.25
 
 packages:
   - summoner-cli/
   - summoner-tui/
 
 extra-deps:
-  - colourista-0.1.0.1
+  - brick-1.3
+  - bimap-0.5.0 # for brick
+  - text-zipper-0.12 # for brick
+  - colourista-0.1.0.2
   - megaparsec-9.0.1
   - microaeson-0.1.0.0
-  - tomland-1.3.3.0
+  - tomland-1.3.3.2
   - validation-selective-0.1.0.1
+  - vty-5.37
   - selective-0.4.2
