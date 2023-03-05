@@ -3,8 +3,6 @@
 ![wizard](https://user-images.githubusercontent.com/8126674/44388234-320aac00-a55a-11e8-879d-5dca68512031.png)
 
 [![GitHub CI](https://github.com/kowainik/summoner/workflows/CI/badge.svg)](https://github.com/kowainik/summoner/actions)
-[![Build](https://img.shields.io/travis/kowainik/summoner.svg?logo=travis)](http://travis-ci.org/kowainik/summoner)
-[![Windows build](https://ci.appveyor.com/api/projects/status/github/kowainik/summoner?branch=main&svg=true)](https://ci.appveyor.com/project/kowainik/summoner)
 
 [![Hackage](https://img.shields.io/hackage/v/summoner.svg?logo=haskell)](https://hackage.haskell.org/package/summoner)
 [![Stackage Lts](http://stackage.org/package/summoner/badge/lts)](http://stackage.org/lts/package/summoner)
@@ -237,7 +235,7 @@ To start using Summoner make sure that you have the following tools installed on
 
 We also have minimal version requirements for build tools:
 
-* [Cabal ⩾ 2.4](https://www.haskell.org/cabal/)
+* [Cabal ⩾ 3.0](https://www.haskell.org/cabal/)
 * [Stack ⩾ 2.1.3](http://haskellstack.org)
 
 However, it is always recommended to use the newest versions of build tools.
@@ -305,8 +303,8 @@ $ sudo apt install summoner-tui
 Using `cabal`:
 
 ```shell
-cabal v2-update
-cabal v2-install summoner-tui
+cabal update
+cabal install summoner-tui
 ```
 
 ##### TUI: from source
@@ -334,7 +332,7 @@ cd summoner
 Build and install using `cabal`:
 
 ```shell
-cabal v2-install summoner-tui:exe:summon-tui
+cabal install summoner-tui:exe:summon-tui
 ```
 
 Build and install using `stack`:
@@ -393,8 +391,8 @@ $ sudo apt install summoner-cli
 Using `cabal`:
 
 ```shell
-cabal v2-update
-cabal v2-install summoner
+cabal update
+cabal install summoner
 ```
 
 ##### CLI: from source
@@ -422,7 +420,7 @@ cd summoner
 Build and install using `cabal`:
 
 ```shell
-cabal v2-install summoner-cli:exe:summon
+cabal install summoner-cli:exe:summon
 ```
 
 Build and install using `stack`:
@@ -472,7 +470,7 @@ Here is the list of the options that can be configured to suit your needs. If op
 | `fullName`       | Text    | Full name.                                                                                                                                                           |
 | `email`          | Text    | E-mail address.                                                                                                                                                      |
 | `license`        | License | One of: `MIT`, `BSD2`, `BSD3`, `GPL-2`, `GPL-3`, `LGPL-2.1`, `LGPL-3`, `AGPL-3`, `Apache-2.0`, `MPL-2.0`, `None`.                                                    |
-| `ghcVersions`    | [GHC]   | `summoner` uses default `GHC-8.10.1`. However, additionally you can specify other versions. For each version `x.y.z` the `stack-x.y.z.yaml` will be created. Use `summon show ghc` to see all supported GHC versions. |
+| `ghcVersions`    | [GHC]   | `summoner` uses default `GHC-9.0.2`. However, additionally you can specify other versions. For each version `x.y.z` the `stack-x.y.z.yaml` will be created. Use `summon show ghc` to see all supported GHC versions. |
 | `github`         | Bool    | Turn on `GitHub` integration by default?                                                                                                                             |
 | `gitignore`      | [Text]  | List of files you want added to the default `.gitignore`. (Ignored if `github = false`)                                                                              |
 | `noUpload`       | Bool    | Do not upload to GitHub, but create all GitHub related files if specified (Ignored if `github = false`)                                                              |
@@ -627,7 +625,7 @@ This command will generate a TOML configuration file with the default settings
 that can be used to scaffold future Haskell packages. It contains all
 options supported by Summoner with comments and examples. Though, all
 options would be turned off by default and to use them one will need
-to uncomment the correspoding lines.
+to uncomment the corresponding lines.
 See [the default content here](summoner-cli/test/golden/summoner-default.toml).
 
 Possible command usages:
@@ -806,7 +804,7 @@ On Linux, to build the `summoner-tui` you'll need to have `libtinfo` installed. 
 To build the project you can use the following commands:
 
 ```shell=
-cabal v2-build all
+cabal build all
 ```
 
 for Cabal and
@@ -826,7 +824,7 @@ Summoner uses the golden tests technique for assuring the correctness of the gen
 To actually run tests you need to run:
 
 ```shell
-cabal v2-test all
+cabal test all
 ```
 
 or, if using Stack
@@ -842,8 +840,8 @@ stack test
 Building Summoner with the recommended method creates two executables: `summon` and `summon-tui`. To run the compiled executable you can use the following commands:
 
 ```shell
-cabal v2-exec summon -- SOME_COMMAND
-cabal v2-exec summon-tui -- SOME_COMMAND
+cabal exec summon -- SOME_COMMAND
+cabal exec summon-tui -- SOME_COMMAND
 ```
 
 or, if using Stack
@@ -851,6 +849,14 @@ or, if using Stack
 ```shell
 stack exec summon -- SOME_COMMAND
 stack exec summon-tui -- SOME_COMMAND
+```
+
+### Generate golden tests
+
+To regenerate the content of all projects on disk, use the following command:
+
+```shell
+cabal run gg
 ```
 
 ## Acknowledgments

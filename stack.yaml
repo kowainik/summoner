@@ -1,15 +1,15 @@
-resolver: lts-15.5
+resolver: lts-19.31
 
 packages:
   - summoner-cli/
   - summoner-tui/
 
 extra-deps:
-  - colourista-0.1.0.0
-  - generic-data-0.8.0.0
-  - hspec-hedgehog-0.0.1.1
-  - relude-0.7.0.0
-  - tomland-1.3.0.0
-  - validation-selective-0.1.0.0
-  - microaeson-0.1.0.0
-  - optparse-applicative-0.16.0.0
+  - brick-1.3
+  - bimap-0.5.0 # for brick
+  - text-zipper-0.12 # for brick
+  - colourista-0.1.0.2
+  - tomland-1.3.3.2
+  - validation-selective-0.1.0.1
+  - vty-5.37
+  - selective-0.4.2

@@ -4,7 +4,7 @@
 
 {- |
 Module                  : Summoner.Question
-Copyright               : (c) 2017-2021 Kowainik
+Copyright               : (c) 2017-2022 Kowainik
 SPDX-License-Identifier : MPL-2.0
 Maintainer              : Kowainik <xrom.xkov@gmail.com>
 Stability               : Stable
@@ -43,7 +43,6 @@ import Colourista (blue, bold, cyan, errorMessage, formatWith, formattedMessage,
                    warningMessage)
 import System.Directory (doesPathExist, getCurrentDirectory)
 import System.FilePath ((</>))
-import System.IO (hFlush)
 
 import Summoner.Text (headToUpper, intercalateMap)
 

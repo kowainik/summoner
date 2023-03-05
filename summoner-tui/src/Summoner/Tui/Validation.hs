@@ -2,7 +2,7 @@
 
 {- |
 Module                  : Summoner.Tui.Validation
-Copyright               : (c) 2018-2021 Kowainik
+Copyright               : (c) 2018-2022 Kowainik
 SPDX-License-Identifier : MPL-2.0
 Maintainer              : Kowainik <xrom.xkov@gmail.com>
 Stability               : Stable
@@ -21,7 +21,6 @@ module Summoner.Tui.Validation
 
 import Brick.Forms (formState, invalidFields, setFieldValid, setFormFocus)
 import Lens.Micro (Lens', (%~), (.~), (^.))
-import Relude.Extra.Enum (universe)
 import Validation (Validation (..), failureIf)
 
 import Summoner.Text (moduleNameValid, packageNameValid, packageToModule)
@@ -231,7 +230,7 @@ formErrorMessages dirs kitForm = validatedErrorMessages ++ ghcErrorMessage
   where
     validatedErrorMessages :: [String]
     validatedErrorMessages = case validateKit dirs $ formState kitForm of
-        Success _ -> []
+        Success _    -> []
         Failure errs -> map showFormError (toList errs)
 
     -- Hack because input field for GHC versions uses custom @editField@ with its own validation

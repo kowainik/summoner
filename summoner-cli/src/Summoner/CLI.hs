@@ -4,7 +4,7 @@
 
 {- |
 Module                  : Summoner.CLI
-Copyright               : (c) 2017-2021 Kowainik
+Copyright               : (c) 2017-2022 Kowainik
 SPDX-License-Identifier : MPL-2.0
 Maintainer              : Kowainik <xrom.xkov@gmail.com>
 Stability               : Stable
@@ -42,7 +42,6 @@ import Options.Applicative (Parser, ParserInfo, ParserPrefs, argument, command, 
                             progDesc, short, showDefault, showHelpOnEmpty, strArgument, strOption,
                             subparser, subparserInline, switch, value)
 import Options.Applicative.Help.Chunk (stringChunk)
-import Relude.Extra.Enum (universe)
 import System.Directory (doesFileExist)
 import System.Info (os)
 import Validation (Validation (..))
@@ -84,10 +83,10 @@ summonCli = summon Meta.version runCliCommand
 -- | Run 'summoner' with @CLI@ command
 runCliCommand :: Command -> IO ()
 runCliCommand = \case
-    New opts -> runNew opts
-    Script opts -> runScript opts
+    New opts      -> runNew opts
+    Script opts   -> runScript opts
     ShowInfo opts -> runShow opts
-    Config opts -> runConfig opts
+    Config opts   -> runConfig opts
 
 
 {- | Runs @config@ command

@@ -1,6 +1,6 @@
 {- |
 Module                  : Summoner.Default
-Copyright               : (c) 2017-2021 Kowainik
+Copyright               : (c) 2017-2022 Kowainik
 SPDX-License-Identifier : MPL-2.0
 Maintainer              : Kowainik <xrom.xkov@gmail.com>
 Stability               : Stable
@@ -22,6 +22,11 @@ module Summoner.Default
        , defaultConfigFileContent
        , defaultDescription
        , currentYear
+
+         -- * GitHub Actions defaults
+       , ghcActionsCacheVersion
+       , ghcActionsCheckoutVersion
+       , ghcActionsSetupHaskellVersion
        ) where
 
 import Relude.Extra.Enum (prev)
@@ -41,11 +46,11 @@ defaultGHC = maxBound
 
 -- | Default version of the Cabal.
 defaultCabal :: Text
-defaultCabal = "2.4"
+defaultCabal = "3.0"
 
 -- | Default version of the Stack.
 defaultStack :: Text
-defaultStack = "2.5.1"
+defaultStack = "2.7.3"
 
 defaultLicenseName :: LicenseName
 defaultLicenseName = MIT
@@ -67,6 +72,15 @@ defaultConfigFile = (</> defaultTomlFile) <$> getHomeDirectory
 
 defaultDescription :: Text
 defaultDescription = "See README for more info"
+
+ghcActionsCheckoutVersion :: Text
+ghcActionsCheckoutVersion = "@v2"
+
+ghcActionsSetupHaskellVersion :: Text
+ghcActionsSetupHaskellVersion = "@v1.2"
+
+ghcActionsCacheVersion :: Text
+ghcActionsCacheVersion = "@v2"
 
 currentYear :: IO Text
 currentYear = do

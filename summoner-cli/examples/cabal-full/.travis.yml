@@ -3,7 +3,7 @@ language: haskell
 git:
   depth: 5
 
-cabal: "2.4"
+cabal: "3.0"
 
 cache:
   directories:
@@ -14,18 +14,19 @@ jobs:
   - ghc: 8.4.4
   - ghc: 8.6.5
   - ghc: 8.8.4
-  - ghc: 8.10.3
+  - ghc: 8.10.7
+  - ghc: 9.0.2
 
 install:
   # HLint check
   - curl -sSL https://raw.github.com/ndmitchell/neil/master/misc/travis.sh | sh -s -- hlint .
 
-  - cabal v2-update
-  - cabal v2-configure --enable-tests --enable-benchmarks --test-show-details=direct
-  - cabal v2-build all
+  - cabal update
+  - cabal configure --enable-tests --enable-benchmarks --enable-documentation --test-show-details=direct --write-ghc-environment-files=always
+  - cabal build all
 
 script:
-  - cabal v2-test all
+  - cabal test all
 
 notifications:
   email: false

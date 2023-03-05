@@ -1,6 +1,6 @@
 {- |
 Module                  : Summoner.Project
-Copyright               : (c) 2017-2021 Kowainik
+Copyright               : (c) 2017-2022 Kowainik
 SPDX-License-Identifier : MPL-2.0
 Maintainer              : Kowainik <xrom.xkov@gmail.com>
 Stability               : Stable
@@ -21,7 +21,6 @@ module Summoner.Project
 import Colourista (bold, errorMessage, formattedMessage, green, infoMessage, skipMessage,
                    successMessage, warningMessage)
 import Data.List.NonEmpty ((<|))
-import Relude.Extra.Enum (universe, universeNonEmpty)
 import Shellmet (($?))
 import System.Directory (findExecutable, setCurrentDirectory)
 
@@ -299,6 +298,8 @@ doGithubCommands Settings{..} = do
                 then do
                     "git" ["push", "-u", "origin", "main"]
                     "git" ["remote", "set-head", "origin", "-a"]
+                    successMessage "Project created:"
+                    infoMessage $ "    https://github.com/" <> repo
                 else do
                     warningMessage "Error running 'gh'. Possible reason: incorrect password."
                     ghHelp repo

@@ -2,7 +2,7 @@
 
 {- |
 Module                  : Summoner.Template.GitHub
-Copyright               : (c) 2017-2021 Kowainik
+Copyright               : (c) 2017-2022 Kowainik
 SPDX-License-Identifier : MPL-2.0
 Maintainer              : Kowainik <xrom.xkov@gmail.com>
 Stability               : Stable
@@ -29,7 +29,8 @@ module Summoner.Template.GitHub
 import Colourista (indent)
 import Data.List (delete, intersect)
 
-import Summoner.Default (defaultCabal, defaultGHC, defaultStack)
+import Summoner.Default (defaultCabal, defaultGHC, defaultStack, ghcActionsCacheVersion,
+                         ghcActionsCheckoutVersion, ghcActionsSetupHaskellVersion)
 import Summoner.GhcVer (GhcVer (..), oldGhcs, showGhcVer)
 import Summoner.Settings (Settings (..))
 import Summoner.Text (quote)
@@ -39,7 +40,12 @@ import Summoner.Tree (TreeFs (..))
 gitHubFiles :: Settings -> [TreeFs]
 gitHubFiles Settings{..} = concat
     [ [File ".gitignore" (gitignoreDefault <> gitignoreCustom) | settingsGitHub]
-    , [Dir ".github" [ Dir "workflows" [ File "ci.yml" ghActionsYml ]] | settingsGhActions ]
+    , [ Dir ".github"
+          [ Dir "workflows" [ File "ci.yml" ghActionsYml ]
+          , File "dependabot.yml" dependabotYml
+          ]
+      | settingsGhActions
+      ]
     , [File ".travis.yml" travisYml    | settingsTravis]
     , [File "appveyor.yml" appVeyorYml | settingsAppVeyor]
     ]
@@ -114,21 +120,21 @@ gitHubFiles Settings{..} = concat
     ghActionsYml = unlines $
         [ "name: CI"
         , ""
-        , "# Trigger the workflow on push or pull request, but only for the main branch"
         , "on:"
         , "  pull_request:"
+        , "    types: [synchronize, opened, reopened]"
         , "  push:"
         , "    branches: [main]"
+        , "  schedule:"
+        , "    # additionally run once per week (At 00:00 on Sunday) to maintain cache"
+        , "    - cron: '0 0 * * 0'"
         , ""
         , "jobs:"
+
         ]
         <> memptyIfFalse settingsCabal ghActionsCabal
         <> memptyIfFalse (settingsCabal && settingsStack) [""]
         <> memptyIfFalse settingsStack ghActionsStack
-
-    ghcActionsCheckoutVersion = "@v2.3.3"
-    ghcActionsSetupHaskellVersion = "@v1"
-    ghcActionsCacheVersion = "@v2.1.2"
 
     ghActionsCabal :: [Text]
     ghActionsCabal =
@@ -147,7 +153,6 @@ gitHubFiles Settings{..} = concat
         [ ""
         , "    steps:"
         , "    - uses: actions/checkout" <> ghcActionsCheckoutVersion
-        , "      if: github.event.action == 'opened' || github.event.action == 'synchronize' || github.event.ref == 'refs/heads/main'"
         , ""
         , "    - uses: haskell/actions/setup" <> ghcActionsSetupHaskellVersion
         , "      id: setup-haskell-cabal"
@@ -156,9 +161,13 @@ gitHubFiles Settings{..} = concat
         , "        ghc-version: ${{ matrix.ghc }}"
         , "        cabal-version: ${{ matrix.cabal }}"
         , ""
+        , "    - name: Configure"
+        , "      run: |"
+        , "        " <> cabalConfigure
+        , ""
         , "    - name: Freeze"
         , "      run: |"
-        , "        cabal v2-freeze"
+        , "        cabal freeze"
         , ""
         , "    - uses: actions/cache" <> ghcActionsCacheVersion
         , "      name: Cache ~/.cabal/store"
@@ -166,14 +175,22 @@ gitHubFiles Settings{..} = concat
         , "        path: ${{ steps.setup-haskell-cabal.outputs.cabal-store }}"
         , "        key: ${{ runner.os }}-${{ matrix.ghc }}-${{ hashFiles('cabal.project.freeze') }}"
         , ""
+        , "    - name: Install dependencies"
+        , "      run: |"
+        , "        " <> cabalBuild <> " --only-dependencies"
+        , ""
         , "    - name: Build"
         , "      run: |"
-        , "        " <> cabalConfigure
         , "        " <> cabalBuild
         , ""
         , "    - name: Test"
         , "      run: |"
         , "        " <> cabalTest
+        , ""
+        , "    - name: Documentation"
+        , "      run: |"
+        , "        " <> cabalDocumentation
+        , ""
         ]
 
     ghActionsStack :: [Text]
@@ -235,6 +252,21 @@ gitHubFiles Settings{..} = concat
             xs ->
                 "        exclude:"
                 : map (indent 10 <>) xs
+
+    dependabotYml :: Text
+    dependabotYml = unlines
+        [ "updates:"
+        , "  - package-ecosystem: \"github-actions\""
+        , "    directory: \"/\""
+        , "    schedule:"
+        , "      interval: \"daily\""
+        , "    commit-message:"
+        , "      prefix: \"GA\""
+        , "      include: \"scope\""
+        , "    labels:"
+        , "      - \"CI\""
+        , "      - \"dependencies\""
+        ]
 
     -- create travis.yml template
     travisYml :: Text
@@ -366,18 +398,19 @@ gitHubFiles Settings{..} = concat
         ]
 
     cabalUpdate :: Text
-    cabalUpdate = "cabal v2-update"
+    cabalUpdate = "cabal update"
 
     cabalConfigure :: Text
-    cabalConfigure = "cabal v2-configure --enable-tests --enable-benchmarks --test-show-details=direct"
+    cabalConfigure = "cabal configure --enable-tests --enable-benchmarks --enable-documentation --test-show-details=direct --write-ghc-environment-files=always"
 
     cabalBuild :: Text
-    cabalBuild = "cabal v2-build all"
+    cabalBuild = "cabal build all"
 
     cabalTest :: Text
-    cabalTest = if settingsTest
-        then "cabal v2-test all"
-        else "echo 'No tests'"
+    cabalTest = "cabal test all"
+
+    cabalDocumentation :: Text
+    cabalDocumentation = "cabal haddock"
 
     stackBuild :: Text
     stackBuild = "stack build --system-ghc --test --bench --no-run-tests --no-run-benchmarks --ghc-options=-Werror"
@@ -432,19 +465,19 @@ gitHubFiles Settings{..} = concat
         , ""
         , "install:"
         , "  - choco source add -n mistuke -s https://www.myget.org/F/mistuke/api/v2"
-        , "  - choco install -y cabal --version 2.4.1.0"
+        , "  - choco install -y cabal --version 3.6.2.0"
         , "  - choco install -y ghc   --version " <> defGhc
         , "  - refreshenv"
         , ""
         , "before_build:"
         , "  - cabal --version"
         , "  - ghc   --version"
-        , "  - cabal %CABOPTS% v2-update"
+        , "  - cabal %CABOPTS% update"
         , ""
         , "build_script:"
-        , "  - cabal %CABOPTS% v2-configure --enable-tests --enable-benchmarks --test-show-details=direct"
-        , "  - cabal %CABOPTS% v2-build all"
-        , "  - cabal %CABOPTS% v2-test  all"
+        , "  - cabal %CABOPTS% configure --enable-tests --enable-benchmarks --enable-documentation --test-show-details=direct --write-ghc-environment-files=always"
+        , "  - cabal %CABOPTS% build all"
+        , "  - cabal %CABOPTS% test  all"
         ]
 
     -- create appveyor.yml template

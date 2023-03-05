@@ -1,6 +1,6 @@
 {- |
 Module                  : Summoner.License
-Copyright               : (c) 2017-2021 Kowainik
+Copyright               : (c) 2017-2022 Kowainik
 SPDX-License-Identifier : MPL-2.0
 Maintainer              : Kowainik <xrom.xkov@gmail.com>
 Stability               : Stable
@@ -11,20 +11,19 @@ to work with them.
 -}
 
 module Summoner.License
-       ( LicenseName(..)
-       , License(..)
-       , customizeLicense
-       , githubLicenseQueryNames
-       , parseLicenseName
-       , fetchLicense
-       , fetchLicenseCustom
-       , licenseShortDesc
-       , showLicenseWithDesc
-       ) where
+    ( LicenseName (..)
+    , License (..)
+    , customizeLicense
+    , githubLicenseQueryNames
+    , parseLicenseName
+    , fetchLicense
+    , fetchLicenseCustom
+    , licenseShortDesc
+    , showLicenseWithDesc
+    ) where
 
 import Colourista (errorMessage)
 import Data.Aeson.Micro (FromJSON (..), decodeStrict, withObject, (.:))
-import Relude.Extra.Enum (inverseMap)
 import Shellmet (($|))
 
 import qualified Data.Text as T

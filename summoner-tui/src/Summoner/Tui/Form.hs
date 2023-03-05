@@ -1,6 +1,6 @@
 {- |
 Module                  : Summoner.Tui.Form
-Copyright               : (c) 2018-2021 Kowainik
+Copyright               : (c) 2018-2022 Kowainik
 SPDX-License-Identifier : MPL-2.0
 Maintainer              : Kowainik <xrom.xkov@gmail.com>
 Stability               : Stable
@@ -23,7 +23,6 @@ import Brick.Focus (focusGetCurrent)
 import Brick.Forms (Form, editField, editTextField, formFocus, formState, listField, newForm,
                     setFieldConcat, setFormConcat, setFormFocus, (@@=))
 import Lens.Micro ((^.))
-import Relude.Extra.Enum (universe)
 
 import Summoner.Default (defaultGHC)
 import Summoner.GhcVer (parseGhcVer, showGhcVer)
@@ -150,7 +149,7 @@ isActive kit = \case
     GitHubActions  -> isGitHubEnabled && (kit ^. cabal)
     GitHubTravis   -> isGitHubEnabled
     GitHubAppVeyor -> isGitHubEnabled
-    _nonGithub -> True
+    _nonGithub     -> True
   where
     isGitHubEnabled, isUploadEnabled :: Bool
     isGitHubEnabled = kit ^. gitHub . enabled

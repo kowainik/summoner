@@ -5,15 +5,27 @@ The changelog is available [on GitHub][2].
 
 ## Unreleased
 
+* [#564](https://github.com/kowainik/summoner/issues/564):
+  Upgrade `brick` to version `>=1.0`.
+* [#565](https://github.com/kowainik/summoner/issues/565):
+  Build Summoner with GHC-9.2.
+* [#539](https://github.com/kowainik/summoner/issues/539):
+  Use GHC-9.0 as default version for generated projects.
+* [#540](https://github.com/kowainik/summoner/issues/540):
+  Build Summoner with GHC-9.0.
+* [#520](https://github.com/kowainik/summoner/issues/520):
+  Output the link to the GitHub project at the end of the process.
 * [#476](https://github.com/kowainik/summoner/issues/476):
   Switch from `aeson` to `microaeson`.
 * [#466](https://github.com/kowainik/summoner/issues/466):
   Add ` --test-show-details=direct` to `cabal test` on CI.
-* [#444](https://github.com/kowainik/summoner/issues/444):
+* [#444](https://github.com/kowainik/summoner/issues/444)
+  [#547](https://github.com/kowainik/summoner/issues/547):
   Support GHC-8.10.1 in the generated projects.
   Use GHC-8.10.1 by default in the generated projects.
   Use `nightly-2020-06-29` for stack resolver.
   UPD: Use GHC-8.10.3 and `lts-17.0` instead.
+  UPD: Use GHC-8.10.7 and `lts-18.10` instead.
 * [#445](https://github.com/kowainik/summoner/issues/445):
   Add `-Wunused-packages` for GHC-8.10.
 * [#477](https://github.com/kowainik/summoner/issues/477):
@@ -36,6 +48,10 @@ The changelog is available [on GitHub][2].
 * [#517](https://github.com/kowainik/summoner/issues/517):
   Switch to `main` initial branch when creating project.
 * Require `git >= 2.28` for `--initial-branch=main` option.
+* [#340](https://github.com/kowainik/summoner/issues/340):
+  Use `cabal` version `3.0`.
+* [#495](https://github.com/kowainik/summoner/issues/495):
+  Generate `dependabot.yml` to update GitHub Actions automatically.
 * __#TUI__ Upgrade `brick` allowed version. Bump up lower
   bound to `0.56` due to the new field `formFieldUpdate`
   addition to the `FormFieldState` data type.

@@ -3,7 +3,7 @@ language: haskell
 git:
   depth: 5
 
-cabal: "2.4"
+cabal: "3.0"
 
 cache:
   directories:
@@ -18,7 +18,8 @@ jobs:
   - ghc: 8.4.4
   - ghc: 8.6.5
   - ghc: 8.8.4
-  - ghc: 8.10.3
+  - ghc: 8.10.7
+  - ghc: 9.0.2
 
   - ghc: 8.0.2
     env: STACK_YAML="$TRAVIS_BUILD_DIR/stack-8.0.2.yaml"
@@ -35,7 +36,10 @@ jobs:
   - ghc: 8.8.4
     env: STACK_YAML="$TRAVIS_BUILD_DIR/stack-8.8.4.yaml"
 
-  - ghc: 8.10.3
+  - ghc: 8.10.7
+    env: STACK_YAML="$TRAVIS_BUILD_DIR/stack-8.10.7.yaml"
+
+  - ghc: 9.0.2
     env: STACK_YAML="$TRAVIS_BUILD_DIR/stack.yaml"
 
   allow_failures:
@@ -55,9 +59,9 @@ install:
 
   - |
     if [ -z "$STACK_YAML" ]; then
-      cabal v2-update
-      cabal v2-configure --enable-tests --enable-benchmarks --test-show-details=direct
-      cabal v2-build all
+      cabal update
+      cabal configure --enable-tests --enable-benchmarks --enable-documentation --test-show-details=direct --write-ghc-environment-files=always
+      cabal build all
     else
       curl -sSL https://get.haskellstack.org/ | sh
       stack --version
@@ -67,7 +71,7 @@ install:
 script:
   - |
     if [ -z "$STACK_YAML" ]; then
-      cabal v2-test all
+      cabal test all
     else
       stack test --system-ghc
     fi

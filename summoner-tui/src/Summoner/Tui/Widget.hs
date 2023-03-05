@@ -1,6 +1,6 @@
 {- |
 Module                  : Summoner.Tui.Widget
-Copyright               : (c) 2018-2021 Kowainik
+Copyright               : (c) 2018-2022 Kowainik
 SPDX-License-Identifier : MPL-2.0
 Maintainer              : Kowainik <xrom.xkov@gmail.com>
 Stability               : Stable
@@ -17,11 +17,12 @@ module Summoner.Tui.Widget
        , listInBorder
        ) where
 
-import Brick.Types (Padding (Pad), Widget)
+import Brick (attrName)
+import Brick.Types (Widget)
 import Brick.Widgets.Border (borderWithLabel)
 import Brick.Widgets.Center (center)
-import Brick.Widgets.Core (hBox, hLimit, padLeftRight, padRight, str, txtWrap, vBox, vLimit,
-                           withAttr, (<+>))
+import Brick.Widgets.Core (Padding (Pad), hBox, hLimit, padLeftRight, padRight, str, txtWrap, vBox,
+                           vLimit, withAttr, (<+>))
 
 
 -- | Adds label to the Form's field.
@@ -91,4 +92,4 @@ listInBorder name limitH extraLimitV list = center
     $ borderLabel name
     $ center
     $ vBox
-    $ map (withAttr "blue-fg" . txtWrap . ("➤ " <>)) list
+    $ map (withAttr (attrName "blue-fg") . txtWrap . ("➤ " <>)) list

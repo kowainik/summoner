@@ -3,7 +3,7 @@
 
 {- |
 Module                  : Summoner.Tui
-Copyright               : (c) 2018-2021 Kowainik
+Copyright               : (c) 2018-2022 Kowainik
 SPDX-License-Identifier : MPL-2.0
 Maintainer              : Kowainik <xrom.xkov@gmail.com>
 Stability               : Stable
@@ -16,13 +16,13 @@ module Summoner.Tui
        ( summonTui
        ) where
 
-import Brick (App (..), AttrMap, BrickEvent (..), Widget, attrMap, continue, customMain, halt,
+import Brick (App (..), AttrMap, BrickEvent (..), Widget, attrMap, attrName, customMain, halt,
               simpleApp, str, txt, vBox, withAttr, (<+>))
 import Brick.Focus (focusRingCursor)
 import Brick.Forms (allFieldsValid, focusedFormInputAttr, formFocus, formState, handleFormEvent,
                     invalidFormInputAttr, renderForm)
 import Brick.Main (ViewportScroll, neverShowCursor, vScrollBy, viewportScroll)
-import Brick.Types (EventM, Next, ViewportType (Vertical))
+import Brick.Types (EventM, ViewportType (Vertical))
 import Brick.Util (fg)
 import Brick.Widgets.Border (borderAttr)
 import Brick.Widgets.Center (center)
@@ -32,7 +32,6 @@ import Brick.Widgets.Edit (editAttr, editFocusedAttr)
 import Brick.Widgets.List (listSelectedAttr, listSelectedFocusedAttr)
 import Colourista (errorMessage, infoMessage)
 import Lens.Micro ((.~), (^.))
-import Relude.Extra.Enum (universe)
 import System.Directory (doesDirectoryExist, doesFileExist, getCurrentDirectory, listDirectory)
 
 import Summoner.CLI (Command (..), NewOpts (..), ShowOpts (..), getCustomLicenseText,
@@ -123,49 +122,51 @@ runTuiNew kit = do
 appNew :: [FilePath] -> App (KitForm e) e SummonForm
 appNew dirs = App
     { appDraw = drawNew dirs
-    , appHandleEvent = \s ev -> if formState s ^. shouldSummon == Idk
+    , appHandleEvent = \ev -> do
+        s <- get
+        if formState s ^. shouldSummon == Idk
         then case ev of
-            VtyEvent (V.EvKey V.KEnter []) -> halt $ changeShouldSummon Yes s
-            VtyEvent (V.EvKey V.KEsc [])   -> withForm ev s (changeShouldSummon Nop)
-            _otherKey -> continue s
+            VtyEvent (V.EvKey V.KEnter []) -> put (changeShouldSummon Yes s) >> halt
+            VtyEvent (V.EvKey V.KEsc [])   -> withForm ev (changeShouldSummon Nop)
+            _otherKey                      -> pass
         else case ev of
-            VtyEvent V.EvResize {} -> continue s
+            VtyEvent V.EvResize {} -> pass
             VtyEvent (V.EvKey V.KEnter [V.MMeta]) ->
-                withForm ev s (validateForm . projectDescNewLine)
+                withForm ev (validateForm . projectDescNewLine)
             VtyEvent (V.EvKey V.KEnter []) ->
                 if allFieldsValid s
-                then withForm ev s (changeShouldSummon Idk)
-                else continue s
-            VtyEvent (V.EvKey V.KEsc []) -> halt s
+                then withForm ev (changeShouldSummon Idk)
+                else pass
+            VtyEvent (V.EvKey V.KEsc []) -> halt
             VtyEvent (V.EvKey (V.KChar 'd') [V.MCtrl]) ->
-                withForm ev s (validateForm . ctrlD)
+                withForm ev (validateForm . ctrlD)
 
             -- Handle active/inactive checkboxes
             VtyEvent (V.EvKey (V.KChar ' ') []) -> case getCurrentFocus s of
-                Nothing    -> withFormDef ev s
-                Just field -> handleCheckboxActivation ev s field
+                Nothing    -> withFormDef ev
+                Just field -> handleCheckboxActivation ev field
 
             -- Run handler for autofill actions
             VtyEvent (V.EvKey key [])
                 | keyTriggersAutofill key
-                -> withForm ev s (validateForm . handleAutofill)
+                -> withForm ev (validateForm . handleAutofill)
 
-            MouseDown n _ _ _ -> handleCheckboxActivation ev s n
+            MouseDown n _ _ _ -> handleCheckboxActivation ev n
 
             -- Handle skip of deactivated checkboxes
-            VtyEvent (V.EvKey (V.KChar '\t') []) -> loopWhileInactive ev s
-            VtyEvent (V.EvKey V.KBackTab     []) -> loopWhileInactive ev s
+            VtyEvent (V.EvKey (V.KChar '\t') []) -> loopWhileInactive ev
+            VtyEvent (V.EvKey V.KBackTab     []) -> loopWhileInactive ev
 
             -- Default action
-            _otherEvent -> withFormDef ev s
+            _otherEvent -> withFormDef ev
 
     , appChooseCursor = focusRingCursor formFocus
-    , appStartEvent = pure
+    , appStartEvent = pass
     , appAttrMap = const theMap
     }
   where
-    withForm  ev s f = handleFormEvent ev s >>= continue . f
-    withFormDef ev s = withForm ev s validateForm
+    withForm ev f = handleFormEvent ev >> modify f
+    withFormDef ev = withForm ev validateForm
 
     changeShouldSummon :: Decision -> KitForm e -> KitForm e
     changeShouldSummon newShould f = mkForm $ formState f & shouldSummon .~ newShould
@@ -179,29 +180,28 @@ appNew dirs = App
     -- Activate/Deactivate checkboxes depending on current field change
     handleCheckboxActivation
         :: BrickEvent SummonForm e
-        -> KitForm e
         -> SummonForm
-        -> EventM SummonForm (Next (KitForm e))
-    handleCheckboxActivation ev form = \case
-        CabalField     -> withForm ev form mkNewForm
-        StackField     -> withForm ev form mkNewForm
-        GitHubEnable   -> withForm ev form mkNewForm
-        GitHubDisable  -> withForm ev form mkNewForm
-        GitHubNoUpload -> withForm ev form mkNewForm
-        _nonCheckBox   -> withFormDef ev form
+        -> EventM SummonForm (KitForm e) ()
+    handleCheckboxActivation ev = \case
+        CabalField     -> withForm ev mkNewForm
+        StackField     -> withForm ev mkNewForm
+        GitHubEnable   -> withForm ev mkNewForm
+        GitHubDisable  -> withForm ev mkNewForm
+        GitHubNoUpload -> withForm ev mkNewForm
+        _nonCheckBox   -> withFormDef ev
 
     -- Handles form event until current element is active
     loopWhileInactive
         :: BrickEvent SummonForm e
-        -> KitForm e
-        -> EventM SummonForm (Next (KitForm e))
-    loopWhileInactive ev form = do
-        newForm <- handleFormEvent ev form
+        -> EventM SummonForm (KitForm e) ()
+    loopWhileInactive ev = do
+        handleFormEvent ev
+        newForm <- get
         case getCurrentFocus newForm of
-            Nothing -> continue newForm
+            Nothing -> pass
             Just field -> if not $ isActive (formState newForm) field
-                then loopWhileInactive ev newForm
-                else continue newForm
+                then loopWhileInactive ev
+                else pass
 
     -- Autofill is only triggered on characters and backspace keys.
     keyTriggersAutofill :: V.Key -> Bool
@@ -236,7 +236,7 @@ drawNew dirs kitForm = case kit ^. shouldSummon of
 
     tree :: Widget SummonForm
     tree = hLimitPercent 25 $ vLimit 22 $ borderLabel "Project Structure" $ vBox
-        [ withAttr "tree" $ txt $ renderWidgetTree kit
+        [ withAttr (attrName "tree") $ txt $ renderWidgetTree kit
         -- to fill all the space that widget should take.
         , fill ' '
         ]
@@ -258,12 +258,12 @@ drawNew dirs kitForm = case kit ^. shouldSummon of
             _noInfoAvailable -> emptyWidget
 
         infoTxt :: Text -> Widget SummonForm
-        infoTxt = withAttr "blue-fg" . txtWrap . (<>) " ⓘ  "
+        infoTxt = withAttr (attrName "blue-fg") . txtWrap . (<>) " ⓘ  "
 
         validationBlock :: Widget SummonForm
         validationBlock = vBox $ case formErrorMessages dirs kitForm of
-            []     -> [withAttr "green-fg" $ str " ✔  Project configuration is valid"]
-            fields -> map (\msg -> withAttr "red-fg" $ strWrap $ " ☓  " ++ msg) fields
+            []     -> [withAttr (attrName "green-fg") $ str " ✔  Project configuration is valid"]
+            fields -> map (\msg -> withAttr (attrName "red-fg") $ strWrap $ " ☓  " ++ msg) fields
 
         configBlock :: Widget SummonForm
         configBlock = case kit ^. configFile of
@@ -315,14 +315,14 @@ runTuiShowLicense (toText -> name) = case parseLicenseName name of
     licenseApp :: LicenseName -> License -> App () e ()
     licenseApp licenseName lc = App
         { appDraw         = drawScrollableLicense licenseName lc
-        , appStartEvent   = pure
+        , appStartEvent   = pass
         , appAttrMap      = const theMap
         , appChooseCursor = neverShowCursor
-        , appHandleEvent  = \() event -> case event of
-            VtyEvent (V.EvKey V.KDown []) -> vScrollBy licenseScroll   1  >> continue ()
-            VtyEvent (V.EvKey V.KUp [])   -> vScrollBy licenseScroll (-1) >> continue ()
-            VtyEvent (V.EvKey V.KEsc [])  -> halt ()
-            _otherEvent                   -> continue ()
+        , appHandleEvent  = \case
+            VtyEvent (V.EvKey V.KDown []) -> vScrollBy licenseScroll   1  >> pass
+            VtyEvent (V.EvKey V.KUp [])   -> vScrollBy licenseScroll (-1) >> pass
+            VtyEvent (V.EvKey V.KEsc [])  -> halt
+            _otherEvent                   -> pass
         }
 
     licenseScroll :: ViewportScroll ()
@@ -376,10 +376,10 @@ theMap = attrMap V.defAttr
     , (listSelectedAttr,        V.black `Brick.on` V.cyan)
     , (listSelectedFocusedAttr, V.black `Brick.on` V.white)
     , (disabledAttr,            fg V.brightBlack)
-    , ("blue-fg",               fg V.blue)
-    , ("green-fg",              fg V.green)
-    , ("yellow-fg",             fg V.yellow)
-    , ("red-fg",                fg V.brightRed)
+    , (attrName "blue-fg",      fg V.blue)
+    , (attrName "green-fg",     fg V.green)
+    , (attrName "yellow-fg",    fg V.yellow)
+    , (attrName "red-fg",       fg V.brightRed)
     , (borderAttr,              fg V.cyan)
-    , ("tree",                  fg V.cyan)
+    , (attrName "tree",         fg V.cyan)
     ]
