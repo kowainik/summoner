@@ -19,6 +19,9 @@ goldenGhcTable =
     , "GHC-8.4.4     base-4.11.1.0   lts-12.26"
     , "GHC-8.6.5     base-4.12.0.0   lts-14.27"
     , "GHC-8.8.4     base-4.13.0.0   lts-16.31"
-    , "GHC-8.10.7    base-4.14.3.0   lts-18.21"
-    , "GHC-9.0.2     base-4.15.1.0   nightly-2022-01-10"
+    , "GHC-8.10.7    base-4.14.3.0   lts-18.28"
+    , "GHC-9.0.2     base-4.15.1.0   lts-19.33"
+    , "GHC-9.2.8     base-4.16.4.0   lts-20.26"
+    , "GHC-9.4.8     base-4.17.0.0   lts-21.25"
+    , "GHC-9.6.6     base-4.18.2.1   lts-22.34"
     ]

@@ -16,6 +16,9 @@ jobs:
   - ghc: 8.8.4
   - ghc: 8.10.7
   - ghc: 9.0.2
+  - ghc: 9.2.8
+  - ghc: 9.4.8
+  - ghc: 9.6.6
 
 install:
   # HLint check
