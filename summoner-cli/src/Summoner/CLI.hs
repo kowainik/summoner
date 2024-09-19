@@ -423,7 +423,7 @@ targetsP d = do
     cExe       <- execP      d
     cTest      <- testP      d
     cBench     <- benchmarkP d
-    pure mempty
+    pure (mempty :: PartialConfig)
         { cGitHub    = cGitHub
         , cGhActions = cGhActions
         , cTravis    = cTravis
