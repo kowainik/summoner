@@ -74,8 +74,8 @@ source-repository head
   location: git@github.com:kowainik/summoner.git
 
 common common-options
-  build-depends:       base >= 4.11 && < 4.17
-                     , relude >= 1.0.0.0 && < 1.2
+  build-depends:       base >= 4.11 && < 4.18
+                     , relude >= 1.0.0.0 && < 1.3
 
   mixins:              base hiding (Prelude)
                      , relude (Relude as Prelude)
@@ -149,7 +149,7 @@ library
   build-depends:       colourista ^>= 0.1.0.1
                      , directory ^>= 1.3.0.2
                      , filepath ^>= 1.4.1.2
-                     , generic-data >= 0.8.0.0 && < 0.10
+                     , generic-data >= 0.8.0.0 && < 1.1
                      , gitrev ^>= 1.3.1
                      , microaeson ^>= 0.1.0.0
                      , optparse-applicative >= 0.16 && < 0.18
@@ -157,7 +157,7 @@ library
                      , shellmet ^>= 0.0.3.0
                      , time >= 1.8 && < 1.14
                      , tomland ^>= 1.3.0.0
-                     , validation-selective ^>= 0.1.0.0
+                     , validation-selective >= 0.1.0.0 && < 0.3
 
 executable summon
   import:              common-options, exe-options

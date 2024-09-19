@@ -26,6 +26,7 @@ jobs:
           - "8.10.7"
           - "9.0.2"
           - "9.2.4"
+          - "9.4.8"
         exclude:
           - os: macOS-latest
             ghc: 8.10.7
@@ -44,6 +45,17 @@ jobs:
             ghc: 8.6.5
           - os: windows-latest
             ghc: 8.4.4
+
+          # On Windows 9.4 we get the following, so disabling
+          # it for now.
+          #
+          # ghc-9.4.8.exe: C:\sr\ghc-9.4.8\hashable-1.4.7.0-30c04c59e98d75fc2789d517f4b0591876c2983e\lib\libHShashable-1.4.7.0-30c04c59e98d75fc2789d517f4b0591876c2983e.a(#5:FFI.o): Not a x86_64 PE+ file.
+          # ghc-9.4.8.exe: Unknown COFF 4 type in getHeaderInfo.
+          #
+          # <no location info>: error:
+          # loadArchive "C:\\sr\\ghc-9.4.8\\hashable-1.4.7.0-30c04c59e98d75fc2789d517f4b0591876c2983e\\lib\\libHShashable-1.4.7.0-30c04c59e98d75fc2789d517f4b0591876c2983e.a": failed
+          - os: windows-latest
+            ghc: 9.4.8
 
     steps:
     - uses: actions/checkout@v3
