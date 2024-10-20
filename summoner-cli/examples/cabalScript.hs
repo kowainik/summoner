@@ -1,7 +1,7 @@
 #!/usr/bin/env cabal
 {- cabal:
 build-depends:
-  , base ^>= 4.18.2.1
+  , base ^>= 4.19.1.0
 -}
 
 main :: IO ()

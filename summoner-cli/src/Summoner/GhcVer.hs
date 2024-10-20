@@ -1,6 +1,6 @@
 {- |
 Module                  : Summoner.GhcVer
-Copyright               : (c) 2017-2022 Kowainik
+Copyright               : (c) 2017-2024 Kowainik
 SPDX-License-Identifier : MPL-2.0
 Maintainer              : Kowainik <xrom.xkov@gmail.com>
 Stability               : Stable
@@ -38,8 +38,9 @@ data GhcVer
     | Ghc8107
     | Ghc902
     | Ghc928
-    | Ghc945
+    | Ghc948
     | Ghc966
+    | Ghc982
     deriving stock (Eq, Ord, Show, Enum, Bounded)
 
 -- | Converts 'GhcVer' into dot-separated string.
@@ -53,8 +54,9 @@ showGhcVer = \case
     Ghc8107 -> "8.10.7"
     Ghc902  -> "9.0.2"
     Ghc928  -> "9.2.8"
-    Ghc945  -> "9.4.8"
+    Ghc948  -> "9.4.8"
     Ghc966  -> "9.6.6"
+    Ghc982  -> "9.8.2"
 
 {- | These are old GHC versions that are not working with default GHC versions
 when using Stack.
@@ -76,8 +78,9 @@ latestLts = \case
     Ghc8107 -> "lts-18.28"
     Ghc902  -> "lts-19.33"
     Ghc928  -> "lts-20.26"
-    Ghc945  -> "lts-21.25"
-    Ghc966  -> "lts-22.34"
+    Ghc948  -> "lts-21.25"
+    Ghc966  -> "lts-22.38"
+    Ghc982  -> "nightly-2024-10-11"
 
 -- | Represents PVP versioning (4 numbers).
 data Pvp = Pvp
@@ -102,8 +105,9 @@ baseVerPvp = \case
     Ghc8107 -> Pvp 4 14 3 0
     Ghc902  -> Pvp 4 15 1 0
     Ghc928  -> Pvp 4 16 4 0
-    Ghc945  -> Pvp 4 17 0 0
+    Ghc948  -> Pvp 4 17 2 1
     Ghc966  -> Pvp 4 18 2 1
+    Ghc982  -> Pvp 4 19 1 0
 
 -- | Returns corresponding @base@ version of the given GHC version.
 baseVer :: GhcVer -> Text

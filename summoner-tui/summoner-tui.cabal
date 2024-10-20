@@ -104,7 +104,8 @@ library
                      , microlens-th ^>= 0.4
                      , summoner ^>= 2.0.0.0
                      , validation-selective >= 0.0.0.0 && < 0.3
-                     , vty >= 5.36 && < 6.3
+                     , vty >= 6.0 && < 6.3
+                     , vty-crossplatform >= 0.2 && < 0.3
 
 executable summon-tui
   import:              common-options

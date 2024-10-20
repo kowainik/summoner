@@ -144,6 +144,18 @@ cabalFile Settings{..} = File (toString settingsRepo ++ ".cabal") cabalFileConte
         , "                       -hiedir=.hie"
         , "  if impl(ghc >= 8.10)"
         , "    ghc-options:       -Wunused-packages"
+        , "  if impl(ghc >= 9.0)"
+        , "    ghc-options:       -Winvalid-haddock"
+        , "  if impl(ghc >= 9.2)"
+        , "    ghc-options:       -Wredundant-bang-patterns"
+        , "                       -Woperator-whitespace"
+        , "  if impl(ghc >= 9.4  && < 9.10)"
+        , "    ghc-options:       -Wforall-identifier"
+        , "  if impl(ghc >= 9.4)"
+        , "    ghc-options:       -Wredundant-strictness-flags"
+        , "  if impl(ghc >= 9.8)"
+        , "    ghc-options:       -Wterm-variable-capture"
+        , "                       -Winconsistent-flags"
         ]
 
     libraryStanza :: Text
