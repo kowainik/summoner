@@ -12,10 +12,10 @@ copyright:           2022 Kowainik
 build-type:          Simple
 extra-doc-files:     README.md
                      CHANGELOG.md
-tested-with:         GHC == 9.6.6
+tested-with:         GHC == 9.8.2
 
 common common-options
-  build-depends:       base ^>= 4.18.2.1
+  build-depends:       base ^>= 4.19.1.0
 
   ghc-options:         -Wall
                        -Wcompat
@@ -35,6 +35,18 @@ common common-options
                        -hiedir=.hie
   if impl(ghc >= 8.10)
     ghc-options:       -Wunused-packages
+  if impl(ghc >= 9.0)
+    ghc-options:       -Winvalid-haddock
+  if impl(ghc >= 9.2)
+    ghc-options:       -Wredundant-bang-patterns
+                       -Woperator-whitespace
+  if impl(ghc >= 9.4  && < 9.10)
+    ghc-options:       -Wforall-identifier
+  if impl(ghc >= 9.4)
+    ghc-options:       -Wredundant-strictness-flags
+  if impl(ghc >= 9.8)
+    ghc-options:       -Wterm-variable-capture
+                       -Winconsistent-flags
 
   default-language:    Haskell2010
 

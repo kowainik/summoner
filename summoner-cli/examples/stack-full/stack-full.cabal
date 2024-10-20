@@ -24,13 +24,14 @@ tested-with:         GHC == 8.4.4
                      GHC == 9.2.8
                      GHC == 9.4.8
                      GHC == 9.6.6
+                     GHC == 9.8.2
 
 source-repository head
   type:                git
   location:            https://github.com/kowainik/stack-full.git
 
 common common-options
-  build-depends:       base >= 4.11.1.0 && < 4.19
+  build-depends:       base >= 4.11.1.0 && < 4.20
                      , relude
 
   mixins:              base hiding (Prelude)
@@ -54,6 +55,18 @@ common common-options
                        -hiedir=.hie
   if impl(ghc >= 8.10)
     ghc-options:       -Wunused-packages
+  if impl(ghc >= 9.0)
+    ghc-options:       -Winvalid-haddock
+  if impl(ghc >= 9.2)
+    ghc-options:       -Wredundant-bang-patterns
+                       -Woperator-whitespace
+  if impl(ghc >= 9.4  && < 9.10)
+    ghc-options:       -Wforall-identifier
+  if impl(ghc >= 9.4)
+    ghc-options:       -Wredundant-strictness-flags
+  if impl(ghc >= 9.8)
+    ghc-options:       -Wterm-variable-capture
+                       -Winconsistent-flags
 
   default-language:    Haskell2010
   default-extensions:  DeriveGeneric

@@ -26,7 +26,10 @@ jobs:
           - "9.2.8"
           - "9.4.8"
           - "9.6.6"
+          - "9.8.2"
         exclude:
+          - os: macOS-latest
+            ghc: 9.6.6
           - os: macOS-latest
             ghc: 9.4.8
           - os: macOS-latest
@@ -41,6 +44,8 @@ jobs:
             ghc: 8.6.5
           - os: macOS-latest
             ghc: 8.4.4
+          - os: windows-latest
+            ghc: 9.6.6
           - os: windows-latest
             ghc: 9.4.8
           - os: windows-latest

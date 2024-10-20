@@ -1,3 +1,4 @@
+{-# LANGUAGE CPP        #-}
 {-# LANGUAGE Rank2Types #-}
 
 {- |
@@ -23,6 +24,9 @@ module Summoner.Tui.Field
 import Brick (BrickEvent (..), EventM, Location (..), Widget, attrName, clickable, showCursor, str,
               vBox, withAttr, withDefAttr, (<+>))
 import Brick.AttrMap (AttrName)
+#if MIN_VERSION_brick(2,2,0)
+import Brick.Forms (FormFieldVisibilityMode (ShowCompositeField))
+#endif
 import Brick.Forms (FormField (..), FormFieldState (..), checkboxCustomField, focusedFormInputAttr,
                     radioCustomField)
 import Lens.Micro (Lens', lens, (^.))
@@ -40,6 +44,9 @@ strField t _ = FormFieldState
     , formFieldRenderHelper = renderString
     , formFieldConcat = vBox
     , formFieldUpdate = flip const
+#if MIN_VERSION_brick(2,2,0)
+    , formFieldVisibilityMode = ShowCompositeField
+#endif
     }
   where
     -- looool
@@ -99,6 +106,9 @@ activeCheckboxField stLens isActive name label initialState = FormFieldState
     , formFieldRenderHelper = id
     , formFieldConcat       = vBox
     , formFieldUpdate       = flip const
+#if MIN_VERSION_brick(2,2,0)
+    , formFieldVisibilityMode = ShowCompositeField
+#endif
     }
   where
     initVal, isEnabled :: Bool

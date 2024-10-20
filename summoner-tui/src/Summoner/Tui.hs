@@ -53,6 +53,8 @@ import Summoner.Tui.Widget (borderLabel, listInBorder)
 
 import qualified Brick (on)
 import qualified Graphics.Vty as V
+import qualified Graphics.Vty.Config as VConfig
+import qualified Graphics.Vty.CrossPlatform as VC
 import qualified Paths_summoner_tui as Meta (version)
 
 
@@ -352,7 +354,7 @@ runApp app s = do
   where
     buildVty :: IO V.Vty
     buildVty = do
-        v <- V.mkVty =<< V.standardIOConfig
+        v <- VC.mkVty VConfig.defaultConfig
         V.setMode (V.outputIface v) V.Mouse True
         pure v
 
