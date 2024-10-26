@@ -1,4 +1,4 @@
-cabal-version:       3.0
+cabal-version:       3.10
 name:                cabal-minimal
 version:             0.0.0.0
 synopsis:            Minimal cabal-only test project
