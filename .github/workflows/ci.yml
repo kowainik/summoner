@@ -18,7 +18,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, macOS-latest, windows-latest]
-        cabal: ["3.6"]
+        cabal: ["3.10"]
         ghc:
           - "8.4.4"
           - "8.6.5"
