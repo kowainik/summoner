@@ -46,7 +46,7 @@ defaultGHC = maxBound
 
 -- | Default version of the Cabal.
 defaultCabal :: Text
-defaultCabal = "3.10"
+defaultCabal = "3.10.3.0"
 
 -- | Default version of the Stack.
 defaultStack :: Text
