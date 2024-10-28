@@ -12,6 +12,7 @@ This module contains some default values to use.
 module Summoner.Default
        ( defaultGHC
        , defaultCabal
+       , defaultCabalVersion
        , defaultStack
        , defaultLicenseName
        , defaultOwner
@@ -47,6 +48,10 @@ defaultGHC = maxBound
 -- | Default version of the Cabal.
 defaultCabal :: Text
 defaultCabal = "3.10.3.0"
+
+-- | Default version of the Cabal specified in the *.cabal* file.
+defaultCabalVersion :: Text
+defaultCabalVersion = "3.0"
 
 -- | Default version of the Stack.
 defaultStack :: Text
