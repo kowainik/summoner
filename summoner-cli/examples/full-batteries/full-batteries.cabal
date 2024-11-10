@@ -26,13 +26,14 @@ tested-with:         GHC == 8.0.2
                      GHC == 9.2.8
                      GHC == 9.4.8
                      GHC == 9.6.6
+                     GHC == 9.8.2
 
 source-repository head
   type:                git
   location:            https://github.com/kowainik/full-batteries.git
 
 common common-options
-  build-depends:       base >= 4.9.1.0 && < 4.19
+  build-depends:       base >= 4.9.1.0 && < 4.20
                      , relude
 
   mixins:              base hiding (Prelude)

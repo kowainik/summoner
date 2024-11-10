@@ -18,7 +18,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, macOS-latest, windows-latest]
-        cabal: ["3.6"]
+        cabal: ["3.10"]
         ghc:
           - "8.4.4"
           - "8.6.5"
@@ -28,8 +28,18 @@ jobs:
           - "9.2.4"
           - "9.4.8"
           - "9.6.6"
+          - "9.8.2"
+          - "9.10.1"
         exclude:
           - os: macOS-latest
+            ghc: 9.6.6
+          - os: macOS-latest
+            ghc: 9.4.8
+          - os: macOS-latest
+            ghc: 9.2.4
+          - os: macOS-latest
+            ghc: 9.0.2
+          - os: macOS-latest
             ghc: 8.10.7
           - os: macOS-latest
             ghc: 8.8.4
@@ -38,30 +48,27 @@ jobs:
           - os: macOS-latest
             ghc: 8.4.4
 
-          - os: windows-latest
-            ghc: 8.10.7
-          - os: windows-latest
-            ghc: 8.8.4
-          - os: windows-latest
-            ghc: 8.6.5
-          - os: windows-latest
-            ghc: 8.4.4
 
-          # On Windows 9.4 and 9.6 we get the following, so disabling
-          # them for now.
-          #
-          # ghc-9.6.6.exe: C:\sr\ghc-9.6.6\hashable-1.4.7.0-30c04c59e98d75fc2789d517f4b0591876c2983e\lib\libHShashable-1.4.7.0-30c04c59e98d75fc2789d517f4b0591876c2983e.a(#5:FFI.o): Not a x86_64 PE+ file.
-          # ghc-9.6.6.exe: Unknown COFF 4 type in getHeaderInfo.
-          #
-          # <no location info>: error:
-          # loadArchive "C:\\sr\\ghc-9.6.6\\hashable-1.4.7.0-30c04c59e98d75fc2789d517f4b0591876c2983e\\lib\\libHShashable-1.4.7.0-30c04c59e98d75fc2789d517f4b0591876c2983e.a": failed
+          - os: windows-latest
+            ghc: 9.6.6
           - os: windows-latest
             ghc: 9.4.8
           - os: windows-latest
-            ghc: 9.6.6
+            ghc: 9.2.4
+          - os: windows-latest
+            ghc: 9.0.2
+          - os: windows-latest
+            ghc: 8.10.7
+          - os: windows-latest
+            ghc: 8.8.4
+          - os: windows-latest
+            ghc: 8.6.5
+          - os: windows-latest
+            ghc: 8.4.4
+
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
 
     - uses: haskell/actions/setup@v2
       id: setup-haskell-cabal
@@ -78,7 +85,7 @@ jobs:
       run: |
         cabal freeze
 
-    - uses: actions/cache@v3
+    - uses: actions/cache@v4
       name: Cache ~/.cabal/store
       with:
         path: ${{ steps.setup-haskell-cabal.outputs.cabal-store }}
@@ -96,28 +103,28 @@ jobs:
       run: |
         cabal test all
 
-    - if: matrix.ghc == '9.6.6'
+    - if: matrix.ghc == '9.8.2'
       name: Build 'cabal-minimal'
       run: |
         cd "summoner-cli/examples/cabal-minimal/"
         echo "packages: ." > cabal.project
         cabal build all
 
-    - if: matrix.ghc == '9.6.6'
+    - if: matrix.ghc == '9.8.2'
       name: Build 'cabal-full'
       run: |
         cd "summoner-cli/examples/cabal-full/"
         echo "packages: ." > cabal.project
         cabal build all
 
-    - if: matrix.ghc == '9.6.6'
+    - if: matrix.ghc == '9.8.2'
       name: Build 'stack-full'
       run: |
         cd "summoner-cli/examples/stack-full/"
         echo "packages: ." > cabal.project
         cabal build all
 
-    - if: matrix.ghc == '9.6.6'
+    - if: matrix.ghc == '9.8.2'
       name: Build 'full-batteries'
       run: |
         cd "summoner-cli/examples/full-batteries/"
@@ -129,11 +136,11 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        stack: ["2.7.3"]
-        ghc: ["9.0.2"]
+        stack: ["3.1"]
+        ghc: ["9.6.6"]
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
 
     - uses: haskell/actions/setup@v2
       name: Setup Haskell Stack
@@ -141,7 +148,7 @@ jobs:
         ghc-version: ${{ matrix.ghc }}
         stack-version: ${{ matrix.stack }}
 
-    - uses: actions/cache@v3
+    - uses: actions/cache@v4
       name: Cache ~/.stack
       with:
         path: ~/.stack

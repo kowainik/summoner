@@ -3,7 +3,7 @@ language: haskell
 git:
   depth: 5
 
-cabal: "3.0"
+cabal: "3.10.3.0"
 
 cache:
   directories:
@@ -19,6 +19,7 @@ jobs:
   - ghc: 9.2.8
   - ghc: 9.4.8
   - ghc: 9.6.6
+  - ghc: 9.8.2
 
 install:
   # HLint check
