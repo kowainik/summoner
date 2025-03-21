@@ -95,7 +95,7 @@ generateProjectInteractive connectMode projectName ConfigP{..} = do
         infoMessage "Use 'gh' and 'git' commands manually in order to upload the project to GitHub"
     settingsPrivate  <- decisionIf
         (settingsGitHub && not settingsNoUpload)
-        (YesNoPrompt "private repository" "Create as a private repository (Requires a GitHub private repo plan)?")
+        (YesNoPrompt "private repository" "Create as a private repository?")
         cPrivate
     settingsBranchName <- if settingsGitHub then (queryDef "Default branch name: " cBranchName) else pure "main"
     settingsGhActions <- decisionIf settingsGitHub (mkDefaultYesNoPrompt "GitHub Actions CI integration") cGhActions
