@@ -12,6 +12,9 @@ The changelog is available [on GitHub][2].
 * Update GHC-9.6 to GHC-9.6.7 with `lts-22.44`.
 * Drop support of GHC-9.6.6, GHC-9.8.2, GHC-9.10.1 in generated projects.
 * Update `base` upper bound to `< 4.22`.
+* Update GitHub Actions in generated projects: replace deprecated
+  `haskell/actions/setup` with `haskell-actions/setup`.
+* Update `optparse-applicative`, `shellmet`, `time`, `hedgehog`, `brick` upper bounds.
 * Add new GHC warnings for GHC >= 9.10:
   `-Wincomplete-record-selectors`, `-Wdeprecated-type-abstractions`,
   `-Wdata-kinds-tc`, `-Wdefaulted-exception-context`.
