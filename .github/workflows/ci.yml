@@ -18,7 +18,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, macOS-latest, windows-latest]
-        cabal: ["3.10"]
+        cabal: ["3.14"]
         ghc:
           - "8.4.4"
           - "8.6.5"
@@ -27,12 +27,17 @@ jobs:
           - "9.0.2"
           - "9.2.4"
           - "9.4.8"
-          - "9.6.6"
-          - "9.8.2"
-          - "9.10.1"
+          - "9.6.7"
+          - "9.8.4"
+          - "9.10.3"
+          - "9.12.3"
         exclude:
           - os: macOS-latest
-            ghc: 9.6.6
+            ghc: 9.10.3
+          - os: macOS-latest
+            ghc: 9.8.4
+          - os: macOS-latest
+            ghc: 9.6.7
           - os: macOS-latest
             ghc: 9.4.8
           - os: macOS-latest
@@ -49,6 +54,12 @@ jobs:
             ghc: 8.4.4
 
 
+          - os: windows-latest
+            ghc: 9.10.3
+          - os: windows-latest
+            ghc: 9.8.4
+          - os: windows-latest
+            ghc: 9.6.7
           - os: windows-latest
             ghc: 9.6.6
           - os: windows-latest
@@ -70,7 +81,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
-    - uses: haskell/actions/setup@v2
+    - uses: haskell-actions/setup@v2
       id: setup-haskell-cabal
       name: Setup Haskell
       with:
@@ -103,28 +114,28 @@ jobs:
       run: |
         cabal test all
 
-    - if: matrix.ghc == '9.8.2'
+    - if: matrix.ghc == '9.12.3'
       name: Build 'cabal-minimal'
       run: |
         cd "summoner-cli/examples/cabal-minimal/"
         echo "packages: ." > cabal.project
         cabal build all
 
-    - if: matrix.ghc == '9.8.2'
+    - if: matrix.ghc == '9.12.3'
       name: Build 'cabal-full'
       run: |
         cd "summoner-cli/examples/cabal-full/"
         echo "packages: ." > cabal.project
         cabal build all
 
-    - if: matrix.ghc == '9.8.2'
+    - if: matrix.ghc == '9.12.3'
       name: Build 'stack-full'
       run: |
         cd "summoner-cli/examples/stack-full/"
         echo "packages: ." > cabal.project
         cabal build all
 
-    - if: matrix.ghc == '9.8.2'
+    - if: matrix.ghc == '9.12.3'
       name: Build 'full-batteries'
       run: |
         cd "summoner-cli/examples/full-batteries/"
@@ -136,13 +147,13 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        stack: ["3.1"]
-        ghc: ["9.6.6"]
+        stack: ["3.3"]
+        ghc: ["9.10.3"]
 
     steps:
     - uses: actions/checkout@v4
 
-    - uses: haskell/actions/setup@v2
+    - uses: haskell-actions/setup@v2
       name: Setup Haskell Stack
       with:
         ghc-version: ${{ matrix.ghc }}

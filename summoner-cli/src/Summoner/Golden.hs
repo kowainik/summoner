@@ -205,7 +205,7 @@ fullBatteries = Settings
     , settingsNoUpload       = True
     , settingsFiles          =
         [ File "extra.txt" "See full content of the file [here](@github)\n"
-        , Dir ".github" [File "CODEOWNERS" "*  @chshersh @vrom911\n"]
+        , Dir ".github" [File "CODEOWNERS" "*  @vrom911\n"]
         , File ".stylish-haskell.yaml" "This is stylish-haskell.yaml\n"
         , File "CONTRIBUTING.md" "This is contributing guide\n"
         ]

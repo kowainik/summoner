@@ -134,13 +134,18 @@ Features related to the structure and content of the generated projects.
   -Wincomplete-record-updates
   -Wredundant-constraints
   -Wnoncanonical-monad-instances
-  -fhide-source-paths           (GHC ⩾ 8.2)
-  -Wmissing-export-lists        (GHC ⩾ 8.4)
-  -Wpartial-fields              (GHC ⩾ 8.4)
-  -Wmissing-deriving-strategies (GHC ⩾ 8.8)
-  -fwrite-ide-info              (GHC ⩾ 8.8)
-  -hiedir=.hie                  (GHC ⩾ 8.8)
-  -Wunused-packages             (GHC ⩾ 8.10)
+  -fhide-source-paths              (GHC ⩾ 8.2)
+  -Wmissing-export-lists           (GHC ⩾ 8.4)
+  -Wpartial-fields                 (GHC ⩾ 8.4)
+  -Wmissing-deriving-strategies    (GHC ⩾ 8.8)
+  -fwrite-ide-info                 (GHC ⩾ 8.8)
+  -hiedir=.hie                     (GHC ⩾ 8.8)
+  -Wunused-packages                (GHC ⩾ 8.10)
+  -Wincomplete-record-selectors    (GHC ⩾ 9.10)
+  -Wdeprecated-type-abstractions   (GHC ⩾ 9.10)
+  -Wdata-kinds-tc                  (GHC ⩾ 9.10)
+  -Wdefaulted-exception-context    (GHC ⩾ 9.10)
+  -Wview-pattern-signatures        (GHC ⩾ 9.12)
   ```
 
   Besides, the following GHC options are added to the executable, tests and benchmark stanzas:
@@ -470,7 +475,7 @@ Here is the list of the options that can be configured to suit your needs. If op
 | `fullName`       | Text    | Full name.                                                                                                                                                           |
 | `email`          | Text    | E-mail address.                                                                                                                                                      |
 | `license`        | License | One of: `MIT`, `BSD2`, `BSD3`, `GPL-2`, `GPL-3`, `LGPL-2.1`, `LGPL-3`, `AGPL-3`, `Apache-2.0`, `MPL-2.0`, `None`.                                                    |
-| `ghcVersions`    | [GHC]   | `summoner` uses default `GHC-9.0.2`. However, additionally you can specify other versions. For each version `x.y.z` the `stack-x.y.z.yaml` will be created. Use `summon show ghc` to see all supported GHC versions. |
+| `ghcVersions`    | [GHC]   | `summoner` uses default `GHC-9.12.3`. However, additionally you can specify other versions. For each version `x.y.z` the `stack-x.y.z.yaml` will be created. Use `summon show ghc` to see all supported GHC versions. |
 | `github`         | Bool    | Turn on `GitHub` integration by default?                                                                                                                             |
 | `gitignore`      | [Text]  | List of files you want added to the default `.gitignore`. (Ignored if `github = false`)                                                                              |
 | `noUpload`       | Bool    | Do not upload to GitHub, but create all GitHub related files if specified (Ignored if `github = false`)                                                              |
@@ -710,7 +715,7 @@ This command creates minimal `cabal` or `stack` script file which allows you to 
 #!/usr/bin/env cabal
 {- cabal:
 build-depends:
-  , base ^>= 4.13.0.0
+  , base ^>= 4.21.1.0
 -}
 
 main :: IO ()
@@ -722,7 +727,7 @@ main = putStrLn "Hello, World!"
 ```haskell
 #!/usr/bin/env stack
 {- stack
-  --resolver lts-15.5
+  --resolver nightly-2026-01-04
   script
   --package base
 -}

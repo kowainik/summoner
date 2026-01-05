@@ -16,7 +16,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, macOS-latest, windows-latest]
-        cabal: ["3.10.3.0"]
+        cabal: ["3.12.1.0"]
         ghc:
           - "8.4.4"
           - "8.6.5"
@@ -25,11 +25,17 @@ jobs:
           - "9.0.2"
           - "9.2.8"
           - "9.4.8"
-          - "9.6.6"
-          - "9.8.2"
+          - "9.6.7"
+          - "9.8.4"
+          - "9.10.3"
+          - "9.12.3"
         exclude:
           - os: macOS-latest
-            ghc: 9.6.6
+            ghc: 9.10.3
+          - os: macOS-latest
+            ghc: 9.8.4
+          - os: macOS-latest
+            ghc: 9.6.7
           - os: macOS-latest
             ghc: 9.4.8
           - os: macOS-latest
@@ -45,7 +51,11 @@ jobs:
           - os: macOS-latest
             ghc: 8.4.4
           - os: windows-latest
-            ghc: 9.6.6
+            ghc: 9.10.3
+          - os: windows-latest
+            ghc: 9.8.4
+          - os: windows-latest
+            ghc: 9.6.7
           - os: windows-latest
             ghc: 9.4.8
           - os: windows-latest
@@ -64,7 +74,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
-    - uses: haskell/actions/setup@v2
+    - uses: haskell-actions/setup@v2
       id: setup-haskell-cabal
       name: Setup Haskell
       with:

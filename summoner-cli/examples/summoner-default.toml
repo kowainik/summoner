@@ -48,9 +48,9 @@ license = "MIT"
 # travis = true         # Travis CI
 # appveyor = true       # AppVeyor CI
 
-# List of additional GHC versions to support besides 9.8.2.
+# List of additional GHC versions to support besides 9.12.3.
 # Run the 'summon show ghc' command to see the list of all supported GHC versions.
-# ghcVersions = ["9.4.8", "9.6.6"]
+# ghcVersions = ["9.8.4", "9.10.3"]
 
 # List of default-extensions in the .cabal file
 # extensions = [ "ConstraintKinds"

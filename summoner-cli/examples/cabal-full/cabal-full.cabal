@@ -23,15 +23,17 @@ tested-with:         GHC == 8.4.4
                      GHC == 9.0.2
                      GHC == 9.2.8
                      GHC == 9.4.8
-                     GHC == 9.6.6
-                     GHC == 9.8.2
+                     GHC == 9.6.7
+                     GHC == 9.8.4
+                     GHC == 9.10.3
+                     GHC == 9.12.3
 
 source-repository head
   type:                git
   location:            https://github.com/kowainik/cabal-full.git
 
 common common-options
-  build-depends:       base >= 4.11.1.0 && < 4.20
+  build-depends:       base >= 4.11.1.0 && < 4.22
                      , relude
 
   mixins:              base hiding (Prelude)
@@ -67,6 +69,13 @@ common common-options
   if impl(ghc >= 9.8)
     ghc-options:       -Wterm-variable-capture
                        -Winconsistent-flags
+  if impl(ghc >= 9.10)
+    ghc-options:       -Wincomplete-record-selectors
+                       -Wdeprecated-type-abstractions
+                       -Wdata-kinds-tc
+                       -Wdefaulted-exception-context
+  if impl(ghc >= 9.12)
+    ghc-options:       -Wview-pattern-signatures
 
   default-language:    Haskell2010
   default-extensions:  DeriveGeneric

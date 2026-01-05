@@ -47,7 +47,7 @@ defaultGHC = maxBound
 
 -- | Default version of the Cabal.
 defaultCabal :: Text
-defaultCabal = "3.10.3.0"
+defaultCabal = "3.12.1.0"
 
 -- | Default version of the Cabal specified in the *.cabal* file.
 defaultCabalVersion :: Text
@@ -55,7 +55,7 @@ defaultCabalVersion = "3.0"
 
 -- | Default version of the Stack.
 defaultStack :: Text
-defaultStack = "3.1.1"
+defaultStack = "3.3.1"
 
 defaultLicenseName :: LicenseName
 defaultLicenseName = MIT
