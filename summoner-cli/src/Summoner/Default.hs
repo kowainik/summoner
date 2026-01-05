@@ -47,7 +47,7 @@ defaultGHC = maxBound
 
 -- | Default version of the Cabal.
 defaultCabal :: Text
-defaultCabal = "3.10.3.0"
+defaultCabal = "3.12.1.0"
 
 -- | Default version of the Cabal specified in the *.cabal* file.
 defaultCabalVersion :: Text
