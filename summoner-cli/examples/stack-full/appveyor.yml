@@ -10,7 +10,7 @@ branches:
 
 environment:
   STACK_ROOT: C:\sr
-  STACK_VERSION: 3.1.1
+  STACK_VERSION: 3.3.1
 
   # Workaround a gnarly bug https://github.com/haskell/cabal/issues/5386
   # See: https://www.fpcomplete.com/blog/2018/06/sed-a-debugging-story
