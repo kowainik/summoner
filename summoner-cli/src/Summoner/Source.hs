@@ -92,7 +92,7 @@ Doesn't fetch 'Url' if the 'ConnectMode' is 'Offline'.
 -}
 fetchSource :: ConnectMode -> Source -> IO (Maybe Text)
 fetchSource connectMode = \case
-    Local path -> catch (Just <$> readFileText path) (localError path)
+    Local path -> catch (Just . decodeUtf8 <$> readFileBS path) (localError path)
     Url url -> if isOffline connectMode
         then Nothing <$ infoMessage ("Ignoring fetching from URL in offline mode from source: " <> url)
         else fetchUrl url `catch` urlError url

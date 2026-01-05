@@ -34,10 +34,16 @@ jobs:
   - ghc: 9.4.8
     env: STACK_YAML="$TRAVIS_BUILD_DIR/stack-9.4.8.yaml"
 
-  - ghc: 9.6.6
-    env: STACK_YAML="$TRAVIS_BUILD_DIR/stack-9.6.6.yaml"
+  - ghc: 9.6.7
+    env: STACK_YAML="$TRAVIS_BUILD_DIR/stack-9.6.7.yaml"
 
-  - ghc: 9.8.2
+  - ghc: 9.8.4
+    env: STACK_YAML="$TRAVIS_BUILD_DIR/stack-9.8.4.yaml"
+
+  - ghc: 9.10.3
+    env: STACK_YAML="$TRAVIS_BUILD_DIR/stack-9.10.3.yaml"
+
+  - ghc: 9.12.3
     env: STACK_YAML="$TRAVIS_BUILD_DIR/stack.yaml"
 
   allow_failures:

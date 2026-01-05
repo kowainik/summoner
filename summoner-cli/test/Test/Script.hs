@@ -12,6 +12,6 @@ import Summoner.Template.Script (scriptFile)
 scriptSpec :: Spec
 scriptSpec = describe "script golden tests" $ do
     it "correctly creates cabal script" $
-        readFileText "examples/cabalScript.hs" `shouldReturn` scriptFile defaultGHC Cabal
+        decodeUtf8 <$> readFileBS "examples/cabalScript.hs" `shouldReturn` scriptFile defaultGHC Cabal
     it "correctly creates stack script" $
-        readFileText "examples/stackScript.hs" `shouldReturn` scriptFile defaultGHC Stack
+        decodeUtf8 <$> readFileBS "examples/stackScript.hs" `shouldReturn` scriptFile defaultGHC Stack

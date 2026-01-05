@@ -5,6 +5,21 @@ The changelog is available [on GitHub][2].
 
 ## Unreleased
 
+* Support GHC-9.12.3. Use GHC-9.12.3 as the default version for
+  generated projects with `nightly-2026-01-04` Stack resolver.
+* Support GHC-9.10.3 in generated projects with `lts-24.26`.
+* Update GHC-9.8 to GHC-9.8.4 with `lts-23.28`.
+* Update GHC-9.6 to GHC-9.6.7 with `lts-22.44`.
+* Drop support of GHC-9.6.6, GHC-9.8.2, GHC-9.10.1 in generated projects.
+* Update `base` upper bound to `< 4.22`.
+* Add new GHC warnings for GHC >= 9.10:
+  `-Wincomplete-record-selectors`, `-Wdeprecated-type-abstractions`,
+  `-Wdata-kinds-tc`, `-Wdefaulted-exception-context`.
+* Add new GHC warning for GHC >= 9.12: `-Wview-pattern-signatures`.
+* Fix encoding issues when reading source files by using `readFileBS`
+  with `decodeUtf8` instead of `readFileText`.
+* Update Stack resolver to `lts-24.26`. Update Stack version in CI to 3.3.
+
 * [#564](https://github.com/kowainik/summoner/issues/564):
   Upgrade `brick` to version `>=1.0`.
 * [#565](https://github.com/kowainik/summoner/issues/565):

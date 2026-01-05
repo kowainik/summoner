@@ -53,7 +53,7 @@ readTreeFs filePath = doesDirectoryExist filePath >>= \case
         dirs <- listDirectory filePath
         Dir (takeFileName filePath) <$> traverse (\dir -> readTreeFs $ filePath </> dir) dirs
     False -> do
-        content <- readFileText filePath
+        content <- decodeUtf8 <$> readFileBS filePath
         pure $ File (takeFileName filePath) content
 
 sortTree :: TreeFs -> TreeFs

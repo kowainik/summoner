@@ -156,6 +156,13 @@ cabalFile Settings{..} = File (toString settingsRepo ++ ".cabal") cabalFileConte
         , "  if impl(ghc >= 9.8)"
         , "    ghc-options:       -Wterm-variable-capture"
         , "                       -Winconsistent-flags"
+        , "  if impl(ghc >= 9.10)"
+        , "    ghc-options:       -Wincomplete-record-selectors"
+        , "                       -Wdeprecated-type-abstractions"
+        , "                       -Wdata-kinds-tc"
+        , "                       -Wdefaulted-exception-context"
+        , "  if impl(ghc >= 9.12)"
+        , "    ghc-options:       -Wview-pattern-signatures"
         ]
 
     libraryStanza :: Text

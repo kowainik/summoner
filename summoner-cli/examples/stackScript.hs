@@ -1,6 +1,6 @@
 #!/usr/bin/env stack
 {- stack
-  --resolver nightly-2024-10-11
+  --resolver nightly-2026-01-04
   script
   --package base
 -}
