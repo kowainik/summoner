@@ -33,7 +33,8 @@ tomlConfigSpec = describe "TOML configuration spec" $ do
     it "parses default configuration" $
         decode configCodec defaultConfigFileContent `shouldSatisfy` isRight
     it "default configuration is up-to-date" $
-        decodeUtf8 <$> readFileBS "examples/summoner-default.toml"
+        -- Normalize line endings (CRLF -> LF) for cross-platform compatibility
+        T.filter (/= '\r') . decodeUtf8 <$> readFileBS "examples/summoner-default.toml"
             `shouldReturn` defaultConfigFileContent
 
 tomlProp :: Spec

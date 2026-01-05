@@ -27,6 +27,8 @@ import Summoner.Golden (cabalFull, cabalMinimal, fullBatteries, stackFull)
 import Summoner.Template (createProjectTemplate)
 import Summoner.Tree (TreeFs (..))
 
+import qualified Data.Text as T
+
 
 goldenSpec :: Spec
 goldenSpec = describe "golden tests" $ do
@@ -53,7 +55,8 @@ readTreeFs filePath = doesDirectoryExist filePath >>= \case
         dirs <- listDirectory filePath
         Dir (takeFileName filePath) <$> traverse (\dir -> readTreeFs $ filePath </> dir) dirs
     False -> do
-        content <- decodeUtf8 <$> readFileBS filePath
+        -- Normalize line endings (CRLF -> LF) for cross-platform compatibility
+        content <- T.filter (/= '\r') . decodeUtf8 <$> readFileBS filePath
         pure $ File (takeFileName filePath) content
 
 sortTree :: TreeFs -> TreeFs
