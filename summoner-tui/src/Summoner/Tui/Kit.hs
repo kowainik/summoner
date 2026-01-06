@@ -68,6 +68,7 @@ module Summoner.Tui.Kit
        , actions
        , travis
        , appVeyor
+       , branch
        ) where
 
 import Lens.Micro (Lens', lens, (.~), (^.))
@@ -139,6 +140,7 @@ data GitHub = GitHub
     , gitHubActions  :: !Bool
     , gitHubTravis   :: !Bool
     , gitHubAppVeyor :: !Bool
+    , gitHubBranch   :: !Text
     } deriving stock (Show)
 
 makeFields ''SummonKit
@@ -189,6 +191,7 @@ summonKitToSettings sk = Settings
     , settingsStack          = sk ^. stack
     , settingsNoUpload       = sk ^. gitHub . noUpload
     , settingsFiles          = sk ^. extraFiles
+    , settingsBranchName     = if isGitHub then sk ^. gitHub . branch else "main"
     }
   where
     isGitHub :: Bool
@@ -255,6 +258,7 @@ configToSummonKit cRepo cConnectMode cConfigFile files ConfigP{..} = SummonKit
         , gitHubActions  = (cGitHub /= Nop) && (cGhActions /= Nop) && kitCabal
         , gitHubTravis   = (cGitHub /= Nop) && (cTravis /= Nop)
         , gitHubAppVeyor = decisionToBool cAppVey
+        , gitHubBranch   = cBranchName
         }
     , summonKitExtensions   = cExtensions
     , summonKitGhcOptions   = cGhcOptions

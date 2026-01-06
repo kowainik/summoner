@@ -399,6 +399,7 @@ newP = do
     stack <- stackP
     preludePack <- optional preludePackP
     preludeMod  <- optional preludeModP
+    branchName <- optional branchP
     with    <- optional withP
     without <- optional withoutP
 
@@ -408,6 +409,7 @@ newP = do
             , cCabal = cabal
             , cStack = stack
             , cNoUpload = Any $ noUpload || isOffline newOptsConnectMode
+            , cBranchName = Last branchName
             }
         , ..
         }
@@ -567,6 +569,13 @@ stackP :: Parser Decision
 stackP = flag Idk Yes $ mconcat
     [ long "stack"
     , help "Stack support for the project"
+    ]
+
+branchP :: Parser Text
+branchP = strOption $ mconcat
+    [ long "branch"
+    , metavar "BRANCH_NAME"
+    , help "Default branch name for the project (e.g. main, master)"
     ]
 
 ----------------------------------------------------------------------------

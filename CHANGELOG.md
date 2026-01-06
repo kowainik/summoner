@@ -3,6 +3,11 @@
 `summoner` uses [PVP Versioning][1].
 The changelog is available [on GitHub][2].
 
+# Unreleased
+
+* [#560](https://github.com/kowainik/summoner/issues/560):
+  Allow configurations of the branch name.
+
 ## 2.1.0.0 — Jan 6, 2026
 
 * Support GHC-9.12.3. Use GHC-9.12.3 as the default version for

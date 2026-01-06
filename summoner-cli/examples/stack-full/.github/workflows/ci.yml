@@ -4,7 +4,7 @@ on:
   pull_request:
     types: [synchronize, opened, reopened]
   push:
-    branches: [main]
+    branches: [master]
   schedule:
     # additionally run once per week (At 00:00 on Sunday) to maintain cache
     - cron: '0 0 * * 0'
@@ -31,7 +31,7 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
-      if: github.event.action == 'opened' || github.event.action == 'synchronize' || github.event.ref == 'refs/heads/main'
+      if: github.event.action == 'opened' || github.event.action == 'synchronize' || github.event.ref == 'refs/heads/master'
 
     - uses: haskell-actions/setup@v2
       name: Setup Haskell Stack

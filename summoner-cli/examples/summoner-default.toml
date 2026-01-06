@@ -85,3 +85,6 @@ license = "MIT"
 # [prelude]
 #     package = "relude"
 #     module  = "Relude"
+
+# Default branch name
+# branchName = "main"

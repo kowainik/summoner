@@ -111,6 +111,7 @@ cabalMinimal = Settings
     , settingsStack          = False
     , settingsNoUpload       = True
     , settingsFiles          = mempty
+    , settingsBranchName     = "main"
     }
 
 cabalFull :: Settings
@@ -142,6 +143,7 @@ cabalFull = Settings
     , settingsStack          = False
     , settingsNoUpload       = False
     , settingsFiles          = []
+    , settingsBranchName     = "main"
     }
 
 stackFull :: Settings
@@ -173,6 +175,7 @@ stackFull = Settings
     , settingsStack          = True
     , settingsNoUpload       = False
     , settingsFiles          = []
+    , settingsBranchName     = "master"
     }
 
 fullBatteries :: Settings
@@ -209,6 +212,7 @@ fullBatteries = Settings
         , File ".stylish-haskell.yaml" "This is stylish-haskell.yaml\n"
         , File "CONTRIBUTING.md" "This is contributing guide\n"
         ]
+    , settingsBranchName     = "main"
     }
   where
     mitLicense :: License

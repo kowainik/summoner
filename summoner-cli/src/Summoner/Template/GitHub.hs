@@ -124,7 +124,7 @@ gitHubFiles Settings{..} = concat
         , "  pull_request:"
         , "    types: [synchronize, opened, reopened]"
         , "  push:"
-        , "    branches: [main]"
+        , "    branches: [" <> settingsBranchName <> "]"
         , "  schedule:"
         , "    # additionally run once per week (At 00:00 on Sunday) to maintain cache"
         , "    - cron: '0 0 * * 0'"
@@ -208,7 +208,7 @@ gitHubFiles Settings{..} = concat
         [ ""
         , "    steps:"
         , "    - uses: actions/checkout" <> ghcActionsCheckoutVersion
-        , "      if: github.event.action == 'opened' || github.event.action == 'synchronize' || github.event.ref == 'refs/heads/main'"
+        , "      if: github.event.action == 'opened' || github.event.action == 'synchronize' || github.event.ref == 'refs/heads/" <> settingsBranchName <> "'"
         , ""
         , "    - uses: haskell-actions/setup" <> ghcActionsSetupHaskellVersion
         , "      name: Setup Haskell Stack"
@@ -438,10 +438,10 @@ gitHubFiles Settings{..} = concat
         , "# Do not build feature branch with open Pull Requests"
         , "skip_branch_with_pr: true"
         , ""
-        , "# build only main branch"
+        , "# build only " <> settingsBranchName <> " branch"
         , "branches:"
         , "  only:"
-        , "    - main"
+        , "    - " <> settingsBranchName
         , ""
         ]
 

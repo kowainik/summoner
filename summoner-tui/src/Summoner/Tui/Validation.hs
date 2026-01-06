@@ -98,6 +98,8 @@ data FormError
     | PreludePackageError
     -- | Prelude module name restrictions check. See 'moduleNameValid'.
     | PreludeModuleError
+    -- | Branch name must not be empty when GitHub is enabled.
+    | EmptyBranchName
 
 -- | Show 'FormError' to display later in TUI.
 showFormError :: FormError -> String
@@ -109,6 +111,7 @@ showFormError = \case
     LibOrExe     -> "Choose at least one: Library or Executable"
     PreludePackageError -> "Prelude package should only contain letters, numbers and hyphens"
     PreludeModuleError -> "Prelude module name could only contain dot-separated capitalized letter/numeral fragments. Ex: This.Is.Valid1"
+    EmptyBranchName -> "Branch name must not be empty when GitHub is enabled"
   where
     joinFields :: NonEmpty SummonForm -> String
     joinFields = intercalate ", " . mapMaybe showField . toList
@@ -123,6 +126,7 @@ showFormError = \case
         ProjectCat          -> Just "Category"
         CustomPreludeName   -> Just "Prelude name"
         CustomPreludeModule -> Just "Module"
+        GitHubBranch        -> Just "Branch"
         _nonMandatoryFields -> Nothing
 
 -- | Returns list of all invalid fields according to the error.
@@ -135,6 +139,7 @@ errorToInvalidFields = \case
     LibOrExe            -> Lib :| [Exe]
     PreludePackageError -> one CustomPreludeName
     PreludeModuleError  -> one CustomPreludeModule
+    EmptyBranchName     -> one GitHubBranch
 
 -- | Validates 'SummonKit' and returns list of all possible errors or success.
 validateKit :: [FilePath] -> SummonKit -> Validation (NonEmpty FormError) ()
@@ -146,6 +151,7 @@ validateKit dirs kit =
     *> validateLibOrExe
     *> validatePreludePackage
     *> validatePreludeModule
+    *> validateBranchName
   where
     liftValidation
         :: (e -> FormError)
@@ -223,6 +229,17 @@ validateKit dirs kit =
       where
         moduleName :: Text
         moduleName  = kit ^. projectMeta . preludeModule
+
+    validateBranchName :: Validation (NonEmpty FormError) ()
+    validateBranchName = failureIf
+        (isGitHubEnabled && T.null (T.strip branchName))
+        EmptyBranchName
+      where
+        isGitHubEnabled :: Bool
+        isGitHubEnabled = kit ^. gitHub . enabled
+
+        branchName :: Text
+        branchName = kit ^. gitHub . branch
 
 -- | Returns list of error messages according to all invalid fields.
 formErrorMessages :: [FilePath] -> KitForm e -> [String]

@@ -187,6 +187,9 @@ defaultConfigFileContent = unlines
     , "# [prelude]"
     , "#     package = " <> quote "relude"
     , "#     module  = " <> quote "Relude"
+    , ""
+    , "# Default branch name"
+    , "# branchName = " <> quote "main"
     ]
   where
     licenseName :: Text

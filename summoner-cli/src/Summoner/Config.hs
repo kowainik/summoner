@@ -84,6 +84,7 @@ data ConfigP (p :: Phase) = ConfigP
     , cGitignore  :: ![Text]
     , cNoUpload   :: !Any  -- ^ Do not upload to the GitHub (even if enabled)
     , cFiles      :: !(Map FilePath Source)  -- ^ Custom files
+    , cBranchName :: !(p :- Text)
     } deriving stock (Generic)
 
 deriving stock instance
@@ -136,6 +137,7 @@ defaultConfig = ConfigP
     , cGitignore    = []
     , cNoUpload     = Any False
     , cFiles        = mempty
+    , cBranchName   = Last (Just "main")
     }
 
 -- | Identifies how to read 'Config' data from the @.toml@ file.
@@ -163,6 +165,7 @@ configCodec = ConfigP
     <*> textArr             "gitignore"     .= cGitignore
     <*> Toml.any            "noUpload"      .= cNoUpload
     <*> filesCodec          "files"         .= cFiles
+    <*> Toml.last Toml.text "branchName"    .= cBranchName
   where
     _GhcVer :: TomlBiMap GhcVer Toml.AnyValue
     _GhcVer = Toml._TextBy showGhcVer (maybeToRight "Wrong GHC version" . parseGhcVer)
@@ -206,10 +209,12 @@ guessConfigFromGit = do
    gitOwner <- (Just <$> "git" $| ["config", "user.login"]) $? pure Nothing
    gitName  <- (Just <$> "git" $| ["config", "user.name"])  $? pure Nothing
    gitEmail <- (Just <$> "git" $| ["config", "user.email"]) $? pure Nothing
+   gitBranch <- (Just <$> "git" $| ["config", "init.defaultBranch"]) $? pure Nothing
    pure $ defaultConfig
        { cOwner = Last gitOwner
        , cFullName = Last gitName
        , cEmail = Last gitEmail
+       , cBranchName = Last gitBranch
        }
 
 -- | Make sure that all the required configurations options were specified.
@@ -237,6 +242,7 @@ finalise ConfigP{..} = ConfigP
     <*> pure cGitignore
     <*> pure cNoUpload
     <*> pure cFiles
+    <*> fin "branchName" cBranchName
   where
     fin :: Text -> Last a -> Validation [Text] a
     fin name = maybe (Failure ["Missing field: " <> name]) Success . getLast
