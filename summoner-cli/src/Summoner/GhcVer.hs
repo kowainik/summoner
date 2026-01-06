@@ -1,6 +1,6 @@
 {- |
 Module                  : Summoner.GhcVer
-Copyright               : (c) 2017-2024 Kowainik
+Copyright               : (c) 2017-2026 Kowainik
 SPDX-License-Identifier : MPL-2.0
 Maintainer              : Kowainik <xrom.xkov@gmail.com>
 Stability               : Stable
