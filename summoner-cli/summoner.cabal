@@ -1,4 +1,4 @@
-cabal-version:       3.0
+cabal-version:       3.4
 name:                summoner
 version:             2.1.0.0
 synopsis:            Tool for scaffolding fully configured batteries-included production-level Haskell projects.
@@ -190,11 +190,10 @@ executable summon
   build-depends:       summoner
 
 executable gg
-  import:              exe-options
+  import:              common-options, exe-options
   hs-source-dirs:      golden
   main-is:             Main.hs
-  build-depends:       base
-                     , summoner
+  build-depends:       summoner
 
 
 test-suite summoner-test

@@ -1,4 +1,4 @@
-cabal-version:       3.0
+cabal-version:       3.4
 name:                summoner-tui
 version:             2.1.0.0
 synopsis:            Tool for scaffolding fully configured batteries-included production-level Haskell projects using TUI.
