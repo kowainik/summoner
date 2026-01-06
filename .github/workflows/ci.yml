@@ -6,8 +6,8 @@ on:
   push:
     branches: [main]
   schedule:
-    # additionally run once per week (At 00:00 on Sunday) to maintain cache
-    - cron: '0 0 * * 0'
+    # additionally run once per month (At 00:00 on the 1st) to maintain cache
+    - cron: '0 0 1 * *'
   workflow_dispatch:
 
 jobs:
@@ -60,8 +60,6 @@ jobs:
             ghc: 9.8.4
           - os: windows-latest
             ghc: 9.6.7
-          - os: windows-latest
-            ghc: 9.6.6
           - os: windows-latest
             ghc: 9.4.8
           - os: windows-latest
