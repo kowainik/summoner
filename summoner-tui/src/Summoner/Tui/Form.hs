@@ -71,6 +71,7 @@ data SummonForm
     | GitHubActions
     | GitHubTravis
     | GitHubAppVeyor
+    | GitHubBranch
     deriving stock (Show, Eq, Ord, Enum, Bounded)
 
 -- | Alias for type of the @summoner@ form.
@@ -127,6 +128,7 @@ mkForm sk = setFormConcat arrangeColumns $ newForm
         , 1 |> activeCheckboxField (gitHub . actions)  isActive GitHubActions  "GitHub Actions"
         , 1 |> activeCheckboxField (gitHub . travis)   isActive GitHubTravis   "Travis"
         , 2 |> activeCheckboxField (gitHub . appVeyor) isActive GitHubAppVeyor "AppVeyor"
+        , 2 |> label "Branch " @@= editTextField (gitHub . branch) GitHubBranch (Just 1)
         ]
     ) sk
   where

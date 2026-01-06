@@ -97,6 +97,7 @@ generateProjectInteractive connectMode projectName ConfigP{..} = do
         (settingsGitHub && not settingsNoUpload)
         (YesNoPrompt "private repository" "Create as a private repository (Requires a GitHub private repo plan)?")
         cPrivate
+    settingsBranchName <- if settingsGitHub then (queryDef "Default branch name: " cBranchName) else pure "main"
     settingsGhActions <- decisionIf settingsGitHub (mkDefaultYesNoPrompt "GitHub Actions CI integration") cGhActions
     settingsTravis    <- decisionIf settingsGitHub (mkDefaultYesNoPrompt "Travis CI integration") cTravis
     settingsAppVeyor  <- decisionIf settingsGitHub (mkDefaultYesNoPrompt "AppVeyor CI integration") cAppVey
@@ -253,6 +254,7 @@ generateProjectNonInteractive connectMode projectName ConfigP{..} = do
     let settingsGitignore  = cGitignore
     let settingsTestedVersions = sortNub $ defaultGHC : cGhcVer
     settingsFiles <- fetchSources connectMode cFiles
+    let settingsBranchName = cBranchName
 
     -- Create project data from all variables in scope
     -- and make a project from it.
@@ -285,7 +287,7 @@ createProjectDirectory settings@Settings{..} = do
 doGithubCommands :: Settings -> IO ()
 doGithubCommands Settings{..} = do
     -- Create git repostitory and do a commit.
-    "git" ["init", "--initial-branch=main"]
+    "git" ["init", "--initial-branch=" <> settingsBranchName]
     "git" ["add", "."]
     "git" ["commit", "-m", "Create the project"]
     unless settingsNoUpload $ do
@@ -296,7 +298,7 @@ doGithubCommands Settings{..} = do
                 isHubSuccess <- runHub repo
                 if isHubSuccess
                 then do
-                    "git" ["push", "-u", "origin", "main"]
+                    "git" ["push", "-u", "origin", settingsBranchName]
                     "git" ["remote", "set-head", "origin", "-a"]
                     successMessage "Project created:"
                     infoMessage $ "    https://github.com/" <> repo

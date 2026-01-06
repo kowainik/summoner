@@ -52,6 +52,7 @@ data Settings = Settings
     , settingsStack          :: !Bool
     , settingsNoUpload       :: !Bool  -- ^ do not upload to GitHub
     , settingsFiles          :: ![TreeFs]  -- ^ Tree nodes of extra files
+    , settingsBranchName     :: !Text  -- ^ default branch name
     } deriving stock (Show)
 
 -- | Enum for supported build tools.
