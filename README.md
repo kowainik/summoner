@@ -235,7 +235,7 @@ project-name/
 To start using Summoner make sure that you have the following tools installed on your machine:
 
 * [`git`](https://git-scm.com) ⩾ 2.28 – to initialize the GitHub repo.
-* [`hub`](https://github.com/github/hub) – to upload the project to GitHub.
+* [`gh`](https://github.com/cli/cli) – to upload the project to GitHub.
 * [`curl`](https://curl.haxx.se) – to download licenses.
 
 We also have minimal version requirements for build tools:
@@ -746,28 +746,25 @@ These commands display the list of supported GHC versions, or Licenses. Also, wh
 
 [[Back to the Table of Contents] ↑](#structure)
 
-> I want to use HTTPS remote for the created GitHub project, but it creates SSH one. How should I fix this?
+> I want to use SSH/HTTPS remote for the created GitHub project, but it creates the repository with the wrong protocol. How should I fix this?
 
-We are using `hub` tool to create the projects at GitHub. It uses SSH so that you would get the remote links in the following format:
+We use the official Github CLI tool (`gh`) to create the projects on GitHub.  `gh` has its own configuration for
+choosing HTTPS/SSH protocols. There are two options for configuring this:
 
-```
-git@github.com:user/repo.git
-```
-
-We can not change or configure this behaviour, but there are several workarounds in case you _need_ to use HTTPS link for the remote.
-
-1. Change the remote of the repository after its creation:
-   ```
-   git remote set-url origin https://github.com/user/repo.git
-   ```
-2. Change `hub` configurations globally. Simply run the following command:
-   ```shell
-   git config --global hub.protocol https
-   ```
-3. Alternatively, change `hub` configurations for a single session:
-   ```
-   export HUB_PROTOCOL="https"
-   ```
+- You can configure it permanently for the `gh` tool:
+  ```shell
+  # Set HTTPS as the default configuration
+  gh config set git_protocol https
+  # Set SSH as the default configuration
+  gh config set git_protocol ssh
+  ```
+- You can adjusting the remote configuration after the repository is created locally with
+  ```shell
+  # Set HTTPS as the remote URL
+  git remote set-url origin https://github.com/<OWNER>/<REPO>.git
+  # Set SSH as the remote URL
+  git remote set-url origin git@github.com:<OWNER>/<REPO>.git
+  ```
 
 <hr>
 
