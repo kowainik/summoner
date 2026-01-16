@@ -298,7 +298,6 @@ doGithubCommands Settings{..} = do
                 isGHSuccess <- runGH repo
                 if isGHSuccess
                 then do
-                    "git" ["push", "-u", "origin", settingsBranchName]
                     "git" ["remote", "set-head", "origin", "-a"]
                     successMessage "Project created:"
                     infoMessage $ "    https://github.com/" <> repo
@@ -313,9 +312,16 @@ doGithubCommands Settings{..} = do
     -- Create repo on GitHub and return 'True' in case of sucsess
     runGH :: Text -> IO Bool
     runGH repo =
-        True <$ "gh" (["repo", "create", "-d", settingsDescription, repo]
-             ++ ["--private" | settingsPrivate])  -- Create private repository if asked so
-             $? pure False
+        True <$ "gh" (["repo","create"
+            , "-d", settingsDescription
+            , repo
+            , "--source=."
+            , "--remote=origin"
+            , "--push"
+            ]
+            ++ ["--private" | settingsPrivate])
+        $? pure False
+
 
     ghHelp :: Text -> IO ()
     ghHelp repo = do

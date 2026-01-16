@@ -7,6 +7,8 @@ The changelog is available [on GitHub][2].
 
 * [#560](https://github.com/kowainik/summoner/issues/560):
   Allow configurations of the branch name.
+* [#578](https://github.com/kowainik/summoner/pull/578):
+  Replace usage of hub with `gh`.
 * Roll back to GHC-9.12.2 as 9.12.3 has a major regression.
 
 ## 2.1.0.0 — Jan 6, 2026
