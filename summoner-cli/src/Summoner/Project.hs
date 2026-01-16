@@ -92,10 +92,10 @@ generateProjectInteractive connectMode projectName ConfigP{..} = do
     let settingsNoUpload = getAny cNoUpload
     when settingsNoUpload $ do
         infoMessage "'No upload' option is selected. The project won't be uploaded to GitHub."
-        infoMessage "Use 'hub' and 'git' commands manually in order to upload the project to GitHub"
+        infoMessage "Use 'gh' and 'git' commands manually in order to upload the project to GitHub"
     settingsPrivate  <- decisionIf
         (settingsGitHub && not settingsNoUpload)
-        (YesNoPrompt "private repository" "Create as a private repository (Requires a GitHub private repo plan)?")
+        (YesNoPrompt "private repository" "Create as a private repository?")
         cPrivate
     settingsBranchName <- if settingsGitHub then (queryDef "Default branch name: " cBranchName) else pure "main"
     settingsGhActions <- decisionIf settingsGitHub (mkDefaultYesNoPrompt "GitHub Actions CI integration") cGhActions
@@ -292,32 +292,38 @@ doGithubCommands Settings{..} = do
     "git" ["commit", "-m", "Create the project"]
     unless settingsNoUpload $ do
         let repo = settingsOwner <> "/" <> settingsRepo
-        hubInstalled <- findExecutable "hub"
-        case hubInstalled of
+        ghInstalled <- findExecutable "gh"
+        case ghInstalled of
             Just _ -> do
-                isHubSuccess <- runHub repo
-                if isHubSuccess
+                isGHSuccess <- runGH repo
+                if isGHSuccess
                 then do
-                    "git" ["push", "-u", "origin", settingsBranchName]
                     "git" ["remote", "set-head", "origin", "-a"]
                     successMessage "Project created:"
                     infoMessage $ "    https://github.com/" <> repo
                 else do
-                    warningMessage "Error running 'hub'. Possible reason: incorrect password."
-                    hubHelp repo
+                    warningMessage "Error running 'gh'. Possible reason: incorrect password."
+                    ghHelp repo
             Nothing -> do
-                warningMessage "'hub' is not found at this machine. Cannot create the GitHub repository."
-                warningMessage "Please install 'hub' for the proper work of Summoner."
-                hubHelp repo
+                warningMessage "'gh' is not found at this machine. Cannot create the GitHub repository."
+                warningMessage "Please install 'gh' for the proper work of Summoner."
+                ghHelp repo
   where
     -- Create repo on GitHub and return 'True' in case of sucsess
-    runHub :: Text -> IO Bool
-    runHub repo =
-        True <$ "hub" (["create", "-d", settingsDescription, repo]
-             ++ ["-p" | settingsPrivate])  -- Create private repository if asked so
-             $? pure False
+    runGH :: Text -> IO Bool
+    runGH repo =
+        True <$ "gh" (["repo","create"
+            , "-d", settingsDescription
+            , repo
+            , "--source=."
+            , "--remote=origin"
+            , "--push"
+            ]
+            ++ ["--private" | settingsPrivate])
+        $? pure False
 
-    hubHelp :: Text -> IO ()
-    hubHelp repo = do
+
+    ghHelp :: Text -> IO ()
+    ghHelp repo = do
         infoMessage "To finish the process manually you can run the following command:"
-        putTextLn $ "    $ hub create -d '" <> settingsDescription <> "' " <> repo <> memptyIfFalse settingsPrivate " -p"
+        putTextLn $ "    $ gh repo create -d '" <> settingsDescription <> "' " <> repo <> memptyIfFalse settingsPrivate " --private"
