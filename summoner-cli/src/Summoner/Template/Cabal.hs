@@ -209,7 +209,7 @@ cabalFile Settings{..} = File (toString settingsRepo ++ ".cabal") cabalFileConte
         <> buildDepends
         <> rtsOptions
 
-    -- | @build-depends@ for the repo, only if the library is on.
+    -- @build-depends@ for the repo, only if the library is on.
     buildDepends :: [Text]
     buildDepends = memptyIfFalse settingsIsLib
         ["  build-depends:       " <> settingsRepo]

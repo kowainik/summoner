@@ -12,10 +12,10 @@ copyright:           2022 Kowainik
 build-type:          Simple
 extra-doc-files:     README.md
                      CHANGELOG.md
-tested-with:         GHC == 9.12.3
+tested-with:         GHC == 9.12.2
 
 common common-options
-  build-depends:       base ^>= 4.21.1.0
+  build-depends:       base ^>= 4.21.0.0
 
   ghc-options:         -Wall
                        -Wcompat
