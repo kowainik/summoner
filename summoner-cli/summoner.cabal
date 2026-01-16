@@ -1,6 +1,6 @@
 cabal-version:       3.4
 name:                summoner
-version:             2.1.1.0
+version:             2.2.0.0
 synopsis:            Tool for scaffolding fully configured batteries-included production-level Haskell projects.
 description:         Tool for scaffolding fully configured batteries-included production-level Haskell projects.
                      See [README.md](https://github.com/kowainik/summoner#-summoner) for details.
