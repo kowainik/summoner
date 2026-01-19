@@ -24,9 +24,9 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - os: ubuntu-22.04
+          - os: ubuntu-latest
             platform: linux-x86_64
-          - os: macos-13
+          - os: macos-latest
             platform: macos-x86_64
 
     env:
@@ -61,6 +61,7 @@ jobs:
         run: |
           set -euo pipefail
           version="${RELEASE_TAG#v}"
+          version="${version//\//-}"
           platform="${{ matrix.platform }}"
           outdir="release/${platform}"
           mkdir -p "${outdir}"
@@ -91,7 +92,9 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          echo "version=${RELEASE_TAG#v}" >> "${GITHUB_OUTPUT}"
+          version="${RELEASE_TAG#v}"
+          version="${version//\//-}"
+          echo "version=${version}" >> "${GITHUB_OUTPUT}"
 
       - uses: actions/download-artifact@v4
         with:
