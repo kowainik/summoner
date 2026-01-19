@@ -4,6 +4,8 @@ on:
   push:
     tags:
       - "v*"
+  pull_request:
+    types: [opened, synchronize, reopened]
   workflow_dispatch:
     inputs:
       tag:
@@ -79,6 +81,7 @@ jobs:
     name: Publish release
     runs-on: ubuntu-22.04
     needs: build
+    if: github.event_name != 'pull_request'
     env:
       RELEASE_TAG: ${{ inputs.tag || github.ref_name }}
 
