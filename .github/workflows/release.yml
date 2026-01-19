@@ -1,0 +1,103 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Tag to release (e.g. v2.0.1)"
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build (${{ matrix.platform }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-22.04
+            platform: linux-x86_64
+          - os: macos-13
+            platform: macos-x86_64
+
+    env:
+      RELEASE_TAG: ${{ inputs.tag || github.ref_name }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: haskell-actions/setup@v2
+        id: setup-haskell
+        name: Setup Haskell
+        with:
+          ghc-version: "9.12.2"
+          cabal-version: "3.14"
+
+      - uses: actions/cache@v4
+        name: Cache ~/.cabal/store
+        with:
+          path: ${{ steps.setup-haskell.outputs.cabal-store }}
+          key: ${{ runner.os }}-ghc-9.12.2-${{ hashFiles('cabal.project', 'summoner-cli/summoner.cabal', 'summoner-tui/summoner-tui.cabal') }}
+
+      - name: Update package index
+        run: cabal update
+
+      - name: Build executables
+        run: |
+          cabal build summoner:exe:summon summoner-tui:exe:summon-tui
+
+      - name: Package release archive
+        id: package
+        shell: bash
+        run: |
+          set -euo pipefail
+          version="${RELEASE_TAG#v}"
+          platform="${{ matrix.platform }}"
+          outdir="release/${platform}"
+          mkdir -p "${outdir}"
+          echo "version=${version}" >> "${GITHUB_OUTPUT}"
+          install -m 0755 "$(cabal list-bin summoner:exe:summon)" "${outdir}/summon"
+          install -m 0755 "$(cabal list-bin summoner-tui:exe:summon-tui)" "${outdir}/summon-tui"
+          tar -czf "summoner-${version}-${platform}.tar.gz" \
+            -C "${outdir}" summon summon-tui \
+            -C "${GITHUB_WORKSPACE}" LICENSE README.md
+
+      - uses: actions/upload-artifact@v4
+        name: Upload artifacts
+        with:
+          name: release-${{ matrix.platform }}
+          path: summoner-${{ steps.package.outputs.version }}-${{ matrix.platform }}.tar.gz
+
+  release:
+    name: Publish release
+    runs-on: ubuntu-22.04
+    needs: build
+    env:
+      RELEASE_TAG: ${{ inputs.tag || github.ref_name }}
+
+    steps:
+      - name: Prepare release metadata
+        id: vars
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "version=${RELEASE_TAG#v}" >> "${GITHUB_OUTPUT}"
+
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: release-*
+          merge-multiple: true
+
+      - uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ env.RELEASE_TAG }}
+          generate_release_notes: true
+          files: |
+            summoner-${{ steps.vars.outputs.version }}-*.tar.gz
