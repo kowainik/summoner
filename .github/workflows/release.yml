@@ -53,7 +53,7 @@ jobs:
         run: |
           cabal build summoner:exe:summon summoner-tui:exe:summon-tui
 
-      - name: Package release archive
+      - name: Package release binaries
         id: package
         shell: bash
         run: |
@@ -61,20 +61,19 @@ jobs:
           version="${RELEASE_TAG#v}"
           version="${version//\//-}"
           platform="${{ matrix.platform }}"
-          outdir="release/${platform}"
+          outdir="dist"
           mkdir -p "${outdir}"
           echo "version=${version}" >> "${GITHUB_OUTPUT}"
-          install -m 0755 "$(cabal list-bin summoner:exe:summon)" "${outdir}/summon"
-          install -m 0755 "$(cabal list-bin summoner-tui:exe:summon-tui)" "${outdir}/summon-tui"
-          tar -czf "summoner-${version}-${platform}.tar.gz" \
-            -C "${outdir}" summon summon-tui \
-            -C "${GITHUB_WORKSPACE}" LICENSE README.md
+          install -m 0755 "$(cabal list-bin summoner:exe:summon)" "${outdir}/summoner-${version}-${platform}"
+          install -m 0755 "$(cabal list-bin summoner-tui:exe:summon-tui)" "${outdir}/summoner-tui-${version}-${platform}"
 
       - uses: actions/upload-artifact@v4
         name: Upload artifacts
         with:
           name: release-${{ matrix.platform }}
-          path: summoner-${{ steps.package.outputs.version }}-${{ matrix.platform }}.tar.gz
+          path: |
+            dist/summoner-${{ steps.package.outputs.version }}-${{ matrix.platform }}
+            dist/summoner-tui-${{ steps.package.outputs.version }}-${{ matrix.platform }}
 
   release:
     name: Publish release
@@ -104,4 +103,5 @@ jobs:
           tag_name: ${{ env.RELEASE_TAG }}
           generate_release_notes: true
           files: |
-            summoner-${{ steps.vars.outputs.version }}-*.tar.gz
+            summoner-${{ steps.vars.outputs.version }}-*
+            summoner-tui-${{ steps.vars.outputs.version }}-*
