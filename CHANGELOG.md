@@ -3,6 +3,11 @@
 `summoner` uses [PVP Versioning][1].
 The changelog is available [on GitHub][2].
 
+# Unreleased
+
+* [#589](https://github.com/kowainik/summoner/issues/589):
+  Improve error message when GitHub API rate limit is exceeded during license fetching.
+
 # 2.2.0.0 – Jan 16, 2026
 
 * [#560](https://github.com/kowainik/summoner/issues/560):
