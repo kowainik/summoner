@@ -22,7 +22,8 @@ module Summoner.License
     , showLicenseWithDesc
     ) where
 
-import Colourista (errorMessage)
+import Colourista (errorMessage, infoMessage, warningMessage)
+import Control.Exception (try)
 import Data.Aeson.Micro (FromJSON (..), decodeStrict, withObject, (.:))
 import Shellmet (($|))
 
@@ -106,7 +107,7 @@ fetchLicense :: LicenseName -> IO License
 fetchLicense NONE = pure $ License $ licenseShortDesc NONE
 fetchLicense name = do
     let licenseLink = "https://api.github.com/licenses/" <> githubLicenseQueryNames name
-    licenseJson <- "curl" $|
+    curlResult <- try @SomeException $ "curl" $|
         [ licenseLink
         , "-H"
         , "Accept: application/vnd.github.drax-preview+json"
@@ -114,10 +115,21 @@ fetchLicense name = do
         , "--fail"
         ]
 
-    whenNothing (decodeStrict @License $ encodeUtf8 licenseJson) $ do
-        errorMessage $ "Error downloading license: " <> show name
-        putTextLn $ "Fetched content:\n" <> licenseJson
-        exitFailure
+    case curlResult of
+        Left _ -> do
+            errorMessage $ "Error fetching license: " <> show name
+            warningMessage "The GitHub API rate limit may have been exceeded."
+            warningMessage "This can happen when using a VPN or a shared network."
+            infoMessage "Possible workarounds:"
+            infoMessage "  * Wait a few minutes and try again"
+            infoMessage "  * Try from a different network (e.g. disable VPN)"
+            infoMessage "  * Choose the 'NONE' license and add the LICENSE file manually"
+            exitFailure
+        Right licenseJson ->
+            whenNothing (decodeStrict @License $ encodeUtf8 licenseJson) $ do
+                errorMessage $ "Error downloading license: " <> show name
+                putTextLn $ "Fetched content:\n" <> licenseJson
+                exitFailure
 
 {- | Fetches the license by given name and customises user information where
 applicable.
